@@ -5,8 +5,17 @@ Two mechanical systems live here:
 1. **Vol Desk** — a GEX / dealer-positioning swing system for single-stock
    options. Spec: [`reports/vol_desk_system.md`](reports/vol_desk_system.md);
    rules engine: `vol_desk/` (entry filters, 5-min open trigger, four-stop
-   exit framework, T1/T2 logic, regime gates); tests:
-   `python -m pytest tests/`.
+   exit framework, T1/T2 logic, regime gates, alias-tolerant screen loader);
+   tests: `python -m pytest tests/`. The evening workflow is one command:
+
+   ```
+   python scripts/evening_scan.py <gamma_screen.csv> \
+       --spy 0.8 --qqq 0.3 --bulls 420 --bears 120 --vix-delta -0.4
+   ```
+
+   which writes the trade sheet (CONFIRMED / PENDING / B-candidates /
+   blocked + gate read) to `reports/`. Try it on the synthetic
+   `data/gamma_screen_example.csv`.
 2. **NQ/ES trend-vs-chop regime filter** — an intraday regime read for
    futures day trading, documented below.
 

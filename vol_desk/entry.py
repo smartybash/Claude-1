@@ -43,8 +43,12 @@ DB_CHANGE_MIN = 0.50          # delta balance change vs prior session
 DB_CHANGE_MIN_DEEP = 0.30     # grade-11 DEEP exception
 COTMP_CUSHION_MIN = 0.02      # spot >= 2.0% above center of put mass
 COTMP_CUSHION_EXCEPTION = 0.01  # grade-11 DEEP / high-db_change exception
-HIGH_DB_CHANGE = 1.00         # what "high db_change" means for the cushion
-                              # exception (adjustable; well above the 0.50 bar)
+HIGH_DB_CHANGE = 1.00         # "high db_change" = a full-point swing: delta
+                              # balance runs -1..+1 and pegs at 1.00, so a
+                              # change >= 1.00 means positioning crossed the
+                              # whole neutral zone in one session — a flip,
+                              # not drift (2x the entry bar, the standard
+                              # aggressive-repositioning read)
 RR_MIN = 2.0                  # minimum upside:downside to qualify
 PENDING_BAND = 0.005          # within 0.5% below pTrans -> PENDING
 

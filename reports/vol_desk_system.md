@@ -128,9 +128,33 @@ That's the core of the system in two data points.
 - All thresholds are named module constants (`entry.py`, `exits.py`,
   `regime.py`) so recalibration is a one-line change with the tests as a
   safety net.
-- "High db_change" for the 1.0% cushion exception is codified as
-  `HIGH_DB_CHANGE = 1.00` — the spec says "high" without a number; adjust the
-  constant if the desk uses a different bar.
+- "High db_change" for the 1.0% cushion exception is `HIGH_DB_CHANGE = 1.00`,
+  the standard sign-flip convention: delta balance runs −1 to +1, so a change
+  ≥ 1.00 means dealer positioning crossed the entire neutral zone in a single
+  session — a flip, not drift. It is 2× the 0.50 entry bar, mirroring how the
+  DEEP exception (0.30) is roughly half of it.
 - The stall stop (stop 4) fires before the day-7 time stop on any position
   flat for three sessions — by design, per "regardless of day count."
 - Run the suite: `python -m pytest tests/`.
+
+## Running the evening workflow
+
+`vol_desk/loader.py` reads the gamma screen CSV with alias-tolerant headers
+(`pTrans` / `p-trans` / `Pos Trans`, `+GEX` / `plusGEX`, `DB Chg`,
+`11 DEEP` in the grade cell, y/yes/true/1 flags…) so platform exports load
+as-is; `db_change` is computed from prior-session delta when the column is
+absent. Then:
+
+```
+python scripts/evening_scan.py <gamma_screen.csv> \
+    --spy 0.8 --qqq 0.3 --bulls 420 --bears 120 --vix-delta -0.4 [--hyg-bear]
+```
+
+writes the evening trade sheet to `reports/evening_scan_<date>.md`: the
+gate read with per-track approvals, the CONFIRMED list sorted by R/R
+(greenlit for the open trigger), the PENDING watchlist, B Continuation
+candidates, and a blocked summary (`-v` lists each blocked name's failed
+filters). Percentages on the CLI are in percent; omit the regime flags and
+the scan still runs with gates marked unchecked, no approvals.
+`data/gamma_screen_example.csv` is a synthetic 11-name screen that
+exercises every filter branch.
