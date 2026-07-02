@@ -1,3 +1,15 @@
+# Trading Systems
+
+Two mechanical systems live here:
+
+1. **Vol Desk** — a GEX / dealer-positioning swing system for single-stock
+   options. Spec: [`reports/vol_desk_system.md`](reports/vol_desk_system.md);
+   rules engine: `vol_desk/` (entry filters, 5-min open trigger, four-stop
+   exit framework, T1/T2 logic, regime gates); tests:
+   `python -m pytest tests/`.
+2. **NQ/ES trend-vs-chop regime filter** — an intraday regime read for
+   futures day trading, documented below.
+
 # NQ/ES Trend-vs-Chop Regime Filter
 
 A mechanical intraday regime filter for NQ/ES day trading, built and validated on
