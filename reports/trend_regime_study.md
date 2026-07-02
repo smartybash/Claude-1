@@ -151,3 +151,68 @@ ratio) as a ±8 nudge is included in `read_1100()`.
 5. Candidate refinements worth testing, in order: 15:00 re-read for late-day trend days
    missed at 11:00; VWAP-side persistence as a fourth input; event-day exclusions
    (FOMC/CPI) which are likely a separate regime class.
+
+## 8. Backtest: from regime label to trade rules (v2)
+
+Goal was a 5-year backtest; that is not possible with current data access —
+FMP intraday endpoints are plan-gated and IBKR history is capped at 1,000 bars
+(~7.5 months of hourly). Everything below therefore uses all available intraday
+history: pooled QQQ+SPY hourly sessions (304 usable), train/test split at the
+midpoint, hourly-bar fills with conservative stop-first assumptions, and a fat
+0.02×ATR round-trip cost. Scripts: `backtest_trend.py`, `backtest_trend2.py`,
+`backtest_conditioning.py`.
+
+### What did NOT work (and is worth knowing)
+
+- **Chasing the TREND call.** Market entry at 11:00 on R ≥ 0.55 + pinned close,
+  any stop, hold to close: ≈ breakeven after costs (best cell +0.01 ATR/trade
+  full-sample). The day label is right — but by the time the range has expanded
+  past 0.55×ATR, the impulse largely printed before your entry.
+- **Deep pullback entries.** Limit orders at the opening-range edge lose in
+  every configuration (−0.09 to −0.24 ATR/trade). A full retrace to the OR edge
+  after a trend signal is adverse selection: the failures come back, the
+  winners don't. Shallow pullback limits (0.15 ATR) also filter out winners.
+- **Adding an ER condition to the entry.** Cuts the edge roughly in half.
+
+### What DID work: enter before the label confirms
+
+Bucketing all sessions by first-90-min range, running the identical
+continuation template (11:00 market entry in the direction of the pinned close,
+0.30×ATR stop, exit MOC):
+
+| First-90-min range | close at extreme | n | avg PnL (ATR) | halves |
+|---|---|---|---|---|
+| < 0.35×ATR (chop veto) | any | 44 | −0.06 | neg/neg |
+| **0.35–0.55×ATR** | **yes (≥0.75 / ≤0.25)** | **54** | **+0.094** | **+0.064 / +0.122** |
+| 0.55–0.80×ATR (trend call) | yes | 63 | −0.00 | +0.03 / −0.03 |
+| > 0.80×ATR | yes | 32 | −0.02 | mixed |
+
+The tradeable moment is **directional but not yet extended**: enough range to
+prove direction, not so much that the move is spent. Stops 0.2–0.5 ATR all
+work (winners are decided by the close, not the stop); no-stop has a −1.14 ATR
+worst case, so the stop is tail insurance. Holding to the close beats a 14:00
+exit.
+
+### The v2 rule set (implemented in `regime/filter.py::entry_signal_1100`)
+
+At 11:00 ET, with R = first-90-min range / ATR20 and POS = close location:
+
+| Condition | Action |
+|---|---|
+| R < 0.35 | **CHOP** — no continuation trades today (verified money-saver: same template loses −0.05 ATR/trade on these days) |
+| 0.35 ≤ R < 0.55 and POS ≥ 0.75 | **ENTER LONG** market; stop = entry − 0.30×ATR; exit MOC |
+| 0.35 ≤ R < 0.55 and POS ≤ 0.25 | **ENTER SHORT** market; stop = entry + 0.30×ATR; exit MOC |
+| R ≥ 0.55 and POS extreme | **TREND (late)** — regime confirmed, no fresh mechanical entry; manage existing positions with trend-day expectations, don't fade |
+| otherwise | NEUTRAL — base rates |
+
+In current instrument terms (ATR20 ≈ 763 NQ pts / 114 ES pts): NQ stop ≈ 230
+pts, expectancy ≈ +70 pts/trade; ES stop ≈ 34 pts, expectancy ≈ +10.5 pts.
+Signal frequency ≈ 18% of sessions (~1 trade/week per instrument).
+
+### Status: provisional
+
+54 trades over 7.5 months, and the 0.35–0.55 band was identified in a post-hoc
+drill (elevated data-mining risk despite the both-halves consistency and the
+clean economic story). The right acceptance test is forward: log every 11:00
+signal live for a quarter, and extend history monthly as the IBKR window rolls
+(or via a flat-file intraday vendor / FMP plan upgrade) and re-fit walk-forward.

@@ -105,6 +105,46 @@ def _clip01(x: float) -> float:
     return max(0.0, min(1.0, x))
 
 
+def entry_signal_1100(
+    atr20: float,
+    fh_high: float,
+    fh_low: float,
+    fh_close: float,
+) -> dict | None:
+    """The tradeable 11:00 ET continuation entry (v2, see backtest scripts).
+
+    Fires on the "directional but not yet extended" cell: first-90-min range
+    in [0.35, 0.55) x ATR with the close pinned to the range extreme. Days
+    already beyond 0.55 x ATR label TREND for regime purposes but carry no
+    chase edge at 11:00 - the impulse has largely printed.
+
+    Backtest (QQQ+SPY pooled, Nov 2025 - Jul 2026, n=54, hourly fills,
+    0.02 ATR round-trip cost): +0.09 ATR/trade, positive in both halves.
+    Treat as provisional until validated on more history.
+
+    Returns dict(direction, entry, stop, exit) or None.
+    """
+    rng = fh_high - fh_low
+    if rng <= 0:
+        return None
+    r = rng / atr20
+    pos = (fh_close - fh_low) / rng
+    if not (0.35 <= r < 0.55):
+        return None
+    if pos >= 0.75:
+        d = 1
+    elif pos <= 0.25:
+        d = -1
+    else:
+        return None
+    return {
+        "direction": "LONG" if d > 0 else "SHORT",
+        "entry": fh_close,                      # market at the 11:00 print
+        "stop": fh_close - d * 0.30 * atr20,    # hard stop, 0.30 x ATR
+        "exit": "market on close (15:59 ET)",   # no target; trend days close at extremes
+    }
+
+
 class TrendChopFilter:
     """Convenience wrapper: feed intraday bars, get session regime reads.
 

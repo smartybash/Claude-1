@@ -16,7 +16,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from regime.data import load_ibkr_json, rth_only
-from regime.filter import read_1100
+from regime.filter import entry_signal_1100, read_1100
 from regime.indicators import atr, directional_range_capture, label_day_type
 
 DATA = Path(__file__).resolve().parents[1] / "data"
@@ -68,6 +68,11 @@ def read_instrument(name: str, intra_file: str, date: pd.Timestamp,
     print(f"  state = {r.state}   score = {r.score}/100")
     print(f"  first-90-min: range {r.range_atr} ATR | close position {r.pos} | ER {r.er}"
           + (f" | {'; '.join(r.notes)}" if r.notes else ""))
+    sig = entry_signal_1100(atr20, float(fh["high"].max()), float(fh["low"].min()),
+                            float(closes.iloc[-1]))
+    if sig:
+        print(f"  ENTRY SIGNAL: {sig['direction']} @ {sig['entry']:.2f}, "
+              f"stop {sig['stop']:.2f} ({0.30 * atr20:.1f} pts), exit {sig['exit']}")
     if day.index[-1].time() >= dtime(15, 0):
         print(f"  ex-post: {grade(day, atr20)}")
 
