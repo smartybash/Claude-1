@@ -1,0 +1,2 @@
+date,instrument,side,level_name,level,sweep_ext,entry,stop,target,regime,status,pnl_pts,pnl_atr
+2026-07-01,ES,short,prior_day_high,7567.75,7579.0,7559.75,7584.72,7550.75,NEUTRAL,target,9.0,0.079
