@@ -1,41 +1,41 @@
-# Macro-times liquidity playbook (ICT macros), regime-gated
+# Liquidity-trap playbook (Marco Trades style), regime-gated
 
-Time-based liquidity trading: the delivery algorithm seeks liquidity (or
-rebalances an imbalance) during fixed 20-30 min windows ("macros"). Trade
-only inside the windows; do nothing between them.
+Core idea (Marco Trades / @marcotrades): stops pile up under obvious lows and
+above obvious highs. Price returns to run those stops, trapping traders who
+entered at the level; the trade is taking the OTHER side of the trap.
+No time windows, no jargon - levels, sweeps, traps.
 
-## NY-session macro schedule (ET)
-| Window | Name | Notes |
-|---|---|---|
-| 09:50-10:10 | NY AM macro | order flow peak after the open; NQ's best |
-| 10:50-11:10 | NY AM macro 2 | brackets our 11:00 regime read |
-| 11:50-12:10 | lunch macro | thin tape; smallest size or skip |
-| 13:10-13:40 | NY PM macro | |
-| 15:15-15:45 | final-hour macro | MOC flows; on TREND days = the push to extremes |
+## What counts as a level
+A high/low that was RESPECTED: price touched it, moved firmly away, and left
+it intact. Those are where stops rest. On our sheet: prior-day high/low,
+overnight high/low, plus intraday swing highs/lows that caused clear moves
+away. Ignore levels price chopped through repeatedly - no stops left there.
 
-## The play (same every window)
-1. **Before the window**: mark the nearest UNTAPPED liquidity pool above and
-   below current price (session H/L, overnight H/L, prior-day H/L - all on
-   the levels.py sheet). The nearest obvious pool is the "draw."
-2. **Direction**: trade TOWARD the draw, aligned with the regime read:
-   - TREND day (11:00 read): only take macros in the trend direction;
-     the 15:15 macro is the trend-day closer.
-   - CHOP day: the draw is the range edge; expect sweep-and-reverse there -
-     take the trip TO the pool, and optionally the reversal AFTER a 5-min
-     close back inside (the old sweep+reclaim rule).
-   - Before 10:30 (no read yet - the 09:50 macro): trade only if one side's
-     pool is clearly closer/untapped; half size.
-3. **Entry**: at macro open, on the first 1-5 min pullback in the draw's
-   direction. No pullback and no clear draw = skip the window.
-4. **Stop**: beyond the pre-macro consolidation extreme (the last 15-min
-   swing against the draw).
-5. **Exit**: AT the liquidity pool - the pool IS the target. Hard time-stop
-   at window end (+5 min): if the algo didn't reach, the idea is wrong.
-6. Risk fixed fraction per window; max 2 windows traded per day.
+## BUY setup (SELL is the mirror image)
+1. Find a respected low that price moved away from (liquidity resting below).
+2. WAIT for price to come back and trade BELOW that low. Never buy above it,
+   never buy in anticipation - the sweep must happen first.
+3. Confirmation = the trap forms: price stalls below the level (false
+   reaction / small internal structure shift), sellers who chased get stuck.
+4. Buy (market) below the low once the trap is confirmed.
+5. Stop-loss: below the low that just got taken (the sweep extreme). Always
+   covered by the last low - never inside the trap zone.
+6. Target: resting liquidity at respected highs (the opposite pool). First
+   scale at the nearest one; runner to the far side of the range.
+7. Keep it simple - don't over-refine entries (his rule, verbatim).
 
-## Status
-Time-window claims are NOT yet validated on our data (needs 1-5 min history;
-IBKR caps at ~3 days of 5-min). Validation plan: log 5-min bars daily,
-measure (a) range/velocity inside vs outside windows, (b) P(nearest pool
-tapped | window) vs random 20-min windows, conditioned on regime. The regime
-gate itself is validated (see trend_regime_study.md).
+## Our regime gate on top (this is the part that's ours, and tested)
+The trap trade is a sweep-fade. Our 306-session test of sweep-fades at
+prior-day highs/lows:
+  - CHOP-read days:   +0.041 ATR/trade, 58% win  <- trade the playbook
+  - NEUTRAL days:     -0.068 ATR/trade           <- skip
+  - TREND days:        ~0, unstable              <- do NOT fade sweeps in the
+    trend direction; the "sweep" is the trend refueling (see 2026-07-02 NQ:
+    morning low swept, then -170 more points).
+So: run the 10:30/11:00 regime read first. Trap setups are ON for chop days,
+counter-trend traps are OFF on trend days. Before 10:30, half size.
+
+## Daily flow
+levels.py sheet pre-open -> mark respected highs/lows -> 10:30/11:00 regime
+read -> stalk returns into levels -> sweep, trap, enter, stop beyond the
+sweep, target the opposite pool, flat by 15:59, fixed-fraction risk.
