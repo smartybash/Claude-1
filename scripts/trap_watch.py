@@ -138,9 +138,16 @@ def scan(name: str, fut_file: str, etf_file: str, date: pd.Timestamp) -> list[di
                "pnl_pts": round(pnl, 2) if not np.isnan(pnl) else "",
                "pnl_atr": round(pnl / a, 3) if not np.isnan(pnl) else ""}
         out.append(rec)
+        far = [p for p in pools if sgn * (p - entry) > 0.05 * a]
+        far_t = max(far, key=lambda p: abs(p - entry)) if far else target
+        tight_stop = ext - sgn * 0.03 * a
         print(f"   SETUP {side.upper()} @ {lname} {lvl:,.2f}: swept to {ext:,.2f}, reclaimed {e_ts.strftime('%H:%M')} "
               f"-> entry {entry:,.2f} stop {stop:,.2f} target {target:,.2f} [{status}"
               + (f" {pnl:+,.2f} pts" if not np.isnan(pnl) else "") + "]")
+        print(f"      Marco-style alt (unvalidated at our data resolution — needs 1-min): "
+              f"retest limit {lvl:,.2f}, tight stop {tight_stop:,.2f} "
+              f"({abs(lvl - tight_stop):,.1f} pts risk), runner target {far_t:,.2f} "
+              f"({abs(far_t - lvl) / max(abs(lvl - tight_stop), 1e-9):.1f}R)")
     if not out:
         print("   no qualifying setups")
     return out

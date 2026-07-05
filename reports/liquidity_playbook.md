@@ -68,3 +68,25 @@ costs, conservative fills:
 5. Target the NEAREST pool (prior close first). Flat by 15:59.
 Expect ~1-2 trades/week/instrument, avg +0.04-0.06 ATR (~30-45 NQ pts),
 ~45-55% win. Small samples: run it as a logged forward test first.
+
+## v2 backtest: his actual geometry (scripts/backtest_marco2.py)
+
+Corrected trade per his documented rules: BOS after the sweep, pullback/retest
+entry at the level, TIGHT stop just past the trap wick (median risk 0.10-0.19
+ATR), targets at opposite liquidity (full, or split with breakeven move).
+
+Result: NOT validatable at our data resolution. On 30-min bars every variant
+is negative (avg -0.17 to -0.65 R) because wick-tight stops cannot be fairly
+resolved on coarse bars; the 15-min sample is too small (n=6-9) to read.
+His edge, if real, lives in 1-minute execution precision.
+
+Consequences:
+1. The tradeable-now version remains the v1 gated variant (reclaim entry,
+   stop beyond the sweep extreme, nearest-pool target) - the only
+   configuration positive at testable resolution.
+2. trap_watch now also prints the Marco-style alt plan per setup (retest
+   limit at the level, tight stop, far-pool runner with its R multiple),
+   explicitly marked unvalidated, for discretionary use.
+3. The 16:07 daily job archives 1-minute bars (data/archive_1min/) to build
+   the library needed to backtest the tight-stop version properly
+   (~2 months of accumulation gives a first read).
