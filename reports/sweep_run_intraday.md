@@ -151,6 +151,33 @@ per bar, so a sweep/run is flagged the instant it confirms.
 
 Dashboard render (static capture): [`img/screener_dashboard.svg`](img/screener_dashboard.svg).
 
-## 7. Deviations from spec
+## 7. Follow-up — Point of Control / value-area levels
+
+Added on request (see [`poc_sweep_results.md`](poc_sweep_results.md),
+`scripts/poc_sweep_test.py`). The prior-session **POC / VAH / VAL** (from
+intraday volume-at-price, `sweeplib.levels.volume_profile`) are folded in as
+just more levels and run through the identical causal engine, with results
+broken out **by level category** to answer directly: do POC touches behave
+differently from PDH/PDL touches?
+
+Read on the diagnostic sample:
+
+- **POC-family "run" (follow a break) is uniformly bad** — pooled −28 bp/trade,
+  positive on 0/4 instruments.
+- **POC-family "sweep" (fade) looks good on NQ only** (+39 bp/trade, raw
+  p=0.065) and fails on ES/QQQ/SPY. A one-instrument standout is precisely the
+  overfitting trap the program pre-registers as NOT validated — the same trap
+  the intraday-momentum reviewers flagged.
+- POC does **not** behave systematically differently from the structural levels
+  in this sample. The scattered sub-0.05 cells (e.g. an n=4 round-number sweep)
+  are multiplicity noise across dozens of category×mode×K×instrument cells.
+
+On the candlestick half of "POC + candlestick": a single bar's shape carries no
+tested standalone edge (Marshall/Young/Rose 2006); its only legitimate role is
+as the **confirmation gate**, which is exactly the K-bar confirmation window
+already in the engine. Verdict: **NOT VALIDATED (insufficient depth)** — same
+ceiling, same fix (deepen data, rerun unchanged).
+
+## 8. Deviations from spec
 
 See [`sweep_run_deviations.md`](sweep_run_deviations.md).

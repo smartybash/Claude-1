@@ -71,6 +71,78 @@ def round_numbers(ref_price: float, step: float, n_each: int = 2) -> list[float]
     return [float(base + i * step) for i in range(-n_each + 1, n_each + 1)]
 
 
+def volume_profile(bars: pd.DataFrame, n_bins: int = 50):
+    """Volume-at-price for one session -> (POC, VAH, VAL).
+
+    Each bar's volume is spread uniformly across the price bins its [low, high]
+    range spans (a standard 5-min approximation - true tick profile needs tick
+    data). POC = highest-volume bin center. Value area = the 70%-of-volume band
+    grown outward from the POC by repeatedly annexing the richer adjacent bin
+    (the Market Profile value-area rule). Returns None if the session is flat.
+    """
+    lo, hi = float(bars["low"].min()), float(bars["high"].max())
+    if hi <= lo:
+        return None
+    edges = np.linspace(lo, hi, n_bins + 1)
+    centers = (edges[:-1] + edges[1:]) / 2
+    vol = np.zeros(n_bins)
+    for low, high, v in zip(bars["low"].values, bars["high"].values, bars["volume"].values):
+        b_lo = max(0, int(np.searchsorted(edges, low, "right")) - 1)
+        b_hi = min(n_bins - 1, int(np.searchsorted(edges, high, "right")) - 1)
+        span = b_hi - b_lo + 1
+        vol[b_lo:b_hi + 1] += v / span
+    if vol.sum() <= 0:
+        return None
+    poc_i = int(vol.argmax())
+    target = 0.70 * vol.sum()
+    lo_i = hi_i = poc_i
+    acc = vol[poc_i]
+    while acc < target and (lo_i > 0 or hi_i < n_bins - 1):
+        up = vol[hi_i + 1] if hi_i < n_bins - 1 else -1.0
+        dn = vol[lo_i - 1] if lo_i > 0 else -1.0
+        if up >= dn:
+            hi_i += 1
+            acc += vol[hi_i]
+        else:
+            lo_i -= 1
+            acc += vol[lo_i]
+    return float(centers[poc_i]), float(centers[hi_i]), float(centers[lo_i])
+
+
+def poc_session_levels(prior_bars: pd.DataFrame, ref_close: float, n_bins: int = 50) -> list[Level]:
+    """Prior-session POC / VAH / VAL as pre-session levels for today.
+
+    This is the "naked POC" family: yesterday's high-volume node and value-area
+    edges, known before today's open. Side is assigned by position vs the prior
+    close, the same convention used for round numbers and prior-week levels
+    (these are in-range magnets with no fixed approach direction).
+    """
+    vp = volume_profile(prior_bars, n_bins)
+    if vp is None:
+        return []
+    poc, vah, val = vp
+    out = []
+    for name, price in (("POC", poc), ("VAH", vah), ("VAL", val)):
+        out.append(Level(name, price, "high" if price >= ref_close else "low"))
+    return out
+
+
+CATEGORIES = {
+    "POC": "POC-family", "VAH": "POC-family", "VAL": "POC-family",
+    "PDH": "prior-day", "PDL": "prior-day",
+    "PWH": "prior-week", "PWL": "prior-week",
+    "eqH": "equal-pool", "eqL": "equal-pool",
+    "RN": "round-number",
+}
+
+
+def level_category(name: str) -> str:
+    for prefix, cat in CATEGORIES.items():
+        if name.startswith(prefix):
+            return cat
+    return "other"
+
+
 def round_step(ref_price: float) -> float:
     """Round-number grid scaled to the live price (not hardcoded to a symbol):
     250 for NQ-scale prices, 50 for ES-scale, 10 for ETF-scale."""

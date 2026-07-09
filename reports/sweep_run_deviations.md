@@ -72,3 +72,21 @@ had to guess or diverge from the prompt, listed plainly.
     `--replay` and `--selftest` paths were executed in this environment; both
     pass and exercise the full engine + alert path. The live path mirrors the
     replay path bar-for-bar.
+
+11. **POC computed from 5-min bars, not tick data.** The volume profile spreads
+    each 5-min bar's volume uniformly across the price bins its range spans
+    (50 bins/session). True tick-level profile would place the POC more
+    precisely; at 5-min the POC is approximate. Documented; unavoidable without
+    tick data.
+
+12. **POC/VAH/VAL side assigned by prior close.** POC is an in-range magnet with
+    no fixed pre-session approach direction, so `poc_session_levels` assigns
+    side (and thus touch direction) by position vs the prior close — the same
+    convention already used for round numbers and prior-week levels. An
+    alternative is to track both-direction touches per level; not done, to keep
+    one entry per level and the multiplicity count honest.
+
+13. **POC levels are NOT merged into coincident structural levels.** So the
+    category breakdown can compare POC vs PDH/PDL cleanly, a POC that sits on
+    top of (say) PDH is kept as a separate level. Rare in the sample; noted
+    because it can double-count a touch when two categories overlap.

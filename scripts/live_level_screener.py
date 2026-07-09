@@ -46,7 +46,7 @@ sys.path.insert(0, str(ROOT))
 
 from sweeplib import data as D
 from sweeplib.engine import SweepRunTracker
-from sweeplib.levels import Level, session_levels
+from sweeplib.levels import Level, poc_session_levels, session_levels
 
 CONFIRM_K = 3  # window used for live classification (documented, not tuned live)
 
@@ -138,9 +138,13 @@ def run_replay(sym: str, speed: float, desktop: bool, force_event: bool):
     bars5 = D.load(sym, "5min")
     daily = D.daily_from_intraday_or_cache(sym)
     sessions = D.rth_sessions_5min(bars5)
-    day = sorted(sessions)[-1]
+    order = sorted(sessions)
+    day = order[-1]
     bars = sessions[day]
     levels = session_levels(daily, day)
+    if len(order) >= 2:  # prior-session POC / value area
+        prior = sessions[order[-2]]
+        levels += poc_session_levels(prior, float(prior["close"].iloc[-1]))
     if force_event:
         # guarantee at least one touch for alert-path testing: plant a level
         # 0.05% below the session's 3rd bar low so bar 3+ trades through it
@@ -243,6 +247,10 @@ def run_live(sym: str, desktop: bool) -> None:
         formatDate=2, keepUpToDate=True))
     day = __import__("pandas").Timestamp(datetime.now().date())
     levels = session_levels(daily, day)
+    prior_sessions = D.rth_sessions_5min(D.load(sym, "5min"))
+    if prior_sessions:
+        prior = prior_sessions[sorted(prior_sessions)[-1]]
+        levels += poc_session_levels(prior, float(prior["close"].iloc[-1]))
     tracker = SweepRunTracker(levels, CONFIRM_K)
     log: deque[str] = deque(maxlen=10)
     last_len, last_change = len(today), time.time()
