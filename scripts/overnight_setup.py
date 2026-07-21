@@ -140,27 +140,54 @@ def run(sym: str) -> None:
         reads["short"] = reclaim(rth, vah, "high")
         reads["long"] = reclaim(rth, val, "low")
 
-    # R:R geometry (short at VAH -> POC / VAL ; long at VAL -> POC / VAH)
+    # R:R geometry. If a setup has actually TRIGGERED, use the real reclaim
+    # entry and real poke extreme (a reclaim close often sits well inside the
+    # level, so POC can already be behind you); else show the idealized plan.
+    va = vah - val
+
     def rr_block(side):
-        if side == "short":
-            entry, struct_stop, tight_stop = vah, on_hi, vah * (1 + TIGHT_BUFFER_FRAC)
-            t1, t2 = poc, val
+        r = reads.get(side)
+        edge = vah if side == "short" else val
+        sign = -1 if side == "short" else 1     # profit direction
+        triggered = bool(r and r.get("status") == "reclaim")
+        if triggered:
+            entry = r["entry"]
+            struct_stop = r["ext"] + (5 if side == "short" else -5)
+            tight_stop = entry * (1 + sign * -TIGHT_BUFFER_FRAC)
+            header = f"  {side.upper()} TRIGGERED - actual entry {entry:.0f} (reclaim), stop beyond poke {r['ext']:.0f}"
         else:
-            entry, struct_stop, tight_stop = val, on_lo, val * (1 - TIGHT_BUFFER_FRAC)
-            t1, t2 = poc, vah
-        s1, s2, sr = rr(entry, struct_stop, t1, t2)
-        t1r, t2r, tr = rr(entry, tight_stop, t1, t2)
-        va = vah - val
-        flags = []
-        if sr < tr:            # ON extreme sits on the VA edge -> structural stop unreal
-            flags.append("structural stop degenerate (overnight extreme hugs the edge)")
-        if abs(entry - t1) < 0.15 * va:   # POC jammed against this edge
-            flags.append("POC hugs this edge -> T1 trivial, use the far target")
-        quality = "AWKWARD: " + "; ".join(flags) if flags else "clean geometry"
-        return (f"  {side.upper()} @ {'VAH' if side=='short' else 'VAL'} {entry:.0f} -> T1(POC) {t1:.0f}, T2 {t2:.0f}\n"
-                f"     structural stop {struct_stop:.0f} (risk {sr:.0f}pt): {s1:.1f}R / {s2:.1f}R\n"
-                f"     tight stop {tight_stop:.0f} (risk {tr:.0f}pt, ~1-min): {t1r:.1f}R / {t2r:.1f}R\n"
-                f"     -> {quality}")
+            entry = edge
+            struct_stop = on_hi + 5 if side == "short" else on_lo - 5
+            tight_stop = edge * (1 + sign * -TIGHT_BUFFER_FRAC)
+            header = f"  {side.upper()} plan - entry at {'VAH' if side=='short' else 'VAL'} {edge:.0f}"
+        cands = [("POC", poc), ("VAL" if side == "short" else "VAH", val if side == "short" else vah)]
+        valid = [(n, p) for n, p in cands if sign * (p - entry) > 0]  # targets still ahead
+        if not valid:
+            return header + "\n     (no value-area target left in the trade's direction)"
+        out = [header]
+        for stop, lab in [(struct_stop, "structural"), (tight_stop, "tight ~1-min")]:
+            risk = abs(entry - stop)
+            rrs = " ".join(f"{n} {abs(entry-p)/risk:.1f}R" for n, p in valid) if risk else "n/a"
+            out.append(f"     {lab} stop {stop:.0f} (risk {risk:.0f}pt): {rrs}")
+        if not triggered:
+            flags = []
+            if abs(entry - (on_hi if side == "short" else on_lo)) < 0.03 * va:
+                flags.append("structural stop degenerate (overnight extreme hugs the edge)")
+            if abs(entry - valid[0][1]) < 0.15 * va:
+                flags.append("nearest target trivial -> use the far one")
+            out.append("     -> " + ("AWKWARD: " + "; ".join(flags) if flags else "clean geometry"))
+        return "\n".join(out)
+    if len(rth):
+        print(f"RTH so far ({rth.index.min():%H:%M}->{rth.index.max():%H:%M}): "
+              f"O {rth['open'].iloc[0]:.0f} H {rth['high'].max():.0f} L {rth['low'].min():.0f} last {cur_px:.0f}")
+        for name, side, lvl in [("VAH short", "short", vah), ("VAL long", "long", val)]:
+            r = reads.get(side)
+            if not r:
+                print(f"  {name}: no touch of {lvl:.0f} yet")
+            elif r["status"] == "acceptance":
+                print(f"  {name}: poked {r['ext']:.0f} at {r['poke_t']:%H:%M} but NO reclaim = acceptance (no fade)")
+            else:
+                print(f"  {name}: TRIGGERED - poke {r['ext']:.0f}, reclaim {r['conf_t']:%H:%M} entry {r['entry']:.0f}")
     print("R:R geometry:")
     print(rr_block("short"))
     print(rr_block("long"))
