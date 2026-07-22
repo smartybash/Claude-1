@@ -250,7 +250,60 @@ def _chart(sym, df, now, cur, prev, on_start, on, poc, vah, val, on_hi, on_lo,
     print(f"chart -> {out}")
 
 
+def watch(sym: str, near: float = 30.0) -> None:
+    """Lightweight edge-watcher status for the scheduled loop.
+
+    Prints ONE machine-readable STATUS line the agent acts on each wake:
+      STATUS=ALERT   a reclaim confirmed on the latest bar AT/NEAR an edge -> tell the user
+      STATUS=ARMED   price within `near` pts of VAH/VAL -> watch closely (check again in 5 min)
+      STATUS=QUIET   mid-value, no edge in play (check again in 15 min)
+      STATUS=PREOPEN / CLOSED  outside RTH
+    'Fresh' = the reclaim's confirming bar is the latest (or 1 before) bar, so
+    each real trigger is shouted once, not re-shouted every wake.
+    """
+    df = load(sym)
+    now, cur, prev, on_start, on_end = windows(df)
+    on = df[(df.index >= on_start) & (df.index < on_end)]
+    if len(on) < 10:
+        print("STATUS=CLOSED reason=thin-overnight"); return
+    poc, vah, val = volume_profile(on, 50)
+    cur_px, now_t = float(df["close"].iloc[-1]), df.index[-1]
+    tnow = now_t.time()
+    if tnow < RTH_OPEN and now_t.normalize() == cur:
+        mins = (cur.replace(hour=9, minute=30) - now_t).total_seconds() / 60
+        print(f"STATUS=PREOPEN VAH={vah:.0f} VAL={val:.0f} price={cur_px:.0f} mins_to_open={mins:.0f}"); return
+    if tnow >= RTH_CLOSE or now_t.normalize() != cur:
+        print(f"STATUS=CLOSED VAH={vah:.0f} VAL={val:.0f} price={cur_px:.0f}"); return
+    rth = df[(df.index >= cur.replace(hour=9, minute=30)) & (df.index <= now_t) &
+             (df.index.normalize() == cur)]
+    d_vah, d_val = vah - cur_px, cur_px - val
+    fresh = None
+    for side, lvl in (("short", vah), ("long", val)):
+        r = reclaim(rth, lvl, "high" if side == "short" else "low")
+        if r and r.get("status") == "reclaim" and (now_t - r["conf_t"]).total_seconds() <= 10 * 60 + 30:
+            fresh = (side, r)  # within ~2 bars, so an opening trigger survives the first check
+    nearest = min(abs(d_vah), abs(d_val))
+    if fresh:
+        side, r = fresh
+        edge = "VAH" if side == "short" else "VAL"
+        print(f"STATUS=ALERT side={side} edge={edge} entry={r['entry']:.0f} poke={r['ext']:.0f} "
+              f"conf={r['conf_t']:%H:%M} price={cur_px:.0f} VAH={vah:.0f} POC={poc:.0f} VAL={val:.0f}")
+    elif nearest <= near:
+        edge = "VAH" if abs(d_vah) < abs(d_val) else "VAL"
+        print(f"STATUS=ARMED edge={edge} dist={nearest:.0f} price={cur_px:.0f} "
+              f"VAH={vah:.0f} VAL={val:.0f} next=5min")
+    else:
+        print(f"STATUS=QUIET price={cur_px:.0f} toVAH={d_vah:+.0f} toVAL={d_val:+.0f} "
+              f"VAH={vah:.0f} VAL={val:.0f} next=15min")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbol", default="NQ")
-    run(ap.parse_args().symbol)
+    ap.add_argument("--watch", action="store_true", help="print edge-watcher STATUS only")
+    ap.add_argument("--near", type=float, default=30.0, help="'near an edge' threshold (pts)")
+    a = ap.parse_args()
+    if a.watch:
+        watch(a.symbol, a.near)
+    else:
+        run(a.symbol)
