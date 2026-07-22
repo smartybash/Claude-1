@@ -297,13 +297,39 @@ def watch(sym: str, near: float = 30.0) -> None:
               f"VAH={vah:.0f} VAL={val:.0f} next=15min")
 
 
+def probe(sym: str) -> None:
+    """Append the viewport-invariance probe on the SAME fixed window the read
+    uses (prev session 09:30 -> now), proving the structure levels handed to
+    the trader don't change with chart zoom/pan. Falls back gracefully if the
+    TS toolchain isn't present."""
+    import subprocess
+
+    df = load(sym)
+    now, cur, prev, *_ = windows(df)
+    win = df[df.index >= prev.replace(hour=9, minute=30)]
+    csv = ROOT / "data" / f"{sym.lower()}_window.csv"
+    epoch = win.index.view("int64") // 10**9
+    win.assign(t=epoch)[["t", "open", "high", "low", "close"]].to_csv(csv, header=False, index=False)
+    ts = ROOT / "scripts" / "viewport-detection-probe.ts"
+    print(f"\n--- viewport-invariance probe on {sym} fixed window ({len(win)} bars) ---")
+    try:
+        r = subprocess.run(["npx", "tsx", str(ts), str(csv)], capture_output=True,
+                           text=True, timeout=120, cwd=str(ROOT))
+        print(r.stdout.strip() or r.stderr.strip()[:500])
+    except Exception as e:  # noqa: BLE001
+        print(f"probe skipped (TS toolchain unavailable: {e})")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbol", default="NQ")
     ap.add_argument("--watch", action="store_true", help="print edge-watcher STATUS only")
     ap.add_argument("--near", type=float, default=30.0, help="'near an edge' threshold (pts)")
+    ap.add_argument("--probe", action="store_true", help="also emit the viewport-invariance probe")
     a = ap.parse_args()
     if a.watch:
         watch(a.symbol, a.near)
     else:
         run(a.symbol)
+        if a.probe:
+            probe(a.symbol)
