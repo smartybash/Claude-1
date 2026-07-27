@@ -81,10 +81,12 @@ PRESETS = {
 }
 
 SETS = {
+    "NQ 1h":   "nq_1h.json",     "ES 1h":   "es_1h.json",
+    "QQQ 1h":  "qqq_1h.json",    "SPY 1h":  "spy_1h.json",
     "QQQ 30m": "qqq_30min.json", "SPY 30m": "spy_30min.json",
     "QQQ 15m": "qqq_15min.json", "SPY 15m": "spy_15min.json",
-    "QQQ 1h":  "qqq_1h.json",    "SPY 1h":  "spy_1h.json",
 }
+POOL_1H = ["NQ 1h", "ES 1h", "QQQ 1h", "SPY 1h"]  # 4-instrument breadth pool
 
 
 def main():
@@ -107,17 +109,17 @@ def main():
                   f"{tr/n*TDAYS:<8.1f} {ro/n*TDAYS:<7.1f} {(tr+ro)/n*TDAYS:<7.1f}  {span}")
         print()
 
-    # pooled across the 30m QQQ+SPY primary sample
-    print("=== POOLED primary sample (QQQ 30m + SPY 30m) ===")
+    # pooled across the 4-instrument 1h breadth sample (NQ+ES+QQQ+SPY)
+    print("=== POOLED 4-instrument 1h sample (NQ+ES+QQQ+SPY) ===")
     for pr, kw in PRESETS.items():
         tot_tr = tot_ro = tot_n = 0
-        for lbl in ("QQQ 30m", "SPY 30m"):
+        for lbl in POOL_1H:
             if lbl not in feats:
                 continue
             lab = classify(feats[lbl], **kw); vc = lab.value_counts()
             tot_tr += int(vc.get("trend", 0)); tot_ro += int(vc.get("rotation", 0)); tot_n += len(lab)
         print(f"  {pr:7s}: ~{tot_tr/tot_n*TDAYS:.1f} trend + ~{tot_ro/tot_n*TDAYS:.1f} rotation "
-              f"= ~{(tot_tr+tot_ro)/tot_n*TDAYS:.1f} clean days/month   (n={tot_n} sessions)")
+              f"= ~{(tot_tr+tot_ro)/tot_n*TDAYS:.1f} clean days/month   (n={tot_n} session-obs)")
 
 
 if __name__ == "__main__":
