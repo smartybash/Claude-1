@@ -52,34 +52,27 @@ def swings(df, k, recent):
     return [p for p, i in out if i >= n - recent]
 
 
-def main():
-    h1 = load("nq_1h_eth.json")
+def build_zones(m5, m30, h1, scale_pt=None):
+    """Generic confluence-zone builder. Works for NQ (futures, ETH+30m+1h) and
+    QQQ (equity, RTH-only 5m+1h, m30 may be None). Returns (px, now, zi) where
+    zi = [(price,lo,hi,score,labs_str), ...]. scale_pt overrides the ~pt cluster
+    tolerance basis (default 0.0018*price)."""
     h4 = resample(h1, "4h")
-    m30 = load("nq_30min_eth.json")
-    m5 = load("nq_5min_eth_live.json")
     px = float(m5["close"].iloc[-1])
     now = m5.index[-1]
-
-    levels = []  # (price, label, weight)
-
+    levels = []
     for p in swings(h4, 2, 60):
         levels.append((p, "4h swing", 3.0))
     for p in swings(h1, 3, 90):
         levels.append((p, "1h swing", 2.0))
-
-    # composite value (multi-week) from 30m
-    poc, vah, val = volume_profile(m30, 80)
-    levels += [(vah, "cVAH", 2.5), (poc, "cPOC", 2.5), (val, "cVAL", 2.5)]
-
-    # weekly H/L (prior + current) from 30m
-    iso = m30.index.isocalendar()
-    m30w = m30.assign(wk=iso["year"].astype(str) + iso["week"].astype(str))
-    wks = list(dict.fromkeys(m30w["wk"]))
-    for wk in wks[-2:]:
-        g = m30w[m30w["wk"] == wk]
-        levels += [(float(g["high"].max()), "wkH", 2.5), (float(g["low"].min()), "wkL", 2.5)]
-
-    # prior day H/L/C and today OR / dev H/L / overnight from 5m
+    if m30 is not None and len(m30) > 40:
+        poc, vah, val = volume_profile(m30, 80)
+        levels += [(vah, "cVAH", 2.5), (poc, "cPOC", 2.5), (val, "cVAL", 2.5)]
+        iso = m30.index.isocalendar()
+        m30w = m30.assign(wk=iso["year"].astype(str) + iso["week"].astype(str))
+        for wk in list(dict.fromkeys(m30w["wk"]))[-2:]:
+            g = m30w[m30w["wk"] == wk]
+            levels += [(float(g["high"].max()), "wkH", 2.5), (float(g["low"].min()), "wkL", 2.5)]
     cur = now.normalize()
     days = sorted({d for d in m5.index.normalize().unique() if d < cur})
     if days:
@@ -98,32 +91,61 @@ def main():
     on = m5[(m5.index >= (cur - pd.Timedelta(days=1)).replace(hour=18)) & (m5.index < cur.replace(hour=9, minute=30))]
     if len(on) >= 10:
         opoc, ovah, oval = volume_profile(on, 50)
-        levels += [(ovah, "onVAH", 1.0), (oval, "onVAL", 1.0)]  # demoted
+        levels += [(ovah, "onVAH", 1.0), (oval, "onVAL", 1.0)]
     for p in round_numbers(px, round_step(px), 3):
         levels.append((p, "round", 1.0))
-
-    # cluster into zones
-    tol = 0.0018 * px  # ~50 pt on NQ
+    tol = scale_pt if scale_pt else 0.0018 * px
     levels.sort()
-    zones = []
-    cluster = [levels[0]]
+    zones, cluster = [], [levels[0]]
     for lv in levels[1:]:
         if lv[0] - cluster[-1][0] <= tol:
             cluster.append(lv)
         else:
             zones.append(cluster); cluster = [lv]
     zones.append(cluster)
-
-    def zinfo(z):
+    zi = []
+    for z in zones:
         w = sum(x[2] for x in z)
-        price = sum(x[0] * x[2] for x in z) / w
-        lo, hi = min(x[0] for x in z), max(x[0] for x in z)
-        labs = ", ".join(dict.fromkeys(x[1] for x in z))
-        return price, lo, hi, w, labs
+        zi.append((sum(x[0] * x[2] for x in z) / w, min(x[0] for x in z),
+                   max(x[0] for x in z), w, ", ".join(dict.fromkeys(x[1] for x in z))))
+    return px, now, zi
 
-    zi = [zinfo(z) for z in zones]
+
+def crossref_qqq(nq_px, nq_zi):
+    """Return set of NQ zone indices confirmed by a QQQ strong zone (scaled)."""
+    try:
+        q5 = load("qqq_5min.json"); qh1 = load("qqq_1h.json")
+    except FileNotFoundError:
+        return None, None
+    q_px, _, q_zi = build_zones(q5, None, qh1)
+    scale = nq_px / q_px
+    q_strong = [(p * scale, w, labs) for (p, lo, hi, w, labs) in q_zi if w >= 5]
+    confirmed = {}
+    for i, (price, lo, hi, w, labs) in enumerate(nq_zi):
+        for qp, qw, qlabs in q_strong:
+            if lo - 20 <= qp <= hi + 20:
+                confirmed[i] = qp
+                break
+    return confirmed, q_strong
+
+
+def main():
+    m5 = load("nq_5min_eth_live.json")
+    m30 = load("nq_30min_eth.json")
+    h1 = load("nq_1h_eth.json")
+    px, now, zi_all = build_zones(m5, m30, h1)
+    tol = 0.0018 * px
+    confirmed, q_strong = crossref_qqq(px, zi_all)
+
+    zi = zi_all
     above = sorted([z for z in zi if z[0] > px], key=lambda x: x[0])
     below = sorted([z for z in zi if z[0] <= px], key=lambda x: -x[0])
+    conf_prices = set(round(confirmed[i]) for i in confirmed) if confirmed else set()
+
+    def qflag(lo, hi):
+        if confirmed is None:
+            return ""
+        return " Qs" if any(lo - 20 <= cp <= hi + 20 for cp in conf_prices) else ""
 
     print(f"NQ CONFLUENCE MAP — {now:%a %m-%d %H:%M} ET   price {px:.0f}")
     print(f"(zone = levels within ~{tol:.0f}pt; score = summed weight; >=5 = strong, >=8 = A+)\n")
@@ -136,20 +158,25 @@ def main():
             return "TOP" if (set(labs.replace(" ", "").split(",")) & {t.replace(" ", "") for t in TOP}) else "A+ "
         return "   "  # below A+ = not tradeable, shown greyed for context only
 
-    print("RESISTANCE above (short zones):")
+    qtag = "  (Qs = QQQ confirms this zone = highest conviction)" if confirmed is not None else "  (QQQ data missing - no cross-ref)"
+    print(f"RESISTANCE above (short zones):{qtag}")
     for price, lo, hi, w, labs in above[:5][::-1]:
-        print(f"  {grade(w,labs)} {lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
+        print(f"  {grade(w,labs)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
     print(f"  ------ price {px:.0f} ------")
     print("SUPPORT below (long zones):")
     for price, lo, hi, w, labs in below[:5]:
-        print(f"  {grade(w,labs)} {lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
+        print(f"  {grade(w,labs)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
 
-    # tradeable = A+ (score>=8) ONLY (learned: <8 holds far less reliably)
+    # tradeable = A+ (score>=8). QQQ-confirmed A+ = A++ (highest conviction).
     sa = next((z for z in above if z[3] >= 8), None)
     sb = next((z for z in below if z[3] >= 8), None)
-    print("\nTRADEABLE (A+ only, score>=8):")
-    if sb: print(f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} (score {sb[3]:.1f}) -> target {sa[1]:.0f}" if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}")
-    if sa: print(f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} (score {sa[3]:.1f}) -> target {sb[2]:.0f}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}")
+    print("\nTRADEABLE (A+ only; A++ = QQQ-confirmed):")
+    if sb:
+        g = "A++" if qflag(sb[1], sb[2]) else "A+"
+        print(f"  [{g}] LONG off support {sb[1]:.0f}-{sb[2]:.0f} (score {sb[3]:.1f}) -> target {sa[1]:.0f}" if sa else f"  [{g}] LONG off {sb[1]:.0f}-{sb[2]:.0f}")
+    if sa:
+        g = "A++" if qflag(sa[1], sa[2]) else "A+"
+        print(f"  [{g}] SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} (score {sa[3]:.1f}) -> target {sb[2]:.0f}" if sb else f"  [{g}] SHORT off {sa[1]:.0f}-{sa[2]:.0f}")
     if not sa and not sb: print("  none in range - stand aside")
 
     _chart(m5, above, below, px, now, zi)

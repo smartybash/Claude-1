@@ -4,7 +4,8 @@
 #   2. CONFLUENCE- HTF-anchored scored support/resistance zones (confluence):
 #                  the ONLY levels we trade; standalone 5-min levels ignored
 #   3. CANDLE    - 5/10/15/30-min triggers at the zones (candle_read)
-# Fetch fresh 5m + 30m + 1h into data/ before running.
+# Fetch fresh NQ 5m+30m+1h AND QQQ 5m+1h into data/ before running.
+# confluence.py auto-cross-references QQQ (scaled) -> A++ = QQQ-confirmed zone.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SYM="${1:-NQ}"
