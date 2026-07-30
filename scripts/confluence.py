@@ -144,6 +144,47 @@ def main():
     if sb: print(f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} (score {sb[3]:.1f}) -> target {sa[1]:.0f} " if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}")
     if sa: print(f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} (score {sa[3]:.1f}) -> target {sb[2]:.0f}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}")
 
+    _chart(m5, above, below, px, now, zi)
+
+
+def _chart(m5, above, below, px, now, zi):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle
+
+    plot = m5[m5.index >= now - pd.Timedelta(hours=20)]
+    fig, ax = plt.subplots(figsize=(15, 8))
+    for i, (ts, r) in enumerate(plot.iterrows()):
+        up = r["close"] >= r["open"]; c = "#26a69a" if up else "#ef5350"
+        ax.plot([i, i], [r["low"], r["high"]], color=c, lw=0.5, zorder=3)
+        ax.add_patch(Rectangle((i - 0.3, min(r["open"], r["close"])), 0.6,
+                               abs(r["close"] - r["open"]) + 0.2, facecolor=c, edgecolor=c, zorder=4))
+    n = len(plot)
+    # confluence zones as shaded bands, colored by side, intensity by score
+    for price, lo, hi, w, labs in zi:
+        if hi < plot["low"].min() - 100 or lo > plot["high"].max() + 100:
+            continue
+        red = price > px
+        col = "#d32f2f" if red else "#2e7d32"
+        alpha = min(0.32, 0.06 + w / 60)
+        band = max(hi - lo, 6)
+        ax.add_patch(Rectangle((0, lo), n, band, facecolor=col, alpha=alpha, edgecolor="none", zorder=1))
+        star = "A+" if w >= 8 else "**" if w >= 5 else ""
+        ax.text(n + 0.5, price, f"{star} {lo:.0f}-{hi:.0f}  s{w:.0f}  [{labs[:38]}]",
+                color=col, va="center", fontsize=7.5, fontweight="bold" if w >= 8 else "normal")
+    ax.axhline(px, color="#1565c0", lw=1.3, zorder=5)
+    ax.text(n + 0.5, px, f"PRICE {px:.0f}", color="#1565c0", va="center", fontsize=9, fontweight="bold")
+    ax.set_title(f"NQ confluence map — {now:%a %m-%d %H:%M} ET   "
+                 f"(red=resistance/short, green=support/long; darker=stronger; A+ >=8)", fontsize=11)
+    tk = list(range(0, n, max(1, n // 12)))
+    ax.set_xticks(tk); ax.set_xticklabels([plot.index[i].strftime("%m-%d %H:%M") for i in tk], rotation=45, fontsize=7.5)
+    ax.set_xlim(0, n + 26); ax.set_ylabel("NQ"); ax.grid(alpha=0.12, zorder=0)
+    plt.tight_layout()
+    out = ROOT / "reports" / "img" / "nq_confluence.png"
+    plt.savefig(out, dpi=110, bbox_inches="tight")
+    print(f"chart -> {out}")
+
 
 if __name__ == "__main__":
     main()
