@@ -45,18 +45,38 @@ def sessions(df):
     return df, ids, {i: df[df["sess"] == i] for i in ids}
 
 
-def htf_bias(hist):
-    """Pre-open trend bias from bars BEFORE the open (no lookahead):
-    +1 up / -1 down only when price-vs-SMA and slope agree, else 0 (stand aside)."""
-    c = hist["close"]
-    px = float(c.iloc[-1])
-    sma = float(c.iloc[-60:].mean())
-    slope = float(np.polyfit(range(40), c.iloc[-40:].values, 1)[0])
-    if px > sma and slope > 0:
-        return 1
-    if px < sma and slope < 0:
-        return -1
-    return 0
+def daily_closes(df30, ids, bysess):
+    """Continuous daily-close series for the MACRO trend filter: real dailies
+    (nq_daily_3m.json) spliced with session closes derived from the 30-min data
+    so the window through July is covered. Indexed by date."""
+    import json
+    r = json.loads((ROOT / "data" / "nq_daily_3m.json").read_text())
+    dd = pd.Series(r["close"],
+                   index=pd.to_datetime(r["time"], utc=True).tz_convert(ET).date)
+    sc = {}
+    for s in ids:
+        rth = bysess[s][(bysess[s].index.time >= pd.Timestamp("09:30").time()) &
+                        (bysess[s].index.time < pd.Timestamp("16:00").time())]
+        if len(rth):
+            sc[pd.Timestamp(s).date()] = float(rth["close"].iloc[-1])
+    sc = pd.Series(sc)
+    daily = pd.concat([dd[dd.index < sc.index.min()], sc]).sort_index()
+    return daily[~daily.index.duplicated(keep="last")]
+
+
+def macro_bias(daily, date):
+    """Macro/HTF trend bias as-of `date`, from DAILY closes strictly before it
+    (no lookahead): price vs 20d SMA, 10d-vs-20d SMA, and 20d slope must agree.
+    +1 up / -1 down / 0 mixed. A daily filter, not an intraday SMA - it holds
+    the macro regime instead of flipping on a one-day bounce."""
+    prior = daily[daily.index < date]
+    if len(prior) < 20:
+        return 0
+    px = float(prior.iloc[-1])
+    s10, s20 = prior.iloc[-10:].mean(), prior.iloc[-20:].mean()
+    slope = float(np.polyfit(range(20), prior.iloc[-20:].values, 1)[0])
+    sc = (1 if px > s20 else -1) + (1 if s10 > s20 else -1) + (1 if slope > 0 else -1)
+    return -1 if sc <= -2 else (1 if sc >= 2 else 0)
 
 
 def simulate(rth, azones, bias, px):
@@ -117,6 +137,7 @@ def _run(arr, ei, start, entry, stop, tgt, side, z):
 def main():
     df30 = bt.load("nq_30min_eth.json")
     df30, ids, bysess = sessions(df30)
+    daily = daily_closes(df30, ids, bysess)
     rths = {}
     for s in ids:
         g = bysess[s]
@@ -135,7 +156,7 @@ def main():
         zs, px = bt.build(hist, prior, 13)
         rth = rths[s]
         openp = float(rth["open"].iloc[0]); closep = float(rth["close"].iloc[-1])
-        bias = htf_bias(hist)
+        bias = macro_bias(daily, s.date() if hasattr(s, "date") else s)
         regime = {1: "up", -1: "down", 0: "flat"}[bias]
         az = [z for z in zs if z["w"] >= 8 and z["nt"] >= 2 and abs(z["price"] - openp) <= WIN_F * openp]
         trades = simulate(rth, az, bias, px)
@@ -150,7 +171,7 @@ def main():
         rows.append((s, regime, len(az), len(trades), netR, len(broke), openp, closep))
         allday.append((s, rth, az, trades, closep, broke, regime))
 
-    print("15-DAY CONFLUENCE SIM — TREND-ONLY (NQ 30-min, pre-open A+ zones + HTF bias, no lookahead)\n")
+    print("15-DAY CONFLUENCE SIM — TREND-ONLY, MACRO DAILY BIAS (NQ 30-min, pre-open A+ zones, no lookahead)\n")
     print(f"{'date':12s} {'bias':6s} {'A+zones':7s} {'trades':6s} {'netR':6s} {'broke':5s}  O->C")
     tot = 0.0; nt = 0; nw = 0
     for s, reg, nz, ntr, netR, nb, o, c in rows:
@@ -206,9 +227,9 @@ def _chart(allday):
         ax.set_title(f"{s.date()}  [{regime}]  {len(trades)}tr {netR:+.1f}R  {len(broke)} broke",
                      fontsize=8.5, fontweight="bold")
         ax.set_xticks([]); ax.tick_params(labelsize=6); ax.margins(x=0.02)
-    fig.suptitle("NQ 15-day confluence sim — TREND-ONLY (fade only WITH pre-open HTF bias) — "
+    fig.suptitle("NQ 15-day confluence sim — TREND-ONLY, MACRO DAILY BIAS (fade only WITH the daily 10/20 trend) — "
                  "bands=pre-open A+ zones (faded+X=broke), purple=EoD, ▲/▼ entry→○ exit (blue=win, red=loss)",
-                 fontsize=11, y=1.002)
+                 fontsize=10, y=1.002)
     plt.tight_layout()
     out = ROOT / "reports" / "img" / "nq_15day_sim.png"
     plt.savefig(out, dpi=95, bbox_inches="tight")
