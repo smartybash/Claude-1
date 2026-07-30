@@ -137,7 +137,14 @@ def main():
     tol = 0.0018 * px
     confirmed, q_strong = crossref_qqq(px, zi_all)
 
-    zi = zi_all
+    # REFINED FILTER (backtest_confluence.py): a real zone needs >=2 distinct
+    # level-types (lone levels held 64% vs 94% for >=2). Drop lone levels and
+    # anything far from price. Tradeable = score>=8 AND >=2 types.
+    def ntypes(labs):
+        return len({x.strip() for x in labs.split(",")})
+
+    WINDOW = 400  # pts: ignore zones farther than this - not intraday-relevant
+    zi = [z for z in zi_all if ntypes(z[4]) >= 2 and abs(z[0] - px) <= WINDOW]
     above = sorted([z for z in zi if z[0] > px], key=lambda x: x[0])
     below = sorted([z for z in zi if z[0] <= px], key=lambda x: -x[0])
     conf_prices = set(round(confirmed[i]) for i in confirmed) if confirmed else set()
@@ -147,36 +154,27 @@ def main():
             return ""
         return " Qs" if any(lo - 20 <= cp <= hi + 20 for cp in conf_prices) else ""
 
-    print(f"NQ CONFLUENCE MAP — {now:%a %m-%d %H:%M} ET   price {px:.0f}")
-    print(f"(zone = levels within ~{tol:.0f}pt; score = summed weight; >=5 = strong, >=8 = A+)\n")
-    # learned filter (backtest_confluence.py): only score>=8 is tradeable;
-    # zones stacking composite-value / PDH / HTF-swing held ~best -> star them.
-    TOP = {"cVAH", "cVAL", "cPOC", "PDH", "4h swing", "1h swing"}
+    print(f"NQ CONFLUENCE MAP — {now:%a %m-%d %H:%M} ET   price {px:.0f}   "
+          f"(zones need >=2 sources & within {WINDOW}pt; A+ = score>=8)")
+    print(f"(Qs = QQQ also marks it - a cross-check; backtest: did NOT beat NQ-only, treat as neutral)\n")
 
-    def grade(w, labs):
-        if w >= 8:
-            return "TOP" if (set(labs.replace(" ", "").split(",")) & {t.replace(" ", "") for t in TOP}) else "A+ "
-        return "   "  # below A+ = not tradeable, shown greyed for context only
+    def grade(w):
+        return "A+ " if w >= 8 else "** " if w >= 5 else "   "
 
-    qtag = "  (Qs = QQQ confirms this zone = highest conviction)" if confirmed is not None else "  (QQQ data missing - no cross-ref)"
-    print(f"RESISTANCE above (short zones):{qtag}")
-    for price, lo, hi, w, labs in above[:5][::-1]:
-        print(f"  {grade(w,labs)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
+    print("RESISTANCE above (short zones):")
+    for price, lo, hi, w, labs in above[:4][::-1]:
+        print(f"  {grade(w)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f} ({ntypes(labs)}x)  [{labs}]")
     print(f"  ------ price {px:.0f} ------")
     print("SUPPORT below (long zones):")
-    for price, lo, hi, w, labs in below[:5]:
-        print(f"  {grade(w,labs)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
+    for price, lo, hi, w, labs in below[:4]:
+        print(f"  {grade(w)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f} ({ntypes(labs)}x)  [{labs}]")
 
-    # tradeable = A+ (score>=8). QQQ-confirmed A+ = A++ (highest conviction).
+    # tradeable = A+ (score>=8 AND >=2 sources, already filtered into zi)
     sa = next((z for z in above if z[3] >= 8), None)
     sb = next((z for z in below if z[3] >= 8), None)
-    print("\nTRADEABLE (A+ only; A++ = QQQ-confirmed):")
-    if sb:
-        g = "A++" if qflag(sb[1], sb[2]) else "A+"
-        print(f"  [{g}] LONG off support {sb[1]:.0f}-{sb[2]:.0f} (score {sb[3]:.1f}) -> target {sa[1]:.0f}" if sa else f"  [{g}] LONG off {sb[1]:.0f}-{sb[2]:.0f}")
-    if sa:
-        g = "A++" if qflag(sa[1], sa[2]) else "A+"
-        print(f"  [{g}] SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} (score {sa[3]:.1f}) -> target {sb[2]:.0f}" if sb else f"  [{g}] SHORT off {sa[1]:.0f}-{sa[2]:.0f}")
+    print("\nTRADEABLE (A+ only, score>=8, multi-source):")
+    if sb: print(f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} (s{sb[3]:.0f}{qflag(sb[1],sb[2])}) -> target {sa[1]:.0f}" if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}")
+    if sa: print(f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} (s{sa[3]:.0f}{qflag(sa[1],sa[2])}) -> target {sb[2]:.0f}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}")
     if not sa and not sb: print("  none in range - stand aside")
 
     _chart(m5, above, below, px, now, zi, conf_prices, confirmed)
@@ -208,23 +206,22 @@ def _chart(m5, above, below, px, now, zi, conf_prices=None, confirmed=None):
         col = "#d32f2f" if red else "#2e7d32"
         conf = w >= 8 and is_conf(lo, hi)
         band = max(hi - lo, 8)
-        if conf:  # A++ (QQQ-confirmed): solid strong band + gold border
-            ax.add_patch(Rectangle((0, lo - 1), n, band + 2, facecolor=col, alpha=0.38,
-                                   edgecolor="#ff8f00", lw=2.2, zorder=2))
-            ax.text(n + 0.5, price, f"A++ {lo:.0f}-{hi:.0f}  s{w:.0f} QQQ✓  [{labs[:30]}]",
-                    color=col, va="center", fontsize=8, fontweight="bold",
-                    bbox=dict(boxstyle="round,pad=0.15", fc="#fff3e0", ec="#ff8f00", lw=1))
+        strong = w >= 8  # A+ tradeable (multi-source already filtered upstream)
+        qmark = " QQQ✓" if conf else ""
+        band = max(hi - lo, 8)
+        if strong:  # A+ : solid band, bold label
+            ax.add_patch(Rectangle((0, lo - 1), n, band + 2, facecolor=col, alpha=0.36,
+                                   edgecolor=col, lw=1.6, zorder=2))
+            ax.text(n + 0.5, price, f"A+ {lo:.0f}-{hi:.0f}  s{w:.0f}{qmark}  [{labs[:30]}]",
+                    color=col, va="center", fontsize=8, fontweight="bold")
         else:
-            alpha = min(0.30, 0.05 + w / 70)
-            ax.add_patch(Rectangle((0, lo), n, band, facecolor=col, alpha=alpha, edgecolor="none", zorder=1))
-            star = "A+" if w >= 8 else ""
-            ax.text(n + 0.5, price, f"{star} {lo:.0f}-{hi:.0f}  s{w:.0f}  [{labs[:34]}]",
-                    color=col, va="center", fontsize=7, fontweight="bold" if w >= 8 else "normal",
-                    alpha=0.9 if w >= 8 else 0.5)
+            ax.add_patch(Rectangle((0, lo), n, band, facecolor=col, alpha=0.14, edgecolor="none", zorder=1))
+            ax.text(n + 0.5, price, f"{lo:.0f}-{hi:.0f}  s{w:.0f}{qmark}  [{labs[:30]}]",
+                    color=col, va="center", fontsize=7, alpha=0.6)
     ax.axhline(px, color="#1565c0", lw=1.3, zorder=5)
     ax.text(n + 0.5, px, f"PRICE {px:.0f}", color="#1565c0", va="center", fontsize=9, fontweight="bold")
-    ax.set_title(f"NQ confluence map — {now:%a %m-%d %H:%M} ET   "
-                 f"(A++ gold-outlined = QQQ-confirmed, highest conviction; A+ bold; weak faded)", fontsize=11)
+    ax.set_title(f"NQ confluence — {now:%a %m-%d %H:%M} ET   "
+                 f"(A+ solid = tradeable, multi-source score>=8; QQQ✓ = QQQ also marks it; weak faded)", fontsize=10.5)
     tk = list(range(0, n, max(1, n // 12)))
     ax.set_xticks(tk); ax.set_xticklabels([plot.index[i].strftime("%m-%d %H:%M") for i in tk], rotation=45, fontsize=7.5)
     ax.set_xlim(0, n + 26); ax.set_ylabel("NQ"); ax.grid(alpha=0.12, zorder=0)

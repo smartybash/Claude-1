@@ -75,8 +75,34 @@ def zones_asof(hist, sessions_prior):
     return out
 
 
+def qqq_zones_asof(qh1, cutoff):
+    """QQQ confluence zone centers (score>=5) as-of cutoff, from QQQ 1h."""
+    hist = qh1[qh1.index < cutoff]
+    if len(hist) < 60:
+        return [], None
+    qpx = float(hist["close"].iloc[-1])
+    lv = []
+    for p in swings(hist, 6, 80): lv.append((p, 3.0))
+    for p in swings(hist, 3, 120): lv.append((p, 2.0))
+    poc, vah, val = volume_profile(hist.iloc[-70:], 50)
+    lv += [(vah, 2.5), (poc, 2.5), (val, 2.5)]
+    for p in round_numbers(qpx, round_step(qpx), 3): lv.append((p, 1.0))
+    lv.sort(); tol = 0.0018 * qpx
+    zones, cl = [], [lv[0]]
+    for x in lv[1:]:
+        if x[0] - cl[-1][0] <= tol: cl.append(x)
+        else: zones.append(cl); cl = [x]
+    zones.append(cl)
+    strong = [sum(a[0] * a[1] for a in z) / sum(a[1] for a in z) for z in zones if sum(a[1] for a in z) >= 5]
+    return strong, qpx
+
+
 def main():
     df = load("nq_30min_eth.json")
+    try:
+        qh1 = load("qqq_1h.json")
+    except FileNotFoundError:
+        qh1 = None
     df["sess"] = pd.Series(df.index.date, index=df.index)
     ev = df.index.hour >= 18
     df.loc[ev, "sess"] = (df.index[ev] + pd.Timedelta(days=1)).date
@@ -97,6 +123,16 @@ def main():
                   (rth.index.time < pd.Timestamp("16:00").time())]
         if len(rth) < 6:
             continue
+        # QQQ cross-ref: scaled QQQ strong-zone centers as-of this session
+        q_scaled = []
+        if qh1 is not None:
+            cutoff = pd.Timestamp(s).tz_localize(ET).replace(hour=9, minute=30)
+            qstrong, qpx = qqq_zones_asof(qh1, cutoff)
+            if qpx:
+                scale = float(rth["open"].iloc[0]) / qpx
+                q_scaled = [qp * scale for qp in qstrong]
+        for z in zs:
+            z["qconf"] = any(z["lo"] - 20 <= qp <= z["hi"] + 20 for qp in q_scaled)
         # day regime (efficiency ratio)
         o, c = rth["close"].iloc[0], rth["close"].iloc[-1]
         er = abs(c - o) / rth["close"].diff().abs().sum() if rth["close"].diff().abs().sum() else 0
@@ -130,7 +166,8 @@ def main():
                         if fr["low"] <= edge_far - BRK: fail = True; break
                 if hold or fail:
                     events.append(dict(score=z["w"], labs=z["labs"], regime=regime,
-                                       side=side, hold=hold))
+                                       side=side, hold=hold, qconf=z.get("qconf", False),
+                                       nlabs=len(z["labs"])))
     e = pd.DataFrame(events)
     if e.empty:
         print("no events"); return
@@ -141,6 +178,17 @@ def main():
     for name, m in [("<5", e.score < 5), ("5-8", (e.score >= 5) & (e.score < 8)), (">=8 (A+)", e.score >= 8)]:
         g = e[m]
         if len(g): print(f"  score {name:9s}: {g.hold.mean():.0%} hold  (n={len(g)})")
+
+    print("\nHOLD-RATE by grade (QQQ cross-ref):")
+    a = e[e.score >= 8]
+    for name, m in [("A++ (>=8 & QQQ-confirmed)", a[a.qconf]), ("A+ (>=8, NQ-only)", a[~a.qconf]),
+                    ("weak (<8)", e[e.score < 8])]:
+        if len(m): print(f"  {name:28s}: {m.hold.mean():.0%} hold  (n={len(m)})")
+
+    print("\nHOLD-RATE by # distinct level-types in zone:")
+    for lo, hiq, lab in [(1, 1, "1 (lone level - noise)"), (2, 3, "2-3"), (4, 99, "4+ (dense)")]:
+        g = e[(e.nlabs >= lo) & (e.nlabs <= hiq)]
+        if len(g): print(f"  {lab:24s}: {g.hold.mean():.0%} hold  (n={len(g)})")
 
     print("\nHOLD-RATE by regime (A+ only, score>=8):")
     a = e[e.score >= 8]
