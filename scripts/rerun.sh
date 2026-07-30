@@ -9,7 +9,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 SYM="${1:-NQ}"
 
-echo "########## STREAM 1: overnight failed-auction read ($SYM) ##########"
+echo "########## REGIME + INTRADAY ENGINE (VWAP/OR/PD) - READ THIS FIRST ##########"
+python3 scripts/intraday_engine.py
+echo
+echo "########## STREAM 1: overnight levels (only trade these on BALANCE regime) ##########"
 python3 scripts/overnight_setup.py --symbol "$SYM"
 echo
 echo "########## STREAM 2: multi-day composite / trend gate ##########"
