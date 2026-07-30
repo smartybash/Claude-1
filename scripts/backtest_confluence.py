@@ -1,14 +1,22 @@
-"""Backtest the confluence zones over NQ history: which zones actually hold?
+"""Confluence backtest — MULTI-INSTRUMENT, MULTI-TIMEFRAME, with a null.
 
-For each session, build confluence zones AS-OF that session's open (no
-lookahead), walk the session's 30-min bars, and for each first-touch of a zone
-test whether a FADE off it worked: did price reverse >=TGT off the zone before
-breaking THROUGH by >=BRK? Aggregate the hold-rate by score bucket, by key
-constituent, and by day-regime -> learn the filter for the strongest setups.
+Answers honestly: do confluence zones hold better than chance, and which
+filters (score, #sources) actually matter - on a sample big enough to trust.
 
-Honest scope: ~1 month of 30-min NQ (front contract) = ~20 sessions, many
-touch-events. Diagnostic, not statistically validated - a small sample, one
-instrument. Directional learning only.
+Method, per instrument x timeframe series:
+  * split into RTH sessions; for each session (after warmup) build confluence
+    zones AS-OF the open from that instrument's own prior bars (no lookahead):
+    swing pivots (k=3 & k=6), ~10-session composite value area, prior-session
+    H/L/C, round numbers -> cluster -> score & #distinct-sources.
+  * walk the session; on first touch of a zone test a FADE: reverse >= TGT
+    (0.14% of price) = HOLD, or push THROUGH >= BRK (0.09%) = FAIL, within
+    HORIZON bars.
+  * NULL: same test on random price levels (same count/session) -> baseline.
+
+Pools NQ(1h,30m) + QQQ(1h,30m) + SPY(1h,30m). Report hold-rate by score bucket
+and by #sources, each with n, vs the random null. Honest scope: ~Dec-Jul,
+correlated equity-index instruments - a real sample (hundreds of events) but
+not multi-year-independent.
 """
 
 from __future__ import annotations
@@ -25,7 +33,15 @@ sys.path.insert(0, str(ROOT))
 from sweeplib.levels import round_numbers, round_step, volume_profile
 
 ET = "America/New_York"
-TGT, BRK, HORIZON = 40.0, 25.0, 6  # reverse 40pt = hold; 25pt beyond = fail; within 6 bars
+TGT_F, BRK_F, HORIZON = 0.0012, 0.0012, 5  # symmetric 1:1: reverse=hold vs through=fail, within HORIZON bars
+RNG = np.random.default_rng(20260730)
+
+# (file, is_futures, bars_per_rth_session)
+SERIES = [
+    ("nq_1h_eth.json", True, 7), ("nq_30min_eth.json", True, 13),
+    ("qqq_1h.json", False, 7), ("qqq_30min.json", False, 13),
+    ("spy_1h.json", False, 7), ("spy_30min.json", False, 13),
+]
 
 
 def load(name):
@@ -39,28 +55,25 @@ def swings(df, k, recent):
     h, l = df["high"].values, df["low"].values
     n = len(df); out = []
     for i in range(k, n - k):
-        if h[i] == max(h[i - k:i + k + 1]):
-            out.append((float(h[i]), i))
-        if l[i] == min(l[i - k:i + k + 1]):
-            out.append((float(l[i]), i))
+        if h[i] == max(h[i - k:i + k + 1]): out.append((float(h[i]), i))
+        if l[i] == min(l[i - k:i + k + 1]): out.append((float(l[i]), i))
     return [p for p, i in out if i >= n - recent]
 
 
-def zones_asof(hist, sessions_prior):
-    """Confluence zones from 30m history up to (not incl) the session open."""
+def build(hist, prior_sess, bps):
     px = float(hist["close"].iloc[-1])
     lv = []
-    for p in swings(hist, 6, 80): lv.append((p, "sw4h", 3.0))   # coarse swing ~ 4h
-    for p in swings(hist, 3, 120): lv.append((p, "sw1h", 2.0))  # finer swing ~ 1h
-    poc, vah, val = volume_profile(hist.iloc[-10 * 13:], 60)     # ~10-session composite
-    lv += [(vah, "cVAH", 2.5), (poc, "cPOC", 2.5), (val, "cVAL", 2.5)]
-    if sessions_prior:
-        pg = sessions_prior[-1]
-        lv += [(float(pg["high"].max()), "PDH", 2.0), (float(pg["low"].min()), "PDL", 2.0),
-               (float(pg["close"].iloc[-1]), "PDC", 1.5)]
+    for p in swings(hist, 6, 80): lv.append((p, "sw_hi", 3.0))
+    for p in swings(hist, 3, 120): lv.append((p, "sw_lo", 2.0))
+    if len(hist) > bps * 3:
+        poc, vah, val = volume_profile(hist.iloc[-bps * 10:], 50)
+        lv += [(vah, "cVAH", 2.5), (poc, "cPOC", 2.5), (val, "cVAL", 2.5)]
+    if prior_sess is not None and len(prior_sess) > 3:
+        lv += [(float(prior_sess["high"].max()), "PDH", 2.0),
+               (float(prior_sess["low"].min()), "PDL", 2.0),
+               (float(prior_sess["close"].iloc[-1]), "PDC", 1.5)]
     for p in round_numbers(px, round_step(px), 3): lv.append((p, "round", 1.0))
-    lv.sort()
-    tol = 0.0018 * px
+    lv.sort(); tol = 0.0018 * px
     zones, cl = [], [lv[0]]
     for x in lv[1:]:
         if x[0] - cl[-1][0] <= tol: cl.append(x)
@@ -69,144 +82,106 @@ def zones_asof(hist, sessions_prior):
     out = []
     for z in zones:
         w = sum(a[2] for a in z)
-        price = sum(a[0] * a[2] for a in z) / w
-        out.append(dict(price=price, lo=min(a[0] for a in z), hi=max(a[0] for a in z),
-                        w=w, labs=set(a[1] for a in z)))
-    return out
+        out.append(dict(price=sum(a[0] * a[2] for a in z) / w, lo=min(a[0] for a in z),
+                        hi=max(a[0] for a in z), w=w, nt=len({a[1] for a in z})))
+    return out, px
 
 
-def qqq_zones_asof(qh1, cutoff):
-    """QQQ confluence zone centers (score>=5) as-of cutoff, from QQQ 1h."""
-    hist = qh1[qh1.index < cutoff]
-    if len(hist) < 60:
-        return [], None
-    qpx = float(hist["close"].iloc[-1])
-    lv = []
-    for p in swings(hist, 6, 80): lv.append((p, 3.0))
-    for p in swings(hist, 3, 120): lv.append((p, 2.0))
-    poc, vah, val = volume_profile(hist.iloc[-70:], 50)
-    lv += [(vah, 2.5), (poc, 2.5), (val, 2.5)]
-    for p in round_numbers(qpx, round_step(qpx), 3): lv.append((p, 1.0))
-    lv.sort(); tol = 0.0018 * qpx
-    zones, cl = [], [lv[0]]
-    for x in lv[1:]:
-        if x[0] - cl[-1][0] <= tol: cl.append(x)
-        else: zones.append(cl); cl = [x]
-    zones.append(cl)
-    strong = [sum(a[0] * a[1] for a in z) / sum(a[1] for a in z) for z in zones if sum(a[1] for a in z) >= 5]
-    return strong, qpx
+def test_touch(z, arr, bi, px):
+    hi, lo = arr["high"][bi], arr["low"][bi]
+    tgt, brk = TGT_F * px, BRK_F * px
+    if lo < z["lo"] and hi >= z["lo"]:
+        side, far = "res", z["hi"]
+    elif hi > z["hi"] and lo <= z["hi"]:
+        side, far = "sup", z["lo"]
+    else:
+        return None
+    for j in range(bi, min(bi + HORIZON + 1, len(arr))):
+        if side == "res":
+            if arr["low"][j] <= z["lo"] - tgt: return True
+            if arr["high"][j] >= far + brk: return False
+        else:
+            if arr["high"][j] >= z["hi"] + tgt: return True
+            if arr["low"][j] <= far - brk: return False
+    return None
 
 
 def main():
-    df = load("nq_30min_eth.json")
-    try:
-        qh1 = load("qqq_1h.json")
-    except FileNotFoundError:
-        qh1 = None
-    df["sess"] = pd.Series(df.index.date, index=df.index)
-    ev = df.index.hour >= 18
-    df.loc[ev, "sess"] = (df.index[ev] + pd.Timedelta(days=1)).date
-    sess_ids = sorted(df["sess"].unique())
-    by_sess = {s: df[df["sess"] == s] for s in sess_ids}
+    ev, nullev = [], []
+    n_sessions = 0
+    for fname, fut, bps in SERIES:
+        try:
+            df = load(fname)
+        except FileNotFoundError:
+            continue
+        if fut:
+            sess = pd.Series(df.index.date, index=df.index)
+            evb = df.index.hour >= 18
+            sess[evb] = (df.index[evb] + pd.Timedelta(days=1)).date
+        else:
+            sess = pd.Series(df.index.date, index=df.index)
+        df = df.assign(sess=pd.to_datetime(sess.values))
+        sids = sorted(df["sess"].unique())
+        bysess = {s: df[df["sess"] == s] for s in sids}
+        for i, s in enumerate(sids):
+            if i < 8:
+                continue
+            opent = pd.Timestamp(s).tz_localize(ET).replace(hour=9, minute=30)
+            hist = df[df.index < opent]
+            if len(hist) < 60:
+                continue
+            rth = bysess[s]
+            rth = rth[(rth.index.time >= pd.Timestamp("09:30").time()) &
+                      (rth.index.time < pd.Timestamp("16:00").time())]
+            if len(rth) < 5:
+                continue
+            zs, px = build(hist, bysess[sids[i - 1]], bps)
+            arr = rth.reset_index()
+            o, c = rth["close"].iloc[0], rth["close"].iloc[-1]
+            denom = rth["close"].diff().abs().sum()
+            regime = "trend" if (denom and abs(c - o) / denom >= 0.4) else "balance"
+            n_sessions += 1
+            touched = set()
+            for bi in range(len(arr)):
+                for zi, z in enumerate(zs):
+                    if zi in touched:
+                        continue
+                    r = test_touch(z, arr, bi, px)
+                    if r is not None:
+                        touched.add(zi)
+                        ev.append(dict(score=z["w"], nt=z["nt"], regime=regime, hold=r))
+            # null: random levels across the day's context range, same count
+            rng_lo, rng_hi = hist["low"].iloc[-bps * 5:].min(), hist["high"].iloc[-bps * 5:].max()
+            for _ in range(len(zs)):
+                lvl = RNG.uniform(rng_lo, rng_hi)
+                zf = dict(lo=lvl - 0.0009 * px, hi=lvl + 0.0009 * px)
+                for bi in range(len(arr)):
+                    r = test_touch(zf, arr, bi, px)
+                    if r is not None:
+                        nullev.append(r); break
 
-    events = []
-    for i, s in enumerate(sess_ids):
-        if i < 6:  # warmup for swings/composite
-            continue
-        hist = df[df.index < pd.Timestamp(s).tz_localize(ET).replace(hour=9, minute=30)]
-        if len(hist) < 60:
-            continue
-        prior = [by_sess[x] for x in sess_ids[:i]]
-        zs = zones_asof(hist, prior)
-        rth = by_sess[s]
-        rth = rth[(rth.index.time >= pd.Timestamp("09:30").time()) &
-                  (rth.index.time < pd.Timestamp("16:00").time())]
-        if len(rth) < 6:
-            continue
-        # QQQ cross-ref: scaled QQQ strong-zone centers as-of this session
-        q_scaled = []
-        if qh1 is not None:
-            cutoff = pd.Timestamp(s).tz_localize(ET).replace(hour=9, minute=30)
-            qstrong, qpx = qqq_zones_asof(qh1, cutoff)
-            if qpx:
-                scale = float(rth["open"].iloc[0]) / qpx
-                q_scaled = [qp * scale for qp in qstrong]
-        for z in zs:
-            z["qconf"] = any(z["lo"] - 20 <= qp <= z["hi"] + 20 for qp in q_scaled)
-        # day regime (efficiency ratio)
-        o, c = rth["close"].iloc[0], rth["close"].iloc[-1]
-        er = abs(c - o) / rth["close"].diff().abs().sum() if rth["close"].diff().abs().sum() else 0
-        regime = "trend" if er >= 0.4 else "balance"
-        touched = set()
-        arr = rth.reset_index()
-        for bi in range(len(arr)):
-            hi, lo = arr["high"][bi], arr["low"][bi]
-            for zi, z in enumerate(zs):
-                if zi in touched:
-                    continue
-                res = z["price"] > c if False else None  # side by touch direction
-                # resistance touch (approach from below): bar high enters zone
-                if lo < z["lo"] and hi >= z["lo"]:
-                    side = "res"; edge_far = z["hi"]
-                elif hi > z["hi"] and lo <= z["hi"]:
-                    side = "sup"; edge_far = z["lo"]
-                else:
-                    continue
-                touched.add(zi)
-                # outcome over next HORIZON bars
-                fut = arr.iloc[bi:bi + HORIZON + 1]
-                hold = fail = False
-                if side == "res":
-                    for _, fr in fut.iterrows():
-                        if fr["low"] <= z["lo"] - TGT: hold = True; break
-                        if fr["high"] >= edge_far + BRK: fail = True; break
-                else:
-                    for _, fr in fut.iterrows():
-                        if fr["high"] >= z["hi"] + TGT: hold = True; break
-                        if fr["low"] <= edge_far - BRK: fail = True; break
-                if hold or fail:
-                    events.append(dict(score=z["w"], labs=z["labs"], regime=regime,
-                                       side=side, hold=hold, qconf=z.get("qconf", False),
-                                       nlabs=len(z["labs"])))
-    e = pd.DataFrame(events)
-    if e.empty:
-        print("no events"); return
-    print(f"CONFLUENCE BACKTEST — {len(e)} touch-events over {len(sess_ids)-6} sessions "
-          f"(fade: reverse {TGT:.0f}pt=hold vs {BRK:.0f}pt-through=fail)\n")
+    e = pd.DataFrame(ev); nn = pd.Series(nullev, dtype=bool)
+    print(f"CONFLUENCE BACKTEST (multi-instrument) — {len(e)} zone touch-events over "
+          f"{n_sessions} instrument-sessions\n(fade: reverse {TGT_F:.2%}=hold vs {BRK_F:.2%}-through=fail)\n")
+    print(f"NULL (random levels, same test): {nn.mean():.0%} hold  (n={len(nn)})  <- luck baseline\n")
+
+    def ci(g):
+        p = g.mean(); n = len(g); se = (p * (1 - p) / n) ** 0.5 if n else 0
+        return f"{p:.0%} +/-{1.96*se:.0%} (n={n})"
 
     print("HOLD-RATE by score bucket:")
     for name, m in [("<5", e.score < 5), ("5-8", (e.score >= 5) & (e.score < 8)), (">=8 (A+)", e.score >= 8)]:
-        g = e[m]
-        if len(g): print(f"  score {name:9s}: {g.hold.mean():.0%} hold  (n={len(g)})")
-
-    print("\nHOLD-RATE by grade (QQQ cross-ref):")
-    a = e[e.score >= 8]
-    for name, m in [("A++ (>=8 & QQQ-confirmed)", a[a.qconf]), ("A+ (>=8, NQ-only)", a[~a.qconf]),
-                    ("weak (<8)", e[e.score < 8])]:
-        if len(m): print(f"  {name:28s}: {m.hold.mean():.0%} hold  (n={len(m)})")
-
-    print("\nHOLD-RATE by # distinct level-types in zone:")
-    for lo, hiq, lab in [(1, 1, "1 (lone level - noise)"), (2, 3, "2-3"), (4, 99, "4+ (dense)")]:
-        g = e[(e.nlabs >= lo) & (e.nlabs <= hiq)]
-        if len(g): print(f"  {lab:24s}: {g.hold.mean():.0%} hold  (n={len(g)})")
-
-    print("\nHOLD-RATE by regime (A+ only, score>=8):")
-    a = e[e.score >= 8]
+        if m.sum(): print(f"  score {name:9s}: {ci(e[m].hold)}")
+    print("\nHOLD-RATE by #distinct sources in zone:")
+    for name, m in [("1 (lone)", e.nt == 1), ("2", e.nt == 2), ("3", e.nt == 3), (">=4", e.nt >= 4)]:
+        if m.sum(): print(f"  {name:9s}: {ci(e[m].hold)}")
+    print("\nHOLD-RATE A+ (>=8) & multi-source (>=2), by regime:")
+    a = e[(e.score >= 8) & (e.nt >= 2)]
     for r in ("balance", "trend"):
         g = a[a.regime == r]
-        if len(g): print(f"  {r:8s}: {g.hold.mean():.0%} hold  (n={len(g)})")
-
-    print("\nHOLD-RATE by constituent (score>=5):")
-    s5 = e[e.score >= 5]
-    for lab in ["cVAH", "cVAL", "cPOC", "sw4h", "sw1h", "PDH", "PDL", "round"]:
-        g = s5[s5.labs.apply(lambda x: lab in x)]
-        if len(g) >= 4: print(f"  contains {lab:6s}: {g.hold.mean():.0%} hold  (n={len(g)})")
-
-    # recommended filter
-    best = e[(e.score >= 8)]
-    bt = best[best.regime == "balance"]
-    print(f"\nSTRONGEST FILTER (A+ score>=8 on balance days): "
-          f"{bt.hold.mean():.0%} hold, n={len(bt)}  vs baseline all-events {e.hold.mean():.0%}")
+        if len(g): print(f"  {r:8s}: {ci(g.hold)}")
+    print(f"\nBEST FILTER A+ & >=2 sources: {ci(a.hold)}  vs null {nn.mean():.0%}  "
+          f"-> edge = +{a.hold.mean()-nn.mean():.0%}pts")
 
 
 if __name__ == "__main__":

@@ -158,16 +158,22 @@ def main():
           f"(zones need >=2 sources & within {WINDOW}pt; A+ = score>=8)")
     print(f"(Qs = QQQ also marks it - a cross-check; backtest: did NOT beat NQ-only, treat as neutral)\n")
 
-    def grade(w):
-        return "A+ " if w >= 8 else "** " if w >= 5 else "   "
+    # backtest (1229 events, null=88%): edge is modest and lives in DENSE zones
+    # (>=4 sources = 94% = +6 vs random); lone levels are worse than random.
+    def grade(w, labs):
+        nt = ntypes(labs)
+        if nt >= 4: return "DENSE"  # the real edge tier (+6 vs null)
+        if w >= 8: return "A+  "
+        if w >= 5: return "**  "
+        return "    "
 
     print("RESISTANCE above (short zones):")
     for price, lo, hi, w, labs in above[:4][::-1]:
-        print(f"  {grade(w)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f} ({ntypes(labs)}x)  [{labs}]")
+        print(f"  {grade(w,labs)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f} ({ntypes(labs)}x)  [{labs}]")
     print(f"  ------ price {px:.0f} ------")
     print("SUPPORT below (long zones):")
     for price, lo, hi, w, labs in below[:4]:
-        print(f"  {grade(w)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f} ({ntypes(labs)}x)  [{labs}]")
+        print(f"  {grade(w,labs)}{qflag(lo,hi):>3} {lo:.0f}-{hi:.0f}  score {w:.1f} ({ntypes(labs)}x)  [{labs}]")
 
     # tradeable = A+ (score>=8 AND >=2 sources, already filtered into zi)
     sa = next((z for z in above if z[3] >= 8), None)
