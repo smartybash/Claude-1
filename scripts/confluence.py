@@ -127,22 +127,30 @@ def main():
 
     print(f"NQ CONFLUENCE MAP — {now:%a %m-%d %H:%M} ET   price {px:.0f}")
     print(f"(zone = levels within ~{tol:.0f}pt; score = summed weight; >=5 = strong, >=8 = A+)\n")
+    # learned filter (backtest_confluence.py): only score>=8 is tradeable;
+    # zones stacking composite-value / PDH / HTF-swing held ~best -> star them.
+    TOP = {"cVAH", "cVAL", "cPOC", "PDH", "4h swing", "1h swing"}
+
+    def grade(w, labs):
+        if w >= 8:
+            return "TOP" if (set(labs.replace(" ", "").split(",")) & {t.replace(" ", "") for t in TOP}) else "A+ "
+        return "   "  # below A+ = not tradeable, shown greyed for context only
+
     print("RESISTANCE above (short zones):")
     for price, lo, hi, w, labs in above[:5][::-1]:
-        star = "A+ " if w >= 8 else "** " if w >= 5 else "   "
-        print(f"  {star}{lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
+        print(f"  {grade(w,labs)} {lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
     print(f"  ------ price {px:.0f} ------")
     print("SUPPORT below (long zones):")
     for price, lo, hi, w, labs in below[:5]:
-        star = "A+ " if w >= 8 else "** " if w >= 5 else "   "
-        print(f"  {star}{lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
+        print(f"  {grade(w,labs)} {lo:.0f}-{hi:.0f}  score {w:.1f}  [{labs}]")
 
-    # nearest strong on each side
-    sa = next((z for z in above if z[3] >= 5), None)
-    sb = next((z for z in below if z[3] >= 5), None)
-    print("\nNEAREST STRONG:")
-    if sb: print(f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} (score {sb[3]:.1f}) -> target {sa[1]:.0f} " if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}")
+    # tradeable = A+ (score>=8) ONLY (learned: <8 holds far less reliably)
+    sa = next((z for z in above if z[3] >= 8), None)
+    sb = next((z for z in below if z[3] >= 8), None)
+    print("\nTRADEABLE (A+ only, score>=8):")
+    if sb: print(f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} (score {sb[3]:.1f}) -> target {sa[1]:.0f}" if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}")
     if sa: print(f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} (score {sa[3]:.1f}) -> target {sb[2]:.0f}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}")
+    if not sa and not sb: print("  none in range - stand aside")
 
     _chart(m5, above, below, px, now, zi)
 
