@@ -117,16 +117,23 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date):
     bars = pd.concat([bysess[s] for s in show])
     a = bars.reset_index()
     fig, ax = plt.subplots(figsize=(15, 7.5))
-    # session shading + dividers
+    # session shading + dividers; build a real date/time timeline for the bottom axis
     xstart = 0
+    xticks, xlabels = [], []
+    ts = a["index"] if "index" in a.columns else a.iloc[:, 0]  # per-bar timestamp
     for k, s in enumerate(show):
         n = len(bysess[s])
         if k % 2 == 0:
             ax.axvspan(xstart - 0.5, xstart + n - 0.5, color="#f4f6f8", zorder=0)
-        r = rth(bysess[s])
-        lab = pd.Timestamp(s).strftime("%m-%d") + ("  (pre-open)" if s == show[-1] else "")
-        ax.text(xstart + n / 2, 1.005, lab, transform=ax.get_xaxis_transform(),
-                ha="center", va="bottom", fontsize=7.5, color="#555")
+        if k > 0:
+            ax.axvline(xstart - 0.5, color="#cfd8dc", lw=0.8, zorder=0)
+        # bottom tick at each session's RTH open (fallback: session start)
+        gi = bysess[s]
+        ropen = gi.index.get_indexer([gi[(gi.index.time >= pd.Timestamp("09:30").time())].index[0]])[0] \
+            if len(gi[(gi.index.time >= pd.Timestamp("09:30").time())]) else 0
+        d = pd.Timestamp(s)
+        xticks.append(xstart + ropen)
+        xlabels.append(d.strftime("%a %m-%d") + ("\n(pre-open)" if s == show[-1] else "\n09:30 ET"))
         xstart += n
     for i, row in a.iterrows():
         up = row["close"] >= row["open"]; c = "#26a69a" if up else "#ef5350"
@@ -151,10 +158,12 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date):
     ax.axhline(vwap, color="#1565c0", lw=1.0, ls="--")
     ax.text(m + 3.2, vwap, f"o/n VWAP {vwap:.0f}", color="#1565c0", fontsize=7, va="center")
     bt_txt = {1: "UP", -1: "DOWN", 0: "MIXED"}[bias]
-    ax.set_title(f"NQ Sep'26 — last {CHART_SESSIONS} sessions (30m, roll-consistent) into {cur_date} pre-open  "
+    ax.set_title(f"NQ Sep'26 — last {CHART_SESSIONS} sessions into {cur_date} pre-open  "
                  f"[macro {bt_txt}; red=resist, green=support; ★=all 3 filters]", fontsize=11, fontweight="bold")
-    ax.set_xticks([]); ax.margins(x=0.02)
-    ax.set_ylabel("NQ (Sep basis)")
+    ax.set_xticks(xticks); ax.set_xticklabels(xlabels, fontsize=8)
+    ax.margins(x=0.02)
+    ax.set_ylabel("NQ price (Sep'26 basis)")
+    ax.set_xlabel("30-minute candles · ET · each shaded block = one CME session (18:00→16:00)", fontsize=9)
     plt.tight_layout()
     out = ROOT / "reports" / "img" / "nq_three_filter_today.png"
     plt.savefig(out, dpi=110, bbox_inches="tight")
