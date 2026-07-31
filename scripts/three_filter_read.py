@@ -33,7 +33,7 @@ import scripts.backtest_confluence as bt
 from scripts.sim_15day import macro_bias, WIN_F, BUF_F
 
 ET = "America/New_York"
-LIVE_PX = 28532.5
+LIVE_PX = 28245.0
 K_STRETCH = 0.5
 CHART_SESSIONS = 6
 
@@ -102,9 +102,9 @@ def main():
     sd = float(np.sqrt(((tp - vwap) ** 2 * v).cumsum().iloc[-1] / cv.iloc[-1]))
     stretch = (px - vwap) / sd if sd else 0.0
 
-    print(f"NQ three-filter read — {cur_date} RTH OPEN (~09:40 ET)   price {px:.0f}")
+    print(f"NQ three-filter read — {cur_date} RTH (~10:05 ET)   price {px:.0f}")
     print(f"  CONTRACT: front Sep'26 (exp 09-18)  |  back Dec'26  |  next roll ~Sep 10  |  basis: Sep, single")
-    print(f"  prior RTH close 28238   o/n range 28300-28726   +295 (+1.04%)  [o/n high TAGGED 28726 shelf, rejected]")
+    print(f"  prior RTH close 28238   day range 28245-28726   flat (+0.03%)  [tagged 28726 shelf -> rejected -481 to 28222 support]")
     print(f"  macro series: {len(daily)} Sep-basis daily closes {daily.index[0]}..{daily.index[-1]}\n")
     print(f"FILTER 2 DIRECTION : macro bias {bias_txt}  (10d SMA {s10:.0f} vs 20d SMA {s20:.0f}) "
           f"-> {'SHORT resistance only' if bias<0 else ('LONG support only' if bias>0 else 'stand aside')}\n")
@@ -262,7 +262,7 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
     ax.axhline(vwap, color="#1565c0", lw=1.0, ls="--")
     ax.text(m + 3.2, vwap, f"o/n VWAP {vwap:.0f}", color="#1565c0", fontsize=7, va="center")
     bt_txt = {1: "UP", -1: "DOWN", 0: "MIXED"}[bias]
-    ax.set_title(f"NQ Sep'26 — last {CHART_SESSIONS} sessions into {cur_date} pre-open  "
+    ax.set_title(f"NQ Sep'26 — last {CHART_SESSIONS} sessions into {cur_date} (intraday)  "
                  f"[macro {bt_txt}; red=resist, green=support; ★=all 3 filters]", fontsize=11, fontweight="bold")
     ax.set_xticks(xticks); ax.set_xticklabels(xlabels, fontsize=8)
     ax.margins(x=0.02)
