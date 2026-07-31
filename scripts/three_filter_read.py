@@ -137,10 +137,15 @@ def main():
         if z["w"] < 8: why.append("not A+")
         if not str_ok: why.append(f"flat {toward:+.1f}s")
         tag = "TAKE" if take else "wait  (" + ", ".join(why) + ")"
-        # rail+level is a BREAKOUT/retrace decision point, NOT a fade upgrade
-        # (backtest: rail-confluence adds no edge to the fade, cancels the stretch edge)
-        if rail_ok:
-            tag += "  [rail: break-risk, trade the reaction]"
+        # rail+level is a BREAK signal, not a fade (backtest: break@rail +0.15R/69%
+        # vs fade@rail -0.01R). Flag the trend-aligned break: support break in a
+        # down tape / resistance break in an up tape.
+        brk = (bias < 0 and side == "long") or (bias > 0 and side == "short")
+        if rail_ok and brk:
+            edge = z["lo"] if bias < 0 else z["hi"]
+            tag += f"  [rail+level BREAK: {'short' if bias<0 else 'long'} on 30m close thru {edge:.0f}]"
+        elif rail_ok:
+            tag += "  [rail: break-risk]"
         print(f"  {z['lo']:.0f}-{z['hi']:.0f} @{z['price']:.0f}  {grade:6s} {side:5s} "
               f"{'yes' if dir_ok else 'no':5s} {'yes' if str_ok else 'no':9s} "
               f"{'YES' if rail_ok else 'no':6s}  {tag}")
