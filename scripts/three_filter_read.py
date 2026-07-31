@@ -122,7 +122,7 @@ def main():
     print(f"  breakout = 30m close beyond a rail; tap-retrace = wick to rail + close back in. "
           f"Best when a rail meets a level.\n")
     print("FILTER 1 LOCATION  - structure in play + full gate:\n")
-    hdr = f"  {'zone':18s} {'grade':6s} {'side':5s} {'dir?':5s} {'stretch?':9s}  VERDICT"
+    hdr = f"  {'zone':18s} {'grade':6s} {'side':5s} {'dir?':5s} {'stretch?':9s} {'rail?':6s}  VERDICT"
     print(hdr); print("  " + "-" * (len(hdr) - 2))
     for z in az:
         grade = ("DENSE" if z["nt"] >= 4 else "A+") if z["w"] >= 8 else "wk"
@@ -130,14 +130,20 @@ def main():
         dir_ok = (side == "short" and bias < 0) or (side == "long" and bias > 0)
         toward = stretch if side == "short" else -stretch
         str_ok = toward >= K_STRETCH
+        rail_ok = bt.zone_rail_conf(cc, z["price"], 13, 0.003 * px)
         take = dir_ok and str_ok and z["w"] >= 8
         why = []
         if not dir_ok: why.append("vs trend")
         if z["w"] < 8: why.append("not A+")
         if not str_ok: why.append(f"flat {toward:+.1f}s")
         tag = "TAKE" if take else "wait  (" + ", ".join(why) + ")"
+        # rail+level is a BREAKOUT/retrace decision point, NOT a fade upgrade
+        # (backtest: rail-confluence adds no edge to the fade, cancels the stretch edge)
+        if rail_ok:
+            tag += "  [rail: break-risk, trade the reaction]"
         print(f"  {z['lo']:.0f}-{z['hi']:.0f} @{z['price']:.0f}  {grade:6s} {side:5s} "
-              f"{'yes' if dir_ok else 'no':5s} {'yes' if str_ok else 'no':9s}  {tag}")
+              f"{'yes' if dir_ok else 'no':5s} {'yes' if str_ok else 'no':9s} "
+              f"{'YES' if rail_ok else 'no':6s}  {tag}")
 
     _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date)
 

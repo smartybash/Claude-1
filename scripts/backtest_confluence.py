@@ -81,6 +81,38 @@ def shelves(df, k=8, lookback=600, disp=0.012):
     return out
 
 
+def channel_fit(close, lookback=150, k=2.0, min_len=14):
+    """Linear-regression channel over the current leg (objective, no lookahead).
+    Anchor at the leg origin (window min for an up-leg / max for a down-leg),
+    regress closes to now, rails = fit +/- k*residual-sigma."""
+    close = np.asarray(close, float)
+    n = len(close)
+    lb = min(lookback, n)
+    w = close[-lb:]; base = n - lb
+    anchor = base + (int(np.argmin(w)) if close[-1] >= w[0] else int(np.argmax(w)))
+    if n - anchor < min_len:
+        anchor = base
+    x = np.arange(anchor, n)
+    slope, intercept = np.polyfit(x, close[anchor:], 1)
+    mid = slope * x + intercept
+    sd = float((close[anchor:] - mid).std())
+    return dict(anchor=anchor, slope=float(slope), intercept=float(intercept), sd=sd, k=k)
+
+
+def zone_rail_conf(close, zone_price, n_ahead, tol):
+    """True if a channel rail sweeps within tol of zone_price across the next
+    n_ahead bars (i.e. rail meets the horizontal level during the session)."""
+    ch = channel_fit(close)
+    n = len(close); b = ch["intercept"]; s = ch["slope"]; off = ch["k"] * ch["sd"]
+    x0, x1 = n - 1, n - 1 + n_ahead
+    for sign in (+1, -1):                       # upper, lower rail
+        a = s * x0 + b + sign * off
+        c = s * x1 + b + sign * off
+        if min(a, c) - tol <= zone_price <= max(a, c) + tol:
+            return True
+    return False
+
+
 def build(hist, prior_sess, bps):
     px = float(hist["close"].iloc[-1])
     lv = []
