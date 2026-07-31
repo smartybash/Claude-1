@@ -60,11 +60,33 @@ def swings(df, k, recent):
     return [p for p, i in out if i >= n - recent]
 
 
+def shelves(df, k=8, lookback=600, disp=0.012):
+    """Congestion shelves price LEFT on an impulse (supply/demand memory):
+    a significant fractal high/low (extreme over 2k+1 bars) that price then
+    displaced away from by >=disp within the next ~2k bars. A swing high price
+    later dropped >=disp below = breakdown supply; a swing low price later
+    rallied >=disp above = breakout demand. Long lookback so ETH bars (~37/session)
+    don't erase multi-day structure the way the short swing window does."""
+    h, l, c = df["high"].values, df["low"].values, df["close"].values
+    n = len(df); out = []
+    lo = max(k, n - lookback)
+    for i in range(lo, n - k):
+        fwd = c[i + 1: min(i + 2 * k + 1, n)]
+        if len(fwd) == 0:
+            continue
+        if h[i] == max(h[i - k:i + k + 1]) and (h[i] - fwd.min()) >= disp * h[i]:
+            out.append(float(h[i]))          # broke DOWN from here -> supply
+        if l[i] == min(l[i - k:i + k + 1]) and (fwd.max() - l[i]) >= disp * l[i]:
+            out.append(float(l[i]))          # broke UP from here -> demand
+    return out
+
+
 def build(hist, prior_sess, bps):
     px = float(hist["close"].iloc[-1])
     lv = []
     for p in swings(hist, 6, 80): lv.append((p, "sw_hi", 3.0))
     for p in swings(hist, 3, 120): lv.append((p, "sw_lo", 2.0))
+    for p in shelves(hist): lv.append((p, "shelf", 3.0))
     if len(hist) > bps * 3:
         poc, vah, val = volume_profile(hist.iloc[-bps * 10:], 50)
         lv += [(vah, "cVAH", 2.5), (poc, "cPOC", 2.5), (val, "cVAL", 2.5)]
