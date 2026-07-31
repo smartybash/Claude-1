@@ -33,7 +33,7 @@ import scripts.backtest_confluence as bt
 from scripts.sim_15day import macro_bias, WIN_F, BUF_F
 
 ET = "America/New_York"
-LIVE_PX = 28245.0
+LIVE_PX = 28239.25
 K_STRETCH = 0.5
 CHART_SESSIONS = 6
 
@@ -102,9 +102,9 @@ def main():
     sd = float(np.sqrt(((tp - vwap) ** 2 * v).cumsum().iloc[-1] / cv.iloc[-1]))
     stretch = (px - vwap) / sd if sd else 0.0
 
-    print(f"NQ three-filter read — {cur_date} RTH (~10:05 ET)   price {px:.0f}")
+    print(f"NQ three-filter read — {cur_date} RTH (~10:30 ET)   price {px:.0f}")
     print(f"  CONTRACT: front Sep'26 (exp 09-18)  |  back Dec'26  |  next roll ~Sep 10  |  basis: Sep, single")
-    print(f"  prior RTH close 28238   day range 28245-28726   flat (+0.03%)  [tagged 28726 shelf -> rejected -481 to 28222 support]")
+    print(f"  prior RTH close 28238   day range 28080-28726   flat (+0.01%)  [28726 rejected -> broke 28178 -> tagged 28062 zone (low 28080) -> bounced]")
     print(f"  macro series: {len(daily)} Sep-basis daily closes {daily.index[0]}..{daily.index[-1]}\n")
     print(f"FILTER 2 DIRECTION : macro bias {bias_txt}  (10d SMA {s10:.0f} vs 20d SMA {s20:.0f}) "
           f"-> {'SHORT resistance only' if bias<0 else ('LONG support only' if bias>0 else 'stand aside')}\n")
