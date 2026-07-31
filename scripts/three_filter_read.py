@@ -30,10 +30,10 @@ from matplotlib.patches import Rectangle
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import scripts.backtest_confluence as bt
-from scripts.sim_15day import macro_bias, WIN_F
+from scripts.sim_15day import macro_bias, WIN_F, BUF_F
 
 ET = "America/New_York"
-LIVE_PX = 28431.25
+LIVE_PX = 28555.25
 K_STRETCH = 0.5
 CHART_SESSIONS = 6
 
@@ -104,7 +104,7 @@ def main():
 
     print(f"NQ three-filter read — {cur_date} PRE-OPEN (overnight Globex)   price {px:.0f}")
     print(f"  CONTRACT: front Sep'26 (exp 09-18)  |  back Dec'26  |  next roll ~Sep 10  |  basis: Sep, single")
-    print(f"  prior RTH close 28238   overnight range 28300-28572   +193 (+0.69%)")
+    print(f"  prior RTH close 28238   overnight range 28300-28641   +318 (+1.12%)  [~05:40 ET, pre-open]")
     print(f"  macro series: {len(daily)} Sep-basis daily closes {daily.index[0]}..{daily.index[-1]}\n")
     print(f"FILTER 2 DIRECTION : macro bias {bias_txt}  (10d SMA {s10:.0f} vs 20d SMA {s20:.0f}) "
           f"-> {'SHORT resistance only' if bias<0 else ('LONG support only' if bias>0 else 'stand aside')}\n")
@@ -124,6 +124,8 @@ def main():
     print("FILTER 1 LOCATION  - structure in play + full gate:\n")
     hdr = f"  {'zone':18s} {'grade':6s} {'side':5s} {'dir?':5s} {'stretch?':9s} {'rail?':6s}  VERDICT"
     print(hdr); print("  " + "-" * (len(hdr) - 2))
+    signals = []
+    buf = BUF_F * px
     for z in az:
         grade = ("DENSE" if z["nt"] >= 4 else "A+") if z["w"] >= 8 else "wk"
         side = "short" if z["price"] > px else "long"
@@ -131,10 +133,12 @@ def main():
         toward = stretch if side == "short" else -stretch
         str_ok = toward >= K_STRETCH
         rail_ok = bt.zone_rail_conf(cc, z["price"], 13, 0.003 * px)
-        take = dir_ok and str_ok and z["w"] >= 8
+        tagged = (px >= z["lo"]) if side == "short" else (px <= z["hi"])
+        take = dir_ok and str_ok and z["w"] >= 8 and tagged
         why = []
         if not dir_ok: why.append("vs trend")
         if z["w"] < 8: why.append("not A+")
+        if not tagged: why.append("untagged")
         if not str_ok: why.append(f"flat {toward:+.1f}s")
         tag = "TAKE" if take else "wait  (" + ", ".join(why) + ")"
         # rail+level is a BREAK signal, not a fade (backtest: break@rail +0.15R/69%
@@ -149,11 +153,46 @@ def main():
         print(f"  {z['lo']:.0f}-{z['hi']:.0f} @{z['price']:.0f}  {grade:6s} {side:5s} "
               f"{'yes' if dir_ok else 'no':5s} {'yes' if str_ok else 'no':9s} "
               f"{'YES' if rail_ok else 'no':6s}  {tag}")
+        # ---- arm signals ----
+        if dir_ok and z["w"] >= 8:                          # FADE (trend-aligned A+)
+            sgn = -1 if side == "short" else 1
+            entry = z["lo"] if side == "short" else z["hi"]
+            stop = (z["hi"] + buf) if side == "short" else (z["lo"] - buf)
+            signals.append(_mk("FADE", side, z, entry, stop, sgn, az,
+                               f"price tags {entry:.0f} + >={K_STRETCH}sigma from RTH VWAP + rejection candle"))
+        if rail_ok and brk:                                 # BREAK (rail+level, with trend)
+            sgn = -1 if bias < 0 else 1
+            edge = z["lo"] if bias < 0 else z["hi"]
+            stop = (z["hi"] + buf) if bias < 0 else (z["lo"] - buf)
+            signals.append(_mk("BREAK", "short" if bias < 0 else "long", z, edge, stop, sgn, az,
+                               f"30m close thru {edge:.0f}"))
 
-    _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date)
+    print("\nARMED SIGNALS (trigger -> stop -> target; RTH session):")
+    if not signals:
+        print("  none — no trend-aligned A+ setup in range")
+    for s in signals:
+        print(f"  [{s['kind']:5s}] {s['side'].upper():5s} {s['zlabel']}")
+        print(f"      trigger : {s['cond']}")
+        print(f"      entry ~{s['entry']:.0f}   stop {s['stop']:.0f} ({s['risk']:.0f}pt)   "
+              f"target {s['tgt']:.0f}   = {s['R']:.1f}R")
+        print(f"      status  : {s['status']}")
+
+    _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals)
 
 
-def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date):
+def _mk(kind, side, z, entry, stop, sgn, az, cond):
+    risk = abs(entry - stop)
+    cands = [zz["price"] for zz in az if zz["w"] >= 8 and abs(zz["price"] - z["price"]) > 1
+             and ((zz["price"] < entry) if sgn < 0 else (zz["price"] > entry))]
+    tgt = (max(cands) if sgn < 0 else min(cands)) if cands else entry + sgn * 1.5 * risk
+    R = abs(tgt - entry) / risk if risk else 0.0
+    status = ("waiting for RTH VWAP" if kind == "FADE" else "armed — watching 30m closes")
+    return dict(kind=kind, side=side, entry=entry, stop=stop, tgt=tgt, risk=risk, R=R,
+                cond=cond, status=status, zlabel=f"{z['lo']:.0f}-{z['hi']:.0f} @{z['price']:.0f}",
+                trigger=entry, sgn=sgn)
+
+
+def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
     show = ids[-CHART_SESSIONS:]
     bars = pd.concat([bysess[s] for s in show])
     a = bars.reset_index()
@@ -202,7 +241,8 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date):
         side = "short" if z["price"] > px else "long"
         dir_ok = (side == "short" and bias < 0) or (side == "long" and bias > 0)
         toward = ((px - vwap) / sd) * (1 if side == "short" else -1)
-        take = dir_ok and toward >= K_STRETCH and z["w"] >= 8
+        tagged = (px >= z["lo"]) if side == "short" else (px <= z["hi"])
+        take = dir_ok and toward >= K_STRETCH and z["w"] >= 8 and tagged
         col = "#d32f2f" if side == "short" else "#2e7d32"
         ax.add_patch(Rectangle((-0.5, z["lo"]), m + 3, max(z["hi"] - z["lo"], 8), facecolor=col,
                                alpha=0.24 if take else 0.09, edgecolor=col,
@@ -210,6 +250,13 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date):
         g = "DENSE" if z["nt"] >= 4 else ("A+" if z["w"] >= 8 else "wk")
         ax.text(m + 3.2, z["price"], f"{z['price']:.0f} {g}" + ("  ★TAKE" if take else ""),
                 color=col, fontsize=8, va="center", fontweight="bold" if take else "normal")
+    # armed-signal trigger levels (dotted, with arrow marker in trade direction)
+    for s in signals:
+        tc = "#d32f2f" if s["side"] == "short" else "#2e7d32"
+        ax.plot([m - 1, m + proj], [s["trigger"], s["trigger"]], color=tc, lw=1.0, ls=":", zorder=4)
+        ax.annotate(f"{s['kind']} {s['side']} {s['trigger']:.0f}", (m + proj, s["trigger"]),
+                    fontsize=6.5, color=tc, va="center", ha="right",
+                    xytext=(0, 8 if s["side"] == "short" else -8), textcoords="offset points")
     ax.axhline(px, color="#000", lw=1.4)
     ax.text(m + 3.2, px, f"px {px:.0f}", fontsize=8, va="center", fontweight="bold")
     ax.axhline(vwap, color="#1565c0", lw=1.0, ls="--")
