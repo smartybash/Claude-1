@@ -52,6 +52,25 @@ def rth(g):
              (g.index.time < pd.Timestamp("16:00").time())]
 
 
+def channel_fit(close, lookback=150, k=2.0, min_len=14):
+    """Linear-regression channel over the CURRENT leg (objective, no lookahead).
+    Anchor at the leg origin (window min for an up-leg / max for a down-leg),
+    regress closes to now, rails = fit +/- k*residual-sigma. Returns anchor index,
+    slope, and (mid, upper, lower) evaluated per bar from anchor to end."""
+    n = len(close)
+    lb = min(lookback, n)
+    w = close[-lb:]; base = n - lb
+    anchor = base + (int(np.argmin(w)) if close[-1] >= w[0] else int(np.argmax(w)))
+    if n - anchor < min_len:                     # leg too short -> widen to window
+        anchor = base
+    x = np.arange(anchor, n)
+    y = close[anchor:]
+    slope, intercept = np.polyfit(x, y, 1)
+    mid = slope * x + intercept
+    sd = (y - mid).std()
+    return anchor, slope, mid, mid + k * sd, mid - k * sd, sd
+
+
 def macro_daily():
     """Sep-basis daily RTH closes from the 1h continuous front-month file."""
     df, ids, bysess = sess_split(bt.load("nq_1h_eth.json"))
@@ -91,6 +110,17 @@ def main():
           f"-> {'SHORT resistance only' if bias<0 else ('LONG support only' if bias>0 else 'stand aside')}\n")
     print(f"FILTER 3 EXTENSION : session VWAP {vwap:.0f}  sigma {sd:.0f}  stretch {stretch:+.2f}sigma "
           f"(need >={K_STRETCH} toward zone; RESETS 9:30)\n")
+    # regression channel on the current leg (breakout / tap-retrace context)
+    bars6 = pd.concat([bysess[s] for s in ids[-CHART_SESSIONS:]])
+    cc = bars6["close"].values
+    _, cslope, cmid, cup, clo, _ = channel_fit(cc)
+    up_now, lo_now, mid_now = float(cup[-1]), float(clo[-1]), float(cmid[-1])
+    pos = (px - lo_now) / (up_now - lo_now) if up_now > lo_now else 0.5
+    where = "AT upper rail" if pos >= 0.85 else ("AT lower rail" if pos <= 0.15 else f"{pos:.0%} up-channel")
+    print(f"CHANNEL (current leg, {'up' if cslope>0 else 'down'}): rails {lo_now:.0f} / {up_now:.0f}  "
+          f"mid {mid_now:.0f}  -> price {where}")
+    print(f"  breakout = 30m close beyond a rail; tap-retrace = wick to rail + close back in. "
+          f"Best when a rail meets a level.\n")
     print("FILTER 1 LOCATION  - structure in play + full gate:\n")
     hdr = f"  {'zone':18s} {'grade':6s} {'side':5s} {'dir?':5s} {'stretch?':9s}  VERDICT"
     print(hdr); print("  " + "-" * (len(hdr) - 2))
@@ -141,6 +171,22 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date):
         ax.add_patch(Rectangle((i - 0.32, min(row["open"], row["close"])), 0.64,
                                abs(row["close"] - row["open"]) + 0.4, facecolor=c, edgecolor=c))
     m = len(a)
+    # linear-regression channel on the current leg, projected forward
+    proj = 8
+    anchor, slope, mid, up, lo, csd = channel_fit(a["close"].values)
+    xs = np.arange(anchor, m)
+    xf = np.arange(anchor, m + proj)
+    midf = slope * xf + (mid[0] - slope * anchor)
+    ax.plot(xf, midf, color="#5e35b1", lw=0.9, ls="-", zorder=3)
+    ax.plot(xf, midf + (up - mid)[0], color="#5e35b1", lw=1.3, ls="--", zorder=3)
+    ax.plot(xf, midf - (mid - lo)[0], color="#5e35b1", lw=1.3, ls="--", zorder=3)
+    ax.fill_between(xf, midf - (mid - lo)[0], midf + (up - mid)[0],
+                    color="#5e35b1", alpha=0.05, zorder=0)
+    ax.plot([anchor], [a["close"].values[anchor]], marker="o", ms=6,
+            mfc="none", mec="#5e35b1", mew=1.5, zorder=4)
+    dirn = "up" if slope > 0 else "down"
+    ax.text(m + proj, midf[-1] + (up - mid)[0], f"chan {dirn} rail", color="#5e35b1",
+            fontsize=7, va="bottom", ha="right", zorder=4)
     for z in az:
         side = "short" if z["price"] > px else "long"
         dir_ok = (side == "short" and bias < 0) or (side == "long" and bias > 0)
