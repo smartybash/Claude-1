@@ -1,14 +1,15 @@
 # =====================================================================
-# NQ Confluence — three-filter system  (ThinkOrSwim / thinkScript)
+# NQ Confluence — three-filter system + market structure (ThinkOrSwim)
 #   FILTER 1 LOCATION  : A+/DENSE zones (edit the ZONE inputs daily)
 #   FILTER 2 DIRECTION : macro bias from the daily 10/20 SMA
 #   FILTER 3 EXTENSION : session VWAP +/- sigma stretch
 #   + regression channel + trend-aligned fade / break signals & alerts
+#   + MARKET STRUCTURE : swings (HH/HL/LH/LL), BOS, CHoCH  <-- put a copy
+#     of this study on a 15-MIN chart for the 15-min structure the video uses.
 #
 # NOTE: thinkScript identifiers are CASE-INSENSITIVE, so every def and plot
 # name here is distinct; "VWAP" is reserved so the plot is named SessVWAP.
-# Paste into Studies > Create > thinkScript Editor. Apply to a 30-min /NQ
-# (or /MNQ) chart. Update the ZONE inputs each morning from three_filter_read.
+# Paste into Studies > Create > thinkScript Editor.
 # =====================================================================
 declare upper;
 
@@ -95,9 +96,60 @@ Alert(fadeLong,  "NQ FADE-long: zone tag + stretch (with trend)",  Alert.BAR, So
 Alert(brkShort,  "NQ BREAK-short: 30m close thru support (with trend)", Alert.BAR, Sound.Bell);
 Alert(brkLong,   "NQ BREAK-long: 30m close thru resistance (with trend)", Alert.BAR, Sound.Bell);
 
+# =====================================================================
+# MARKET STRUCTURE  — swings + BOS / CHoCH  (best on a 15-min chart)
+#   Areas of significance = the last swing high / low (dashed gray lines):
+#   that's the liquidity the trend must break. BOS = break WITH trend
+#   (continuation); CHoCH = first break AGAINST trend (possible reversal).
+# =====================================================================
+input showStructure = yes;
+input swingStrength = 5;     # bars each side of a swing pivot
+
+def ph = high[swingStrength] == Highest(high, 2 * swingStrength + 1);
+def pl = low[swingStrength]  == Lowest(low,  2 * swingStrength + 1);
+
+def swHi  = if ph then high[swingStrength] else swHi[1];   # last confirmed swing high
+def swLo  = if pl then low[swingStrength]  else swLo[1];   # last confirmed swing low
+def pSwHi = if ph then swHi[1] else pSwHi[1];              # the one before it
+def pSwLo = if pl then swLo[1] else pSwLo[1];
+
+# structure direction: flips when a close breaks the last swing hi/lo
+def dir = CompoundValue(1,
+    if swHi > 0 and close > swHi then 1
+    else if swLo > 0 and close < swLo then -1
+    else dir[1], 0);
+
+def brokeUp = swHi > 0 and close > swHi and close[1] <= swHi;
+def brokeDn = swLo > 0 and close < swLo and close[1] >= swLo;
+def bosUp   = brokeUp and dir[1] > 0;      # break up, already bullish -> continuation
+def chochUp = brokeUp and dir[1] <= 0;     # break up, was bearish     -> character change
+def bosDn   = brokeDn and dir[1] < 0;
+def chochDn = brokeDn and dir[1] >= 0;
+
+# swing tags (note: printed swingStrength bars after the pivot, once confirmed)
+AddChartBubble(showStructure and ph and high[swingStrength] >  pSwHi, high[swingStrength], "HH", Color.GREEN, yes);
+AddChartBubble(showStructure and ph and high[swingStrength] <= pSwHi, high[swingStrength], "LH", Color.RED,   yes);
+AddChartBubble(showStructure and pl and low[swingStrength]  <  pSwLo, low[swingStrength],  "LL", Color.RED,   no);
+AddChartBubble(showStructure and pl and low[swingStrength]  >= pSwLo, low[swingStrength],  "HL", Color.GREEN, no);
+
+# BOS / CHoCH at the break bar
+AddChartBubble(showStructure and (bosUp or bosDn),     close, "BOS",   Color.CYAN,   bosUp);
+AddChartBubble(showStructure and (chochUp or chochDn), close, "CHoCH", Color.YELLOW, chochUp);
+
+# the two areas of significance — last swing hi / lo (the liquidity levels)
+plot SwingHi = if showStructure then swHi else Double.NaN;
+plot SwingLo = if showStructure then swLo else Double.NaN;
+SwingHi.SetDefaultColor(Color.GRAY);  SwingHi.SetStyle(Curve.LONG_DASH);
+SwingLo.SetDefaultColor(Color.GRAY);  SwingLo.SetStyle(Curve.LONG_DASH);
+
+Alert(showStructure and (bosUp or bosDn),     "NQ BOS (structure continuation)", Alert.BAR, Sound.Ding);
+Alert(showStructure and (chochUp or chochDn), "NQ CHoCH (structure shift)",      Alert.BAR, Sound.Ding);
+
 # ---- status labels ----
 AddLabel(yes, "Macro " + (if bias > 0 then "UP" else if bias < 0 then "DOWN" else "MIXED"),
          if bias < 0 then Color.RED else if bias > 0 then Color.GREEN else Color.GRAY);
 AddLabel(yes, "Stretch " + Round(stretch, 1) + "s",
          if AbsValue(stretch) >= kStretch then Color.YELLOW else Color.GRAY);
 AddLabel(yes, "VWAP " + Round(vwapVal, 0), Color.CYAN);
+AddLabel(showStructure, "Structure " + (if dir > 0 then "BULL (HH/HL)" else "BEAR (LH/LL)"),
+         if dir > 0 then Color.GREEN else Color.RED);

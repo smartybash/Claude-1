@@ -33,7 +33,7 @@ import scripts.backtest_confluence as bt
 from scripts.sim_15day import macro_bias, WIN_F, BUF_F
 
 ET = "America/New_York"
-LIVE_PX = 28455.5
+LIVE_PX = 28473.75
 K_STRETCH = 0.5
 CHART_SESSIONS = 6
 FVG_R = 2.5          # target R for FVG pullback entries (backtest peak)
@@ -129,7 +129,7 @@ def main():
 
     print(f"NQ three-filter read — {cur_date} PRE-OPEN (overnight)   price {px:.0f}")
     print(f"  CONTRACT: front Sep'26 (exp 09-18)  |  back Dec'26  |  next roll ~Sep 10  |  basis: Sep, single")
-    print(f"  o/n range 28451-28698   +51 (+0.18%)  [Mon Aug 3 pre-open ~06:50 ET]")
+    print(f"  o/n range 28383-28698   +70 (+0.24%)  [Mon Aug 3 pre-open ~08:15 ET, dipped 28383 -> bounced]")
     print(f"  macro series: {len(daily)} Sep-basis daily closes {daily.index[0]}..{daily.index[-1]}\n")
     print(f"FILTER 2 DIRECTION : macro bias {bias_txt}  (10d SMA {s10:.0f} vs 20d SMA {s20:.0f}) "
           f"-> {'SHORT resistance only' if bias<0 else ('LONG support only' if bias>0 else 'stand aside')}\n")
