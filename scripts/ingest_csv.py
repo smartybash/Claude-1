@@ -35,8 +35,13 @@ def _find(cols, *names):
     return None
 
 
-def read_any(path: Path, tz: str) -> pd.DataFrame:
+def read_any(path: Path, tz: str, ticker: str | None = None) -> pd.DataFrame:
     raw = pd.read_csv(path)
+    tk = _find(raw.columns, "ticker", "symbol")
+    if tk is not None and ticker is not None:      # multi-symbol file -> keep one
+        raw = raw[raw[tk].astype(str).str.upper() == ticker.upper()].copy()
+        if raw.empty:
+            raise SystemExit(f"no rows for ticker {ticker!r} in {path.name}")
     # yfinance multiindex header leaves junk rows like "Ticker"/"Date" — drop them
     dt_col = _find(raw.columns, "datetime", "date", "timestamp", "time")
     if dt_col is None:
@@ -71,10 +76,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("csv"); ap.add_argument("out_json")
     ap.add_argument("--tz", default="America/New_York",
-                    help="timezone of naive timestamps (yfinance intraday is US/Eastern)")
+                    help="tz of NAIVE timestamps. yfinance intraday=US/Eastern; "
+                         "Polygon aggregates are epoch-UTC so use --tz UTC")
+    ap.add_argument("--ticker", default=None,
+                    help="if the CSV has a Ticker column with multiple symbols, keep only this one")
     ap.add_argument("--resample", default=None, help="coarser bar, e.g. 30min")
     a = ap.parse_args()
-    df = read_any(Path(a.csv), a.tz)
+    df = read_any(Path(a.csv), a.tz, a.ticker)
     if a.resample:
         df = (df.resample(a.resample, label="left", closed="left")
                 .agg({"open": "first", "high": "max", "low": "min",
