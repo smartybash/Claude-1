@@ -38,11 +38,13 @@ from scripts.stretch_filter_test import session_stretch
 ET = "America/New_York"
 K_STRETCH = 0.5          # our live fade gate (follower must be extended)
 K_LEADER = 0.5           # leader "risk-on/off" stretch threshold for the veto
-PAIRS = [   # (follower_file, fut, leader_file, fut, bps)  — all matched timeframes
-    ("nq_30min_eth.json", True,  "es_30min.json",    True,  13),
+PAIRS = [   # (follower_file, fut, leader_file, fut, bps)  — deepest matched files
+    ("nq_1h.json",        True,  "es_1h.json",       True,  13),
     ("nq_1h_eth.json",    True,  "es_1h.json",       True,  13),
-    ("qqq_30min.json",    False, "spy_30min.json",   False, 13),
+    ("nq_30min.json",     True,  "es_30min.json",    True,  13),
+    ("nq_30min_eth.json", True,  "es_30m_live.json", True,  13),
     ("qqq_1h.json",       False, "spy_1h.json",      False, 13),
+    ("qqq_30min.json",    False, "spy_30min.json",   False, 13),
     ("qqq_15min.json",    False, "spy_15min.json",   False, 13),
     ("qqq_30m_live.json", False, "spy_30m_live.json", False, 13),
 ]
