@@ -217,6 +217,11 @@ def main():
               f"target {s['tgt']:.0f}   = {s['R']:.1f}R")
         print(f"      status  : {s['status']}")
 
+    print(f"\nToS ZONE INPUTS ({cur_date}) — paste into charts/nq_confluence.ts each rerun:")
+    for i, z in enumerate(az[:4], 1):
+        res = "yes" if z["price"] > px else "no"
+        print(f"  input z{i}_hi = {z['hi']:.1f};  input z{i}_lo = {z['lo']:.1f};  input z{i}_resist = {res};")
+
     _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals, open_fvgs)
 
 
