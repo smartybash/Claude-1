@@ -257,6 +257,8 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
         ax.annotate(f"{s['kind']} {s['side']} {s['trigger']:.0f}", (m + proj, s["trigger"]),
                     fontsize=6.5, color=tc, va="center", ha="right",
                     xytext=(0, 8 if s["side"] == "short" else -8), textcoords="offset points")
+        ax.plot([m - 1, m + proj], [s["tgt"], s["tgt"]], color=tc, lw=0.9, ls=(0, (1, 2)), zorder=4)
+        ax.text(m + 3.2, s["tgt"], f"tgt {s['tgt']:.0f} ({s['R']:.1f}R)", color=tc, fontsize=6.5, va="center")
     ax.axhline(px, color="#000", lw=1.4)
     ax.text(m + 3.2, px, f"px {px:.0f}", fontsize=8, va="center", fontweight="bold")
     ax.axhline(vwap, color="#1565c0", lw=1.0, ls="--")
