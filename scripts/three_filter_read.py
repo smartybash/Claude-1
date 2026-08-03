@@ -196,7 +196,7 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
     show = ids[-CHART_SESSIONS:]
     bars = pd.concat([bysess[s] for s in show])
     a = bars.reset_index()
-    fig, ax = plt.subplots(figsize=(15, 7.5))
+    fig, ax = plt.subplots(figsize=(15, 6.3))
     # session shading + dividers; build a real date/time timeline for the bottom axis
     xstart = 0
     xticks, xlabels = [], []
@@ -221,8 +221,9 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
         ax.add_patch(Rectangle((i - 0.32, min(row["open"], row["close"])), 0.64,
                                abs(row["close"] - row["open"]) + 0.4, facecolor=c, edgecolor=c))
     m = len(a)
-    # linear-regression channel on the current leg, projected forward
     proj = 8
+    gx1, gx2, xr = m + proj + 1, m + proj + 9, m + proj + 18  # gutter cols: levels | signals | px/vwap
+    # linear-regression channel on the current leg, projected forward
     anchor, slope, mid, up, lo, csd = channel_fit(a["close"].values)
     xs = np.arange(anchor, m)
     xf = np.arange(anchor, m + proj)
@@ -235,8 +236,9 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
     ax.plot([anchor], [a["close"].values[anchor]], marker="o", ms=6,
             mfc="none", mec="#5e35b1", mew=1.5, zorder=4)
     dirn = "up" if slope > 0 else "down"
-    ax.text(m + proj, midf[-1] + (up - mid)[0], f"chan {dirn} rail", color="#5e35b1",
-            fontsize=7, va="bottom", ha="right", zorder=4)
+    rail_now = slope * (m - 1) + (mid[0] - slope * anchor) + (up - mid)[0]  # upper rail at current bar (in view)
+    ax.text(gx1, rail_now, f"chan {dirn} rail", color="#5e35b1",
+            fontsize=7, va="center", ha="left", zorder=4, clip_on=True)
     for z in az:
         side = "short" if z["price"] > px else "long"
         dir_ok = (side == "short" and bias < 0) or (side == "long" and bias > 0)
@@ -248,26 +250,29 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
                                alpha=0.24 if take else 0.09, edgecolor=col,
                                lw=2.2 if take else 1.0, ls="-" if take else "--", zorder=1))
         g = "DENSE" if z["nt"] >= 4 else ("A+" if z["w"] >= 8 else "wk")
-        ax.text(m + 3.2, z["price"], f"{z['price']:.0f} {g}" + ("  ★TAKE" if take else ""),
-                color=col, fontsize=8, va="center", fontweight="bold" if take else "normal")
-    # armed-signal trigger levels (dotted, with arrow marker in trade direction)
+        ax.text(gx1, z["price"], f"{z['price']:.0f} {g}" + ("  ★TAKE" if take else ""),
+                color=col, fontsize=8, va="center", ha="left", fontweight="bold" if take else "normal")
+    # armed-signal trigger + target in the far gutter column (dotted leader lines)
     for s in signals:
         tc = "#d32f2f" if s["side"] == "short" else "#2e7d32"
-        ax.plot([m - 1, m + proj], [s["trigger"], s["trigger"]], color=tc, lw=1.0, ls=":", zorder=4)
-        ax.annotate(f"{s['kind']} {s['side']} {s['trigger']:.0f}", (m + proj, s["trigger"]),
-                    fontsize=6.5, color=tc, va="center", ha="right",
-                    xytext=(0, 8 if s["side"] == "short" else -8), textcoords="offset points")
-        ax.plot([m - 1, m + proj], [s["tgt"], s["tgt"]], color=tc, lw=0.9, ls=(0, (1, 2)), zorder=4)
-        ax.text(m + 3.2, s["tgt"], f"tgt {s['tgt']:.0f} ({s['R']:.1f}R)", color=tc, fontsize=6.5, va="center")
+        ax.plot([m - 1, gx2], [s["trigger"], s["trigger"]], color=tc, lw=1.0, ls=":", zorder=4)
+        ax.text(gx2, s["trigger"], f"{s['kind']} {s['side']} {s['trigger']:.0f}", color=tc,
+                fontsize=6.5, va="center", ha="left")
+        ax.plot([m - 1, gx2], [s["tgt"], s["tgt"]], color=tc, lw=0.9, ls=(0, (1, 2)), zorder=4)
+        ax.text(gx2, s["tgt"], f"tgt {s['tgt']:.0f} ({s['R']:.1f}R)", color=tc, fontsize=6.5, va="center", ha="left")
     ax.axhline(px, color="#000", lw=1.4)
-    ax.text(m + 3.2, px, f"px {px:.0f}", fontsize=8, va="center", fontweight="bold")
+    ax.text(xr, px, f"px {px:.0f}", fontsize=8, va="center", ha="left", fontweight="bold", clip_on=True)
     ax.axhline(vwap, color="#1565c0", lw=1.0, ls="--")
-    ax.text(m + 3.2, vwap, f"o/n VWAP {vwap:.0f}", color="#1565c0", fontsize=7, va="center")
+    ax.text(xr, vwap, f"VWAP {vwap:.0f}", color="#1565c0", fontsize=7, va="center", ha="left", clip_on=True)
     bt_txt = {1: "UP", -1: "DOWN", 0: "MIXED"}[bias]
     ax.set_title(f"NQ Sep'26 — last {CHART_SESSIONS} sessions into {cur_date} (intraday)  "
                  f"[macro {bt_txt}; red=resist, green=support; ★=all 3 filters]", fontsize=11, fontweight="bold")
     ax.set_xticks(xticks); ax.set_xticklabels(xlabels, fontsize=8)
-    ax.margins(x=0.02)
+    ax.set_xlim(-2, xr + 22)                       # right gutter for labels
+    ylo = min([a["low"].min()] + [z["lo"] for z in az])
+    yhi = max([a["high"].max()] + [z["hi"] for z in az])
+    pad = (yhi - ylo) * 0.04
+    ax.set_ylim(ylo - pad, yhi + pad)              # tighten vertical whitespace
     ax.set_ylabel("NQ price (Sep'26 basis)")
     ax.set_xlabel("30-minute candles · ET · each shaded block = one CME session (18:00→16:00)", fontsize=9)
     plt.tight_layout()
