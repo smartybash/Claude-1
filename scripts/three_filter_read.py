@@ -33,9 +33,34 @@ import scripts.backtest_confluence as bt
 from scripts.sim_15day import macro_bias, WIN_F, BUF_F
 
 ET = "America/New_York"
-LIVE_PX = 28570.5
+LIVE_PX = 28544.25
 K_STRETCH = 0.5
 CHART_SESSIONS = 6
+FVG_R = 2.5          # target R for FVG pullback entries (backtest peak)
+FVG_MIN_F = 0.0006   # ignore FVGs smaller than this fraction of price
+FVG_WIN_F = 0.015    # only FVGs within 1.5% of price are in play
+
+
+def find_fvgs(g, bias):
+    """Trend-aligned, still-unfilled Fair Value Gaps in the current session.
+    bearish (down macro): low[i-2] > high[i]; bullish (up): high[i-2] < low[i].
+    'unfilled' = price has not yet returned to the 50% midpoint."""
+    h, l = g["high"].values, g["low"].values
+    n = len(g); out = []
+    for i in range(2, n):
+        if bias < 0 and l[i - 2] > h[i]:
+            top, bot = float(l[i - 2]), float(h[i]); mid = (top + bot) / 2
+            if top - bot < FVG_MIN_F * top:
+                continue
+            filled = bool((h[i + 1:] >= mid).any()) if i + 1 < n else False
+            out.append(dict(i=i, top=top, bot=bot, mid=mid, edge=top, side=-1, filled=filled))
+        elif bias > 0 and h[i - 2] < l[i]:
+            bot, top = float(h[i - 2]), float(l[i]); mid = (top + bot) / 2
+            if top - bot < FVG_MIN_F * top:
+                continue
+            filled = bool((l[i + 1:] <= mid).any()) if i + 1 < n else False
+            out.append(dict(i=i, top=top, bot=bot, mid=mid, edge=bot, side=1, filled=filled))
+    return out
 
 
 def sess_split(df):
@@ -104,7 +129,7 @@ def main():
 
     print(f"NQ three-filter read — {cur_date} PRE-OPEN (overnight)   price {px:.0f}")
     print(f"  CONTRACT: front Sep'26 (exp 09-18)  |  back Dec'26  |  next roll ~Sep 10  |  basis: Sep, single")
-    print(f"  o/n range 28537-28698   +166 (+0.59%)  [new session Mon Aug 3, zones rebuilt]")
+    print(f"  o/n range 28472-28698   +140 (+0.49%)  [Mon Aug 3 pre-open]")
     print(f"  macro series: {len(daily)} Sep-basis daily closes {daily.index[0]}..{daily.index[-1]}\n")
     print(f"FILTER 2 DIRECTION : macro bias {bias_txt}  (10d SMA {s10:.0f} vs 20d SMA {s20:.0f}) "
           f"-> {'SHORT resistance only' if bias<0 else ('LONG support only' if bias>0 else 'stand aside')}\n")
@@ -167,6 +192,21 @@ def main():
             signals.append(_mk("BREAK", "short" if bias < 0 else "long", z, edge, stop, sgn, az,
                                f"30m close thru {edge:.0f}"))
 
+    # FVG pull-back entries (trend-aligned, unfilled, nearest 2) — backtested +0.45R @2.5R
+    fvgs_all = find_fvgs(bars6, bias)          # scan the whole shown window for still-open gaps
+    open_fvgs = sorted([f for f in fvgs_all if not f["filled"] and abs(f["mid"] - px) <= FVG_WIN_F * px],
+                       key=lambda f: abs(f["mid"] - px))[:2]
+    for f in open_fvgs:
+        stop = f["edge"] + (buf if f["side"] < 0 else -buf)
+        risk = abs(f["mid"] - stop); tgt = f["mid"] + f["side"] * FVG_R * risk
+        signals.append(dict(kind="FVG", side="short" if f["side"] < 0 else "long",
+                            entry=f["mid"], stop=stop, tgt=tgt, risk=risk, R=FVG_R,
+                            cond=f"pull back to gap midpoint {f['mid']:.0f}",
+                            status="armed — waiting for pullback into gap",
+                            zlabel=f"gap {f['bot']:.0f}-{f['top']:.0f}", trigger=f["mid"], sgn=f["side"]))
+
+    print(f"\nFVG (pullback setups, {FVG_R}R): {len(open_fvgs)} open trend-aligned gap(s) in range"
+          + ("" if open_fvgs else "  — none now (all mitigated / none formed)"))
     print("\nARMED SIGNALS (trigger -> stop -> target; RTH session):")
     if not signals:
         print("  none — no trend-aligned A+ setup in range")
@@ -177,7 +217,7 @@ def main():
               f"target {s['tgt']:.0f}   = {s['R']:.1f}R")
         print(f"      status  : {s['status']}")
 
-    _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals)
+    _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals, open_fvgs)
 
 
 def _mk(kind, side, z, entry, stop, sgn, az, cond):
@@ -192,7 +232,7 @@ def _mk(kind, side, z, entry, stop, sgn, az, cond):
                 trigger=entry, sgn=sgn)
 
 
-def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
+def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=(), open_fvgs=()):
     show = ids[-CHART_SESSIONS:]
     bars = pd.concat([bysess[s] for s in show])
     a = bars.reset_index()
@@ -252,6 +292,12 @@ def _chart(df30, ids, bysess, az, px, vwap, sd, bias, cur_date, signals=()):
         g = "DENSE" if z["nt"] >= 4 else ("A+" if z["w"] >= 8 else "wk")
         ax.text(gx1, z["price"], f"{z['price']:.0f} {g}" + ("  ★TAKE" if take else ""),
                 color=col, fontsize=8, va="center", ha="left", fontweight="bold" if take else "normal")
+    # open FVGs — amber bands from formation to now (pull-back entry zones)
+    for f in open_fvgs:
+        fx = f["i"]                            # index is into the shown window (== a)
+        ax.add_patch(Rectangle((fx - 0.5, f["bot"]), (m + proj) - (fx - 0.5), f["top"] - f["bot"],
+                               facecolor="#f59e0b", alpha=0.15, edgecolor="#f59e0b", lw=0.8, zorder=2))
+        ax.text(fx, f["top"], "FVG", color="#b45309", fontsize=6, va="bottom", ha="left", zorder=3)
     # armed-signal trigger + target in the far gutter column (dotted leader lines)
     for s in signals:
         tc = "#d32f2f" if s["side"] == "short" else "#2e7d32"
