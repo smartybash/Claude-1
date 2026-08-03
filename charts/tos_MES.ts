@@ -1,6 +1,6 @@
 # =====================================================================
 # MES Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-03
-#   Zones baked in for MES @ 7587.8. Apply to a 30-min MES chart.
+#   Zones baked in for MES @ 7599.2. Apply to a 30-min MES chart.
 #   thinkScript identifiers are CASE-INSENSITIVE; "VWAP" is reserved (plot=SessVWAP).
 #   Paste the WHOLE box.
 # =====================================================================

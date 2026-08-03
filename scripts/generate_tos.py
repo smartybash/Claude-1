@@ -17,10 +17,10 @@ import scripts.backtest_confluence as bt
 
 DATE = "2026-08-03"
 INST = [   # (symbol label, 30-min file, is_futures, live price)
-    ("MNQ", "nq_30min_eth.json", True, 28578.0),
-    ("QQQ", "qqq_30m_live.json", False, 692.34),
-    ("MES", "es_30m_live.json",  True, 7587.75),
-    ("SPY", "spy_30m_live.json", False, 753.62),
+    ("MNQ", "nq_30min_eth.json", True, 28711.5),
+    ("QQQ", "qqq_30m_live.json", False, 695.41),
+    ("MES", "es_30m_live.json",  True, 7599.25),
+    ("SPY", "spy_30m_live.json", False, 754.74),
 ]
 
 TEMPLATE = r"""# =====================================================================

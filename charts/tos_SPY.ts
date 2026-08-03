@@ -1,6 +1,6 @@
 # =====================================================================
 # SPY Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-03
-#   Zones baked in for SPY @ 753.62. Apply to a 30-min SPY chart.
+#   Zones baked in for SPY @ 754.74. Apply to a 30-min SPY chart.
 #   thinkScript identifiers are CASE-INSENSITIVE; "VWAP" is reserved (plot=SessVWAP).
 #   Paste the WHOLE box.
 # =====================================================================

@@ -1,6 +1,6 @@
 # =====================================================================
 # MNQ Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-03
-#   Zones baked in for MNQ @ 28578.0. Apply to a 30-min MNQ chart.
+#   Zones baked in for MNQ @ 28711.5. Apply to a 30-min MNQ chart.
 #   thinkScript identifiers are CASE-INSENSITIVE; "VWAP" is reserved (plot=SessVWAP).
 #   Paste the WHOLE box.
 # =====================================================================
