@@ -33,7 +33,7 @@ import scripts.backtest_confluence as bt
 from scripts.sim_15day import macro_bias, WIN_F, BUF_F
 
 ET = "America/New_York"
-LIVE_PX = 28499.75
+LIVE_PX = 28578.0
 K_STRETCH = 0.5
 CHART_SESSIONS = 6
 FVG_R = 2.5          # target R for FVG pullback entries (backtest peak)
