@@ -1,3 +1,6 @@
 pandas>=2.0
 numpy>=1.24
 matplotlib>=3.7
+pyarrow>=14.0
+rich>=13.0
+ib_async>=1.0

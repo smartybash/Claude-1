@@ -1,0 +1,72 @@
+{
+  "NQ_5min": {
+    "sources": [
+      "nq_5min.json",
+      "nq_5min_live.json",
+      "nq_5min_rth.json"
+    ],
+    "bars": 2174,
+    "start": "2026-06-17 13:15:00-04:00",
+    "end": "2026-07-06 14:05:00-04:00"
+  },
+  "ES_5min": {
+    "sources": [
+      "es_5min.json",
+      "es_5min_live.json",
+      "es_5min_rth.json"
+    ],
+    "bars": 2174,
+    "start": "2026-06-17 13:15:00-04:00",
+    "end": "2026-07-06 14:05:00-04:00"
+  },
+  "QQQ_5min": {
+    "sources": [
+      "qqq_5min_rth.json"
+    ],
+    "bars": 1001,
+    "start": "2026-06-15 15:15:00-04:00",
+    "end": "2026-07-06 14:05:00-04:00"
+  },
+  "SPY_5min": {
+    "sources": [
+      "spy_5min_rth.json"
+    ],
+    "bars": 1001,
+    "start": "2026-06-15 15:15:00-04:00",
+    "end": "2026-07-06 14:05:00-04:00"
+  },
+  "NQ_daily": {
+    "sources": [
+      "nq_daily_3m.json"
+    ],
+    "bars": 61,
+    "start": "2026-04-07 18:00:00-04:00",
+    "end": "2026-07-02 18:00:00-04:00"
+  },
+  "ES_daily": {
+    "sources": [
+      "es_daily_3m.json"
+    ],
+    "bars": 61,
+    "start": "2026-04-07 18:00:00-04:00",
+    "end": "2026-07-02 18:00:00-04:00"
+  },
+  "QQQ_daily": {
+    "sources": [
+      "qqq_daily_5y.json",
+      "qqq_daily_1m.json"
+    ],
+    "bars": 1255,
+    "start": "2021-07-06 09:30:00-04:00",
+    "end": "2026-07-06 09:30:00-04:00"
+  },
+  "SPY_daily": {
+    "sources": [
+      "spy_daily_5y.json",
+      "spy_daily_1m.json"
+    ],
+    "bars": 1255,
+    "start": "2021-07-06 09:30:00-04:00",
+    "end": "2026-07-06 09:30:00-04:00"
+  }
+}
