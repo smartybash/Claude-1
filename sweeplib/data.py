@@ -21,11 +21,18 @@ DATA = ROOT / "data"
 PARQUET = DATA / "parquet"
 
 # raw JSON files feeding each parquet cache, per (symbol, timeframe)
+# The *_5min_yf.json files are the deep Yahoo pulls (~60 RTH sessions each) that
+# finally clear the Part B walk-forward depth floor; they merge with the shallow
+# IBKR fetches (dedup keeps the last-seen bar per timestamp, so the fresher/
+# deeper Yahoo data wins on overlap). Missing files are skipped by build_cache,
+# so listing them here is safe even before a fetch has run.
 SOURCES: dict[tuple[str, str], list[str]] = {
-    ("NQ", "5min"): ["nq_5min.json", "nq_5min_live.json", "nq_5min_rth.json"],
-    ("ES", "5min"): ["es_5min.json", "es_5min_live.json", "es_5min_rth.json"],
-    ("QQQ", "5min"): ["qqq_5min_rth.json"],
-    ("SPY", "5min"): ["spy_5min_rth.json"],
+    ("NQ", "5min"): ["nq_5min.json", "nq_5min_live.json", "nq_5min_rth.json",
+                     "nq_5min_yf.json"],
+    ("ES", "5min"): ["es_5min.json", "es_5min_live.json", "es_5min_rth.json",
+                     "es_5min_yf.json"],
+    ("QQQ", "5min"): ["qqq_5min_rth.json", "qqq_5min_yf.json"],
+    ("SPY", "5min"): ["spy_5min_rth.json", "spy_5min_yf.json"],
     ("NQ", "daily"): ["nq_daily_3m.json"],
     ("ES", "daily"): ["es_daily_3m.json"],
     ("QQQ", "daily"): ["qqq_daily_5y.json", "qqq_daily_1m.json"],

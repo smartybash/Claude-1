@@ -87,9 +87,13 @@ def volume_profile(bars: pd.DataFrame, n_bins: int = 50):
     centers = (edges[:-1] + edges[1:]) / 2
     vol = np.zeros(n_bins)
     for low, high, v in zip(bars["low"].values, bars["high"].values, bars["volume"].values):
+        # skip malformed bars (NaN, or low>high from a bad feed) so the uniform
+        # spread below never divides by a zero/negative bin span
+        if not (np.isfinite(low) and np.isfinite(high) and np.isfinite(v)) or high < low:
+            continue
         b_lo = max(0, int(np.searchsorted(edges, low, "right")) - 1)
         b_hi = min(n_bins - 1, int(np.searchsorted(edges, high, "right")) - 1)
-        span = b_hi - b_lo + 1
+        span = max(1, b_hi - b_lo + 1)
         vol[b_lo:b_hi + 1] += v / span
     if vol.sum() <= 0:
         return None
