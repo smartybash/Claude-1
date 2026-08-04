@@ -286,25 +286,36 @@ def main():
     print("\n(cells are win% / expectancy(R) / n ; in-sample sessions only)\n")
 
     # OPERATING POINT — grid search over (stretch, #sources, take-profit).
-    # Objective: maximise in-sample win rate subject to POSITIVE expectancy and
-    # a usable sample (n>=MIN_N); then report the very same config OOS. The
-    # cross-market veto is always applied (it never hurts precision). We do NOT
-    # let win rate be bought with negative expectancy — a 92% gate that loses
-    # money is not a win.
+    # Objective: maximise in-sample win rate subject to a MEANINGFUL edge
+    # (exp>=EXP_FLOOR) and a usable sample (n>=MIN_N); then report the very same
+    # config OOS. The cross-market veto is always applied (it never hurts
+    # precision). We do NOT let win rate be bought with a near-zero edge — a 90%
+    # gate whose expectancy is +0.01R is a tiny-target curve-fit, not a win, so
+    # EXP_FLOOR keeps the headline gate honest. If nothing clears the floor we
+    # fall back to exp>0 and say so.
     MIN_N = 25
-    print(f"=== OPERATING POINT — grid search (max win% s.t. exp>0 & n>={MIN_N} "
-          "in-sample), verified OOS ===")
-    grid = []
-    for k_str in (0.5, 1.0, 1.5):
-        for k_nt in (2, 3):
-            for xm in (False, True):     # cross-market veto optional
-                for tp in TPS:
-                    gf = (lambda s, ks=k_str, kn=k_nt, x=xm: s.stretch >= ks
-                          and s.nt >= kn and (_xmkt_ok(s) if x else True))
-                    d = wr([s for s in ins if gf(s)], tp)
-                    if d and d["n"] >= MIN_N and d["exp"] > 0:
-                        grid.append((d["win"], d["exp"], d["n"], k_str, k_nt, xm, tp, gf))
-    grid.sort(key=lambda r: (-r[0], -r[1]))          # best win rate, then exp
+    EXP_FLOOR = 0.05     # min in-sample expectancy (R/trade) for the headline gate
+    print(f"=== OPERATING POINT — grid search (max win% s.t. exp>={EXP_FLOOR}R & "
+          f"n>={MIN_N} in-sample), verified OOS ===")
+
+    def _build_grid(floor):
+        g = []
+        for k_str in (0.5, 1.0, 1.5):
+            for k_nt in (2, 3):
+                for xm in (False, True):     # cross-market veto optional
+                    for tp in TPS:
+                        gf = (lambda s, ks=k_str, kn=k_nt, x=xm: s.stretch >= ks
+                              and s.nt >= kn and (_xmkt_ok(s) if x else True))
+                        d = wr([s for s in ins if gf(s)], tp)
+                        if d and d["n"] >= MIN_N and d["exp"] >= floor:
+                            g.append((d["win"], d["exp"], d["n"], k_str, k_nt, xm, tp, gf))
+        g.sort(key=lambda r: (-r[0], -r[1]))     # best win rate, then exp
+        return g
+
+    grid = _build_grid(EXP_FLOOR)
+    if not grid:
+        print(f"  no config met exp>={EXP_FLOOR}R & n>={MIN_N}; relaxing to exp>0.")
+        grid = _build_grid(1e-9)
     if not grid:
         print("  no config met exp>0 & n>=MIN_N in-sample.")
         chosen_tp, gate_fn = TPS[1], (lambda s: s.stretch >= 1.0 and s.nt >= 3)

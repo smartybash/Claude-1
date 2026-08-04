@@ -21,6 +21,16 @@ timestamps as UTC ISO, exactly what sweeplib.data.load_ibkr_json expects.
 Usage:
     python3 scripts/fetch_yahoo_intraday.py           # fetch the default deep set
     python3 scripts/fetch_yahoo_intraday.py --dry-run  # probe reachability only
+
+FALLBACK PROVENANCE (2026-08): Yahoo's anonymous v8 endpoint stayed hard-429 on
+this shared egress IP across both hosts and the patient --slow round-robin, so
+no *_yf.json landed here. The deep 1h SPY/QQQ files (data/spy_1h_yf.json,
+data/qqq_1h_yf.json — ~1077 RTH bars each, ~143 sessions, 2025-12 -> 2026-08)
+were instead sourced from the IBKR MCP get_price_history tool (ONE_HOUR,
+outside_rth=false, step_count=1000 — its hard cap), converted into this same
+columnar schema. ES/NQ deep-1h remain unfetched (IBKR returns per-expiry futures
+contracts, which would need roll-splicing that injects false breakouts); the
+repo's existing es_1h.json / nq_1h.json already cover the futures side.
 """
 
 from __future__ import annotations
