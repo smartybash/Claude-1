@@ -131,10 +131,70 @@ def to_columnar(res: dict) -> dict:
     return out
 
 
+def _save(res: dict, name: str, symbol: str, interval: str) -> int:
+    col = to_columnar(res)
+    (DATA / name).write_text(json.dumps(col))
+    t0 = col["time"][0][:10] if col["time"] else "?"
+    t1 = col["time"][-1][:10] if col["time"] else "?"
+    print(f"{name:20s} {symbol:5s} {interval:>3s} "
+          f"bars={len(col['time']):5d}  {t0} -> {t1}", flush=True)
+    return len(col["time"])
+
+
+def run_slow(s: requests.Session, spacing: float, max_minutes: float) -> None:
+    """Round-robin the pending jobs, ONE request each per cycle, spaced far
+    apart so Yahoo's per-IP throttle recovers between hits. Files already on
+    disk are skipped, so this resumes a partial run. Runs until every job has
+    a file or the wall-clock budget is spent."""
+    pending = [(sym, rng, iv, nm) for sym, rng, iv, nm in JOBS
+               if not (DATA / nm).exists()]
+    deadline = time.time() + max_minutes * 60
+    params_of = lambda rng, iv: {"range": rng, "interval": iv,
+                                 "includePrePost": "false"}
+    cyc = 0
+    while pending and time.time() < deadline:
+        cyc += 1
+        print(f"-- cycle {cyc}: {len(pending)} pending --", flush=True)
+        still = []
+        for sym, rng, iv, nm in pending:
+            host = HOSTS[cyc % len(HOSTS)]
+            try:
+                r = s.get(f"https://{host}/v8/finance/chart/{sym}",
+                          params=params_of(rng, iv), timeout=30)
+                if r.status_code == 200:
+                    res = (r.json().get("chart") or {}).get("result")
+                    if res:
+                        _save(res[0], nm, sym, iv)
+                    else:
+                        print(f"{nm:20s} empty result", flush=True)
+                        still.append((sym, rng, iv, nm))
+                else:
+                    print(f"{nm:20s} {host[:6]} HTTP {r.status_code}", flush=True)
+                    still.append((sym, rng, iv, nm))
+            except requests.RequestException as e:
+                print(f"{nm:20s} {host[:6]} {type(e).__name__}", flush=True)
+                still.append((sym, rng, iv, nm))
+            if time.time() >= deadline:
+                still.extend(pending[pending.index((sym, rng, iv, nm)) + 1:])
+                break
+            time.sleep(spacing)
+        pending = still
+    done = sum(1 for _, _, _, nm in JOBS if (DATA / nm).exists())
+    print(f"\nslow run finished: {done}/{len(JOBS)} files present in {DATA}",
+          flush=True)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true",
                     help="probe one symbol for reachability, write nothing")
+    ap.add_argument("--slow", action="store_true",
+                    help="round-robin pending jobs, one spaced request each, "
+                         "resuming from files already on disk")
+    ap.add_argument("--spacing", type=float, default=75.0,
+                    help="seconds between requests in --slow mode")
+    ap.add_argument("--max-minutes", type=float, default=45.0,
+                    help="wall-clock budget for --slow mode")
     a = ap.parse_args()
     s = _session()
 
@@ -144,16 +204,15 @@ def main() -> None:
               f"tz={res['meta'].get('exchangeTimezoneName')}")
         return
 
+    if a.slow:
+        run_slow(s, a.spacing, a.max_minutes)
+        return
+
     ok = 0
     for symbol, rng, interval, name in JOBS:
         try:
             res = fetch_chart(s, symbol, rng, interval)
-            col = to_columnar(res)
-            (DATA / name).write_text(json.dumps(col))
-            t0 = col["time"][0][:10] if col["time"] else "?"
-            t1 = col["time"][-1][:10] if col["time"] else "?"
-            print(f"{name:20s} {symbol:5s} {interval:>3s} "
-                  f"bars={len(col['time']):5d}  {t0} -> {t1}")
+            _save(res, name, symbol, interval)
             ok += 1
         except Exception as e:
             print(f"{name:20s} FAILED: {e}")
