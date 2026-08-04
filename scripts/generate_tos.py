@@ -15,12 +15,12 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import scripts.backtest_confluence as bt
 
-DATE = "2026-08-03"
+DATE = "2026-08-04"
 INST = [   # (symbol label, 30-min file, is_futures, live price)
-    ("MNQ", "nq_30min_eth.json", True, 28711.5),
-    ("QQQ", "qqq_30m_live.json", False, 695.41),
-    ("MES", "es_30m_live.json",  True, 7599.25),
-    ("SPY", "spy_30m_live.json", False, 754.74),
+    ("MNQ", "nq_30min_eth.json", True, 29082.75),
+    ("QQQ", "qqq_30m_live.json", False, 704.47),
+    ("MES", "es_30m_live.json",  True, 7648.5),
+    ("SPY", "spy_30m_live.json", False, 759.80),
 ]
 
 TEMPLATE = r"""# =====================================================================

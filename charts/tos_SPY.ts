@@ -1,6 +1,6 @@
 # =====================================================================
-# SPY Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-03
-#   Zones baked in for SPY @ 754.74. Apply to a 30-min SPY chart.
+# SPY Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-04
+#   Zones baked in for SPY @ 759.80. Apply to a 30-min SPY chart.
 #   thinkScript identifiers are CASE-INSENSITIVE; "VWAP" is reserved (plot=SessVWAP).
 #   Paste the WHOLE box.
 # =====================================================================
@@ -12,11 +12,11 @@ input chanDev       = 2.0;
 input showChannel   = yes;
 input showVWAPbands = yes;
 
-# ---- ZONES (SPY 2026-08-03): hi / lo / is-resistance ----
-input z1_hi = 750.00;  input z1_lo = 748.90;  input z1_resist = no;
-input z2_hi = 746.55;  input z2_lo = 746.31;  input z2_resist = no;
-input z3_hi = 744.20;  input z3_lo = 735.98;  input z3_resist = no;
-input z4_hi = 744.20;  input z4_lo = 735.98;  input z4_resist = no;
+# ---- ZONES (SPY 2026-08-04): hi / lo / is-resistance ----
+input z1_hi = 752.41;  input z1_lo = 748.90;  input z1_resist = no;
+input z2_hi = 746.90;  input z2_lo = 734.59;  input z2_resist = no;
+input z3_hi = 746.90;  input z3_lo = 734.59;  input z3_resist = no;
+input z4_hi = 746.90;  input z4_lo = 734.59;  input z4_resist = no;
 
 # ---- FILTER 2: macro DIRECTION (daily 10/20 SMA) ----
 def dClose = close(period = AggregationPeriod.DAY);

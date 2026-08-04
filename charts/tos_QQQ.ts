@@ -1,6 +1,6 @@
 # =====================================================================
-# QQQ Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-03
-#   Zones baked in for QQQ @ 695.41. Apply to a 30-min QQQ chart.
+# QQQ Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-04
+#   Zones baked in for QQQ @ 704.47. Apply to a 30-min QQQ chart.
 #   thinkScript identifiers are CASE-INSENSITIVE; "VWAP" is reserved (plot=SessVWAP).
 #   Paste the WHOLE box.
 # =====================================================================
@@ -12,11 +12,11 @@ input chanDev       = 2.0;
 input showChannel   = yes;
 input showVWAPbands = yes;
 
-# ---- ZONES (QQQ 2026-08-03): hi / lo / is-resistance ----
-input z1_hi = 705.80;  input z1_lo = 704.90;  input z1_resist = yes;
-input z2_hi = 695.89;  input z2_lo = 695.53;  input z2_resist = yes;
-input z3_hi = 694.06;  input z3_lo = 693.25;  input z3_resist = no;
-input z4_hi = 690.88;  input z4_lo = 690.00;  input z4_resist = no;
+# ---- ZONES (QQQ 2026-08-04): hi / lo / is-resistance ----
+input z1_hi = 711.28;  input z1_lo = 709.65;  input z1_resist = yes;
+input z2_hi = 705.80;  input z2_lo = 702.81;  input z2_resist = no;
+input z3_hi = 695.77;  input z3_lo = 695.15;  input z3_resist = no;
+input z4_hi = 692.93;  input z4_lo = 692.30;  input z4_resist = no;
 
 # ---- FILTER 2: macro DIRECTION (daily 10/20 SMA) ----
 def dClose = close(period = AggregationPeriod.DAY);

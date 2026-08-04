@@ -1,6 +1,6 @@
 # =====================================================================
-# MNQ Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-03
-#   Zones baked in for MNQ @ 28711.5. Apply to a 30-min MNQ chart.
+# MNQ Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-04
+#   Zones baked in for MNQ @ 29082.8. Apply to a 30-min MNQ chart.
 #   thinkScript identifiers are CASE-INSENSITIVE; "VWAP" is reserved (plot=SessVWAP).
 #   Paste the WHOLE box.
 # =====================================================================
@@ -12,11 +12,11 @@ input chanDev       = 2.0;
 input showChannel   = yes;
 input showVWAPbands = yes;
 
-# ---- ZONES (MNQ 2026-08-03): hi / lo / is-resistance ----
-input z1_hi = 28763.2;  input z1_lo = 28701.0;  input z1_resist = yes;
-input z2_hi = 28640.8;  input z2_lo = 28389.5;  input z2_resist = no;
-input z3_hi = 28287.0;  input z3_lo = 28178.2;  input z3_resist = no;
-input z4_hi = 28099.5;  input z4_lo = 28052.0;  input z4_resist = no;
+# ---- ZONES (MNQ 2026-08-04): hi / lo / is-resistance ----
+input z1_hi = 29000.0;  input z1_lo = 28929.2;  input z1_resist = no;
+input z2_hi = 28763.2;  input z2_lo = 28389.5;  input z2_resist = no;
+input z3_hi = 28313.5;  input z3_lo = 28313.5;  input z3_resist = no;
+input z4_hi = 28258.2;  input z4_lo = 28178.2;  input z4_resist = no;
 
 # ---- FILTER 2: macro DIRECTION (daily 10/20 SMA) ----
 def dClose = close(period = AggregationPeriod.DAY);

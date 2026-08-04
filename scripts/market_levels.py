@@ -20,10 +20,10 @@ import scripts.backtest_confluence as bt
 
 # (label, 30-min data file, is_futures, live price)  — update PRICES each rerun
 INST = [
-    ("MNQ  (NQ Sep'26)", "nq_30min_eth.json", True, 28711.5),
-    ("QQQ",              "qqq_30m_live.json", False, 695.41),
-    ("MES  (ES Sep'26)", "es_30m_live.json",  True, 7599.25),
-    ("SPY",              "spy_30m_live.json", False, 754.74),
+    ("MNQ  (NQ Sep'26)", "nq_30min_eth.json", True, 29082.75),
+    ("QQQ",              "qqq_30m_live.json", False, 704.47),
+    ("MES  (ES Sep'26)", "es_30m_live.json",  True, 7648.5),
+    ("SPY",              "spy_30m_live.json", False, 759.80),
 ]
 
 

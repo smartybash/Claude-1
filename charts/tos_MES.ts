@@ -1,6 +1,6 @@
 # =====================================================================
-# MES Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-03
-#   Zones baked in for MES @ 7599.2. Apply to a 30-min MES chart.
+# MES Confluence — 3-filter + clean structure (ThinkOrSwim)   2026-08-04
+#   Zones baked in for MES @ 7648.5. Apply to a 30-min MES chart.
 #   thinkScript identifiers are CASE-INSENSITIVE; "VWAP" is reserved (plot=SessVWAP).
 #   Paste the WHOLE box.
 # =====================================================================
@@ -12,11 +12,11 @@ input chanDev       = 2.0;
 input showChannel   = yes;
 input showVWAPbands = yes;
 
-# ---- ZONES (MES 2026-08-03): hi / lo / is-resistance ----
-input z1_hi = 7524.8;  input z1_lo = 7482.8;  input z1_resist = no;
-input z2_hi = 7427.5;  input z2_lo = 7427.5;  input z2_resist = no;
-input z3_hi = 7404.3;  input z3_lo = 7368.0;  input z3_resist = no;
-input z4_hi = 7404.3;  input z4_lo = 7368.0;  input z4_resist = no;
+# ---- ZONES (MES 2026-08-04): hi / lo / is-resistance ----
+input z1_hi = 7650.0;  input z1_lo = 7631.2;  input z1_resist = no;
+input z2_hi = 7567.8;  input z2_lo = 7542.8;  input z2_resist = no;
+input z3_hi = 7524.8;  input z3_lo = 7474.6;  input z3_resist = no;
+input z4_hi = 7427.5;  input z4_lo = 7427.5;  input z4_resist = no;
 
 # ---- FILTER 2: macro DIRECTION (daily 10/20 SMA) ----
 def dClose = close(period = AggregationPeriod.DAY);
