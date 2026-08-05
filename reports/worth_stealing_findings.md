@@ -55,6 +55,14 @@ But **stability killed it**. Split-half + per-instrument:
   "positive-gamma = mean-revert" story does **not** hold; if anything calm days
   grind (momentum) and stressed days whip (fade), but not reliably enough to
   trade as a hard rule. **Not adopting mechanical gamma buy/sell signals.**
+- **Second proxy tried** (`scripts/backtest_regime_rv.py`, kept simple): prior
+  10d **realized vol**, median-split CALM/ACTIVE, same MOM-vs-FADE test. Result:
+  **no crossover** — momentum wins in *both* regimes, and CALM/MOM sign-flips
+  across halves (−0.020 → +0.042). Two independent regime proxies both fail =>
+  strong evidence there is **no robust intraday gamma-style mode-switch** here.
+  Stopped fishing after two pre-registered tests. One durable-but-weak crumb:
+  ACTIVE/MOM (momentum on higher-vol days) held +0.038/+0.039 in both halves —
+  noted, not traded.
 - **What we DO surface** (honest, in the ToS study + confluence read, via
   `scripts/gamma_context.py`): the VIX **vol-regime label as CONTEXT** (not a
   trigger), the **expected-move band** (§4), and the nearest **round-strike pin**
