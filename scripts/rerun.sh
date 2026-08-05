@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
 # Standard daily "rerun" — regime-first, confluence-based, candle-triggered.
 #   1. REGIME    - trend vs balance (intraday_engine): decides the playbook
-#   2. CONFLUENCE- HTF-anchored scored support/resistance zones (confluence):
+#   2. CONFLUENCE- HTF-anchored scored support/resistance zones (confluence)
+#                  + GAMMA/EM context (VIX expected-move band + vol regime);
 #                  the ONLY levels we trade; standalone 5-min levels ignored
 #   3. CANDLE    - 5/10/15/30-min triggers at the zones (candle_read)
-# Fetch fresh NQ 5m+30m+1h AND QQQ 5m+1h into data/ before running.
+#   4. TOS       - copy-paste ThinkOrSwim studies (with EM band + gamma pin)
 # confluence.py auto-cross-references QQQ (scaled) -> A++ = QQQ-confirmed zone.
+#
+# DATA REFRESH — to keep reruns fast, split the fetch by how fast it moves:
+#   FAST (every intraday rerun): only the live intraday bars that actually move
+#     the read — NQ 5m (nq_5min_eth_live.json) + QQQ 5m (qqq_5min.json), and the
+#     30m closes used as ToS price anchors (nq/es/qqq/spy _30m_live.json).
+#   SLOW (once, pre-open): the HTF confluence anchors that barely change
+#     intraday — 30m/1h swings, daily (5y) for VIX/EM + macro SMA, VP inputs.
+#     Skip refetching these on every intraday rerun.
+#   INGEST: never hand-transcribe bars. Save the raw get_price_history payload
+#     to a scratch file and run:  python3 scripts/ingest_ibkr.py <raw> <out.json>
+#     It normalises + length-validates + writes data/<out.json>.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SYM="${1:-NQ}"

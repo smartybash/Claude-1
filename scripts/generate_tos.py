@@ -20,6 +20,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import scripts.backtest_confluence as bt
+import scripts.gamma_context as gc
 
 DATE = "2026-08-05"
 INST = [   # (symbol label, 30-min file, is_futures) — price derived from data
@@ -88,6 +89,19 @@ ChMid.SetDefaultColor(Color.VIOLET);
 ChUp.SetDefaultColor(Color.VIOLET);  ChUp.SetStyle(Curve.SHORT_DASH);
 ChLo.SetDefaultColor(Color.VIOLET);  ChLo.SetStyle(Curve.SHORT_DASH);
 
+# ---- GAMMA CONTEXT: VIX-implied expected-move band + pin (baked __DATE__) ----
+#   Yellow = today's 1-sigma expected range ("gamma walls" proxy). Orange = the
+#   nearest big round strike (crudest 'cool wall'/pin magnet). Regime label is
+#   CONTEXT, not a trigger (backtest: no robust mechanical gamma switch).
+input showGamma = yes;
+input emUp = __EMUP__;   input emDn = __EMDN__;   input gPin = __PIN__;
+plot EMup = if showGamma then emUp else Double.NaN;
+plot EMdn = if showGamma then emDn else Double.NaN;
+plot GPin = if showGamma then gPin else Double.NaN;
+EMup.SetDefaultColor(Color.YELLOW);  EMup.SetStyle(Curve.LONG_DASH);   EMup.SetLineWeight(1);
+EMdn.SetDefaultColor(Color.YELLOW);  EMdn.SetStyle(Curve.LONG_DASH);   EMdn.SetLineWeight(1);
+GPin.SetDefaultColor(Color.ORANGE);  GPin.SetStyle(Curve.SHORT_DASH);
+
 # ---- SIGNALS (trend-aligned, across all 4 zones) ----
 def fadeShort = bias < 0 and stretch >= kStretch and (
     (z1_resist and high >= z1_lo and close < z1_lo) or
@@ -152,6 +166,9 @@ AddLabel(yes, "Stretch " + Round(stretch, 1) + "s",
 AddLabel(yes, "VWAP " + Round(vwapVal, 2), Color.CYAN);
 AddLabel(showStructure, "Struct " + (if dir > 0 then "BULL" else "BEAR"),
          if dir > 0 then Color.GREEN else Color.RED);
+AddLabel(showGamma, "ExpMove +/-__EM__ [__EMDN__..__EMUP__] VIX __VIX__", Color.YELLOW);
+AddLabel(showGamma, "Gamma pin __PIN__", Color.ORANGE);
+AddLabel(showGamma, "Regime __REGIME__ (__GNOTE__)", Color.__GCOLOR__);
 """
 
 
@@ -196,11 +213,17 @@ def zones_for(fname, fut, px):
 
 
 def main():
+    GCOLOR = {"VOL-CALM": "GREEN", "VOL-STRESSED": "ORANGE", "VOL-NEUTRAL": "GRAY"}
     for sym, fname, fut in INST:
         px = float(load_any(fname)["close"].iloc[-1])  # live price = last cached close
         d = 2 if px < 2000 else 1
         az = zones_for(fname, fut, px)
+        ctx = gc.context(px)
         s = TEMPLATE.replace("__SYM__", sym).replace("__DATE__", DATE).replace("__PX__", f"{px:.{d}f}")
+        s = (s.replace("__EMUP__", f"{ctx['up']:.{d}f}").replace("__EMDN__", f"{ctx['dn']:.{d}f}")
+              .replace("__EM__", f"{ctx['em']:.{d}f}").replace("__PIN__", f"{ctx['pin']:.{d}f}")
+              .replace("__VIX__", f"{ctx['vix']:.1f}").replace("__REGIME__", ctx["regime"])
+              .replace("__GNOTE__", ctx["note"]).replace("__GCOLOR__", GCOLOR[ctx["regime"]]))
         for i, z in enumerate(az, 1):
             res = "yes" if z["price"] > px else "no"
             s = (s.replace(f"__Z{i}HI__", f"{z['hi']:.{d}f}")

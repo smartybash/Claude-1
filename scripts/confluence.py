@@ -178,6 +178,25 @@ def main():
     print(f"NQ CONFLUENCE — {now:%a %m-%d %H:%M} ET   price {px:.0f}")
     print("(graded on PRE-OPEN sources = fixed at 9:30; '+VWAP/dayH' = intraday context, "
           "does NOT upgrade grade. DENSE=>=4 pre-open sources)\n")
+
+    # GAMMA CONTEXT (VIX-implied expected move + vol regime) — see gamma_context.py.
+    emlo = emhi = None
+    try:
+        import scripts.gamma_context as gc
+        c = gc.context(px)
+        emlo, emhi = c["dn"], c["up"]
+        print(f"GAMMA/EM CONTEXT: VIX {c['vix']:.1f} (20d {c['vix_sma20']:.1f}) -> {c['regime']}")
+        print(f"  expected move +/-{c['em']:.0f}  ->  1sigma band [{c['dn']:.0f} .. {c['up']:.0f}]  "
+              f"| pin {c['pin']:.0f} | weekly +/-{c['weekly']:.0f}")
+        print(f"  {c['note']}\n")
+    except Exception as e:  # never let the context block break the core read
+        print(f"(gamma context unavailable: {e})\n")
+
+    def em_tag(level):
+        if emlo is None:
+            return ""
+        return "  [within EM]" if emlo <= level <= emhi else "  [beyond EM - needs above-avg range]"
+
     print("RESISTANCE above (short):")
     for z in above[:4][::-1]: print(fmt(z))
     print(f"  ------ price {px:.0f} ------")
@@ -210,14 +229,15 @@ def main():
     sa = aplus_above[0] if aplus_above else None  # nearest A+ resistance
     sb = aplus_below[0] if aplus_below else None   # nearest A+ support
     print("\nTRADEABLE (nearest A+ pair, score>=8, >=2 sources):")
-    if sb: print(f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} -> target {sa[1]:.0f}" if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}")
-    if sa: print(f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} -> target {sb[2]:.0f}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}")
+    if sb: print((f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} -> target {sa[1]:.0f}{em_tag(sa[1])}" if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}"))
+    if sa: print((f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} -> target {sb[2]:.0f}{em_tag(sb[2])}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}"))
     if not sa and not sb: print("  none in range - stand aside")
 
-    _chart(m5, above, below, px, now, zi, conf_prices, confirmed)
+    _chart(m5, above, below, px, now, zi, conf_prices, confirmed,
+           em=(emlo, emhi, c["pin"]) if emlo is not None else None)
 
 
-def _chart(m5, above, below, px, now, zi, conf_prices=None, confirmed=None):
+def _chart(m5, above, below, px, now, zi, conf_prices=None, confirmed=None, em=None):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -255,6 +275,14 @@ def _chart(m5, above, below, px, now, zi, conf_prices=None, confirmed=None):
         else:
             ax.add_patch(Rectangle((0, lo), n, band, facecolor=col, alpha=0.13, edgecolor="none", zorder=1))
             ax.text(n + 0.5, price, f"{lo:.0f}-{hi:.0f}  pre{pw:.0f}({pnt}x){qmark}", color=col, va="center", fontsize=7, alpha=0.55)
+    if em is not None:
+        emlo, emhi, pin = em
+        for lvl in (emlo, emhi):
+            ax.axhline(lvl, color="#f9a825", lw=1.1, ls=(0, (7, 4)), zorder=4)
+        ax.text(n + 0.5, emhi, f"EM+ {emhi:.0f}", color="#f9a825", va="center", fontsize=7.5)
+        ax.text(n + 0.5, emlo, f"EM- {emlo:.0f}", color="#f9a825", va="center", fontsize=7.5)
+        ax.axhline(pin, color="#ef6c00", lw=0.9, ls=":", zorder=4)
+        ax.text(n + 0.5, pin, f"pin {pin:.0f}", color="#ef6c00", va="center", fontsize=7)
     ax.axhline(px, color="#1565c0", lw=1.3, zorder=5)
     ax.text(n + 0.5, px, f"PRICE {px:.0f}", color="#1565c0", va="center", fontsize=9, fontweight="bold")
     ax.set_title(f"NQ confluence — {now:%a %m-%d %H:%M} ET   "

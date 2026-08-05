@@ -28,14 +28,37 @@ vs up & VIX-down ("healthy"). Compare forward 1d/5d returns.
   version (VIX ticking up while price ticks up) may still be a *sentiment* read,
   but it is not a mechanical edge on daily data.
 
-## 3. Dealer gamma / GEX (positive→mean-revert, negative→trend) — NOT BACKTESTABLE HERE
-Requires option **open interest by strike** (and per-strike gamma) to compute
-net dealer gamma, plus a **history of OI** to backtest. The IBKR MCP
-`get_option_data` returns contract *structure only* (strikes + contract ids), no
-OI/IV/gamma; those need a per-contract snapshot, and **no historical OI is
-available at all**. A proper GEX backtest is therefore impossible with this data
-source, and a live GEX would be dozens of fragile per-strike snapshot calls.
-- **Verdict:** can't be honestly backtested. Not adopting a black-box GEX read.
+## 3. Dealer gamma / GEX (positive→mean-revert, negative→trend) — PROXY TESTED, NO ROBUST EDGE
+A *true* GEX needs option **open interest + gamma per strike** and a **history**
+of it. Neither IBKR MCP nor FMP exposes option OI/greeks (IBKR `get_option_data`
+returns contract *structure only*; FMP has no options endpoint), and no
+historical OI exists anywhere in reach. So a literal GEX backtest is impossible.
+
+Instead we tested the **tradeable content** of the gamma read — the regime
+mode-switch — with a non-circular proxy (`scripts/backtest_gex_proxy.py`):
+classify each day by VIX vs its own 20d trend (lagged, no lookahead) into
+VOL-CALM ("pos-gamma-like") vs VOL-STRESSED ("neg-gamma-like"), then run the same
+11:00 trade two ways — MOMENTUM (with the first-90-min move) vs FADE (against) —
+on pooled QQQ+SPY 1h, and see if the winning style flips by regime.
+
+Full-sample result *looked* like a clean crossover:
+| regime | MOM avg (ATR) | FADE avg (ATR) |
+|---|---|---|
+| VOL-CALM (low VIX) | **+0.032** (n=77) | −0.060 |
+| VOL-STRESSED (high VIX) | +0.003 | **+0.054** (n=84) |
+
+But **stability killed it**. Split-half + per-instrument:
+- CALM/MOM: first half **−0.057**, second half +0.086 → **sign-flips**, not real.
+- STRESSED/FADE: +0.020 then +0.111 (same sign) but essentially **SPY-only**
+  (the QQQ leg had n=5 — the pool is really SPY) and second-half-concentrated.
+- **Verdict:** no robust mechanical gamma mode-switch on this sample. The naive
+  "positive-gamma = mean-revert" story does **not** hold; if anything calm days
+  grind (momentum) and stressed days whip (fade), but not reliably enough to
+  trade as a hard rule. **Not adopting mechanical gamma buy/sell signals.**
+- **What we DO surface** (honest, in the ToS study + confluence read, via
+  `scripts/gamma_context.py`): the VIX **vol-regime label as CONTEXT** (not a
+  trigger), the **expected-move band** (§4), and the nearest **round-strike pin**
+  as a crude "cool wall" proxy. Descriptive gamma flavour without a false signal.
 
 ## 4. Expected move (VIX-implied) — ADOPTED (net-new keeper)
 The one genuinely useful, cheap, reliable piece adjacent to the options/gamma
