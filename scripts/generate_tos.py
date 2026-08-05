@@ -1,6 +1,12 @@
 """Generate a COMPLETE, ready-to-paste thinkScript for each instrument
 (MNQ, QQQ, MES, SPY) with that symbol's confluence zones baked in.
-Standard rerun step: refresh data + PRICES, run, paste each full box on its chart.
+Standard rerun step: refresh data, run, and COPY EACH BOX PRINTED TO STDOUT
+straight into ThinkOrSwim (Studies > Create). No files are written — the
+scripts appear inline in the terminal/chat, delimited by clear markers.
+
+The "live price" for each symbol is taken from the last close in that
+symbol's 30-min file, so a data refresh is the only thing needed to keep the
+zones and price anchored to the latest bar.
 """
 
 from __future__ import annotations
@@ -15,12 +21,12 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import scripts.backtest_confluence as bt
 
-DATE = "2026-08-04"
-INST = [   # (symbol label, 30-min file, is_futures, live price)
-    ("MNQ", "nq_30min_eth.json", True, 29082.75),
-    ("QQQ", "qqq_30m_live.json", False, 704.47),
-    ("MES", "es_30m_live.json",  True, 7648.5),
-    ("SPY", "spy_30m_live.json", False, 759.80),
+DATE = "2026-08-05"
+INST = [   # (symbol label, 30-min file, is_futures) — price derived from data
+    ("MNQ", "nq_30min_eth.json", True),
+    ("QQQ", "qqq_30m_live.json", False),
+    ("MES", "es_30m_live.json",  True),
+    ("SPY", "spy_30m_live.json", False),
 ]
 
 TEMPLATE = r"""# =====================================================================
@@ -171,9 +177,18 @@ def zones_for(fname, fut, px):
     df, ids, by = split(df, fut)
     hist = df[df["sess"] < ids[-1]]
     zs, _ = bt.build(hist, by[ids[-2]], 13)
-    az = [z for z in zs if (z["w"] >= 6 or z["nt"] >= 3) and abs(z["price"] - px) <= 0.03 * px]
-    az.sort(key=lambda z: abs(z["price"] - px))
-    az = az[:4]
+    # Validity = >=2 distinct sources (the refined-filter rule: lone levels held
+    # 64% vs 94% for >=2), same bar the confluence A+ map uses. Take the NEAREST
+    # 2 valid zones ABOVE and 2 BELOW price so the box always carries the live
+    # overhead resistance AND underlying support (not just whichever side has the
+    # heaviest structure). 5% window.
+    valid = [z for z in zs if z["nt"] >= 2 and abs(z["price"] - px) <= 0.05 * px]
+    above = sorted([z for z in valid if z["price"] > px], key=lambda z: z["price"] - px)[:2]
+    below = sorted([z for z in valid if z["price"] <= px], key=lambda z: px - z["price"])[:2]
+    az = above + below
+    # if one side is empty, backfill from the other so all 4 slots stay useful
+    extra = sorted([z for z in valid if z not in az], key=lambda z: abs(z["price"] - px))
+    az += extra[: max(0, 4 - len(az))]
     az.sort(key=lambda z: z["price"], reverse=True)
     while len(az) < 4 and az:          # pad to 4 valid inputs with the farthest zone
         az.append(az[-1])
@@ -181,7 +196,8 @@ def zones_for(fname, fut, px):
 
 
 def main():
-    for sym, fname, fut, px in INST:
+    for sym, fname, fut in INST:
+        px = float(load_any(fname)["close"].iloc[-1])  # live price = last cached close
         d = 2 if px < 2000 else 1
         az = zones_for(fname, fut, px)
         s = TEMPLATE.replace("__SYM__", sym).replace("__DATE__", DATE).replace("__PX__", f"{px:.{d}f}")
@@ -190,9 +206,11 @@ def main():
             s = (s.replace(f"__Z{i}HI__", f"{z['hi']:.{d}f}")
                   .replace(f"__Z{i}LO__", f"{z['lo']:.{d}f}")
                   .replace(f"__Z{i}R__", res))
-        out = ROOT / "charts" / f"tos_{sym}.ts"
-        out.write_text(s)
-        print(f"wrote {out}  ({len(az)} zones)")
+        # Emit as a copy-paste box to stdout (no file). Delimiters make it easy
+        # to select the whole study for each instrument.
+        print(f"\n===== COPY BELOW into ThinkOrSwim — {sym} study ({len(az)} zones, {DATE}) =====")
+        print(s.rstrip())
+        print(f"===== END {sym} study =====")
 
 
 if __name__ == "__main__":

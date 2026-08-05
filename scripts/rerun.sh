@@ -18,3 +18,6 @@ python3 scripts/confluence.py
 echo
 echo "########## 3. CANDLE TRIGGERS (5/10/15/30m) ##########"
 python3 scripts/candle_read.py | sed -n '/--- 5m/,/=== ACTIONABLE/p'
+echo
+echo "########## 4. ThinkOrSwim STUDIES (copy each box straight into ToS) ##########"
+python3 scripts/generate_tos.py

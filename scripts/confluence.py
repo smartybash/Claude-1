@@ -184,9 +184,32 @@ def main():
     print("SUPPORT below (long):")
     for z in below[:4]: print(fmt(z))
 
-    sa = next((z for z in above if z[5] >= 8), None)  # pre-open score >=8
-    sb = next((z for z in below if z[5] >= 8), None)
-    print("\nTRADEABLE (A+ pre-open, score>=8, >=2 sources):")
+    # A+ ZONES = pre-open score >=8 (the only zones with a validated edge). Surface
+    # the nearest few on each side of price so there's always a concrete map, not
+    # just the single best level.
+    # A+ scan is NOT capped by the display WINDOW: A+ zones are rare and worth
+    # showing wherever they sit, so pull from the full valid set (>=2 pre-open
+    # sources, per the refined filter) to always reach the nearest few each side.
+    aplus_all = [z for z in zi_all if z[6] >= 2 and z[5] >= 8]
+    aplus_above = sorted([z for z in aplus_all if z[0] > px], key=lambda x: x[0])
+    aplus_below = sorted([z for z in aplus_all if z[0] <= px], key=lambda x: -x[0])
+    N = 3
+    print(f"\nA+ ZONES (pre-open score>=8) — nearest {N} each side:")
+    print("  above price (short-side resistance):")
+    if aplus_above:
+        for z in aplus_above[:N][::-1]: print(fmt(z))
+    else:
+        print("    none in range")
+    print(f"    ------ price {px:.0f} ------")
+    print("  below price (long-side support):")
+    if aplus_below:
+        for z in aplus_below[:N]: print(fmt(z))
+    else:
+        print("    none in range")
+
+    sa = aplus_above[0] if aplus_above else None  # nearest A+ resistance
+    sb = aplus_below[0] if aplus_below else None   # nearest A+ support
+    print("\nTRADEABLE (nearest A+ pair, score>=8, >=2 sources):")
     if sb: print(f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} -> target {sa[1]:.0f}" if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}")
     if sa: print(f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} -> target {sb[2]:.0f}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}")
     if not sa and not sb: print("  none in range - stand aside")
