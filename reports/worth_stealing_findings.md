@@ -89,6 +89,20 @@ Use: on NQ today the upside A+ resistance 29877–30001 sits *inside* the +1σ E
 *below* −1σ (29544) → only in play on an above-average down day. This is the
 keeper; wiring it into the rerun as a one-line overlay is trivial.
 
+## 5. Sweep-and-reclaim of structural levels — REJECTED as a standalone (order-flow needed)
+From his live NinjaTrader chart (Bookmap + SpectraFootprint + Volume Profile): the
+sweep-and-bounce is **order flow** (resting-liquidity heatmap + footprint
+absorption at a VP level), which needs tick+L2 data we don't have. We tested the
+**OHLC fingerprint** instead — wick beyond a level + close back across
+(`scripts/backtest_sweep_reclaim.py`, pooled NQ/ES/QQQ/SPY 5m+30m):
+- ALL levels: win@1R **33%**, E[R] **−0.28** — *worse than the random null* (42%, −0.08).
+- PDH/PDL: net losers (23–24% win, E[R] −0.48; wick stops are tight and get run).
+- VPOC: the only ~breakeven one (51% win, E[R] +0.01), slightly beats null.
+- **Verdict:** the naked pattern has **no edge** — confirming the edge lives in the
+  order-flow confirmation, not the price shape. We added a ToS **sweep-reclaim
+  LOCATION alert** (yellow dots + "confirm order flow" alert), explicitly framed
+  as a prompt to check footprint/liquidity, **not** a mechanical entry.
+
 ## Net
 3 of 4 rejected/​infeasible; **expected-move overlay adopted**. Our existing
 regime + confluence + 3-filter stack is not improved by IB break-hold, the VIX

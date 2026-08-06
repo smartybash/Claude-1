@@ -143,6 +143,30 @@ Alert(fadeLong,  "__SYM__ FADE-long",  Alert.BAR, Sound.Ring);
 Alert(brkShort,  "__SYM__ BREAK-short", Alert.BAR, Sound.Bell);
 Alert(brkLong,   "__SYM__ BREAK-long",  Alert.BAR, Sound.Bell);
 
+# ---- SWEEP-RECLAIM (LOCATION alert, NOT a mechanical entry) ----
+#   Fires when a bar WICKS beyond a zone edge (stop-run) and CLOSES back across
+#   it (reclaim) — the OHLC fingerprint of Alex's sweep-and-bounce.
+#   BACKTEST WARNING: the naked pattern has NO edge (PDH/PDL negative, VPOC ~
+#   breakeven, worse than random). A fire means "a stop-run just reclaimed this
+#   zone — go CHECK footprint absorption / Bookmap liquidity", not "buy/sell".
+input sweepBand = 0.10;   # wick must clear the zone edge by this fraction of zone height
+def swLong = (!z1_resist and low < z1_lo - sweepBand * (z1_hi - z1_lo) and close >= z1_lo) or
+             (!z2_resist and low < z2_lo - sweepBand * (z2_hi - z2_lo) and close >= z2_lo) or
+             (!z3_resist and low < z3_lo - sweepBand * (z3_hi - z3_lo) and close >= z3_lo) or
+             (!z4_resist and low < z4_lo - sweepBand * (z4_hi - z4_lo) and close >= z4_lo);
+def swShort = (z1_resist and high > z1_hi + sweepBand * (z1_hi - z1_lo) and close <= z1_hi) or
+              (z2_resist and high > z2_hi + sweepBand * (z2_hi - z2_lo) and close <= z2_hi) or
+              (z3_resist and high > z3_hi + sweepBand * (z3_hi - z3_lo) and close <= z3_hi) or
+              (z4_resist and high > z4_hi + sweepBand * (z4_hi - z4_lo) and close <= z4_hi);
+plot SigSweepLong = if swLong then low else Double.NaN;
+SigSweepLong.SetPaintingStrategy(PaintingStrategy.POINTS);
+SigSweepLong.SetDefaultColor(Color.YELLOW);  SigSweepLong.SetLineWeight(4);
+plot SigSweepShort = if swShort then high else Double.NaN;
+SigSweepShort.SetPaintingStrategy(PaintingStrategy.POINTS);
+SigSweepShort.SetDefaultColor(Color.YELLOW);  SigSweepShort.SetLineWeight(4);
+Alert(swLong,  "__SYM__ SWEEP-RECLAIM support - confirm order flow", Alert.BAR, Sound.Chimes);
+Alert(swShort, "__SYM__ SWEEP-RECLAIM resistance - confirm order flow", Alert.BAR, Sound.Chimes);
+
 # ---- STRUCTURE (clean): last swing hi/lo lines + BULL/BEAR label ----
 input showStructure = yes;
 input swingStrength = 5;
