@@ -69,12 +69,49 @@ def gamma_pin(px: float) -> float:
     return round(px / step) * step
 
 
-def context(px: float) -> dict:
+def load_gamma_levels(sym: str) -> dict | None:
+    """User-supplied dealer-gamma levels read off WealthCharts (or any provider),
+    from data/gamma_levels.json. Returns {gamma_flip, call_wall, put_wall,
+    zero_gamma} for `sym` (only the non-null keys), or None if absent.
+
+    WealthCharts gives LIVE chain+greeks, not history — so these are typed/pasted
+    in each morning. Schema (see data/gamma_levels.example.json):
+      {"date": "...", "source": "WealthCharts",
+       "levels": {"NQ": {"gamma_flip": 29850, "call_wall": 30200,
+                          "put_wall": 29400, "zero_gamma": 29850}, ...}}
+    Symbol aliases: MNQ->NQ, MES->ES (futures micros share the level set).
+    """
+    f = ROOT / "data" / "gamma_levels.json"
+    if not f.exists():
+        return None
+    try:
+        blob = json.loads(f.read_text())
+    except Exception:
+        return None
+    alias = {"MNQ": "NQ", "MES": "ES"}
+    key = alias.get(sym, sym)
+    lv = (blob.get("levels") or {}).get(key)
+    if not lv:
+        return None
+    out = {k: float(v) for k, v in lv.items()
+           if k in ("gamma_flip", "call_wall", "put_wall", "zero_gamma") and v is not None}
+    if out:
+        out["_date"] = blob.get("date", "")
+        out["_source"] = blob.get("source", "")
+    return out or None
+
+
+def context(px: float, sym: str | None = None) -> dict:
     vix, sma = load_vix()
     lab, note = regime(vix, sma)
     em = expected_move(px, vix)
-    return {"vix": vix, "vix_sma20": sma, "regime": lab, "note": note,
-            "pin": gamma_pin(px), **em}
+    d = {"vix": vix, "vix_sma20": sma, "regime": lab, "note": note,
+         "pin": gamma_pin(px), **em}
+    if sym:
+        gl = load_gamma_levels(sym)
+        if gl:
+            d["gamma_levels"] = gl
+    return d
 
 
 if __name__ == "__main__":

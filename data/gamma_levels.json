@@ -1,0 +1,11 @@
+{
+  "date": null,
+  "source": "WealthCharts",
+  "note": "FILL each morning from WealthCharts. Null keys are skipped. See gamma_levels.example.json.",
+  "levels": {
+    "NQ":  {"gamma_flip": null, "call_wall": null, "put_wall": null, "zero_gamma": null},
+    "ES":  {"gamma_flip": null, "call_wall": null, "put_wall": null, "zero_gamma": null},
+    "QQQ": {"gamma_flip": null, "call_wall": null, "put_wall": null, "zero_gamma": null},
+    "SPY": {"gamma_flip": null, "call_wall": null, "put_wall": null, "zero_gamma": null}
+  }
+}

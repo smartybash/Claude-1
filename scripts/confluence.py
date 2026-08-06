@@ -183,12 +183,25 @@ def main():
     emlo = emhi = None
     try:
         import scripts.gamma_context as gc
-        c = gc.context(px)
+        c = gc.context(px, "NQ")
         emlo, emhi = c["dn"], c["up"]
         print(f"GAMMA/EM CONTEXT: VIX {c['vix']:.1f} (20d {c['vix_sma20']:.1f}) -> {c['regime']}")
         print(f"  expected move +/-{c['em']:.0f}  ->  1sigma band [{c['dn']:.0f} .. {c['up']:.0f}]  "
               f"| pin {c['pin']:.0f} | weekly +/-{c['weekly']:.0f}")
-        print(f"  {c['note']}\n")
+        print(f"  {c['note']}")
+        gl = c.get("gamma_levels")
+        if gl:
+            parts = [f"{k.replace('_',' ')} {gl[k]:.0f}" for k in
+                     ("gamma_flip", "call_wall", "put_wall", "zero_gamma") if k in gl]
+            print(f"  DEALER GAMMA ({gl.get('_source','')} {gl.get('_date','')}): " + " | ".join(parts))
+            if "gamma_flip" in gl:
+                side = "ABOVE" if px >= gl["gamma_flip"] else "BELOW"
+                bias = ("suppressed/mean-revert lean (dealers long gamma)" if side == "ABOVE"
+                        else "amplified/trend lean (dealers short gamma)")
+                print(f"  -> price {side} gamma flip {gl['gamma_flip']:.0f}: {bias} [CONTEXT, not a signal]")
+        else:
+            print("  DEALER GAMMA: not loaded (fill data/gamma_levels.json from WealthCharts)")
+        print()
     except Exception as e:  # never let the context block break the core read
         print(f"(gamma context unavailable: {e})\n")
 

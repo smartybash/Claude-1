@@ -1,0 +1,11 @@
+{
+  "date": "2026-08-06",
+  "source": "WealthCharts",
+  "note": "Read these off WealthCharts each morning (options chain > gamma/GEX). Futures micros share the level set: MNQ uses NQ, MES uses ES. Leave a key null if you don't have it.",
+  "levels": {
+    "NQ":  {"gamma_flip": 29850, "call_wall": 30200, "put_wall": 29400, "zero_gamma": 29850},
+    "ES":  {"gamma_flip": 7790,  "call_wall": 7900,   "put_wall": 7650,  "zero_gamma": 7790},
+    "QQQ": {"gamma_flip": 723,    "call_wall": 730,    "put_wall": 712,   "zero_gamma": 723},
+    "SPY": {"gamma_flip": 774,    "call_wall": 782,    "put_wall": 762,   "zero_gamma": 774}
+  }
+}

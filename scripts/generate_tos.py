@@ -102,6 +102,7 @@ EMup.SetDefaultColor(Color.YELLOW);  EMup.SetStyle(Curve.LONG_DASH);   EMup.SetL
 EMdn.SetDefaultColor(Color.YELLOW);  EMdn.SetStyle(Curve.LONG_DASH);   EMdn.SetLineWeight(1);
 GPin.SetDefaultColor(Color.ORANGE);  GPin.SetStyle(Curve.SHORT_DASH);
 
+__GAMMALEVELS__
 # ---- SIGNALS (trend-aligned, across all 4 zones) ----
 def fadeShort = bias < 0 and stretch >= kStretch and (
     (z1_resist and high >= z1_lo and close < z1_lo) or
@@ -212,18 +213,46 @@ def zones_for(fname, fut, px):
     return az
 
 
+def gamma_block(gl, d) -> str:
+    """thinkScript block plotting dealer-gamma levels (from WealthCharts), or a
+    placeholder comment when none are loaded for this symbol."""
+    if not gl:
+        return ("# ---- DEALER GAMMA LEVELS: none loaded ----\n"
+                "#   Fill data/gamma_levels.json from WealthCharts to plot "
+                "gamma-flip / call-wall / put-wall here.")
+    spec = [("gamma_flip", "GFlip", "GammaFlip", "Color.WHITE", "Curve.FIRM", 2),
+            ("call_wall",  "CWall", "CallWall",  "Color.RED",   "Curve.LONG_DASH", 3),
+            ("put_wall",   "PWall", "PutWall",   "Color.GREEN", "Curve.LONG_DASH", 3),
+            ("zero_gamma", "ZGam",  "ZeroGamma", "Color.GRAY",  "Curve.SHORT_DASH", 1)]
+    lines = [f"# ---- DEALER GAMMA LEVELS (from {gl.get('_source','provider')}, "
+             f"{gl.get('_date','')}) — read off WealthCharts ----", "input showGL = yes;"]
+    labels = []
+    for key, plotn, lab, col, style, lw in spec:
+        if key not in gl:
+            continue
+        v = f"{gl[key]:.{d}f}"
+        lines.append(f"input {plotn}lvl = {v};")
+        lines.append(f"plot {plotn} = if showGL then {plotn}lvl else Double.NaN;")
+        lines.append(f"{plotn}.SetDefaultColor({col});  {plotn}.SetStyle({style});  {plotn}.SetLineWeight({lw});")
+        labels.append(f"{lab} {v}")
+    if labels:
+        lines.append(f'AddLabel(showGL, "GEX: {" | ".join(labels)}", Color.WHITE);')
+    return "\n".join(lines)
+
+
 def main():
     GCOLOR = {"VOL-CALM": "GREEN", "VOL-STRESSED": "ORANGE", "VOL-NEUTRAL": "GRAY"}
     for sym, fname, fut in INST:
         px = float(load_any(fname)["close"].iloc[-1])  # live price = last cached close
         d = 2 if px < 2000 else 1
         az = zones_for(fname, fut, px)
-        ctx = gc.context(px)
+        ctx = gc.context(px, sym)
         s = TEMPLATE.replace("__SYM__", sym).replace("__DATE__", DATE).replace("__PX__", f"{px:.{d}f}")
         s = (s.replace("__EMUP__", f"{ctx['up']:.{d}f}").replace("__EMDN__", f"{ctx['dn']:.{d}f}")
               .replace("__EM__", f"{ctx['em']:.{d}f}").replace("__PIN__", f"{ctx['pin']:.{d}f}")
               .replace("__VIX__", f"{ctx['vix']:.1f}").replace("__REGIME__", ctx["regime"])
               .replace("__GNOTE__", ctx["note"]).replace("__GCOLOR__", GCOLOR[ctx["regime"]]))
+        s = s.replace("__GAMMALEVELS__", gamma_block(ctx.get("gamma_levels"), d))
         for i, z in enumerate(az, 1):
             res = "yes" if z["price"] > px else "no"
             s = (s.replace(f"__Z{i}HI__", f"{z['hi']:.{d}f}")
