@@ -63,7 +63,11 @@ def normalise(raw) -> dict:
     else:
         raise ValueError("unrecognised payload (not dict or list)")
 
-    missing = [k for k in KEYS if k not in out or out[k] is None or len(out[k]) == 0]
+    # volume is optional (indices like VIX have none) — backfill zeros
+    if "volume" not in out or out["volume"] is None or len(out.get("volume", [])) == 0:
+        out["volume"] = [0] * len(out.get("time", []))
+    required = ("time", "open", "high", "low", "close")
+    missing = [k for k in required if k not in out or out[k] is None or len(out[k]) == 0]
     if missing:
         raise ValueError(f"missing columns: {missing}")
     out["time"] = _to_iso(out["time"])
