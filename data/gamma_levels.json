@@ -1,11 +1,39 @@
 {
-  "date": null,
-  "source": "WealthCharts",
+  "date": "2026-08-07",
+  "source": "FlashAlpha/QuantWheel (QQQ, read manually)",
   "note": "FILL each morning: either type levels from WealthCharts, or run `python3 scripts/gex_calc.py <chain.csv> --sym NQ --spot <spot> --mult 20 --write`. Null keys are skipped. See gamma_levels.example.json.",
   "levels": {
-    "NQ":  {"net_gex": null, "gamma_flip": null, "zero_gamma": null, "call_wall": null, "put_wall": null, "dealer_delta": null},
-    "ES":  {"net_gex": null, "gamma_flip": null, "zero_gamma": null, "call_wall": null, "put_wall": null, "dealer_delta": null},
-    "QQQ": {"net_gex": null, "gamma_flip": null, "zero_gamma": null, "call_wall": null, "put_wall": null, "dealer_delta": null},
-    "SPY": {"net_gex": null, "gamma_flip": null, "zero_gamma": null, "call_wall": null, "put_wall": null, "dealer_delta": null}
+    "NQ": {
+      "net_gex": null,
+      "gamma_flip": 29464.0,
+      "zero_gamma": 29464.0,
+      "call_wall": 30042.0,
+      "put_wall": 29630.0,
+      "dealer_delta": null
+    },
+    "ES": {
+      "net_gex": null,
+      "gamma_flip": null,
+      "zero_gamma": null,
+      "call_wall": null,
+      "put_wall": null,
+      "dealer_delta": null
+    },
+    "QQQ": {
+      "net_gex": null,
+      "gamma_flip": 715.97,
+      "zero_gamma": 715.97,
+      "call_wall": 730.0,
+      "put_wall": 720.0,
+      "dealer_delta": null
+    },
+    "SPY": {
+      "net_gex": null,
+      "gamma_flip": null,
+      "zero_gamma": null,
+      "call_wall": null,
+      "put_wall": null,
+      "dealer_delta": null
+    }
   }
 }
