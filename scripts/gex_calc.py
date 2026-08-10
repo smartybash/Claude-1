@@ -122,52 +122,69 @@ def main():
     iv_mode = "call_gamma" not in df.columns or "put_gamma" not in df.columns
     if iv_mode and ("call_iv" not in df.columns or "put_iv" not in df.columns):
         raise SystemExit("need call_gamma/put_gamma OR call_iv/put_iv (+ --dte) in the chain")
-    T = a.dte / 365.0
+    res = compute_gex(df, a.spot, a.mult, iv_mode, a.dte / 365.0, a.rate)
+    print_read(a.sym, a.spot, a.mult, iv_mode, res)
+    if a.write:
+        write_levels(a.sym, res)
+        print(f"  -> wrote data/gamma_levels.json[{a.sym}]")
 
-    net = net_gex_at(df, a.spot, a.mult, iv_mode, T, a.rate)
-    flip = find_flip(df, a.spot, a.mult, iv_mode, T, a.rate)
 
-    # walls = strike with the most call / put gamma-weighted OI (fallback: raw OI)
+def compute_gex(df, spot, mult, iv_mode, T, r=0.0) -> dict:
+    """Net GEX, gamma flip, call/put walls, dealer delta from a per-strike chain.
+    Reused by gex_calc (CSV) and pull_ibkr_chain (live IBKR). Columns: strike,
+    call_oi, put_oi, and either call_gamma/put_gamma or (iv_mode) call_iv/put_iv;
+    optional call_delta/put_delta."""
+    net = net_gex_at(df, spot, mult, iv_mode, T, r)
+    flip = find_flip(df, spot, mult, iv_mode, T, r)
     if not iv_mode:
-        df["cw"] = df["call_gamma"].fillna(0) * df["call_oi"].fillna(0)
-        df["pw"] = df["put_gamma"].fillna(0) * df["put_oi"].fillna(0)
+        cw = df["call_gamma"].fillna(0) * df["call_oi"].fillna(0)
+        pw = df["put_gamma"].fillna(0) * df["put_oi"].fillna(0)
     else:
-        df["cw"] = df["call_oi"].fillna(0)
-        df["pw"] = df["put_oi"].fillna(0)
-    call_wall = float(df.loc[df["cw"].idxmax(), "strike"])
-    put_wall = float(df.loc[df["pw"].idxmax(), "strike"])
-
+        cw = df["call_oi"].fillna(0)
+        pw = df["put_oi"].fillna(0)
     dealer_delta = None
     if {"call_delta", "put_delta"}.issubset(df.columns):
-        # dealers short customer calls / long puts -> dealer delta ~ -(call_d*coi) + (put_d*poi)
+        # dealers are short customer calls / long puts -> dealer delta ~ -(cd*coi)+(pd*poi)
         dealer_delta = float((-(df["call_delta"].fillna(0) * df["call_oi"].fillna(0))
-                              + (df["put_delta"].fillna(0) * df["put_oi"].fillna(0))).sum() * a.mult)
+                              + (df["put_delta"].fillna(0) * df["put_oi"].fillna(0))).sum() * mult)
+    return {"net_gex": net, "gamma_flip": flip,
+            "call_wall": float(df.loc[cw.idxmax(), "strike"]),
+            "put_wall": float(df.loc[pw.idxmax(), "strike"]),
+            "dealer_delta": dealer_delta}
 
+
+def print_read(sym, spot, mult, iv_mode, res):
+    net, flip = res["net_gex"], res["gamma_flip"]
     state = "NEGATIVE" if net < 0 else "POSITIVE"
-    print(f"{a.sym}  spot {a.spot:.2f}  mult {a.mult:g}  ({'IV->BS gamma' if iv_mode else 'chain gamma'})")
-    print(f"  NET GEX = {net:,.0f}  -> {state} GAMMA "
+    print(f"{sym}  spot {spot:.2f}  mult {mult:g}  ({'IV->BS gamma' if iv_mode else 'chain gamma'})")
+    print(f"  NET GEX = {net/1e9:+.2f}B  -> {state} GAMMA "
           f"({'trend/expansion, long-day if it turns up' if net < 0 else 'range/mean-revert, breakouts stall'})")
     print(f"  gamma flip (zero-gamma) = {flip:.2f}" if flip else "  gamma flip = (no crossing in +/-12%)")
     if flip:
-        print(f"    spot is {'BELOW' if a.spot < flip else 'above'} the flip -> "
-              f"{'NEGATIVE' if a.spot < flip else 'positive'} gamma at open")
-    print(f"  call wall {call_wall:.2f} (resistance/magnet) | put wall {put_wall:.2f} (support/magnet)")
-    if dealer_delta is not None:
-        print(f"  dealer delta = {dealer_delta:,.0f} -> lean {'UP (buy dips)' if dealer_delta>0 else 'DOWN (sell rallies)'}")
+        print(f"    spot is {'BELOW' if spot < flip else 'above'} the flip -> "
+              f"{'NEGATIVE' if spot < flip else 'positive'} gamma at open")
+    print(f"  call wall {res['call_wall']:.2f} (resistance/magnet) | put wall {res['put_wall']:.2f} (support/magnet)")
+    if res.get("dealer_delta") is not None:
+        dd = res["dealer_delta"]
+        print(f"  dealer delta = {dd/1e6:+.1f}M -> lean {'UP (buy dips)' if dd > 0 else 'DOWN (sell rallies)'}")
 
-    if a.write:
-        f = ROOT / "data" / "gamma_levels.json"
-        blob = json.loads(f.read_text()) if f.exists() else {"levels": {}}
-        blob.setdefault("levels", {})
-        entry = {"gamma_flip": round(flip, 2) if flip else None, "zero_gamma": round(flip, 2) if flip else None,
-                 "call_wall": round(call_wall, 2), "put_wall": round(put_wall, 2),
-                 "net_gex": round(net, 0)}
-        if dealer_delta is not None:
-            entry["dealer_delta"] = round(dealer_delta, 0)
-        blob["levels"][a.sym] = entry
-        blob["source"] = blob.get("source", "gex_calc")
-        f.write_text(json.dumps(blob, indent=2))
-        print(f"  -> wrote data/gamma_levels.json[{a.sym}]")
+
+def write_levels(sym, res, source="gex_calc"):
+    """Merge computed levels into data/gamma_levels.json[sym]."""
+    f = ROOT / "data" / "gamma_levels.json"
+    blob = json.loads(f.read_text()) if f.exists() else {"levels": {}}
+    blob.setdefault("levels", {})
+    flip = res["gamma_flip"]
+    entry = {"net_gex": round(res["net_gex"], 0),
+             "gamma_flip": round(flip, 2) if flip else None,
+             "zero_gamma": round(flip, 2) if flip else None,
+             "call_wall": round(res["call_wall"], 2),
+             "put_wall": round(res["put_wall"], 2)}
+    if res.get("dealer_delta") is not None:
+        entry["dealer_delta"] = round(res["dealer_delta"], 0)
+    blob["levels"][sym] = entry
+    blob["source"] = source
+    f.write_text(json.dumps(blob, indent=2))
 
 
 if __name__ == "__main__":

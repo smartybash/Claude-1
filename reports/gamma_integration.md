@@ -89,3 +89,19 @@ if it turns up); fades get run over.`
 
 **Honest caveat.** We still can't *backtest* real GEX here (no historical OI).
 `log_gamma.py` snapshots the daily levels so we can validate the read forward.
+
+## Automated IBKR pull (added) — `pull_ibkr_chain.py`
+
+Pre-open at your machine (TWS/IB Gateway running, API enabled):
+```
+pip install ib_insync pandas
+python3 scripts/pull_ibkr_chain.py --sym NQ --write     # NDX options -> NQ key
+python3 scripts/pull_ibkr_chain.py --sym QQQ --write    # add QQQ, ES (SPX), SPY as wanted
+# then run the normal rerun — it now prints NEGATIVE/POSITIVE gamma at open.
+```
+It pulls the nearest expiry's chain (OI + model greeks/IV) for NDX (NQ), SPX (ES),
+QQQ, or SPY, computes net GEX / gamma flip / walls / dealer delta via the same
+`gex_calc` math, and writes `data/gamma_levels.json`. Flags: `--port` (TWS live
+7496 / paper 7497; Gateway 4001/4002), `--delayed` (no live data sub),
+`--max-strikes`, `--dte-max`. Live greeks give net GEX from actual gamma; the
+flip is repriced from IV. No market-data sub -> use `--delayed`.
