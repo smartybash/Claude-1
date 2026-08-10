@@ -1,15 +1,15 @@
 {
   "date": "2026-08-10",
-  "source": "FlashAlpha/QuantWheel (QQQ, read manually)",
+  "source": "AlphaVantage 2026-08-07",
   "note": "FILL each morning: either type levels from WealthCharts, or run `python3 scripts/gex_calc.py <chain.csv> --sym NQ --spot <spot> --mult 20 --write`. Null keys are skipped. See gamma_levels.example.json.",
   "levels": {
     "NQ": {
-      "net_gex": null,
-      "gamma_flip": 29685,
-      "zero_gamma": 29685,
+      "net_gex": 5576376635.0,
+      "gamma_flip": 29506,
+      "zero_gamma": 29506,
       "call_wall": 30112,
-      "put_wall": 29699,
-      "dealer_delta": null
+      "put_wall": 28874,
+      "dealer_delta": -90067122.0
     },
     "ES": {
       "net_gex": null,
@@ -20,12 +20,12 @@
       "dealer_delta": null
     },
     "QQQ": {
-      "net_gex": null,
-      "gamma_flip": 719.64,
-      "zero_gamma": 719.64,
+      "net_gex": 5576376635.0,
+      "gamma_flip": 715.32,
+      "zero_gamma": 715.32,
       "call_wall": 730.0,
-      "put_wall": 720.0,
-      "dealer_delta": null
+      "put_wall": 700.0,
+      "dealer_delta": -90067122.0
     },
     "SPY": {
       "net_gex": null,

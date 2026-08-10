@@ -105,3 +105,29 @@ QQQ, or SPY, computes net GEX / gamma flip / walls / dealer delta via the same
 7496 / paper 7497; Gateway 4001/4002), `--delayed` (no live data sub),
 `--max-strikes`, `--dte-max`. Live greeks give net GEX from actual gamma; the
 flip is repriced from IV. No market-data sub -> use `--delayed`.
+
+## REAL GEX via Alpha Vantage premium (added) — `av_gex.py`
+
+AV premium (HISTORICAL_OPTIONS, 150 req/min) returns the full per-strike chain
+with OI + greeks for any session, 15+ yrs. This replaces manual reading AND
+unblocks the historical GEX backtest (the data that never existed before).
+
+VALIDATION (QQQ, 2026-08-07): our computed gamma flip **715.3** vs FlashAlpha
+**715.97**; call wall **730.00** = exact match; net GEX positive = agreed.
+
+DAILY (cloud rerun): the prior session's chain sets the open, so fetch the last
+trading day:
+  mcp HISTORICAL_OPTIONS(symbol=QQQ, date=<prev session>, datatype=csv,
+      return_full_data=true)                     # auto-saves ~1.9MB CSV to disk
+  python3 scripts/av_gex.py <savedfile> --sym QQQ --mult 100 --dte-max 35 \
+      --write --also-nq <NQ/QQQ ratio> --log
+It computes net GEX / gamma-flip / call+put walls / dealer delta (walls = raw-OI
+strikes; net GEX = real chain gamma; flip = IV-repriced), writes gamma_levels.json
+(QQQ + scaled NQ), and appends data/gex_history.jsonl for the forward/back test.
+Realtime options need AV's 600/1200 tier; historical (prior close) is the correct
+"at open" basis anyway.
+
+BACKTEST (now possible): one HISTORICAL_OPTIONS call per past date -> av_gex --log
+builds gex_history.jsonl; backtest_gamma_filter.py (to build) then tests the
+negative-gamma-trend / positive-gamma-range read against intraday outcomes with
+the usual honest template (null baseline, split-half, ATR expectancy).
