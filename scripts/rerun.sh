@@ -9,10 +9,13 @@
 #   5. ROTATION  - MAGS/SMH/IGV vs QQQ normalized %chg (sector leadership/breadth)
 # confluence.py auto-cross-references QQQ (scaled) -> A++ = QQQ-confirmed zone.
 #
-# DELIVERY REQUIREMENT (every rerun, non-negotiable): share in chat BOTH the
-#   charts AND the FULL code for EACH ToS script — all four studies (MNQ, QQQ,
-#   MES, SPY) pasted in their entirety, not a diff/delta of the changed lines.
-#   Also include the rotation chart. (Standing instruction from the user.)
+# DELIVERY REQUIREMENT (every rerun / every gamma or data update, non-negotiable):
+#   share in chat BOTH the charts AND the FULL code for ALL FOUR ToS studies
+#   (MNQ, QQQ, MES, SPY) pasted IN THEIR ENTIRETY — every single time, even if
+#   only one number changed. NEVER post deltas, "unchanged from last time", or
+#   find-and-replace/edit instructions. Always the complete, ready-to-paste box
+#   for each of the four. Also include the confluence + rotation charts.
+#   (Standing instruction from the user.)
 #
 # DATA REFRESH — to keep reruns fast, split the fetch by how fast it moves:
 #   FAST (every intraday rerun): only the live intraday bars that actually move
