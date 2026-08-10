@@ -1,14 +1,14 @@
 {
-  "date": "2026-08-07",
+  "date": "2026-08-10",
   "source": "FlashAlpha/QuantWheel (QQQ, read manually)",
   "note": "FILL each morning: either type levels from WealthCharts, or run `python3 scripts/gex_calc.py <chain.csv> --sym NQ --spot <spot> --mult 20 --write`. Null keys are skipped. See gamma_levels.example.json.",
   "levels": {
     "NQ": {
       "net_gex": null,
-      "gamma_flip": 29464.0,
-      "zero_gamma": 29464.0,
-      "call_wall": 30042.0,
-      "put_wall": 29630.0,
+      "gamma_flip": 29538,
+      "zero_gamma": 29538,
+      "call_wall": 30117,
+      "put_wall": 29704,
       "dealer_delta": null
     },
     "ES": {

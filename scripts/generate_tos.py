@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT))
 import scripts.backtest_confluence as bt
 import scripts.gamma_context as gc
 
-DATE = "2026-08-07"
+DATE = "2026-08-10"
 INST = [   # (symbol label, 30-min file, is_futures) — price derived from data
     ("MNQ", "nq_30min_eth.json", True),
     ("QQQ", "qqq_30m_live.json", False),
