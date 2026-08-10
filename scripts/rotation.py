@@ -69,32 +69,56 @@ def main():
         print("rotation: no data"); return
 
     day = max(s.index[-1] for s in series.values()).strftime("%a %m-%d")
+    tnow = max(s.index[-1] for s in series.values()).strftime("%H:%M")
     finals = {k: float(v.iloc[-1]) for k, v in series.items()}
     ranked = sorted(finals.items(), key=lambda kv: -kv[1])
-
-    print(f"SECTOR ROTATION / BREADTH — last RTH session {day} (normalized %chg)")
-    for k, v in ranked:
-        bar = "+" if v >= 0 else ""
-        print(f"  {k:5s} {bar}{v:5.2f}%")
     leaders = [t[0] for t in SYMS if t[0] != BENCH]
-    greens = [k for k in leaders if finals.get(k, 0) > 0]
     bench = finals.get(BENCH, 0.0)
-    beat = [k for k in leaders if finals.get(k, 0) > bench]
 
-    # rotation read
-    semis = finals.get("SMH")
-    if len(greens) == len(leaders) and semis is not None and semis >= max(finals[k] for k in leaders) - 1e-9:
-        call = "BROAD RISK-ON, semis-led -> supports NQ/QQQ trend-UP"
-    elif len(greens) == len(leaders):
-        call = "broad risk-on (all tech green) -> supports trend-UP"
-    elif len(greens) == 0:
-        call = "BROAD RISK-OFF (all tech red) -> supports trend-DOWN"
+    # RECENT leg (last hour = 12x 5-min bars): the move OVER the window, so a
+    # sector that was red all day but ripping the last hour shows up as leading NOW.
+    W = 12
+    def recent(k):
+        s = series[k]
+        if len(s) < 2:
+            return 0.0
+        j = min(W, len(s) - 1)            # bars back (<= last hour)
+        return float(s.iloc[-1] - s.iloc[-1 - j])
+    rec = {k: recent(k) for k in series}
+    bench_rec = rec.get(BENCH, 0.0)
+
+    print(f"SECTOR ROTATION / BREADTH — {day} {tnow} ET")
+    print(f"  {'sym':5s} {'since-open':>10s} {'last-1h':>8s} {'vs QQQ(1h)':>11s}")
+    for k, v in ranked:
+        rs = rec.get(k, 0.0) - bench_rec
+        tag = "" if k == BENCH else f"{rs:+.2f}%"
+        print(f"  {k:5s} {v:+9.2f}% {rec.get(k,0.0):+7.2f}% {tag:>11s}")
+
+    greens = [k for k in leaders if finals.get(k, 0) > 0]              # since open
+    beat = [k for k in leaders if finals.get(k, 0) > bench]
+    rising = [k for k in leaders if rec.get(k, 0) > 0]                # last hour
+    beat_now = [k for k in leaders if rec.get(k, 0) > bench_rec]
+
+    lead_day = max(leaders, key=lambda k: finals.get(k, -9))
+    lead_now = max(leaders, key=lambda k: rec.get(k, -9))
+    semis_now = rec.get("SMH", 0.0)
+
+    # rotation read driven by the LIVE (last-hour) breadth, not the whole day
+    if len(rising) == len(leaders) and lead_now == "SMH":
+        call = "BROAD RISK-ON right now, semis-led -> supports NQ/QQQ trend-UP"
+    elif len(rising) == len(leaders):
+        call = "broad risk-on right now (all tech rising) -> supports trend-UP"
+    elif len(rising) == 0:
+        call = "BROAD RISK-OFF right now (all tech falling) -> supports trend-DOWN"
     else:
-        call = ("NARROW / DIVERGENT leadership -> move is suspect, favour "
-                "mean-revert / wait for alignment")
-    print(f"  breadth: {len(greens)}/{len(leaders)} leaders green; "
-          f"{len(beat)}/{len(leaders)} beating {BENCH} ({bench:+.2f}%)")
-    print(f"  ROTATION READ: {call}  [CONTEXT, not a trigger]")
+        call = ("NARROW / DIVERGENT right now -> move suspect, favour mean-revert / "
+                "wait for alignment")
+    print(f"  breadth since-open: {len(greens)}/{len(leaders)} green, {len(beat)}/{len(leaders)} beat {BENCH}"
+          f"   |   last-1h: {len(rising)}/{len(leaders)} rising, {len(beat_now)}/{len(leaders)} beat {BENCH}")
+    if lead_now != lead_day:
+        print(f"  ** ROTATION SHIFT: {lead_day} led the day but {lead_now} is leading the last hour "
+              f"-> leadership is rotating, weight the NOW read **")
+    print(f"  ROTATION READ (live): {call}  [CONTEXT, not a trigger]")
 
     _chart(series, day)
 
@@ -116,6 +140,10 @@ def _chart(series, day):
     ax.axhline(0, color="#888", lw=0.8, alpha=0.6)
     ref = next(iter(series.values()))
     n = len(ref)
+    if n > 13:                                    # shade the last hour (the "NOW" read window)
+        ax.axvspan(n - 1 - 12, n - 1, color="#ffffff", alpha=0.06)
+        ax.axvline(n - 1 - 12, color="#888", lw=0.8, ls=":", alpha=0.5)
+        ax.text(n - 1 - 12, ax.get_ylim()[1], " last 1h", color="#aaa", va="top", fontsize=8)
     tk = list(range(0, n, max(1, n // 10)))
     ax.set_xticks(tk); ax.set_xticklabels([ref.index[i].strftime("%H:%M") for i in tk], fontsize=8)
     ax.set_title(f"Sector rotation — MAGS / SMH / IGV vs QQQ — normalized %chg, RTH {day}", fontsize=11)

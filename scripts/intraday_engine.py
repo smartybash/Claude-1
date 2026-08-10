@@ -7,12 +7,16 @@ levels that actually matter intraday: VWAP (+bands), opening range, prior-day
 H/L/close, developing session H/L, round numbers - not just the static
 overnight value area.
 
-Regime (from today's RTH bars so far):
-  efficiency ratio er = |last-open| / sum|bar-to-bar move|
-  side = % of bars closing above VWAP
+Regime (efficiency ratio er = |net move| / sum|bar-to-bar move|, side = % bars above VWAP):
   TREND UP   : er>=0.40 and side>=0.66      -> ride pullbacks to VWAP/OR, target higher
   TREND DOWN : er>=0.40 and side<=0.34      -> ride pullbacks to VWAP/OR, target lower
   BALANCE    : otherwise                    -> fade the day's edges / VWAP bands back to VWAP
+
+We read regime on TWO clocks so it stays close to live action:
+  SESSION = all RTH bars since 9:30 (the day's character)
+  NOW     = just the last hour (12x 5-min bars) + VWAP slope
+When NOW disagrees with SESSION we flag a REGIME SHIFT (e.g. AM trend rolling over
+into a PM fade) instead of staying anchored to the morning.
 """
 
 from __future__ import annotations
@@ -36,6 +40,19 @@ def load5() -> pd.DataFrame:
     df = pd.DataFrame({k: r[k] for k in ("open", "high", "low", "close", "volume")},
                       index=pd.to_datetime(r["time"], utc=True).tz_convert(ET))
     return df[~df.index.duplicated(keep="last")].sort_index()
+
+
+def regime_of(closes: pd.Series, vwap: pd.Series):
+    """(label, arrow, er, side) for a slice of bars vs the session VWAP over that
+    slice. er = net travel / gross travel; side = share of bars closing > VWAP."""
+    gross = closes.diff().abs().sum()
+    er = abs(float(closes.iloc[-1]) - float(closes.iloc[0])) / gross if gross else 0.0
+    side = float((closes.values > vwap.values).mean())
+    if er >= 0.40 and side >= 0.66:
+        return "TREND UP", "up", er, side
+    if er >= 0.40 and side <= 0.34:
+        return "TREND DOWN", "down", er, side
+    return "BALANCE", "chop", er, side
 
 
 def main():
@@ -73,21 +90,34 @@ def main():
                 prth = g; break
     pdh, pdl, pdc = float(prth["high"].max()), float(prth["low"].min()), float(prth["close"].iloc[-1])
 
-    # regime
-    o = float(rth["open"].iloc[0])
-    er = abs(px - o) / rth["close"].diff().abs().sum() if rth["close"].diff().abs().sum() else 0
-    side = float((rth["close"] > vwap).mean())
-    if er >= 0.40 and side >= 0.66:
-        regime, arrow = "TREND UP", "up"
-    elif er >= 0.40 and side <= 0.34:
-        regime, arrow = "TREND DOWN", "down"
+    # regime on two clocks: whole session, and just the last hour (12x 5-min)
+    regime, arrow, er, side = regime_of(rth["close"], vwap)
+    W = 12
+    if len(rth) >= W + 2:
+        rc, rv = rth["close"].iloc[-W:], vwap.iloc[-W:]
+        nregime, narrow, ner, nside = regime_of(rc, rv)
+        vwap_slope = float(vwap.iloc[-1] - vwap.iloc[-W])   # VWAP drift over the hour
+        recent_move = px - float(rth["close"].iloc[-W])
     else:
-        regime, arrow = "BALANCE", "chop"
+        nregime, narrow, ner, nside = regime, arrow, er, side
+        vwap_slope = float(vwap.iloc[-1] - vwap.iloc[0])
+        recent_move = px - float(rth["close"].iloc[0])
+    shift = nregime != regime
+    # what to actually trade off = the live (NOW) regime once enough bars exist
+    live = nregime if len(rth) >= W + 2 else regime
+    live_arrow = narrow if len(rth) >= W + 2 else arrow
 
     rn = round_numbers(px, round_step(px))
 
     print(f"NQ intraday engine — {now:%a %m-%d %H:%M} ET   price {px:.0f}")
-    print(f"REGIME: {regime}   (efficiency {er:.2f}, {side:.0%} of bars above VWAP)")
+    print(f"REGIME  session: {regime}  (er {er:.2f}, {side:.0%} bars>VWAP)   "
+          f"NOW/last-1h: {nregime}  (er {ner:.2f}, {nside:.0%} bars>VWAP, "
+          f"VWAP {'rising' if vwap_slope>0 else 'falling' if vwap_slope<0 else 'flat'} "
+          f"{vwap_slope:+.0f}, {recent_move:+.0f} pt)")
+    if shift:
+        print(f"  ** REGIME SHIFT: session says {regime} but the last hour is {nregime} "
+              f"-> trade the NOW read, the morning character is stale **")
+    regime, arrow = live, live_arrow   # playbook below follows the live regime
     print(f"VWAP {vwap_now:.0f}  bands +-1sd [{vwap_now-sd_now:.0f} / {vwap_now+sd_now:.0f}]  "
           f"+-2sd [{vwap_now-2*sd_now:.0f} / {vwap_now+2*sd_now:.0f}]")
     print(f"opening range {orl:.0f}-{orh:.0f} | day {dl:.0f}-{dh:.0f} | PDH {pdh:.0f} PDL {pdl:.0f} PDC {pdc:.0f}")

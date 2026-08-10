@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # Standard daily "rerun" — regime-first, confluence-based, candle-triggered.
-#   1. REGIME    - trend vs balance (intraday_engine): decides the playbook
+#   1. REGIME    - trend vs balance (intraday_engine): decides the playbook.
+#                  Read on TWO clocks - whole session AND the last hour - and
+#                  flags a REGIME SHIFT when the last hour breaks from the morning.
 #   2. CONFLUENCE- HTF-anchored scored support/resistance zones (confluence)
 #                  + GAMMA/EM context (VIX expected-move band + vol regime);
 #                  the ONLY levels we trade; standalone 5-min levels ignored
 #   3. CANDLE    - 5/10/15/30-min triggers at the zones (candle_read)
 #   4. TOS       - copy-paste ThinkOrSwim studies (with EM band + gamma pin)
-#   5. ROTATION  - MAGS/SMH/IGV vs QQQ normalized %chg (sector leadership/breadth)
+#   5. ROTATION  - MAGS/SMH/IGV vs QQQ: since-open AND last-hour %chg + RS vs QQQ,
+#                  live breadth, and a ROTATION SHIFT flag (sector leadership/breadth)
 # confluence.py auto-cross-references QQQ (scaled) -> A++ = QQQ-confirmed zone.
 #
 # DELIVERY REQUIREMENT (every rerun / every gamma or data update, non-negotiable):
@@ -50,7 +53,7 @@ cd "$(dirname "$0")/.."
 SYM="${1:-NQ}"
 
 echo "########## 1. REGIME (decides trend-follow vs fade) ##########"
-python3 scripts/intraday_engine.py | sed -n '1,4p'
+python3 scripts/intraday_engine.py | sed -n '1,5p'
 echo
 echo "########## 2. CONFLUENCE ZONES (the levels that matter) ##########"
 python3 scripts/confluence.py
