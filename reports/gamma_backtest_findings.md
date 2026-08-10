@@ -120,6 +120,36 @@ structural swing that also sits at the call wall now clusters into a DENSE zone
 (e.g. NQ 30074-30112 = 1h+4h swing + wkH + cWall), so the map upgrades exactly
 where dealers are defending. This is the model-free half of Alex's wall read.
 
+## Direction probe #2: 25-delta IV skew / risk-reversal (backtest_skew.py — PARKED)
+Followed up the "next real probe" from the direction section. Built the skew
+history properly: `av_skew.py` computes RR25 = IV(25d put) - IV(25d call) at the
+~30-DTE expiry from the full AV `HISTORICAL_OPTIONS` chain; fetched **56 real QQQ
+chains** (2026-04-10..06-30, one clean sample) into `skew_history.jsonl`.
+
+RR25 -> next-day open->close return:
+
+| RR25 tercile | mean next-day ret | P(up) |
+|---|---|---|
+| low  | +0.118% | 57% |
+| mid  | +0.004% | 61% |
+| high | +0.357% | 59% |
+
+- corr(RR25, next-ret) = **+0.15** (weak contrarian: extreme hedging -> slight
+  bounce), and the sign is **stable both halves** (+0.15 / +0.16) — but it's below
+  the pre-registered bar (|corr|>0.25, monotone terciles), the terciles are
+  U-shaped not monotone, and P(up) is flat across them.
+- The **change** signal (d_RR25) is worse: corr +0.10 and it **sign-flips across
+  halves** (-0.22 / +0.24) — unstable.
+- Skew -> next-day **range** is also weak (corr +0.16).
+
+**Verdict: no tradeable directional edge.** There's a faint, sign-stable
+contrarian tilt from the skew *level* (extreme fear -> mild mean-reversion), but
+too weak to mechanize on 56 sessions in one regime (post-April-vol, declining
+skew). Kept the infrastructure: `av_skew.py` reads the SAME chain we already fetch
+for GEX (zero extra fetches), so `skew_history.jsonl` keeps growing each rerun and
+can be re-tested at n~150. Not wired into any trade rule. (One row, 2026-06-24,
+interpolated to RR25=0 — a degenerate both-wings-equal artifact; harmless at n=56.)
+
 ## Other AV data assessed
 - **News Sentiment — NOT usable as a daily signal.** QQQ returned ~3 articles over
   3 days and the items are descriptive/backward-looking ("QQQ ETF Gains 1.2%"),

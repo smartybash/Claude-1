@@ -31,6 +31,10 @@
 #         return_full_data=true)  # saves <file>.txt
 #       python3 scripts/av_gex.py <file> --sym QQQ --mult 100 --write --log \
 #         --also-nq <NQ/QQQ ratio>
+#       # SAME saved chain also feeds the 25d IV-skew log (zero extra fetch):
+#       python3 scripts/av_skew.py <file> --sym QQQ --log   # -> skew_history.jsonl
+#       # (skew is research-only: backtest_skew.py found no tradeable directional
+#       #  edge at n=56; keep logging to re-test as the sample grows.)
 #   EARNINGS CAL (weekly-ish): refresh the forward mega-cap widener dates:
 #       EARNINGS_CALENDAR(symbol=<MAG7>, horizon=6month)  # save each output
 #       python3 scripts/earnings_cal.py <saved files...>  # -> earnings_calendar.json
