@@ -37,3 +37,22 @@ Direction still comes from the rest of the stack (structure, VWAP, rotation, flo
 n=31 sampled (not consecutive) sessions, QQQ only, costs not modelled. Directional
 read, not proof. `av_gex --log` appends every future rerun to `gex_history.jsonl`,
 so this strengthens over time and can be re-run with more sessions / other symbols.
+
+## Follow-up: mining other chain features (backtest_gex_features.py)
+
+- **Dealer delta -> direction: NULL.** Computed dealer delta was net-negative on all
+  30 sampled days (assumption artifact, no variation) and its magnitude had ~0
+  correlation with next-day return (corr +0.06). Not a usable directional signal.
+- **Net GEX magnitude -> next-day range: clean DOSE-RESPONSE.** Terciles:
+  most-negative **1.85%** > middle 1.55% > most-positive **1.24%** (monotone).
+  corr(distance-below-flip, range) = **+0.40**. So the range edge is graded, not
+  binary: the more negative / deeper below flip, the wider the next day.
+- **Actionable:** scale the day's expected range by net GEX — most-negative ~1.85%
+  QQQ vs most-positive ~1.24%. Direction still comes from elsewhere.
+
+## Other AV data assessed (not yet backtested)
+Put/Call Ratio (realtime + historical to 2008) and News Sentiment are available
+"other data" families. PCR pulls are one-per-date and verbose, and contrarian PCR
+is historically a weak/noisy daily signal — recommend a dedicated ~50-session test
+before trusting it, rather than half-powered. Live QQQ PCR ~0.95 (neutral) is fine
+as chart context. News-sentiment (date-range, few calls) is the better next probe.
