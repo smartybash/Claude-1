@@ -127,12 +127,14 @@ def gamma_read(px: float, gl: dict | None) -> dict:
     if neg is None:
         return {"state": "UNKNOWN", "note": "gamma level present but not usable", "basis": None}
     if neg:
-        note = ("NEGATIVE GAMMA -> dealers amplify moves (buy highs / sell lows). "
-                "Expect TREND/EXPANSION ('long day' if it turns up); fades get run over.")
+        note = ("NEGATIVE GAMMA -> dealers amplify moves. Expect a BIGGER-RANGE / "
+                "EXPANSION day: give trades room, fades get run further. (Backtest: "
+                "neg-gamma ran ~0.36%/day wider range on QQQ, stable both halves; a "
+                "cleaner one-way TREND is NOT confirmed -- it's a range switch, not direction.)")
         state = "NEGATIVE"
     else:
-        note = ("POSITIVE GAMMA -> dealers dampen moves (sell highs / buy lows). "
-                "Expect RANGE/mean-revert; breakouts tend to stall.")
+        note = ("POSITIVE GAMMA -> dealers dampen moves. Expect a TIGHTER / RANGE day: "
+                "mean-reversion at the edges more reliable, breakouts tend to stall.")
         state = "POSITIVE"
     dd = gl.get("dealer_delta")
     if dd is not None:
