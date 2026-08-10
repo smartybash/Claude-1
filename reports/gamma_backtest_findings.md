@@ -210,3 +210,26 @@ interpolated to RR25=0 — a degenerate both-wings-equal artifact; harmless at n
   i.e. reverse-causal. Too sparse and lagging on an ETF ticker to mechanize.
 - **Put/Call Ratio — parked** (user said forget PCR): contrarian PCR is a weak/noisy
   daily signal; live QQQ PCR ~0.95 is fine as passive chart context only.
+
+## "Trade the transition": compression near strikes / expansion on escape (backtest_gamma_transition.py)
+Tested the classic pin-then-expand mechanic on 123 Jan-Jun 2026 QQQ sessions
+(5-min bars + flip/walls). Three parts:
+
+- **Magnitude by regime — TRUE & already shipped.** Positive/high-gamma days are
+  tighter, negative/low-gamma wider (net-GEX terciles 1.24% vs 1.85%). This is the
+  reliable core and is already the gamma-scaled EM band.
+- **Compression EXACTLY at a strike — NOT supported intraday.** dist-to-nearest
+  heavy level vs forward 30-min range: corr only +0.11, terciles ~flat
+  (0.37/0.36/0.41%). Compression is a regime property, not a strike-proximity one.
+- **Expansion on flip ESCAPE — right sign, underpowered.** Range in the 30 min
+  after price crosses the flip vs before: DOWN cross (into negative gamma)
+  **1.30x** expand (n=10); UP cross (into positive gamma) **0.78x** contract
+  (n=10). Mechanistically exactly the hypothesis, but only 20 flip-crosses in 123
+  sessions (price usually stays one side of the flip), so suggestive, not
+  significant.
+
+**Usable form:** treat the gamma FLIP as the compression<->expansion line — below
+it (negative gamma) favor trend-follow / wider targets; above it favor
+fade-the-edges. Already reflected in the regime read + the plotted gFlip level and
+the EM scaling. Not built into a mechanical flip-cross trigger (n=10 too thin);
+keep logging flip-crosses to re-test as the sample grows.
