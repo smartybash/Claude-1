@@ -59,3 +59,33 @@ WealthCharts built-in = **live, no history**, so we can't retro-test today. Plan
 
 Alternative if you want history NOW (no waiting): a provider with historical GEX
 (MenthorQ = futures/NQ-ES, or SpotGamma = SPX) — paid, but backtestable day one.
+
+## Negative-gamma-at-open read (added) — the "long day" tell
+
+**Plain version.** Dealers hedge the options they're short. Their *gamma* is how
+fast that hedge changes as price moves.
+- **Positive gamma** (net GEX > 0, spot above the flip): dealers sell rallies /
+  buy dips -> moves get **dampened** -> range/chop, breakouts stall.
+- **Negative gamma** (net GEX < 0, spot below the flip / "zero-gamma"): dealers
+  buy rallies / sell dips -> moves get **amplified** -> trend/expansion. If it
+  turns up in negative gamma, it tends to *keep* going = a **"long day."** Gamma
+  is directionless — it says "extend, don't fade"; direction comes from the rest
+  of the read (order flow, VWAP reclaim, rotation all-green, etc.).
+- **Dealer delta** adds the directional lean: net negative dealer delta => they
+  must sell rallies (downward pressure); positive => buy dips (upward).
+
+**How to get it each morning (pick one):**
+1. WealthCharts GEX/gamma view -> read net GEX sign + zero-gamma level, type into
+   `data/gamma_levels.json` (`net_gex`, `gamma_flip`).
+2. Export the chain (OI + gamma or IV) and let the calculator do it:
+   `python3 scripts/gex_calc.py chain.csv --sym NQ --spot 29500 --mult 20 --dte 1 --write`
+   -> computes net GEX, the gamma flip, call/put walls, dealer delta and writes
+   them into `gamma_levels.json`.
+3. A provider (MenthorQ/SpotGamma) that publishes zero-gamma + net GEX.
+
+Then the rerun's confluence read prints, e.g.:
+`-> NEGATIVE GAMMA at open (net GEX -0.62B): expect TREND/EXPANSION ('long day'
+if it turns up); fades get run over.`
+
+**Honest caveat.** We still can't *backtest* real GEX here (no historical OI).
+`log_gamma.py` snapshots the daily levels so we can validate the read forward.

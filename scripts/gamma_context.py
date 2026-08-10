@@ -93,12 +93,52 @@ def load_gamma_levels(sym: str) -> dict | None:
     lv = (blob.get("levels") or {}).get(key)
     if not lv:
         return None
-    out = {k: float(v) for k, v in lv.items()
-           if k in ("gamma_flip", "call_wall", "put_wall", "zero_gamma") and v is not None}
+    fields = ("gamma_flip", "call_wall", "put_wall", "zero_gamma", "net_gex", "dealer_delta")
+    out = {k: float(v) for k, v in lv.items() if k in fields and v is not None}
     if out:
         out["_date"] = blob.get("date", "")
         out["_source"] = blob.get("source", "")
     return out or None
+
+
+def gamma_read(px: float, gl: dict | None) -> dict:
+    """The explicit dealer-gamma regime call at the current price.
+
+    Primary signal = the SIGN of net GEX if provided (negative => dealers short
+    gamma => they buy strength / sell weakness => moves EXTEND => trend/'long
+    day'; positive => they fade both ways => range/chop). If net_gex isn't given,
+    fall back to spot vs the gamma flip / zero-gamma level (below flip = negative
+    gamma). Returns {state, note, basis} or state='UNKNOWN' when nothing loaded.
+    """
+    if not gl:
+        return {"state": "UNKNOWN",
+                "note": "no dealer-gamma data loaded (fill net_gex or gamma_flip from WealthCharts)",
+                "basis": None}
+    flip = gl.get("gamma_flip", gl.get("zero_gamma"))
+    ng = gl.get("net_gex")
+    neg = None
+    basis = None
+    if ng is not None:
+        neg = ng < 0
+        basis = f"net GEX {ng/1e9:+.2f}B ({'NEGATIVE' if neg else 'positive'})"
+    elif flip is not None:
+        neg = px < flip
+        basis = f"spot {px:.0f} {'BELOW' if neg else 'above'} flip {flip:.0f}"
+    if neg is None:
+        return {"state": "UNKNOWN", "note": "gamma level present but not usable", "basis": None}
+    if neg:
+        note = ("NEGATIVE GAMMA -> dealers amplify moves (buy highs / sell lows). "
+                "Expect TREND/EXPANSION ('long day' if it turns up); fades get run over.")
+        state = "NEGATIVE"
+    else:
+        note = ("POSITIVE GAMMA -> dealers dampen moves (sell highs / buy lows). "
+                "Expect RANGE/mean-revert; breakouts tend to stall.")
+        state = "POSITIVE"
+    dd = gl.get("dealer_delta")
+    if dd is not None:
+        lean = "up (dealers must BUY dips)" if dd > 0 else "down (dealers must SELL rallies)" if dd < 0 else "flat"
+        note += f" Dealer delta {dd:+.2f} -> directional lean {lean}."
+    return {"state": state, "note": note, "basis": basis}
 
 
 def context(px: float, sym: str | None = None) -> dict:

@@ -191,16 +191,20 @@ def main():
         print(f"  {c['note']}")
         gl = c.get("gamma_levels")
         if gl:
-            parts = [f"{k.replace('_',' ')} {gl[k]:.0f}" for k in
-                     ("gamma_flip", "call_wall", "put_wall", "zero_gamma") if k in gl]
+            def _fmt(k):
+                if k == "net_gex":
+                    return f"net GEX {gl[k]/1e9:+.2f}B"
+                if k == "dealer_delta":
+                    return f"dealer delta {gl[k]/1e6:+.1f}M"
+                return f"{k.replace('_',' ')} {gl[k]:.0f}"
+            parts = [_fmt(k) for k in
+                     ("net_gex", "gamma_flip", "zero_gamma", "call_wall", "put_wall", "dealer_delta") if k in gl]
             print(f"  DEALER GAMMA ({gl.get('_source','')} {gl.get('_date','')}): " + " | ".join(parts))
-            if "gamma_flip" in gl:
-                side = "ABOVE" if px >= gl["gamma_flip"] else "BELOW"
-                bias = ("suppressed/mean-revert lean (dealers long gamma)" if side == "ABOVE"
-                        else "amplified/trend lean (dealers short gamma)")
-                print(f"  -> price {side} gamma flip {gl['gamma_flip']:.0f}: {bias} [CONTEXT, not a signal]")
+            gr = gc.gamma_read(px, gl)
+            if gr["state"] != "UNKNOWN":
+                print(f"  -> {gr['state']} GAMMA at open ({gr['basis']}): {gr['note']} [CONTEXT]")
         else:
-            print("  DEALER GAMMA: not loaded (fill data/gamma_levels.json from WealthCharts)")
+            print("  DEALER GAMMA: not loaded (fill net_gex/gamma_flip in data/gamma_levels.json from WealthCharts)")
         print()
     except Exception as e:  # never let the context block break the core read
         print(f"(gamma context unavailable: {e})\n")
