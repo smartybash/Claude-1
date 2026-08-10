@@ -105,6 +105,34 @@ framed as context, not a mechanical daily trigger.
 risk-reversal computed from the full AV `HISTORICAL_OPTIONS` chain we already
 fetch — store per session and test ~50 sessions before trusting. Not shipped blind.
 
+## "Fade the wall on range days, ride through on trend days" (backtest_wall_touch.py)
+Tested the clean idea: at a wall, POSITIVE gamma (range) -> FADE, NEGATIVE gamma
+(expansion) -> CONTINUE. Daily proxy on the 31 wall sessions (touch = next-day
+High/Low reached the wall; fade/continue = where it closed vs the wall).
+
+**Underpowered and, as far as it goes, leans AGAINST the "continue" half:**
+- Only 13 touches in 31 sessions — because walls sit ~1-3% away and price rarely
+  reaches them at daily resolution.
+- POSITIVE-gamma touches: **n=1** (it faded). Positive-gamma/range days almost
+  never reach the far wall — that's *why* they're range days. Distance check: on
+  POS-gamma days the day-high sits a median 1.2% under the call wall and the
+  day-low a median **4.3%** above the put wall (nowhere near it).
+- NEGATIVE-gamma touches (n=12): faded **58%**, continued only **42%** — i.e. the
+  wall mostly *held* even on expansion days, the opposite of "continue on trend."
+  Consistent with the 90%/73% containment finding: walls are the range boundary
+  and mostly reject.
+
+**Structural nuance found:** which wall price approaches is regime-dependent (and
+partly a directional confound) — POS gamma drifts up toward the CALL wall, NEG
+gamma drives down into the PUT wall (NEG-gamma regimes coincide with selloffs).
+
+**Verdict:** daily data does NOT support the two-regime wall rule; if anything
+walls reject in both regimes. But this is the wrong resolution — a wall tag is an
+intraday event and daily close washes out the tag-and-react. The definitive test
+needs **intraday bars** (per session: find the bar that tags the wall, measure
+reject vs break over the next ~30 min, split by gamma). Fetchable via AV
+`TIME_SERIES_INTRADAY` history — not yet run. Nothing shipped on this.
+
 ## Levels: dealer walls sharpen confluence (backtest_walls.py — SHIPPED)
 Do the call/put walls act as next-day S/R? On QQQ (n=30):
 - next-day **HIGH stayed <= call wall 90%** of the time (resistance cap),
