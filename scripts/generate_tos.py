@@ -94,10 +94,10 @@ ChLo.SetDefaultColor(Color.VIOLET);  ChLo.SetStyle(Curve.SHORT_DASH);
 #   nearest big round strike (crudest 'cool wall'/pin magnet). Regime label is
 #   CONTEXT, not a trigger (backtest: no robust mechanical gamma switch).
 input showGamma = yes;
-input emUp = __EMUP__;   input emDn = __EMDN__;   input gPin = __PIN__;
-plot EMup = if showGamma then emUp else Double.NaN;
-plot EMdn = if showGamma then emDn else Double.NaN;
-plot GPin = if showGamma then gPin else Double.NaN;
+input emUpV = __EMUP__;   input emDnV = __EMDN__;   input gPinV = __PIN__;
+plot EMup = if showGamma then emUpV else Double.NaN;
+plot EMdn = if showGamma then emDnV else Double.NaN;
+plot GPin = if showGamma then gPinV else Double.NaN;
 EMup.SetDefaultColor(Color.YELLOW);  EMup.SetStyle(Curve.LONG_DASH);   EMup.SetLineWeight(1);
 EMdn.SetDefaultColor(Color.YELLOW);  EMdn.SetStyle(Curve.LONG_DASH);   EMdn.SetLineWeight(1);
 GPin.SetDefaultColor(Color.ORANGE);  GPin.SetStyle(Curve.SHORT_DASH);
