@@ -5,10 +5,10 @@
   "levels": {
     "NQ": {
       "net_gex": null,
-      "gamma_flip": 29695,
-      "zero_gamma": 29695,
-      "call_wall": 30123,
-      "put_wall": 29710,
+      "gamma_flip": 29685,
+      "zero_gamma": 29685,
+      "call_wall": 30112,
+      "put_wall": 29699,
       "dealer_delta": null
     },
     "ES": {
