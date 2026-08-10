@@ -196,6 +196,7 @@ AddLabel(showStructure, "Struct " + (if dir > 0 then "BULL" else "BEAR"),
 AddLabel(showGamma, "ExpMove +/-__EM__ x__EMMULT__ = [__EMDN__..__EMUP__] VIX __VIX__", Color.YELLOW);
 AddLabel(showGamma, "Gamma pin __PIN__", Color.ORANGE);
 AddLabel(showGamma, "Regime __REGIME__ (__GNOTE__)", Color.__GCOLOR__);
+__EARNLABEL__
 """
 
 
@@ -280,6 +281,9 @@ def main():
               .replace("__VIX__", f"{ctx['vix']:.1f}").replace("__REGIME__", ctx["regime"])
               .replace("__GNOTE__", ctx["note"]).replace("__GCOLOR__", GCOLOR[ctx["regime"]]))
         s = s.replace("__GAMMALEVELS__", gamma_block(ctx.get("gamma_levels"), d))
+        earn = (f'AddLabel(showGamma, "{ctx["earn_mult_note"]}", Color.MAGENTA);'
+                if ctx.get("earn_mult", 1.0) != 1.0 and ctx.get("earn_mult_note") else "")
+        s = s.replace("__EARNLABEL__", earn)
         for i, z in enumerate(az, 1):
             res = "yes" if z["price"] > px else "no"
             s = (s.replace(f"__Z{i}HI__", f"{z['hi']:.{d}f}")

@@ -85,6 +85,34 @@ def gamma_em_mult(net_gex: float | None) -> tuple[float, str]:
     return 1.00, "middle gamma tercile -> normal expected range (x1.00)"
 
 
+def earnings_mult(today: str | None = None) -> tuple[float, str]:
+    """Widen the EM band when today's session reacts to a mega-cap earnings report.
+
+    Backtest (backtest_earnings_range.py, AAPL/MSFT/NVDA vs QQQ): the session that
+    trades a mega-cap report ran ~1.21x wider range than a normal day (Welch t
+    +2.70, stable both halves). So on a reaction day we widen the band x1.20.
+
+    Reaction days come from data/earnings_calendar.json (refresh via
+    earnings_cal.py). Returns (multiplier, label); (1.0, ...) when today is not a
+    reaction day or the calendar is missing.
+    """
+    import datetime as _dt
+    day = today or _dt.date.today().strftime("%Y-%m-%d")
+    f = ROOT / "data" / "earnings_calendar.json"
+    if not f.exists():
+        return 1.0, ""
+    try:
+        blob = json.loads(f.read_text())
+    except Exception:
+        return 1.0, ""
+    hits = [e for e in blob.get("events", []) if e.get("reaction_day") == day]
+    if not hits:
+        return 1.0, ""
+    m = float(blob.get("widen_mult", 1.20))
+    names = "/".join(sorted({e["sym"] for e in hits}))
+    return m, f"EARNINGS NIGHT ({names}) -> WIDER expected range (x{m:.2f})"
+
+
 def expected_move(px: float, vix: float, mult: float = 1.0) -> dict:
     """VIX-implied 1-sigma expected move for one price.
 
@@ -193,10 +221,14 @@ def context(px: float, sym: str | None = None) -> dict:
     lab, note = regime(vix, sma)
     gl = load_gamma_levels(sym) if sym else None
     net_gex = gl.get("net_gex") if gl else None
-    mult, mult_note = gamma_em_mult(net_gex)
+    gmult, gmult_note = gamma_em_mult(net_gex)
+    emult, emult_note = earnings_mult()
+    mult = gmult * emult
     em = expected_move(px, vix, mult)
     d = {"vix": vix, "vix_sma20": sma, "regime": lab, "note": note,
-         "pin": gamma_pin(px), "em_mult_note": mult_note, **em}
+         "pin": gamma_pin(px), "gamma_mult": gmult, "gamma_mult_note": gmult_note,
+         "earn_mult": emult, "earn_mult_note": emult_note,
+         "em_mult_note": gmult_note + (f" | {emult_note}" if emult_note else ""), **em}
     if gl:
         d["gamma_levels"] = gl
     return d

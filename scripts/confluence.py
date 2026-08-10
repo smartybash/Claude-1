@@ -186,9 +186,9 @@ def main():
         c = gc.context(px, "NQ")
         emlo, emhi = c["dn"], c["up"]
         print(f"GAMMA/EM CONTEXT: VIX {c['vix']:.1f} (20d {c['vix_sma20']:.1f}) -> {c['regime']}")
-        print(f"  expected move +/-{c['em']:.0f} x{c['em_mult']:.2f} (gamma) = +/-{c['em_adj']:.0f}"
+        print(f"  expected move +/-{c['em']:.0f} x{c['em_mult']:.2f} = +/-{c['em_adj']:.0f}"
               f"  ->  band [{c['dn']:.0f} .. {c['up']:.0f}]  | pin {c['pin']:.0f} | weekly +/-{c['weekly']:.0f}")
-        print(f"  gamma-scaled EM: {c['em_mult_note']}")
+        print(f"  EM scaling: {c['em_mult_note']}")
         print(f"  {c['note']}")
         gl = c.get("gamma_levels")
         if gl:

@@ -24,6 +24,17 @@
 #   SLOW (once, pre-open): the HTF confluence anchors that barely change
 #     intraday — 30m/1h swings, daily (5y) for VIX/EM + macro SMA, VP inputs.
 #     Skip refetching these on every intraday rerun.
+#   GAMMA (once, pre-open): fetch the prior-session option chain and recompute
+#     dealer GEX / flip / walls -> data/gamma_levels.json (+ log to
+#     gex_history.jsonl, which feeds the EM tercile scaling):
+#       HISTORICAL_OPTIONS(symbol=QQQ, date=<prior session>, datatype=csv,
+#         return_full_data=true)  # saves <file>.txt
+#       python3 scripts/av_gex.py <file> --sym QQQ --mult 100 --write --log \
+#         --also-nq <NQ/QQQ ratio>
+#   EARNINGS CAL (weekly-ish): refresh the forward mega-cap widener dates:
+#       EARNINGS_CALENDAR(symbol=<MAG7>, horizon=6month)  # save each output
+#       python3 scripts/earnings_cal.py <saved files...>  # -> earnings_calendar.json
+#     The EM band auto-widens x1.20 on a reaction day (stacks with the gamma mult).
 #   ROTATION basket (5m): MAGS 624756922, SMH 229725622, IGV 12658199 (all STK) ->
 #     mags_5m.json / smh_5m.json / igv_5m.json (QQQ reused from qqq_5min.json).
 #   INGEST: never hand-transcribe bars. Save the raw get_price_history payload

@@ -50,9 +50,38 @@ so this strengthens over time and can be re-run with more sessions / other symbo
 - **Actionable:** scale the day's expected range by net GEX — most-negative ~1.85%
   QQQ vs most-positive ~1.24%. Direction still comes from elsewhere.
 
-## Other AV data assessed (not yet backtested)
-Put/Call Ratio (realtime + historical to 2008) and News Sentiment are available
-"other data" families. PCR pulls are one-per-date and verbose, and contrarian PCR
-is historically a weak/noisy daily signal — recommend a dedicated ~50-session test
-before trusting it, rather than half-powered. Live QQQ PCR ~0.95 (neutral) is fine
-as chart context. News-sentiment (date-range, few calls) is the better next probe.
+## EM band = VIX 1-sigma scaled by the gamma tercile (shipped)
+The dose-response above is now wired into the pipeline. `gamma_context.gamma_em_mult`
+reads live terciles from `gex_history.jsonl` and scales the VIX expected-move band:
+most-negative tercile **x1.20**, middle **x1.00**, most-positive **x0.80**. The
+scaled band shows in the confluence read, the ToS study, and the on-chart label.
+Gamma stays a range switch, not a direction switch.
+
+## Follow-up: mega-cap earnings nights widen the next session (backtest_earnings_range.py)
+Tested the well-known idea on our own data: the QQQ session that reacts to an
+AAPL / MSFT / NVDA report (post-market -> next day, pre-market -> same day; report
+dates from AV `EARNINGS`).
+
+| next QQQ session | range % | median |
+|---|---|---|
+| **earnings-reaction day** (n=61) | **1.926** | 1.749 |
+| normal day (n=1191) | 1.591 | 1.361 |
+
+Ratio **1.21x**, Welch t **+2.70**, split-half **1.20x / 1.22x** (both halves > 1).
+
+- **SUPPORTED & stable:** mega-cap earnings nights run ~1.2x wider — and it's a
+  **forward-known** amplifier (the calendar is public weeks ahead), unlike gamma
+  which is only known one day out.
+- **Shipped:** `earnings_mult()` widens the band **x1.20** on a reaction day and
+  **stacks** with the gamma multiplier (e.g. a positive-gamma earnings day nets
+  0.80 x 1.20 = 0.96). Reaction days come from `data/earnings_calendar.json`,
+  refreshed by `earnings_cal.py` from AV `EARNINGS_CALENDAR`. AV's forward coverage
+  is partial (as of 2026-08-10 it had NVDA 8/26, TSLA 10/21, GOOGL 10/28); missing
+  names are simply absent (no widener) until AV populates them.
+
+## Other AV data assessed
+- **News Sentiment — NOT usable as a daily signal.** QQQ returned ~3 articles over
+  3 days and the items are descriptive/backward-looking ("QQQ ETF Gains 1.2%"),
+  i.e. reverse-causal. Too sparse and lagging on an ETF ticker to mechanize.
+- **Put/Call Ratio — parked** (user said forget PCR): contrarian PCR is a weak/noisy
+  daily signal; live QQQ PCR ~0.95 is fine as passive chart context only.

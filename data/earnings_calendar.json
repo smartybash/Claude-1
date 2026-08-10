@@ -1,0 +1,11 @@
+{
+  "generated": "2026-08-10",
+  "source": "AlphaVantage EARNINGS_CALENDAR (MAG7)",
+  "note": "Forward mega-cap report dates. reaction_day = the QQQ session that reacts: next trading day for post-market/unknown, same day for pre-market. AV forward coverage is partial - refresh each rerun via scripts/earnings_cal.py; names without a confirmed date are simply absent (no widener) until AV populates them.",
+  "widen_mult": 1.20,
+  "events": [
+    {"sym": "NVDA", "report_date": "2026-08-26", "time": "post", "reaction_day": "2026-08-27"},
+    {"sym": "TSLA", "report_date": "2026-10-21", "time": "unknown", "reaction_day": "2026-10-22"},
+    {"sym": "GOOGL", "report_date": "2026-10-28", "time": "unknown", "reaction_day": "2026-10-29"}
+  ]
+}
