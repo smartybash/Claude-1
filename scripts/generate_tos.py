@@ -89,12 +89,8 @@ ChMid.SetDefaultColor(Color.VIOLET);
 ChUp.SetDefaultColor(Color.VIOLET);  ChUp.SetStyle(Curve.SHORT_DASH);
 ChLo.SetDefaultColor(Color.VIOLET);  ChLo.SetStyle(Curve.SHORT_DASH);
 
-# ---- GAMMA CONTEXT: VIX-implied expected-move band + pin (baked __DATE__) ----
-#   Yellow = today's expected range = VIX 1-sigma SCALED by the dealer-gamma
-#   regime (x1.20 most-negative / x1.00 middle / x0.80 most-positive tercile,
-#   from the QQQ next-day range dose-response). Orange = the nearest big round
-#   strike (crudest 'cool wall'/pin magnet). Regime label is CONTEXT, not a
-#   trigger (backtest: gamma is a range switch, not a direction switch).
+# ---- GAMMA CONTEXT: expected-move band (yellow) + pin (orange), baked __DATE__ ----
+#   Yellow = today's gamma-scaled VIX expected range; orange = nearest round-strike pin.
 input showGamma = yes;
 input emUpV = __EMUP__;   input emDnV = __EMDN__;   input gPinV = __PIN__;
 plot EMup = if showGamma then emUpV else Double.NaN;
@@ -185,17 +181,11 @@ plot SwingLo = if showStructure then swLo else Double.NaN;
 SwingHi.SetDefaultColor(Color.GRAY);  SwingHi.SetStyle(Curve.LONG_DASH);
 SwingLo.SetDefaultColor(Color.GRAY);  SwingLo.SetStyle(Curve.LONG_DASH);
 
-# ---- status labels ----
-AddLabel(yes, "__SYM__ Macro " + (if bias > 0 then "UP" else if bias < 0 then "DOWN" else "MIXED"),
+# ---- status labels (kept minimal: only what ISN'T already a line on the chart) ----
+AddLabel(yes, "__SYM__ " + (if bias > 0 then "UP" else if bias < 0 then "DOWN" else "MIXED"),
          if bias < 0 then Color.RED else if bias > 0 then Color.GREEN else Color.GRAY);
-AddLabel(yes, "Stretch " + Round(stretch, 1) + "s",
-         if AbsValue(stretch) >= kStretch then Color.YELLOW else Color.GRAY);
-AddLabel(yes, "VWAP " + Round(vwapVal, 2), Color.CYAN);
-AddLabel(showStructure, "Struct " + (if dir > 0 then "BULL" else "BEAR"),
-         if dir > 0 then Color.GREEN else Color.RED);
-AddLabel(showGamma, "ExpMove +/-__EM__ x__EMMULT__ = [__EMDN__..__EMUP__] VIX __VIX__", Color.YELLOW);
-AddLabel(showGamma, "Gamma pin __PIN__", Color.ORANGE);
-AddLabel(showGamma, "Regime __REGIME__ (__GNOTE__)", Color.__GCOLOR__);
+AddLabel(showGamma, "EM +/-__EMADJ__ (x__EMMULT__)", Color.YELLOW);
+AddLabel(showGamma, "__REGIME__", Color.__GCOLOR__);
 __EARNLABEL__
 """
 
@@ -252,8 +242,8 @@ def gamma_block(gl, d) -> str:
             ("put_wall",   "PWall", "PutWall",   "Color.GREEN", "Curve.LONG_DASH", 3),
             ("zero_gamma", "ZGam",  "ZeroGamma", "Color.GRAY",  "Curve.SHORT_DASH", 1)]
     lines = [f"# ---- DEALER GAMMA LEVELS (from {gl.get('_source','provider')}, "
-             f"{gl.get('_date','')}) — read off WealthCharts ----", "input showGL = yes;"]
-    labels = []
+             f"{gl.get('_date','')}) — plotted as lines, no label chip ----",
+             "input showGL = yes;"]
     for key, plotn, lab, col, style, lw in spec:
         if key not in gl:
             continue
@@ -261,9 +251,6 @@ def gamma_block(gl, d) -> str:
         lines.append(f"input {plotn}lvl = {v};")
         lines.append(f"plot {plotn} = if showGL then {plotn}lvl else Double.NaN;")
         lines.append(f"{plotn}.SetDefaultColor({col});  {plotn}.SetStyle({style});  {plotn}.SetLineWeight({lw});")
-        labels.append(f"{lab} {v}")
-    if labels:
-        lines.append(f'AddLabel(showGL, "GEX: {" | ".join(labels)}", Color.WHITE);')
     return "\n".join(lines)
 
 
@@ -276,13 +263,12 @@ def main():
         ctx = gc.context(px, sym)
         s = TEMPLATE.replace("__SYM__", sym).replace("__DATE__", DATE).replace("__PX__", f"{px:.{d}f}")
         s = (s.replace("__EMUP__", f"{ctx['up']:.{d}f}").replace("__EMDN__", f"{ctx['dn']:.{d}f}")
-              .replace("__EM__", f"{ctx['em']:.{d}f}").replace("__EMMULT__", f"{ctx['em_mult']:.2f}")
+              .replace("__EMADJ__", f"{ctx['em_adj']:.{d}f}").replace("__EMMULT__", f"{ctx['em_mult']:.2f}")
               .replace("__PIN__", f"{ctx['pin']:.{d}f}")
-              .replace("__VIX__", f"{ctx['vix']:.1f}").replace("__REGIME__", ctx["regime"])
-              .replace("__GNOTE__", ctx["note"]).replace("__GCOLOR__", GCOLOR[ctx["regime"]]))
+              .replace("__REGIME__", ctx["regime"]).replace("__GCOLOR__", GCOLOR[ctx["regime"]]))
         s = s.replace("__GAMMALEVELS__", gamma_block(ctx.get("gamma_levels"), d))
-        earn = (f'AddLabel(showGamma, "{ctx["earn_mult_note"]}", Color.MAGENTA);'
-                if ctx.get("earn_mult", 1.0) != 1.0 and ctx.get("earn_mult_note") else "")
+        earn = (f'AddLabel(showGamma, "EARNINGS NIGHT (x{ctx["earn_mult"]:.2f})", Color.MAGENTA);'
+                if ctx.get("earn_mult", 1.0) != 1.0 else "")
         s = s.replace("__EARNLABEL__", earn)
         for i, z in enumerate(az, 1):
             res = "yes" if z["price"] > px else "no"
