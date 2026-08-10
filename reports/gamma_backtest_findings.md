@@ -79,6 +79,47 @@ Ratio **1.21x**, Welch t **+2.70**, split-half **1.20x / 1.22x** (both halves > 
   is partial (as of 2026-08-10 it had NVDA 8/26, TSLA 10/21, GOOGL 10/28); missing
   names are simply absent (no widener) until AV populates them.
 
+## Direction: is there a DIRECTIONAL edge in the chain? (backtest_direction.py)
+Everything above is a range switch. This hunted the harder thing — next-day SIGN.
+**Verdict: NO genuine directional edge in the daily chain summary. Do not ship one.**
+
+At first glance two rules looked strong (positive-gamma "revert to flip" and
+"revert to wall-channel center", both ~73% hit, t up to +2.5). Skew controls
+killed them:
+- The sample is **down-skewed** (P(up)=37%), so "always predict down" already
+  hits 63% for free — that alone explains dealer-delta (63%) and any down-leaning
+  rule.
+- In **every** positive-gamma session spot was **above** the flip (spot>flip is
+  essentially definitional for positive gamma), so the reversion rule made **zero
+  up-calls** (n=0) — it only ever said "down" and rode the skew.
+- The continuous check `corr(spot-vs-flip distance, next-day return)` in positive
+  gamma is just **-0.12** (right sign, negligible size).
+- Momentum control (yesterday persists) is null (47%, t~0), as expected.
+
+So direction is NOT in this data. Direction should keep coming from: (1) the
+trend/balance regime (`intraday_engine`), (2) the rotation/breadth leadership read
+(`rotation.py`, already built), and (3) the gamma flip used **intraday** as a bias
+pivot (above flip = favor longs at support; below = favor shorts at resistance) —
+framed as context, not a mechanical daily trigger.
+**Next real probe if we want to keep hunting direction:** 25-delta IV skew /
+risk-reversal computed from the full AV `HISTORICAL_OPTIONS` chain we already
+fetch — store per session and test ~50 sessions before trusting. Not shipped blind.
+
+## Levels: dealer walls sharpen confluence (backtest_walls.py — SHIPPED)
+Do the call/put walls act as next-day S/R? On QQQ (n=30):
+- next-day **HIGH stayed <= call wall 90%** of the time (resistance cap),
+- next-day **LOW stayed >= put wall 73%** (support floor), both contained 63%.
+Price typically stops ~2% short of a wall, so walls are **outer range boundaries /
+high-conviction caps**, not precise magnets (precise touch-and-reject needs
+intraday data to confirm).
+
+**Shipped:** `confluence.build_zones` now injects the dealer levels as heavy,
+distinct sources — call wall `cWall` (3.0), put wall `pWall` (3.0), gamma flip
+`gFlip` (2.5) — for both NQ and QQQ (QQQ's feed into the cross-ref too). A
+structural swing that also sits at the call wall now clusters into a DENSE zone
+(e.g. NQ 30074-30112 = 1h+4h swing + wkH + cWall), so the map upgrades exactly
+where dealers are defending. This is the model-free half of Alex's wall read.
+
 ## Other AV data assessed
 - **News Sentiment — NOT usable as a daily signal.** QQQ returned ~3 articles over
   3 days and the items are descriptive/backward-looking ("QQQ ETF Gains 1.2%"),

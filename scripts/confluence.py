@@ -52,15 +52,27 @@ def swings(df, k, recent):
     return [p for p, i in out if i >= n - recent]
 
 
-def build_zones(m5, m30, h1, scale_pt=None):
+def build_zones(m5, m30, h1, scale_pt=None, gamma=None):
     """Generic confluence-zone builder. Works for NQ (futures, ETH+30m+1h) and
     QQQ (equity, RTH-only 5m+1h, m30 may be None). Returns (px, now, zi) where
     zi = [(price,lo,hi,score,labs_str), ...]. scale_pt overrides the ~pt cluster
-    tolerance basis (default 0.0018*price)."""
+    tolerance basis (default 0.0018*price).
+
+    `gamma` (optional) = dealer levels for this symbol from gamma_context
+    (call_wall/put_wall/gamma_flip). Backtest (backtest_walls.py, QQQ): the call
+    wall capped the next-day high 90% of the time and the put wall held the low
+    73% -> they are top-tier dealer-defended S/R, so we inject them as heavy,
+    distinct level-sources that stack with structure."""
     h4 = resample(h1, "4h")
     px = float(m5["close"].iloc[-1])
     now = m5.index[-1]
     levels = []
+    if gamma:
+        cw, pw = gamma.get("call_wall"), gamma.get("put_wall")
+        flip = gamma.get("gamma_flip", gamma.get("zero_gamma"))
+        if cw:   levels.append((float(cw), "cWall", 3.0))    # 90% resistance cap
+        if pw:   levels.append((float(pw), "pWall", 3.0))    # 73% support floor
+        if flip: levels.append((float(flip), "gFlip", 2.5))  # regime pivot / magnet
     for p in swings(h4, 2, 60):
         levels.append((p, "4h swing", 3.0))
     for p in swings(h1, 3, 90):
@@ -121,7 +133,12 @@ def crossref_qqq(nq_px, nq_zi):
         q5 = load("qqq_5min.json"); qh1 = load("qqq_1h.json")
     except FileNotFoundError:
         return None, None
-    q_px, _, q_zi = build_zones(q5, None, qh1)
+    try:
+        import scripts.gamma_context as gc
+        qgamma = gc.load_gamma_levels("QQQ")
+    except Exception:
+        qgamma = None
+    q_px, _, q_zi = build_zones(q5, None, qh1, gamma=qgamma)
     scale = nq_px / q_px
     q_strong = [(p * scale, w, labs) for (p, lo, hi, w, labs, pw, pnt) in q_zi if pw >= 5]
     confirmed = {}
@@ -137,7 +154,12 @@ def main():
     m5 = load("nq_5min_eth_live.json")
     m30 = load("nq_30min_eth.json")
     h1 = load("nq_1h_eth.json")
-    px, now, zi_all = build_zones(m5, m30, h1)
+    try:
+        import scripts.gamma_context as gc
+        nqgamma = gc.load_gamma_levels("NQ")
+    except Exception:
+        nqgamma = None
+    px, now, zi_all = build_zones(m5, m30, h1, gamma=nqgamma)
     tol = 0.0018 * px
     confirmed, q_strong = crossref_qqq(px, zi_all)
 
