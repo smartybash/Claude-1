@@ -90,9 +90,11 @@ ChUp.SetDefaultColor(Color.VIOLET);  ChUp.SetStyle(Curve.SHORT_DASH);
 ChLo.SetDefaultColor(Color.VIOLET);  ChLo.SetStyle(Curve.SHORT_DASH);
 
 # ---- GAMMA CONTEXT: VIX-implied expected-move band + pin (baked __DATE__) ----
-#   Yellow = today's 1-sigma expected range ("gamma walls" proxy). Orange = the
-#   nearest big round strike (crudest 'cool wall'/pin magnet). Regime label is
-#   CONTEXT, not a trigger (backtest: no robust mechanical gamma switch).
+#   Yellow = today's expected range = VIX 1-sigma SCALED by the dealer-gamma
+#   regime (x1.20 most-negative / x1.00 middle / x0.80 most-positive tercile,
+#   from the QQQ next-day range dose-response). Orange = the nearest big round
+#   strike (crudest 'cool wall'/pin magnet). Regime label is CONTEXT, not a
+#   trigger (backtest: gamma is a range switch, not a direction switch).
 input showGamma = yes;
 input emUpV = __EMUP__;   input emDnV = __EMDN__;   input gPinV = __PIN__;
 plot EMup = if showGamma then emUpV else Double.NaN;
@@ -191,7 +193,7 @@ AddLabel(yes, "Stretch " + Round(stretch, 1) + "s",
 AddLabel(yes, "VWAP " + Round(vwapVal, 2), Color.CYAN);
 AddLabel(showStructure, "Struct " + (if dir > 0 then "BULL" else "BEAR"),
          if dir > 0 then Color.GREEN else Color.RED);
-AddLabel(showGamma, "ExpMove +/-__EM__ [__EMDN__..__EMUP__] VIX __VIX__", Color.YELLOW);
+AddLabel(showGamma, "ExpMove +/-__EM__ x__EMMULT__ = [__EMDN__..__EMUP__] VIX __VIX__", Color.YELLOW);
 AddLabel(showGamma, "Gamma pin __PIN__", Color.ORANGE);
 AddLabel(showGamma, "Regime __REGIME__ (__GNOTE__)", Color.__GCOLOR__);
 """
@@ -273,7 +275,8 @@ def main():
         ctx = gc.context(px, sym)
         s = TEMPLATE.replace("__SYM__", sym).replace("__DATE__", DATE).replace("__PX__", f"{px:.{d}f}")
         s = (s.replace("__EMUP__", f"{ctx['up']:.{d}f}").replace("__EMDN__", f"{ctx['dn']:.{d}f}")
-              .replace("__EM__", f"{ctx['em']:.{d}f}").replace("__PIN__", f"{ctx['pin']:.{d}f}")
+              .replace("__EM__", f"{ctx['em']:.{d}f}").replace("__EMMULT__", f"{ctx['em_mult']:.2f}")
+              .replace("__PIN__", f"{ctx['pin']:.{d}f}")
               .replace("__VIX__", f"{ctx['vix']:.1f}").replace("__REGIME__", ctx["regime"])
               .replace("__GNOTE__", ctx["note"]).replace("__GCOLOR__", GCOLOR[ctx["regime"]]))
         s = s.replace("__GAMMALEVELS__", gamma_block(ctx.get("gamma_levels"), d))

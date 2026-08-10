@@ -46,11 +46,56 @@ def regime(vix: float, sma20: float) -> tuple[str, str]:
     return "VOL-NEUTRAL", "VIX mid-range: no strong regime tilt"
 
 
-def expected_move(px: float, vix: float) -> dict:
-    """VIX-implied 1-sigma expected move for one price."""
+def gamma_em_mult(net_gex: float | None) -> tuple[float, str]:
+    """Scale the EM band by the dealer-gamma regime.
+
+    Backtest (backtest_gex_features.py, QQQ n=31) found a clean dose-response:
+    next-day RANGE rose monotonically as net GEX got more negative
+    (most-negative tercile 1.85% / middle 1.55% / most-positive 1.24%; overall
+    1.54%). So we widen the VIX EM band on negative-gamma days and tighten it on
+    positive-gamma days by the ratio of each tercile's realized range to the
+    overall mean, rounded to simple factors: 1.20 / 1.00 / 0.80.
+
+    Terciles are taken live from data/gex_history.jsonl so the breakpoints track
+    the actual sample. Returns (multiplier, label). Falls back to (1.0, ...) when
+    net_gex is None or history is too thin.
+    """
+    if net_gex is None:
+        return 1.0, "no net-GEX -> VIX EM unscaled (x1.00)"
+    f = ROOT / "data" / "gex_history.jsonl"
+    vals = []
+    if f.exists():
+        for ln in f.read_text().splitlines():
+            if not ln.strip():
+                continue
+            try:
+                g = json.loads(ln)
+            except Exception:
+                continue
+            if g.get("sym") == "QQQ" and g.get("net_gex") is not None:
+                vals.append(float(g["net_gex"]))
+    if len(vals) < 9:
+        return 1.0, "gamma history too thin -> VIX EM unscaled (x1.00)"
+    s = pd.Series(vals)
+    lo, hi = s.quantile(1 / 3), s.quantile(2 / 3)
+    if net_gex <= lo:
+        return 1.20, "most-NEGATIVE gamma tercile -> WIDER expected range (x1.20)"
+    if net_gex >= hi:
+        return 0.80, "most-POSITIVE gamma tercile -> TIGHTER expected range (x0.80)"
+    return 1.00, "middle gamma tercile -> normal expected range (x1.00)"
+
+
+def expected_move(px: float, vix: float, mult: float = 1.0) -> dict:
+    """VIX-implied 1-sigma expected move for one price.
+
+    `mult` scales the band width by the dealer-gamma regime (see gamma_em_mult).
+    `em` is the raw VIX 1-sigma; `em_adj` and the up/dn band carry the scaling.
+    """
     day = px * vix / 100 * math.sqrt(1 / TRADING_DAYS)
     wk = px * vix / 100 * math.sqrt(5 / TRADING_DAYS)
-    return {"em": day, "up": px + day, "dn": px - day, "weekly": wk}
+    adj = day * mult
+    return {"em": day, "em_adj": adj, "em_mult": mult,
+            "up": px + adj, "dn": px - adj, "weekly": wk}
 
 
 def pin_step(px: float) -> float:
@@ -139,20 +184,21 @@ def gamma_read(px: float, gl: dict | None) -> dict:
     dd = gl.get("dealer_delta")
     if dd is not None:
         lean = "up (dealers must BUY dips)" if dd > 0 else "down (dealers must SELL rallies)" if dd < 0 else "flat"
-        note += f" Dealer delta {dd:+.2f} -> directional lean {lean}."
+        note += f" Dealer delta {dd/1e6:+.1f}M -> directional lean {lean}."
     return {"state": state, "note": note, "basis": basis}
 
 
 def context(px: float, sym: str | None = None) -> dict:
     vix, sma = load_vix()
     lab, note = regime(vix, sma)
-    em = expected_move(px, vix)
+    gl = load_gamma_levels(sym) if sym else None
+    net_gex = gl.get("net_gex") if gl else None
+    mult, mult_note = gamma_em_mult(net_gex)
+    em = expected_move(px, vix, mult)
     d = {"vix": vix, "vix_sma20": sma, "regime": lab, "note": note,
-         "pin": gamma_pin(px), **em}
-    if sym:
-        gl = load_gamma_levels(sym)
-        if gl:
-            d["gamma_levels"] = gl
+         "pin": gamma_pin(px), "em_mult_note": mult_note, **em}
+    if gl:
+        d["gamma_levels"] = gl
     return d
 
 
@@ -161,6 +207,7 @@ if __name__ == "__main__":
     lab, note = regime(vix, sma)
     print(f"VIX {vix:.2f} (20d SMA {sma:.2f}) -> {lab}: {note}")
     for name, p in [("SPY", 774.35), ("QQQ", 723.77), ("ES", 7795.5), ("NQ", 29854.0)]:
-        c = expected_move(p, vix)
-        print(f"  {name:4s} @ {p:>9.2f}  EM +/-{c['em']:.2f}  band [{c['dn']:.2f}, {c['up']:.2f}]"
-              f"  pin {gamma_pin(p):.0f}  weekly +/-{c['weekly']:.2f}")
+        c = context(p, name)
+        print(f"  {name:4s} @ {p:>9.2f}  EM +/-{c['em']:.2f} x{c['em_mult']:.2f}"
+              f" = +/-{c['em_adj']:.2f}  band [{c['dn']:.2f}, {c['up']:.2f}]"
+              f"  pin {gamma_pin(p):.0f}  ({c['em_mult_note']})")
