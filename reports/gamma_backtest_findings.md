@@ -126,12 +126,38 @@ High/Low reached the wall; fade/continue = where it closed vs the wall).
 partly a directional confound) — POS gamma drifts up toward the CALL wall, NEG
 gamma drives down into the PUT wall (NEG-gamma regimes coincide with selloffs).
 
-**Verdict:** daily data does NOT support the two-regime wall rule; if anything
-walls reject in both regimes. But this is the wrong resolution — a wall tag is an
-intraday event and daily close washes out the tag-and-react. The definitive test
-needs **intraday bars** (per session: find the bar that tags the wall, measure
-reject vs break over the next ~30 min, split by gamma). Fetchable via AV
-`TIME_SERIES_INTRADAY` history — not yet run. Nothing shipped on this.
+**Verdict (daily):** daily data does NOT support the two-regime wall rule. See the
+intraday follow-up below, which settles it.
+
+## INTRADAY resolution + expanded sample (backtest_wall_touch_intraday.py — SETTLED)
+Expanded to **123 consecutive Jan–Jun 2026 QQQ sessions** (walls+net_gex computed
+from AV chains; 61 negative-gamma / 62 positive-gamma) and pulled QQQ **5-min RTH
+bars** (AV `TIME_SERIES_INTRADAY`, monthly). For each session's next day we find
+the first bar that TAGS each wall and classify reject vs continue over K=3/6/12
+bars.
+
+**The hypothesis is NOT supported — it's null-to-reversed:**
+
+| K (mins) | POS-gamma reject% | NEG-gamma reject% | z (pos−neg) |
+|---|---|---|---|
+| 3 (15m) | 36% | 60% | −1.26 |
+| 6 (30m) | 43% | 48% | −0.29 |
+| 12 (60m) | 43% | 57% | −0.81 |
+| 6, within 0.15% | 43% | 65% | −1.37 |
+
+The idea predicts POS-gamma reject% **>** NEG-gamma (positive z). Every spec gives
+a **negative** z (the opposite lean — negative-gamma tags reject slightly *more*),
+and none is significant. At 30 min it's essentially a coin flip in both regimes
+(43% vs 48%). So a wall tag behaves about the same regardless of gamma — **there
+is no range-fades / trend-continues switch at the wall.**
+
+**Also key, practically:** even across 123 sessions only **~37 tags** occurred —
+the max-OI walls sit ~1–3% from spot, so price rarely reaches them intraday. The
+tradeable event is rare, and when it happens gamma doesn't tell you fade vs break.
+Net of everything: walls are best used as the **outer boundary of the confluence
+map** (already shipped), not as a gamma-conditioned fade/continue trigger.
+Data kept: 123-session walls in `gex_history.jsonl`, 5-min months in
+`data/intraday/`, so this can be re-run/extended.
 
 ## Levels: dealer walls sharpen confluence (backtest_walls.py — SHIPPED)
 Do the call/put walls act as next-day S/R? On QQQ (n=30):
