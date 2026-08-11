@@ -127,10 +127,11 @@ def build(hist, prior_sess, bps):
                (float(prior_sess["low"].min()), "PDL", 2.0),
                (float(prior_sess["close"].iloc[-1]), "PDC", 1.5)]
     for p in round_numbers(px, round_step(px), 3): lv.append((p, "round", 1.0))
-    lv.sort(); tol = 0.0018 * px
+    lv.sort(); tol = 0.0012 * px          # merge gap AND max zone width (~36pt NQ)
     zones, cl = [], [lv[0]]
     for x in lv[1:]:
-        if x[0] - cl[-1][0] <= tol: cl.append(x)
+        # join only if near the previous level AND the whole zone stays tight
+        if x[0] - cl[-1][0] <= tol and x[0] - cl[0][0] <= tol: cl.append(x)
         else: zones.append(cl); cl = [x]
     zones.append(cl)
     out = []

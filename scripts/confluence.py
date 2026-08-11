@@ -106,11 +106,12 @@ def build_zones(m5, m30, h1, scale_pt=None, gamma=None):
         levels += [(ovah, "onVAH", 1.0), (oval, "onVAL", 1.0)]
     for p in round_numbers(px, round_step(px), 3):
         levels.append((p, "round", 1.0))
-    tol = scale_pt if scale_pt else 0.0018 * px
+    tol = scale_pt if scale_pt else 0.0012 * px   # merge gap AND max zone width (~36pt NQ)
     levels.sort()
     zones, cluster = [], [levels[0]]
     for lv in levels[1:]:
-        if lv[0] - cluster[-1][0] <= tol:
+        # join only if near the previous level AND the whole zone stays tight
+        if lv[0] - cluster[-1][0] <= tol and lv[0] - cluster[0][0] <= tol:
             cluster.append(lv)
         else:
             zones.append(cluster); cluster = [lv]
