@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import scripts.gamma_context as gc
 
-DATE = "2026-08-10"
+DATE = "2026-08-11"
 INST = [
     ("MNQ", "nq_30min_eth.json", True),
     ("QQQ", "qqq_30m_live.json", False),
