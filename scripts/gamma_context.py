@@ -46,7 +46,7 @@ def regime(vix: float, sma20: float) -> tuple[str, str]:
     return "VOL-NEUTRAL", "VIX mid-range: no strong regime tilt"
 
 
-def gamma_em_mult(net_gex: float | None) -> tuple[float, str]:
+def gamma_em_mult(net_gex: float | None, sign: str | None = None) -> tuple[float, str]:
     """Scale the EM band by the dealer-gamma regime.
 
     Backtest (backtest_gex_features.py, QQQ n=31) found a clean dose-response:
@@ -57,10 +57,17 @@ def gamma_em_mult(net_gex: float | None) -> tuple[float, str]:
     overall mean, rounded to simple factors: 1.20 / 1.00 / 0.80.
 
     Terciles are taken live from data/gex_history.jsonl so the breakpoints track
-    the actual sample. Returns (multiplier, label). Falls back to (1.0, ...) when
-    net_gex is None or history is too thin.
+    the actual sample. When net_gex is given (in OUR computed $ units) we use the
+    tercile bucket. When only the SIGN is known (a manual read gives a +/-gamma
+    zone or a GEX in a provider's own units that isn't comparable to our terciles),
+    pass sign='pos'/'neg' to apply the tercile-edge factor by sign as a proxy.
+    Returns (multiplier, label); (1.0, ...) if nothing usable.
     """
     if net_gex is None:
+        if sign == "pos":
+            return 0.80, "POSITIVE gamma (sign only) -> TIGHTER expected range (x0.80)"
+        if sign == "neg":
+            return 1.20, "NEGATIVE gamma (sign only) -> WIDER expected range (x1.20)"
         return 1.0, "no net-GEX -> VIX EM unscaled (x1.00)"
     f = ROOT / "data" / "gex_history.jsonl"
     vals = []
@@ -221,7 +228,13 @@ def context(px: float, sym: str | None = None) -> dict:
     lab, note = regime(vix, sma)
     gl = load_gamma_levels(sym) if sym else None
     net_gex = gl.get("net_gex") if gl else None
-    gmult, gmult_note = gamma_em_mult(net_gex)
+    # sign fallback when no comparable net_gex magnitude: spot vs flip (above=+gamma)
+    sign = None
+    if gl:
+        flip = gl.get("gamma_flip", gl.get("zero_gamma"))
+        if flip is not None:
+            sign = "pos" if px >= flip else "neg"
+    gmult, gmult_note = gamma_em_mult(net_gex, sign)
     emult, emult_note = earnings_mult()
     mult = gmult * emult
     em = expected_move(px, vix, mult)
