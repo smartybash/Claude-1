@@ -64,5 +64,8 @@ echo
 echo "########## 4. ThinkOrSwim STUDIES (share FULL code for ALL 4 boxes in chat) ##########"
 python3 scripts/generate_tos.py
 echo
+echo "########## 4b. CLEAN STUDIES (VWAP + FVG, minimal — share all 4 boxes too) ##########"
+python3 scripts/generate_tos_simple.py
+echo
 echo "########## 5. SECTOR ROTATION (MAGS/SMH/IGV vs QQQ — leadership/breadth) ##########"
 python3 scripts/rotation.py
