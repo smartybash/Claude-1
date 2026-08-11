@@ -233,3 +233,33 @@ it (negative gamma) favor trend-follow / wider targets; above it favor
 fade-the-edges. Already reflected in the regime read + the plotted gFlip level and
 the EM scaling. Not built into a mechanical flip-cross trigger (n=10 too thin);
 keep logging flip-crosses to re-test as the sample grows.
+
+## Does the clean VWAP + FVG strategy have a real edge? (backtest_vwap_fvg.py)
+Mechanical spec on 123 sessions of real 5-min QQQ: bias off session VWAP, enter
+aligned 3-bar FVGs, stop at the far gap edge, target M*risk. n=737 trades.
+
+**No mechanical edge.** Break-even to negative at every target:
+- 1.0R: 42% win, **-0.15R** avg (-111R)
+- 1.5R: 37% win, **-0.07R**
+- 2.0R: 34% win, **~0.00R**  (before costs; costs make it negative)
+
+**Avoiding positive-gamma days does NOT help** (the specific ask): POS vs NEG
+gamma are ~identical (e.g. 1.5R: POS -0.06R vs NEG -0.03R). No clean gamma no-go.
+Longs≈shorts, AM≈PM.
+
+**Confirmation candle = look-ahead trap.** Filtering on "entry bar closed in the
+trade direction" while filling at the gap edge shows a fake 66% win / +0.67R —
+but that uses the bar's close to bless an intrabar fill. Done right (enter at the
+confirmation bar's CLOSE), it collapses to **50% win / +0.01R** (1R), breakeven.
+Higher win% is buyable (confirm, or 1R targets) but it does NOT create positive
+expectancy — the payoff shrinks to match.
+
+**Only genuine (non-look-ahead) tilts, both weak:** bigger gaps beat smaller
+(largest third +0.10R vs smallest -0.28R) and entries NEAR vwap beat far
+(+0.08R vs -0.22R). Real and sensible, but ~+0.1R — likely eaten by costs; not a
+standalone edge.
+
+**Takeaway:** a simple-LOOKING discretionary chart is not a simple mechanical
+edge. The profit on such setups lives in discretion (which gap, context/absorption,
+skipping bad ones, exiting at VWAP/structure) that the mechanical rule doesn't
+capture. Caveats: QQQ only, one gap/stop/target spec, idealized fills, no costs.
