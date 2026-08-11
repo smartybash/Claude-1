@@ -319,3 +319,31 @@ or earnings reaction) vs COMPRESSION days, 123 QQQ sessions, n=601:
 - Carried forward to the out-of-sample test: fixed3R (max separation) + half@1
   (practical). All modest (~0.1-0.18R) so costs matter; the +0.17-0.18R runners
   have the most margin.
+
+## Expanded / OOS test + NQ — data-availability status (partial)
+Attempted the out-of-sample expansion and the NQ test. Data blockers hit:
+
+- **OOS expansion (QQQ 2025 H2) — BLOCKED.** Needs new options chains to extend the
+  net_gex regime, and the Alpha Vantage MCP server is disconnected. Resume when AV
+  is back: fetch 2025 H2 + Jul-Aug 2026 chains (av_gex --log) + intraday months,
+  then re-run backtest_vwap_fvg_v2 / backtest_fvg_exits on the combined ~250
+  sessions to see if the expansion edge holds t>2 and de-concentrates.
+- **NQ full test — BLOCKED for scale.** IBKR get_price_history caps at 1000 bars
+  per call with no historical paging (~11-13 sessions/pull); AV has no futures. So
+  no bulk NQ intraday history is available here.
+
+**NQ transfer check (backtest_nq_check.py, 11 sessions Jul27-Aug10 2026, anecdotal):**
+the strategy mechanics transfer cleanly and the character matches QQQ — half@1R+ride
+**56% win / +0.07R** on NQ (vs QQQ 55%), VWAP-ride ~breakeven. BUT all 11 sessions
+were positive-gamma (compression), so there were **zero expansion days** to test the
+actual edge on NQ. Confirms the code/behaviour ports to the future; the expansion
+edge on NQ still needs expansion days + more history (accumulate NQ pulls forward,
+or use a futures-history provider).
+
+## Where this leaves the strategy (interim)
+- In-sample (123 QQQ sessions): a CONDITIONAL edge — FVG continuation, structure
+  stop, let-winners-run, ONLY on expansion days (neg-gamma or earnings); +0.14 to
+  +0.18R expansion vs ~0/negative compression. Suggestive (t~2), concentrated in a
+  few trend days — NOT yet proven.
+- Blocked on the two tests that would confirm/refute it (OOS + NQ) by the AV outage
+  and IBKR's history cap. No live trading rule shipped on this until it clears OOS.
