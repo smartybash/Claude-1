@@ -347,3 +347,21 @@ or use a futures-history provider).
   few trend days — NOT yet proven.
 - Blocked on the two tests that would confirm/refute it (OOS + NQ) by the AV outage
   and IBKR's history cap. No live trading rule shipped on this until it clears OOS.
+
+## Data hygiene + time-of-day (backtest_fvg_timeofday.py)
+**Data is RTH-only, no after-hours noise** — every QQQ/NQ session is 09:30-15:55 ET
+(~78 5-min bars), VWAP anchored to the 9:30 open (AV fetched with
+extended_hours=false; NQ filtered to 09:30-15:59). Confirmed.
+
+Time-of-day on the EXPANSION-day continuation trade refines the "first 2 hours"
+idea: the **opening hour (9:30-10:30) is the WORST window** — negative across all
+exits (half@1 -0.04R, vwapCross -0.14R/24% win, fixed2R -0.10R): opening noise,
+unstable VWAP, whipsawed FVGs. The **10:30-11:30 hour is the single best**
+(half@1 +0.31R/67% win). The afternoon is NOT weak (pm vwapCross +0.25R).
+
+So the better filter is **skip the first hour**, not "trade only the first two."
+Applying it lifts the expansion-day edge:
+- half@1R+ride: +0.142R -> **+0.167R**
+- vwapCross:    +0.173R -> **+0.219R**
+Filter chosen in-sample (first-hour weakness is consistent across all 3 exits, so
+plausibly real) — the pending out-of-sample run will judge whether it holds.
