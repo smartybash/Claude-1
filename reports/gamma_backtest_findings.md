@@ -263,3 +263,34 @@ standalone edge.
 edge. The profit on such setups lives in discretion (which gap, context/absorption,
 skipping bad ones, exiting at VWAP/structure) that the mechanical rule doesn't
 capture. Caveats: QQQ only, one gap/stop/target spec, idealized fills, no costs.
+
+## Structure stops + realistic exits — a CONDITIONAL edge appears (backtest_vwap_fvg_v2.py)
+v1's tight gap-edge stop was killing it. Re-ran with STRUCTURE stops (swing low/high
+of prior 5 bars) and how the setup is really managed, on 123 QQQ sessions:
+
+- CONTINUATION (with VWAP bias), fixed 2R: +0.05R — still ~flat.
+- CONTINUATION, **ride to a VWAP-loss** (let winners run): the split by gamma is the
+  find — NEGATIVE-gamma **+0.19R** (n=270, t +1.92, both split-halves + : 0.11 / 0.27)
+  vs POSITIVE-gamma **-0.03R**. Trend-follow profile: 38% win, negative median,
+  positive mean from rare big runners.
+- REVERSION (fade back to VWAP): -0.02R, no edge.
+
+**Synthesis (the actionable rule):** pool both confirmed expansion signals —
+negative gamma OR a mega-cap earnings-reaction day — as "EXPANSION days":
+  EXPANSION continuation-ride: **+0.20R, t +2.08** (n=290, 38% win)
+  COMPRESSION (pos-gamma, no earnings): **-0.06R, t -0.68** (n=224)
+Adding the independent earnings trigger nudged t 1.92 -> 2.08 in the same
+direction — evidence it's a real regime effect, not a gamma-definition artifact.
+
+**Honest caveats:** t barely > 2; profit is concentrated (top-3 neg-gamma trades =
+~54% of that bucket's R) — inherent to trend-following but fragile at n~123. So:
+promising and mechanistically coherent (it unifies everything that survived — the
+gamma range/expansion switch + the earnings widener), but SUGGESTIVE, not proven.
+
+**What it means:** the tradeable idea isn't "VWAP+FVG" flat — it's *trade FVG
+continuation, let winners run, ONLY on expansion days; skip positive-gamma
+compression days for this style.* This validates the "avoid positive-gamma days"
+instinct for the ride-it style specifically, and is already reflected in the gamma
+regime read (neg = give room/trend; pos = tighter/fade).
+**Next review:** expand the sample (more expansion days: Jul-Aug 2026, 2025 H2) to
+see if t holds and the concentration diversifies before trusting it live.
