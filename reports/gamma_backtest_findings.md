@@ -294,3 +294,28 @@ instinct for the ride-it style specifically, and is already reflected in the gam
 regime read (neg = give room/trend; pos = tighter/fade).
 **Next review:** expand the sample (more expansion days: Jul-Aug 2026, 2025 H2) to
 see if t holds and the concentration diversifies before trusting it live.
+
+## Exit optimization for the FVG continuation trade (backtest_fvg_exits.py)
+Same entries (structure stop), only the exit varies. On EXPANSION days (neg-gamma
+or earnings reaction) vs COMPRESSION days, 123 QQQ sessions, n=601:
+
+| exit | EXPANSION mean | win% | COMPRESSION mean |
+|---|---|---|---|
+| fixed 3R | **+0.182R** | 43% | -0.077R |
+| vwapCross (ride) | +0.173R | 38% | -0.126R |
+| half@1R + ride | +0.142R | 55% | -0.002R |
+| fixed 2R | +0.100R | 44% | +0.001R |
+| trailPrevLow | +0.119R | 39% | +0.136R |
+| fixed 1R | +0.105R | 55% | +0.088R |
+
+- The **let-it-run exits (3R / vwapCross) give the biggest expansion-vs-compression
+  spread (~0.26-0.30R)** — confirms the mechanism: only expansion days follow
+  through to far targets; compression days bleed. Regime filter matters MOST for
+  runners.
+- **half@1R+ride** is the practical pick: +0.14R on expansion at 55% win.
+- fixed1R and trailPrevLow are mildly positive in BOTH regimes — tighter,
+  regime-agnostic scalps (small, more cost-sensitive), a different animal from the
+  expansion thesis.
+- Carried forward to the out-of-sample test: fixed3R (max separation) + half@1
+  (practical). All modest (~0.1-0.18R) so costs matter; the +0.17-0.18R runners
+  have the most margin.
