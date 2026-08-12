@@ -1,15 +1,15 @@
 {
   "date": "2026-08-11",
-  "source": "Manual (WealthCharts) 2026-08-11",
+  "source": "AlphaVantage 2026-08-11",
   "note": "FILL each morning: either type levels from WealthCharts, or run `python3 scripts/av_gex.py <chain> --sym QQQ --mult 100 --write`. Null keys are skipped. QQQ manual read 2026-08-11: positive-gamma zone (mean-reverting); net_gex left null (no magnitude given) so gamma read falls back to spot-vs-flip and EM tercile scaling stays x1.00. NQ scaled x41.26.",
   "levels": {
     "NQ": {
-      "net_gex": null,
-      "gamma_flip": 29699,
-      "zero_gamma": 29699,
-      "call_wall": 30120,
-      "put_wall": 29501,
-      "dealer_delta": null
+      "net_gex": 263765804.0,
+      "gamma_flip": 29636,
+      "zero_gamma": 29636,
+      "call_wall": 30317,
+      "put_wall": 28874,
+      "dealer_delta": -70768527.0
     },
     "ES": {
       "net_gex": null,
@@ -20,12 +20,12 @@
       "dealer_delta": null
     },
     "QQQ": {
-      "net_gex": null,
-      "gamma_flip": 719.79,
-      "zero_gamma": 719.79,
-      "call_wall": 730.0,
-      "put_wall": 715.0,
-      "dealer_delta": null
+      "net_gex": 263765804.0,
+      "gamma_flip": 718.49,
+      "zero_gamma": 718.49,
+      "call_wall": 735.0,
+      "put_wall": 700.0,
+      "dealer_delta": -70768527.0
     },
     "SPY": {
       "net_gex": null,
