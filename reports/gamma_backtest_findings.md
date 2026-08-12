@@ -365,3 +365,73 @@ Applying it lifts the expansion-day edge:
 - vwapCross:    +0.173R -> **+0.219R**
 Filter chosen in-sample (first-hour weakness is consistent across all 3 exits, so
 plausibly real) — the pending out-of-sample run will judge whether it holds.
+
+---
+
+# OUT-OF-SAMPLE EXPANSION (2025-H2 backfill) — verdict
+
+**Data added:** Alpha Vantage came back online; backfilled the gap.
+- `gex_history.jsonl`: **134 → 279 sessions** (2025-07-01 … 2026-08-11), zero dups.
+- `skew_history.jsonl`: 105 → 258 sessions.
+- Intraday 5-min: added 2025-07…2025-12 (now a continuous 2025-07 → 2026-07, 13 months).
+- All GEX logged with `av_gex --log` only; live `gamma_levels.json` untouched.
+
+The 2025-H2 window is genuine out-of-sample: none of it informed the original
+(2025-10-13→2026-08-07) in-sample tuning.
+
+## What SURVIVED out-of-sample
+
+**1. Negative-gamma → bigger / trendier next day — CONFIRMED and STRENGTHENED.**
+`backtest_gamma_filter.py`, n 133 → **251** (109 neg, 142 pos):
+
+| metric | NEG-γ | POS-γ | diff | Welch t (was) |
+|---|---|---|---|---|
+| next-day range % | 1.618 | 1.111 | +0.507 | **5.72** (3.80) |
+| \|open→close\| %  | 0.847 | 0.558 | +0.289 | **3.68** (2.60) |
+
+Holds in **both halves** (H1 diff +0.51, H2 +0.42). t=5.72 on n=251 is no longer
+"suggestive" — this is the real, de-concentrated edge. The tell is the daily
+*range/directionality*, not a specific entry.
+
+**2. Skip the opening hour (9:30–10:30) — HOLDS.**
+`backtest_fvg_timeofday.py`, expansion n 301 → **546**. The opening hour is the
+worst bucket across all three exits OOS (half@1 **−0.023R**, vwapCross **−0.084R**,
+fixed2R **−0.045R**); 10:30–11:30 is the best (half@1 +0.236R / 64% win). The
+first-hour weakness reproduced cleanly out-of-sample.
+
+## What BROKE out-of-sample
+
+**3. The "only trade EXPANSION days" split — DID NOT HOLD.** This was the headline
+in-sample edge and the one flagged as concentration-risky. In-sample, expansion
+days dominated compression (e.g. fixed3R +0.182R exp vs −0.077R comp; vwapCross
++0.173R vs −0.126R). OOS on n=1020 entries the gap **collapsed**:
+
+| exit | EXPANSION | COMPRESSION |
+|---|---|---|
+| fixed1R | +0.094R | +0.099R |
+| fixed2R | +0.076R | +0.122R |
+| trailPrevLow | +0.155R | +0.130R |
+| half@1 | +0.107R | +0.065R |
+
+Compression days are **just as tradeable** as expansion days out-of-sample. The
+in-sample expansion premium was small-sample noise — the concentration worry was
+correct. FVG continuation is a *mild all-days* edge (fixed3R +0.101R, trailPrevLow
++0.143R over n=1020), not a regime-gated one.
+
+**4. "Trade only the first 2 hours (pm weak)" — DID NOT HOLD.** OOS the afternoon
+is fine (half@1 pm +0.135R, vwapCross pm +0.156R). The correct rule is *skip the
+first hour*, full stop — not "front-load the session."
+
+## Secondary (`backtest_gamma_transition.py`, expanded)
+- Flip-escape **DOWN into negative gamma** still expands: post/pre **1.20×** (n=26,
+  was 1.30× n=10); up-crosses compress (0.69×). Directionally intact, de-concentrated.
+- Compression-near-heavy-strikes: corr(dist, fwd 30-min range) +0.11 → **+0.21**,
+  but bins only weakly monotonic (near 0.30% / mid 0.30% / far 0.39%). Weak support.
+
+## Bottom line
+- **Keep:** (a) negative-gamma regime as a *next-day range/trend expectation* filter
+  (now strongly validated), (b) skip-the-first-hour on intraday FVG entries.
+- **Drop:** gating FVG continuation on expansion-vs-compression days, and the
+  "first-2-hours-only" timing — neither survived OOS.
+- FVG continuation is a small positive edge every day; the gamma regime tells you
+  *how far price is likely to travel*, not whether the FVG setup itself works.
