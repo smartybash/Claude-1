@@ -204,6 +204,8 @@ def main():
 
     # GAMMA CONTEXT (VIX-implied expected move + vol regime) — see gamma_context.py.
     emlo = emhi = None
+    flip = None          # gamma flip (regime pivot), captured from gamma levels below
+    gstate = None        # POSITIVE / NEGATIVE gamma state at open
     try:
         import scripts.gamma_context as gc
         c = gc.context(px, "NQ")
@@ -224,7 +226,9 @@ def main():
             parts = [_fmt(k) for k in
                      ("net_gex", "gamma_flip", "zero_gamma", "call_wall", "put_wall", "dealer_delta") if k in gl]
             print(f"  DEALER GAMMA ({gl.get('_source','')} {gl.get('_date','')}): " + " | ".join(parts))
+            flip = gl.get("gamma_flip", gl.get("zero_gamma"))
             gr = gc.gamma_read(px, gl)
+            gstate = gr.get("state")
             if gr["state"] != "UNKNOWN":
                 print(f"  -> {gr['state']} GAMMA at open ({gr['basis']}): {gr['note']} [CONTEXT]")
         else:
@@ -273,6 +277,59 @@ def main():
     if sb: print((f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} -> target {sa[1]:.0f}{em_tag(sa[1])}" if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}"))
     if sa: print((f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} -> target {sb[2]:.0f}{em_tag(sb[2])}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}"))
     if not sa and not sb: print("  none in range - stand aside")
+
+    # ---- A+ SETUP (plain-English note) -------------------------------------
+    # Always-on summary of today's highest-conviction plan, built from the
+    # regime (price vs gamma flip) + the nearest A+ pair, with the two rules
+    # that survived out-of-sample (see reports/gamma_backtest_findings.md):
+    #   * negative-gamma days travel further (trend);  positive-gamma = fade;
+    #   * skip the opening hour (9:30-10:30 ET) - worst window in every test.
+    try:
+        print("\nA+ SETUP (today, plain English):")
+        # regime line
+        if flip:
+            fdist = (px - flip) / px
+            if abs(fdist) <= 0.001:                     # within ~0.1% of flip
+                reg = "COILED"
+                regtxt = (f"price {px:.0f} is sitting ON the gamma flip {flip:.0f} - no edge yet; "
+                          "wait for it to pick a side.")
+            elif px > flip:
+                reg = "POSITIVE"
+                regtxt = (f"price {px:.0f} is ABOVE the flip {flip:.0f} -> POSITIVE gamma: "
+                          "range/mean-revert day, moves fade -> FADE the edges.")
+            else:
+                reg = "NEGATIVE"
+                regtxt = (f"price {px:.0f} is BELOW the flip {flip:.0f} -> NEGATIVE gamma: "
+                          "trend/expansion day, moves extend -> GO WITH breaks, don't fade.")
+        else:
+            reg = gstate or "UNKNOWN"
+            regtxt = "gamma flip not loaded - regime unknown; trade the A+ pair mechanically."
+        print(f"  Regime: {regtxt}")
+
+        # the play
+        if reg == "NEGATIVE":
+            if sa and sb:
+                print(f"  Play: TREND. Take the break - long a clean break of {sa[2]:.0f} toward the "
+                      f"upper wall, or short a break of {sb[1]:.0f} toward the lower wall. Let it run.")
+            else:
+                print("  Play: TREND day - trade a decisive break toward the far wall; no A+ pair in range.")
+        else:  # POSITIVE / COILED / UNKNOWN -> fade the pair
+            if sb:
+                print(f"  LONG:  buy the {sb[1]:.0f}-{sb[2]:.0f} support on a tag+reject"
+                      + (f" -> target {sa[1]:.0f}{em_tag(sa[1])}" if sa else ""))
+            if sa:
+                print(f"  SHORT: sell the {sa[1]:.0f}-{sa[2]:.0f} resistance on a tag+reject"
+                      + (f" -> target {sb[2]:.0f}{em_tag(sb[2])}" if sb else ""))
+            if not sa and not sb:
+                print("  No A+ zone in range -> stand aside.")
+        # fixed rules
+        print("  Rules: skip the first hour (9:30-10:30 ET, worst window OOS); wait for a zone to be "
+              "TAGGED and rejected - don't chase mid-range.")
+        if flip:
+            print(f"  Invalidation: a clean break/hold through the flip {flip:.0f} flips the bias "
+                  f"({'stop fading, switch to trend' if reg != 'NEGATIVE' else 'trend fails, expect chop'}).")
+    except Exception as e:
+        print(f"  (A+ setup note unavailable: {e})")
 
     _chart(m5, above, below, px, now, zi, conf_prices, confirmed,
            em=(emlo, emhi, c["pin"]) if emlo is not None else None)
