@@ -46,8 +46,14 @@ TEMPLATE = r"""# ===============================================================
 #   MEASURED (chart logic, maxStopATR 2.5): fixed 3R = +0.190R/trade over 479
 #   trades, +91R total. Trailing the swing = +0.162R with the steadiest curve
 #   (t 5.8). Tighter cap raises mean R but halves the trade count.
-#   Works in BOTH gamma regimes (neg +0.274R / pos +0.234R) — the walls tell
-#   you how far price travels, not whether the setup is valid.
+#   TRADE STYLE (tested, scripts/backtest_style_by_regime.py, 250 sessions):
+#   Fading instead of continuing LOSES in both regimes (neg +0.110 vs +0.163,
+#   pos +0.083 vs +0.115) — so the arrows stay continuation-only. The FVG
+#   entry is already a pullback, not a breakout chase, which is why it holds
+#   up when dealers dampen. What the regime changes is the EXIT: ride-it
+#   exits decay hard in positive gamma (vwapCross +0.252 neg -> +0.009 pos),
+#   while a fixed 2R is regime-neutral (+0.202 / +0.222). So autoTarget banks
+#   2R in positive gamma and gives 3R + the trail room in negative gamma.
 #
 #   Deliberately minimal: VWAP, the FVGs, buy/sell arrows, live stop/target,
 #   and the dealer-gamma lines. Zones + expected-move are OFF by default.
@@ -60,7 +66,11 @@ input minGapPct     = 0.03;   # min FVG size as % of price
 input stopLookback  = 5;      # structure stop = swing of last N bars
 input atrLen        = 14;
 input maxStopATR    = 2.5;    # skip wide-stop signals (0 = no filter)
-input targetR       = 3.0;    # plotted target, in R
+input targetR       = 3.0;    # manual target in R (used if autoTarget = no)
+input autoTarget    = yes;    # pick the target from the gamma regime (see header)
+input posGammaToday = __POSGAMMA__;   # baked from this morning's options read
+input posTargetR    = 2.0;    # POSITIVE gamma: moves stall -> bank a fixed 2R
+input negTargetR    = 3.0;    # NEGATIVE gamma: moves extend -> give it room
 input skipFirstHour = yes;    # no entries 09:30-10:30 ET
 input rthVWAPonly   = yes;    # anchor VWAP to 09:30 RTH (matches the backtest)
 
@@ -160,6 +170,12 @@ AddChartBubble(showBubbles and sellSig, high,
 Alert(buySig,  "FVG continuation LONG",  Alert.BAR, Sound.Chimes);
 Alert(sellSig, "FVG continuation SHORT", Alert.BAR, Sound.Bell);
 
+# ---- style by regime: direction stays CONTINUATION, only the EXIT changes ----
+#   Measured (250 sessions): continuation beat fading in BOTH regimes, so the
+#   arrows never flip. What DOES change with regime is how far a winner runs —
+#   ride-it exits decay badly in positive gamma while a fixed 2R holds up.
+def tgtR = if !autoTarget then targetR else if posGammaToday then posTargetR else negTargetR;
+
 # ---- live trade management: trailing stop + R target ----
 #   Two self-contained state machines (long / short) so every `rec` only
 #   references itself or something declared above it — thinkScript requires
@@ -191,8 +207,8 @@ TrailStop.SetDefaultColor(Color.ORANGE);  TrailStop.SetStyle(Curve.SHORT_DASH);
 TrailStop.SetLineWeight(2);
 
 plot Target = if !showExits then Double.NaN
-              else if !IsNaN(Lentry) then Lentry + targetR * Lrisk
-              else if !IsNaN(Sentry) then Sentry - targetR * Srisk else Double.NaN;
+              else if !IsNaN(Lentry) then Lentry + tgtR * Lrisk
+              else if !IsNaN(Sentry) then Sentry - tgtR * Srisk else Double.NaN;
 Target.SetDefaultColor(Color.LIGHT_GRAY);  Target.SetStyle(Curve.SHORT_DASH);
 
 def exitNow = (IsNaN(Lstop) and !IsNaN(Lstop[1])) or (IsNaN(Sstop) and !IsNaN(Sstop[1]));
@@ -219,9 +235,12 @@ EMup.SetDefaultColor(Color.YELLOW);  EMup.SetStyle(Curve.LONG_DASH);
 EMdn.SetDefaultColor(Color.YELLOW);  EMdn.SetStyle(Curve.LONG_DASH);
 
 # ---- one status label ----
-AddLabel(yes, "__SYM__ FVG cont | __REGIME__ | " +
-    (if skipFirstHour then "skip 09:30-10:30" else "all session") +
-    (if maxStopATR > 0 then " | maxStop " + maxStopATR + "xATR" else ""), Color.__GCOLOR__);
+AddLabel(yes, "__SYM__ FVG continuation | " +
+    (if posGammaToday then "POS gamma: moves stall -> bank " + posTargetR + "R"
+                      else "NEG gamma: moves extend -> ride the trail") +
+    (if skipFirstHour then " | skip 09:30-10:30" else "") +
+    (if maxStopATR > 0 then " | maxStop " + maxStopATR + "xATR" else ""),
+    if posGammaToday then Color.LIGHT_GRAY else Color.YELLOW);
 __EARNLABEL__
 """
 
@@ -306,6 +325,15 @@ def main():
               .replace("__PIN__", f"{ctx['pin']:.{d}f}")
               .replace("__REGIME__", ctx["regime"]).replace("__GCOLOR__", GCOLOR[ctx["regime"]]))
         s = s.replace("__GAMMALEVELS__", gamma_block(ctx.get("gamma_levels"), d))
+        # regime for the auto-target: net GEX sign if we have it, else spot vs flip
+        _gl = ctx.get("gamma_levels") or {}
+        if _gl.get("net_gex") is not None:
+            _pos = _gl["net_gex"] > 0
+        elif _gl.get("gamma_flip") is not None:
+            _pos = px > _gl["gamma_flip"]
+        else:
+            _pos = True          # no read -> assume dampened, bank the fixed target
+        s = s.replace("__POSGAMMA__", "yes" if _pos else "no")
         earn = (f'AddLabel(showGamma, "EARNINGS NIGHT (x{ctx["earn_mult"]:.2f})", Color.MAGENTA);'
                 if ctx.get("earn_mult", 1.0) != 1.0 else "")
         s = s.replace("__EARNLABEL__", earn)
