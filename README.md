@@ -16,6 +16,18 @@ Two mechanical systems live here:
    which writes the trade sheet (CONFIRMED / PENDING / B-candidates /
    blocked + gate read) to `reports/`. Try it on the synthetic
    `data/gamma_screen_example.csv`.
+
+   When no vendor gamma screen is available, `vol_desk/gex.py` rebuilds the
+   level map (nTrans / zeroGEX / pTrans / +GEX / COTMP / COTMC) straight
+   from an option chain's open interest and implied vols. Daily NQ read:
+
+   ```
+   python scripts/nq_daily.py --av-chain chain.csv \
+       --qqq-close 718.45 --nq-close 29835.5 --dte 10
+   ```
+
+   See [`reports/nq_daily_runbook.md`](reports/nq_daily_runbook.md) for the
+   daily procedure and which data each provider can actually supply.
 2. **NQ/ES trend-vs-chop regime filter** — an intraday regime read for
    futures day trading, documented below.
 
