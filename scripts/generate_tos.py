@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import scripts.backtest_confluence as bt
 import scripts.gamma_context as gc
+import scripts.gex_daily_levels as gdl
 
 DATE = __import__("datetime").date.today().isoformat()
 INST = [   # (symbol label, 30-min file, is_futures) — price derived from data
@@ -324,7 +325,24 @@ def main():
               .replace("__EMADJ__", f"{ctx['em_adj']:.{d}f}").replace("__EMMULT__", f"{ctx['em_mult']:.2f}")
               .replace("__PIN__", f"{ctx['pin']:.{d}f}")
               .replace("__REGIME__", ctx["regime"]).replace("__GCOLOR__", GCOLOR[ctx["regime"]]))
-        s = s.replace("__GAMMALEVELS__", gamma_block(ctx.get("gamma_levels"), d))
+        # PER-DAY gamma levels: each session shows the walls from the prior
+        # session's chain (what was known pre-market). Falls back to the single
+        # flat read for symbols with no option history.
+        _mode = {"MNQ": "ratio", "MES": "ratio", "QQQ": "absolute", "SPY": "absolute"}.get(sym)
+        _native = None
+        if sym == "MNQ":
+            _nq = (gc.load_gamma_levels("NQ") or {})
+            if "FOP" in str(_nq.get("_source", "")):      # native /NQ read beats scaling
+                _native = {t: _nq[k] for k, t in
+                           (("gamma_flip", "GF"), ("call_wall", "CW"), ("put_wall", "PW"))
+                           if _nq.get(k) is not None}
+        _blk = ""
+        if sym in ("MNQ", "QQQ"):                          # QQQ chain drives both
+            try:
+                _blk = gdl.block(sym, _mode, 120, DATE, _native)
+            except Exception:
+                _blk = ""
+        s = s.replace("__GAMMALEVELS__", _blk or gamma_block(ctx.get("gamma_levels"), d))
         # regime for the auto-target: net GEX sign if we have it, else spot vs flip
         _gl = ctx.get("gamma_levels") or {}
         if _gl.get("net_gex") is not None:
