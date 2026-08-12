@@ -1,3 +1,36 @@
+# Trading Systems
+
+Two mechanical systems live here:
+
+1. **Vol Desk** — a GEX / dealer-positioning swing system for single-stock
+   options. Spec: [`reports/vol_desk_system.md`](reports/vol_desk_system.md);
+   rules engine: `vol_desk/` (entry filters, 5-min open trigger, four-stop
+   exit framework, T1/T2 logic, regime gates, alias-tolerant screen loader);
+   tests: `python -m pytest tests/`. The evening workflow is one command:
+
+   ```
+   python scripts/evening_scan.py <gamma_screen.csv> \
+       --spy 0.8 --qqq 0.3 --bulls 420 --bears 120 --vix-delta -0.4
+   ```
+
+   which writes the trade sheet (CONFIRMED / PENDING / B-candidates /
+   blocked + gate read) to `reports/`. Try it on the synthetic
+   `data/gamma_screen_example.csv`.
+
+   When no vendor gamma screen is available, `vol_desk/gex.py` rebuilds the
+   level map (nTrans / zeroGEX / pTrans / +GEX / COTMP / COTMC) straight
+   from an option chain's open interest and implied vols. Daily NQ read:
+
+   ```
+   python scripts/nq_daily.py --av-chain chain.csv \
+       --qqq-close 718.45 --nq-close 29835.5 --dte 10
+   ```
+
+   See [`reports/nq_daily_runbook.md`](reports/nq_daily_runbook.md) for the
+   daily procedure and which data each provider can actually supply.
+2. **NQ/ES trend-vs-chop regime filter** — an intraday regime read for
+   futures day trading, documented below.
+
 # NQ/ES Trend-vs-Chop Regime Filter
 
 A mechanical intraday regime filter for NQ/ES day trading, built and validated on
