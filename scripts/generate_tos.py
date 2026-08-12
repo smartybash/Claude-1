@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT))
 import scripts.backtest_confluence as bt
 import scripts.gamma_context as gc
 
-DATE = "2026-08-11"
+DATE = __import__("datetime").date.today().isoformat()
 INST = [   # (symbol label, 30-min file, is_futures) — price derived from data
     ("MNQ", "nq_30min_eth.json", True),
     ("QQQ", "qqq_30m_live.json", False),
@@ -33,55 +33,64 @@ INST = [   # (symbol label, 30-min file, is_futures) — price derived from data
 TEMPLATE = r"""# =====================================================================
 # __SYM__ FVG Continuation (ThinkOrSwim)   __DATE__      price __PX__
 #
-#   THE TESTED SETUP — apply to a 5-MIN __SYM__ chart (FVG was validated on
-#   5-min bars; the levels below are timeframe-independent).
+#   Apply to a 5-MIN __SYM__ chart. This is the exact rule set backtested in
+#   scripts/backtest_tos_fvg.py on 273 QQQ sessions (2025-07..2026-07):
 #
-#   Entry  : 3-bar Fair Value Gap forms -> price retraces to the gap's NEAR
-#            EDGE -> take it ONLY in the direction of session VWAP
-#            (long above VWAP, short below). One trade per gap.
-#   Stop   : structure — swing low/high of the last `stopLookback` bars.
-#   Exit   : trail the prior swing (best out-of-sample, +0.143R/trade),
-#            or fixed 3R. Partial at 1R if you prefer a higher win rate.
-#   Skip   : 09:30-10:30 ET — worst window in every out-of-sample test.
-#   Gamma  : sets how FAR price travels, not whether the setup is valid.
-#            Above the flip = fade the edges; below = let winners run.
+#     entry        3-bar FVG -> price retraces to the gap's NEAR EDGE, taken
+#                  only WITH session VWAP (long above / short below), one per gap
+#     stop         structure: swing low/high of the last `stopLookback` bars
+#     risk filter  skip signals whose stop is wider than `maxStopATR` x ATR
+#     skip         09:30-10:30 ET (worst window out-of-sample)
+#     exit         3R target, or trail the prior bar's swing (both plotted)
 #
-#   Chart stays deliberately minimal: VWAP, the FVGs, buy/sell arrows and
-#   the dealer-gamma lines. Zones + expected-move are OFF by default.
+#   MEASURED (chart logic, maxStopATR 2.5): fixed 3R = +0.190R/trade over 479
+#   trades, +91R total. Trailing the swing = +0.162R with the steadiest curve
+#   (t 5.8). Tighter cap raises mean R but halves the trade count.
+#   Works in BOTH gamma regimes (neg +0.274R / pos +0.234R) — the walls tell
+#   you how far price travels, not whether the setup is valid.
+#
+#   Deliberately minimal: VWAP, the FVGs, buy/sell arrows, live stop/target,
+#   and the dealer-gamma lines. Zones + expected-move are OFF by default.
 #   Paste the WHOLE box.
 # =====================================================================
 declare upper;
 
-# ---- the setup (tested values — change only if you re-run the backtest) ----
+# ---- the tested setup (values chosen from the backtest, not taste) ----
 input minGapPct     = 0.03;   # min FVG size as % of price
 input stopLookback  = 5;      # structure stop = swing of last N bars
+input atrLen        = 14;
+input maxStopATR    = 2.5;    # skip wide-stop signals (0 = no filter)
+input targetR       = 3.0;    # plotted target, in R
 input skipFirstHour = yes;    # no entries 09:30-10:30 ET
+input rthVWAPonly   = yes;    # anchor VWAP to 09:30 RTH (matches the backtest)
 
 # ---- what to draw ----
 input showFVG     = yes;
 input showSignals = yes;
+input showExits   = yes;      # live stop + target while a signal is running
 input showBubbles = yes;
 input showGL      = yes;      # dealer gamma: flip + call/put walls
 input showZones   = no;       # confluence zones (off = clean chart)
 input showEM      = no;       # expected-move band (off = clean chart)
 
 # ---- session VWAP (the direction filter) ----
-def newDay  = GetDay() != GetDay()[1];
-def vSum    = if newDay then volume else vSum[1] + volume;
-def pvSum   = if newDay then volume * hlc3 else pvSum[1] + volume * hlc3;
-def vwapVal = pvSum / vSum;
+def inRTH   = SecondsFromTime(0930) >= 0 and SecondsTillTime(1600) > 0;
+def newSess = if rthVWAPonly then (inRTH and !inRTH[1]) else (GetDay() != GetDay()[1]);
+def acc     = if rthVWAPonly then inRTH else yes;
+def vSum    = if newSess then volume else if acc then vSum[1] + volume else vSum[1];
+def pvSum   = if newSess then volume * hlc3 else if acc then pvSum[1] + volume * hlc3 else pvSum[1];
+def vwapVal = if vSum > 0 then pvSum / vSum else close;
 plot SessVWAP = vwapVal;
 SessVWAP.SetDefaultColor(Color.CYAN);
 SessVWAP.SetLineWeight(2);
 
 # ---- FAIR VALUE GAPS (3-bar, same definition as the backtest) ----
-#   bull gap = low[0] > high[2] (gap left unfilled by the middle bar)
-#   bear gap = high[0] < low[2]
 def mg      = minGapPct / 100;
 def newBull = low > high[2] and (low - high[2]) / close >= mg;
 def newBear = high < low[2] and (low[2] - high) / close >= mg;
 
-#   track the most recent gap; it dies when price fully fills it
+#   only the most recent gap each side stays live; it dies when price fills it.
+#   (this is what the backtest measured — it beats tracking every open gap)
 rec bBot = if newBull then high[2]
            else if IsNaN(bBot[1]) then Double.NaN
            else if low <= bBot[1] then Double.NaN
@@ -110,11 +119,19 @@ BearBot.SetDefaultColor(Color.DARK_RED);    BearBot.SetStyle(Curve.SHORT_DASH);
 AddCloud(BullTop, BullBot, Color.DARK_GREEN, Color.DARK_GREEN);
 AddCloud(BearTop, BearBot, Color.DARK_RED,   Color.DARK_RED);
 
-# ---- entry trigger: retrace into the gap edge, WITH vwap ----
-def timeOK     = if skipFirstHour then SecondsFromTime(1030) >= 0 else yes;
-def bullTouch  = !IsNaN(bTop) and !newBull and low <= bTop and close > vwapVal;
-def bearTouch  = !IsNaN(rBot) and !newBear and high >= rBot and close < vwapVal;
+# ---- structure stop + ATR risk filter ----
+def atrVal    = Average(TrueRange(high, close, low), atrLen);
+def longStop  = Lowest(low,   stopLookback + 1);
+def shortStop = Highest(high, stopLookback + 1);
+def longRiskOK  = maxStopATR <= 0 or (bTop - longStop)  <= maxStopATR * atrVal;
+def shortRiskOK = maxStopATR <= 0 or (shortStop - rBot) <= maxStopATR * atrVal;
 
+# ---- entry trigger: retrace into the gap edge, WITH vwap ----
+def timeOK    = if skipFirstHour then SecondsFromTime(1030) >= 0 else yes;
+def bullTouch = !IsNaN(bTop) and !newBull and low <= bTop and close > vwapVal;
+def bearTouch = !IsNaN(rBot) and !newBear and high >= rBot and close < vwapVal;
+
+#   a touch consumes the gap even if the risk filter vetoes the trade
 rec bUsed = if newBull then 0
             else if IsNaN(bTop) then 0
             else if bullTouch and timeOK and bUsed[1] == 0 then 1
@@ -124,12 +141,8 @@ rec rUsed = if newBear then 0
             else if bearTouch and timeOK and rUsed[1] == 0 then 1
             else rUsed[1];
 
-def buySig  = showSignals and bullTouch  and timeOK and bUsed[1] == 0;
-def sellSig = showSignals and bearTouch and timeOK and rUsed[1] == 0;
-
-# ---- structure stop (swing of the last N bars, inclusive) ----
-def longStop  = Lowest(low,   stopLookback + 1);
-def shortStop = Highest(high, stopLookback + 1);
+def buySig  = showSignals and bullTouch and timeOK and bUsed[1] == 0 and longRiskOK;
+def sellSig = showSignals and bearTouch and timeOK and rUsed[1] == 0 and shortRiskOK;
 
 # ---- BUY / SELL markers ----
 plot Buy = if buySig then low else Double.NaN;
@@ -147,7 +160,47 @@ AddChartBubble(showBubbles and sellSig, high,
 Alert(buySig,  "FVG continuation LONG",  Alert.BAR, Sound.Chimes);
 Alert(sellSig, "FVG continuation SHORT", Alert.BAR, Sound.Bell);
 
-# ---- DEALER GAMMA (from the live options read) ----
+# ---- live trade management: trailing stop + R target ----
+#   Two self-contained state machines (long / short) so every `rec` only
+#   references itself or something declared above it — thinkScript requires
+#   declaration before use. The TRAIL is the exit rule (best t-stat, +0.162R);
+#   the target line is the 3R reference. Trail updates, then tests, exactly
+#   like the backtest: ts = max(ts, low[-1]); exit if low <= ts.
+rec Lstop = if buySig then longStop
+            else if IsNaN(Lstop[1]) then Double.NaN
+            else if low <= Max(Lstop[1], low[1]) then Double.NaN
+            else Max(Lstop[1], low[1]);
+rec Lentry = if buySig then bTop
+             else if IsNaN(Lstop) then Double.NaN else Lentry[1];
+rec Lrisk  = if buySig then bTop - longStop
+             else if IsNaN(Lstop) then Double.NaN else Lrisk[1];
+
+rec Sstop = if sellSig then shortStop
+            else if IsNaN(Sstop[1]) then Double.NaN
+            else if high >= Min(Sstop[1], high[1]) then Double.NaN
+            else Min(Sstop[1], high[1]);
+rec Sentry = if sellSig then rBot
+             else if IsNaN(Sstop) then Double.NaN else Sentry[1];
+rec Srisk  = if sellSig then shortStop - rBot
+             else if IsNaN(Sstop) then Double.NaN else Srisk[1];
+
+plot TrailStop = if !showExits then Double.NaN
+                 else if !IsNaN(Lstop) then Lstop
+                 else if !IsNaN(Sstop) then Sstop else Double.NaN;
+TrailStop.SetDefaultColor(Color.ORANGE);  TrailStop.SetStyle(Curve.SHORT_DASH);
+TrailStop.SetLineWeight(2);
+
+plot Target = if !showExits then Double.NaN
+              else if !IsNaN(Lentry) then Lentry + targetR * Lrisk
+              else if !IsNaN(Sentry) then Sentry - targetR * Srisk else Double.NaN;
+Target.SetDefaultColor(Color.LIGHT_GRAY);  Target.SetStyle(Curve.SHORT_DASH);
+
+def exitNow = (IsNaN(Lstop) and !IsNaN(Lstop[1])) or (IsNaN(Sstop) and !IsNaN(Sstop[1]));
+plot ExitX = if showExits and exitNow then close else Double.NaN;
+ExitX.SetPaintingStrategy(PaintingStrategy.POINTS);
+ExitX.SetDefaultColor(Color.YELLOW);  ExitX.SetLineWeight(4);
+
+# ---- DEALER GAMMA (walls = how far price can travel) ----
 __GAMMALEVELS__
 
 # ---- confluence zones (optional, default OFF) ----
@@ -167,7 +220,8 @@ EMdn.SetDefaultColor(Color.YELLOW);  EMdn.SetStyle(Curve.LONG_DASH);
 
 # ---- one status label ----
 AddLabel(yes, "__SYM__ FVG cont | __REGIME__ | " +
-    (if skipFirstHour then "skip 09:30-10:30" else "all session"), Color.__GCOLOR__);
+    (if skipFirstHour then "skip 09:30-10:30" else "all session") +
+    (if maxStopATR > 0 then " | maxStop " + maxStopATR + "xATR" else ""), Color.__GCOLOR__);
 __EARNLABEL__
 """
 
