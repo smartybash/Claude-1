@@ -61,6 +61,10 @@ def main():
     ap.add_argument("--nq-raw", required=True, help="IBKR NQ 5-min price-history JSON file")
     ap.add_argument("--av-chain", required=True, help="Alpha Vantage QQQ HISTORICAL_OPTIONS file")
     ap.add_argument("--ratio", default="auto", help="NQ/QQQ scale ratio, or 'auto' (default)")
+    ap.add_argument("--nq-native", help="NQ FOP chain CSV (strike,call_oi,put_oi,call_iv,put_iv); "
+                    "if given, NQ levels come from /NQ's own options via ib_nq_gex, overwriting the scaled read")
+    ap.add_argument("--nq-dte", type=float, default=2.0, help="DTE of the sampled NQ FOP expiry")
+    ap.add_argument("--nq-expiry", default="", help="NQ FOP expiry label (YYYYMMDD) for the source tag")
     ap.add_argument("--no-run", action="store_true", help="refresh files but skip the confluence rerun")
     a = ap.parse_args()
 
@@ -74,6 +78,13 @@ def main():
 
     write_levels(a.av_chain, ratio)
     print("[levels] gamma_levels.json <- Alpha Vantage (QQQ + NQ scaled)")
+
+    # NQ-native override: replace the scaled NQ slot with /NQ's own dealer gamma
+    if a.nq_native:
+        subprocess.run([PY, str(ROOT / "scripts/ib_nq_gex.py"), a.nq_native,
+                        "--spot", str(nq_last), "--dte", str(a.nq_dte),
+                        "--expiry", a.nq_expiry, "--write"], check=True)
+        print("[levels] gamma_levels.json[NQ] <- IBKR NQ FOP (native, overrides scaled)")
 
     if not a.no_run:
         print("[rerun] scripts.confluence\n" + "-" * 60)
