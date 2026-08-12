@@ -31,161 +31,143 @@ INST = [   # (symbol label, 30-min file, is_futures) — price derived from data
 ]
 
 TEMPLATE = r"""# =====================================================================
-# __SYM__ Confluence — 3-filter + clean structure (ThinkOrSwim)   __DATE__
-#   Zones baked in for __SYM__ @ __PX__. Apply to a 30-min __SYM__ chart.
-#   thinkScript identifiers are CASE-INSENSITIVE; "VWAP" is reserved (plot=SessVWAP).
+# __SYM__ FVG Continuation (ThinkOrSwim)   __DATE__      price __PX__
+#
+#   THE TESTED SETUP — apply to a 5-MIN __SYM__ chart (FVG was validated on
+#   5-min bars; the levels below are timeframe-independent).
+#
+#   Entry  : 3-bar Fair Value Gap forms -> price retraces to the gap's NEAR
+#            EDGE -> take it ONLY in the direction of session VWAP
+#            (long above VWAP, short below). One trade per gap.
+#   Stop   : structure — swing low/high of the last `stopLookback` bars.
+#   Exit   : trail the prior swing (best out-of-sample, +0.143R/trade),
+#            or fixed 3R. Partial at 1R if you prefer a higher win rate.
+#   Skip   : 09:30-10:30 ET — worst window in every out-of-sample test.
+#   Gamma  : sets how FAR price travels, not whether the setup is valid.
+#            Above the flip = fade the edges; below = let winners run.
+#
+#   Chart stays deliberately minimal: VWAP, the FVGs, buy/sell arrows and
+#   the dealer-gamma lines. Zones + expected-move are OFF by default.
 #   Paste the WHOLE box.
 # =====================================================================
 declare upper;
 
-input kStretch      = 0.5;
-input chanLen       = 60;
-input chanDev       = 2.0;
-input showChannel   = yes;
-input showVWAPbands = yes;
+# ---- the setup (tested values — change only if you re-run the backtest) ----
+input minGapPct     = 0.03;   # min FVG size as % of price
+input stopLookback  = 5;      # structure stop = swing of last N bars
+input skipFirstHour = yes;    # no entries 09:30-10:30 ET
 
-# ---- ZONES (__SYM__ __DATE__): hi / lo / is-resistance ----
-input z1_hi = __Z1HI__;  input z1_lo = __Z1LO__;  input z1_resist = __Z1R__;
-input z2_hi = __Z2HI__;  input z2_lo = __Z2LO__;  input z2_resist = __Z2R__;
-input z3_hi = __Z3HI__;  input z3_lo = __Z3LO__;  input z3_resist = __Z3R__;
-input z4_hi = __Z4HI__;  input z4_lo = __Z4LO__;  input z4_resist = __Z4R__;
+# ---- what to draw ----
+input showFVG     = yes;
+input showSignals = yes;
+input showBubbles = yes;
+input showGL      = yes;      # dealer gamma: flip + call/put walls
+input showZones   = no;       # confluence zones (off = clean chart)
+input showEM      = no;       # expected-move band (off = clean chart)
 
-# ---- FILTER 2: macro DIRECTION (daily 10/20 SMA) ----
-def dClose = close(period = AggregationPeriod.DAY);
-def sma10  = Average(dClose, 10);
-def sma20  = Average(dClose, 20);
-def bias   = if sma10 > sma20 and dClose > sma20 then 1
-             else if sma10 < sma20 and dClose < sma20 then -1 else 0;
-
-# ---- FILTER 3: session VWAP + sigma stretch ----
+# ---- session VWAP (the direction filter) ----
 def newDay  = GetDay() != GetDay()[1];
 def vSum    = if newDay then volume else vSum[1] + volume;
 def pvSum   = if newDay then volume * hlc3 else pvSum[1] + volume * hlc3;
 def vwapVal = pvSum / vSum;
-def varSum  = if newDay then volume * Sqr(hlc3 - vwapVal) else varSum[1] + volume * Sqr(hlc3 - vwapVal);
-def sigma   = Sqrt(varSum / vSum);
-def stretch = if sigma > 0 then (close - vwapVal) / sigma else 0;
-
 plot SessVWAP = vwapVal;
 SessVWAP.SetDefaultColor(Color.CYAN);
-plot BandUp = if showVWAPbands then vwapVal + kStretch * sigma else Double.NaN;
-plot BandDn = if showVWAPbands then vwapVal - kStretch * sigma else Double.NaN;
-BandUp.SetDefaultColor(Color.DARK_GRAY);  BandUp.SetStyle(Curve.SHORT_DASH);
-BandDn.SetDefaultColor(Color.DARK_GRAY);  BandDn.SetStyle(Curve.SHORT_DASH);
+SessVWAP.SetLineWeight(2);
 
-# ---- FILTER 1: LOCATION zones (red = resistance, green = support) ----
-AddCloud(z1_hi, z1_lo, if z1_resist then Color.RED else Color.GREEN, if z1_resist then Color.RED else Color.GREEN);
-AddCloud(z2_hi, z2_lo, if z2_resist then Color.RED else Color.GREEN, if z2_resist then Color.RED else Color.GREEN);
-AddCloud(z3_hi, z3_lo, if z3_resist then Color.RED else Color.GREEN, if z3_resist then Color.RED else Color.GREEN);
-AddCloud(z4_hi, z4_lo, if z4_resist then Color.RED else Color.GREEN, if z4_resist then Color.RED else Color.GREEN);
+# ---- FAIR VALUE GAPS (3-bar, same definition as the backtest) ----
+#   bull gap = low[0] > high[2] (gap left unfilled by the middle bar)
+#   bear gap = high[0] < low[2]
+def mg      = minGapPct / 100;
+def newBull = low > high[2] and (low - high[2]) / close >= mg;
+def newBear = high < low[2] and (low[2] - high) / close >= mg;
 
-# ---- regression channel ----
-def regVal = Inertia(close, chanLen);
-def rStd   = StDev(close - regVal, chanLen);
-plot ChMid = if showChannel then regVal else Double.NaN;
-plot ChUp  = if showChannel then regVal + chanDev * rStd else Double.NaN;
-plot ChLo  = if showChannel then regVal - chanDev * rStd else Double.NaN;
-ChMid.SetDefaultColor(Color.VIOLET);
-ChUp.SetDefaultColor(Color.VIOLET);  ChUp.SetStyle(Curve.SHORT_DASH);
-ChLo.SetDefaultColor(Color.VIOLET);  ChLo.SetStyle(Curve.SHORT_DASH);
+#   track the most recent gap; it dies when price fully fills it
+rec bBot = if newBull then high[2]
+           else if IsNaN(bBot[1]) then Double.NaN
+           else if low <= bBot[1] then Double.NaN
+           else bBot[1];
+rec bTop = if newBull then low
+           else if IsNaN(bBot[1]) then Double.NaN
+           else if low <= bBot[1] then Double.NaN
+           else bTop[1];
+rec rTop = if newBear then low[2]
+           else if IsNaN(rTop[1]) then Double.NaN
+           else if high >= rTop[1] then Double.NaN
+           else rTop[1];
+rec rBot = if newBear then high
+           else if IsNaN(rTop[1]) then Double.NaN
+           else if high >= rTop[1] then Double.NaN
+           else rBot[1];
 
-# ---- GAMMA CONTEXT: expected-move band (yellow) + pin (orange), baked __DATE__ ----
-#   Yellow = today's gamma-scaled VIX expected range; orange = nearest round-strike pin.
-input showGamma = yes;
-input emUpV = __EMUP__;   input emDnV = __EMDN__;   input gPinV = __PIN__;
-plot EMup = if showGamma then emUpV else Double.NaN;
-plot EMdn = if showGamma then emDnV else Double.NaN;
-plot GPin = if showGamma then gPinV else Double.NaN;
-EMup.SetDefaultColor(Color.YELLOW);  EMup.SetStyle(Curve.LONG_DASH);   EMup.SetLineWeight(1);
-EMdn.SetDefaultColor(Color.YELLOW);  EMdn.SetStyle(Curve.LONG_DASH);   EMdn.SetLineWeight(1);
-GPin.SetDefaultColor(Color.ORANGE);  GPin.SetStyle(Curve.SHORT_DASH);
+plot BullTop = if showFVG then bTop else Double.NaN;
+plot BullBot = if showFVG then bBot else Double.NaN;
+plot BearTop = if showFVG then rTop else Double.NaN;
+plot BearBot = if showFVG then rBot else Double.NaN;
+BullTop.SetDefaultColor(Color.DARK_GREEN);  BullTop.SetStyle(Curve.SHORT_DASH);
+BullBot.SetDefaultColor(Color.DARK_GREEN);  BullBot.SetStyle(Curve.SHORT_DASH);
+BearTop.SetDefaultColor(Color.DARK_RED);    BearTop.SetStyle(Curve.SHORT_DASH);
+BearBot.SetDefaultColor(Color.DARK_RED);    BearBot.SetStyle(Curve.SHORT_DASH);
+AddCloud(BullTop, BullBot, Color.DARK_GREEN, Color.DARK_GREEN);
+AddCloud(BearTop, BearBot, Color.DARK_RED,   Color.DARK_RED);
 
+# ---- entry trigger: retrace into the gap edge, WITH vwap ----
+def timeOK     = if skipFirstHour then SecondsFromTime(1030) >= 0 else yes;
+def bullTouch  = !IsNaN(bTop) and !newBull and low <= bTop and close > vwapVal;
+def bearTouch  = !IsNaN(rBot) and !newBear and high >= rBot and close < vwapVal;
+
+rec bUsed = if newBull then 0
+            else if IsNaN(bTop) then 0
+            else if bullTouch and timeOK and bUsed[1] == 0 then 1
+            else bUsed[1];
+rec rUsed = if newBear then 0
+            else if IsNaN(rBot) then 0
+            else if bearTouch and timeOK and rUsed[1] == 0 then 1
+            else rUsed[1];
+
+def buySig  = showSignals and bullTouch  and timeOK and bUsed[1] == 0;
+def sellSig = showSignals and bearTouch and timeOK and rUsed[1] == 0;
+
+# ---- structure stop (swing of the last N bars, inclusive) ----
+def longStop  = Lowest(low,   stopLookback + 1);
+def shortStop = Highest(high, stopLookback + 1);
+
+# ---- BUY / SELL markers ----
+plot Buy = if buySig then low else Double.NaN;
+Buy.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
+Buy.SetDefaultColor(Color.GREEN);   Buy.SetLineWeight(5);
+plot Sell = if sellSig then high else Double.NaN;
+Sell.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
+Sell.SetDefaultColor(Color.RED);    Sell.SetLineWeight(5);
+
+AddChartBubble(showBubbles and buySig, low,
+    "BUY " + Round(bTop, 2) + "  stop " + Round(longStop, 2), Color.GREEN, no);
+AddChartBubble(showBubbles and sellSig, high,
+    "SELL " + Round(rBot, 2) + "  stop " + Round(shortStop, 2), Color.RED, yes);
+
+Alert(buySig,  "FVG continuation LONG",  Alert.BAR, Sound.Chimes);
+Alert(sellSig, "FVG continuation SHORT", Alert.BAR, Sound.Bell);
+
+# ---- DEALER GAMMA (from the live options read) ----
 __GAMMALEVELS__
-# ---- SIGNALS (trend-aligned, across all 4 zones) ----
-def fadeShort = bias < 0 and stretch >= kStretch and (
-    (z1_resist and high >= z1_lo and close < z1_lo) or
-    (z2_resist and high >= z2_lo and close < z2_lo) or
-    (z3_resist and high >= z3_lo and close < z3_lo) or
-    (z4_resist and high >= z4_lo and close < z4_lo));
-def fadeLong = bias > 0 and stretch <= -kStretch and (
-    (!z1_resist and low <= z1_hi and close > z1_hi) or
-    (!z2_resist and low <= z2_hi and close > z2_hi) or
-    (!z3_resist and low <= z3_hi and close > z3_hi) or
-    (!z4_resist and low <= z4_hi and close > z4_hi));
-def brkShort = bias < 0 and (
-    (!z1_resist and close < z1_lo and close[1] >= z1_lo) or
-    (!z2_resist and close < z2_lo and close[1] >= z2_lo) or
-    (!z3_resist and close < z3_lo and close[1] >= z3_lo) or
-    (!z4_resist and close < z4_lo and close[1] >= z4_lo));
-def brkLong = bias > 0 and (
-    (z1_resist and close > z1_hi and close[1] <= z1_hi) or
-    (z2_resist and close > z2_hi and close[1] <= z2_hi) or
-    (z3_resist and close > z3_hi and close[1] <= z3_hi) or
-    (z4_resist and close > z4_hi and close[1] <= z4_hi));
 
-plot SigFadeShort = if fadeShort then high else Double.NaN;
-SigFadeShort.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
-SigFadeShort.SetDefaultColor(Color.RED);
-plot SigFadeLong = if fadeLong then low else Double.NaN;
-SigFadeLong.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
-SigFadeLong.SetDefaultColor(Color.GREEN);
-plot SigBrkShort = if brkShort then low else Double.NaN;
-SigBrkShort.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
-SigBrkShort.SetDefaultColor(Color.MAGENTA);
-plot SigBrkLong = if brkLong then high else Double.NaN;
-SigBrkLong.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
-SigBrkLong.SetDefaultColor(Color.MAGENTA);
+# ---- confluence zones (optional, default OFF) ----
+input z1_hi = __Z1HI__;  input z1_lo = __Z1LO__;  input z1_resist = __Z1R__;
+input z2_hi = __Z2HI__;  input z2_lo = __Z2LO__;  input z2_resist = __Z2R__;
+AddCloud(if showZones then z1_hi else Double.NaN, if showZones then z1_lo else Double.NaN,
+         if z1_resist then Color.RED else Color.GREEN, if z1_resist then Color.RED else Color.GREEN);
+AddCloud(if showZones then z2_hi else Double.NaN, if showZones then z2_lo else Double.NaN,
+         if z2_resist then Color.RED else Color.GREEN, if z2_resist then Color.RED else Color.GREEN);
 
-Alert(fadeShort, "__SYM__ FADE-short", Alert.BAR, Sound.Ring);
-Alert(fadeLong,  "__SYM__ FADE-long",  Alert.BAR, Sound.Ring);
-Alert(brkShort,  "__SYM__ BREAK-short", Alert.BAR, Sound.Bell);
-Alert(brkLong,   "__SYM__ BREAK-long",  Alert.BAR, Sound.Bell);
+# ---- expected move (optional, default OFF) ----
+input emUpV = __EMUP__;   input emDnV = __EMDN__;
+plot EMup = if showEM then emUpV else Double.NaN;
+plot EMdn = if showEM then emDnV else Double.NaN;
+EMup.SetDefaultColor(Color.YELLOW);  EMup.SetStyle(Curve.LONG_DASH);
+EMdn.SetDefaultColor(Color.YELLOW);  EMdn.SetStyle(Curve.LONG_DASH);
 
-# ---- SWEEP-RECLAIM (LOCATION alert, NOT a mechanical entry) ----
-#   Fires when a bar WICKS beyond a zone edge (stop-run) and CLOSES back across
-#   it (reclaim) — the OHLC fingerprint of Alex's sweep-and-bounce.
-#   BACKTEST WARNING: the naked pattern has NO edge (PDH/PDL negative, VPOC ~
-#   breakeven, worse than random). A fire means "a stop-run just reclaimed this
-#   zone — go CHECK footprint absorption / Bookmap liquidity", not "buy/sell".
-input sweepBand = 0.10;   # wick must clear the zone edge by this fraction of zone height
-def swLong = (!z1_resist and low < z1_lo - sweepBand * (z1_hi - z1_lo) and close >= z1_lo) or
-             (!z2_resist and low < z2_lo - sweepBand * (z2_hi - z2_lo) and close >= z2_lo) or
-             (!z3_resist and low < z3_lo - sweepBand * (z3_hi - z3_lo) and close >= z3_lo) or
-             (!z4_resist and low < z4_lo - sweepBand * (z4_hi - z4_lo) and close >= z4_lo);
-def swShort = (z1_resist and high > z1_hi + sweepBand * (z1_hi - z1_lo) and close <= z1_hi) or
-              (z2_resist and high > z2_hi + sweepBand * (z2_hi - z2_lo) and close <= z2_hi) or
-              (z3_resist and high > z3_hi + sweepBand * (z3_hi - z3_lo) and close <= z3_hi) or
-              (z4_resist and high > z4_hi + sweepBand * (z4_hi - z4_lo) and close <= z4_hi);
-plot SigSweepLong = if swLong then low else Double.NaN;
-SigSweepLong.SetPaintingStrategy(PaintingStrategy.POINTS);
-SigSweepLong.SetDefaultColor(Color.YELLOW);  SigSweepLong.SetLineWeight(4);
-plot SigSweepShort = if swShort then high else Double.NaN;
-SigSweepShort.SetPaintingStrategy(PaintingStrategy.POINTS);
-SigSweepShort.SetDefaultColor(Color.YELLOW);  SigSweepShort.SetLineWeight(4);
-Alert(swLong,  "__SYM__ SWEEP-RECLAIM support - confirm order flow", Alert.BAR, Sound.Chimes);
-Alert(swShort, "__SYM__ SWEEP-RECLAIM resistance - confirm order flow", Alert.BAR, Sound.Chimes);
-
-# ---- STRUCTURE (clean): last swing hi/lo lines + BULL/BEAR label ----
-input showStructure = yes;
-input swingStrength = 5;
-def ph = high[swingStrength] == Highest(high, 2 * swingStrength + 1);
-def pl = low[swingStrength]  == Lowest(low,  2 * swingStrength + 1);
-def swHi = if ph then high[swingStrength] else swHi[1];
-def swLo = if pl then low[swingStrength]  else swLo[1];
-def dir  = CompoundValue(1,
-    if swHi > 0 and close > swHi then 1
-    else if swLo > 0 and close < swLo then -1
-    else dir[1], 0);
-plot SwingHi = if showStructure then swHi else Double.NaN;
-plot SwingLo = if showStructure then swLo else Double.NaN;
-SwingHi.SetDefaultColor(Color.GRAY);  SwingHi.SetStyle(Curve.LONG_DASH);
-SwingLo.SetDefaultColor(Color.GRAY);  SwingLo.SetStyle(Curve.LONG_DASH);
-
-# ---- status labels (kept minimal: only what ISN'T already a line on the chart) ----
-AddLabel(yes, "__SYM__ " + (if bias > 0 then "UP" else if bias < 0 then "DOWN" else "MIXED"),
-         if bias < 0 then Color.RED else if bias > 0 then Color.GREEN else Color.GRAY);
-AddLabel(showGamma, "EM +/-__EMADJ__ (x__EMMULT__)", Color.YELLOW);
-AddLabel(showGamma, "__REGIME__", Color.__GCOLOR__);
+# ---- one status label ----
+AddLabel(yes, "__SYM__ FVG cont | __REGIME__ | " +
+    (if skipFirstHour then "skip 09:30-10:30" else "all session"), Color.__GCOLOR__);
 __EARNLABEL__
 """
 
@@ -241,11 +223,14 @@ def gamma_block(gl, d) -> str:
             ("call_wall",  "CWall", "CallWall",  "Color.RED",   "Curve.LONG_DASH", 3),
             ("put_wall",   "PWall", "PutWall",   "Color.GREEN", "Curve.LONG_DASH", 3),
             ("zero_gamma", "ZGam",  "ZeroGamma", "Color.GRAY",  "Curve.SHORT_DASH", 1)]
-    lines = [f"# ---- DEALER GAMMA LEVELS (from {gl.get('_source','provider')}, "
-             f"{gl.get('_date','')}) — plotted as lines, no label chip ----",
-             "input showGL = yes;"]
+    # NOTE: showGL is declared once in the study's input block, not here.
+    lines = [f"#   source: {gl.get('_source','provider')} {gl.get('_date','')}"]
     for key, plotn, lab, col, style, lw in spec:
         if key not in gl:
+            continue
+        # zero_gamma is the same number as gamma_flip in our reads — don't draw
+        # a second line on top of the first.
+        if key == "zero_gamma" and gl.get("gamma_flip") == gl[key]:
             continue
         v = f"{gl[key]:.{d}f}"
         lines.append(f"input {plotn}lvl = {v};")
