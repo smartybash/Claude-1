@@ -78,11 +78,12 @@ def block(sym: str, mode: str, n_days: int = 120, today: str | None = None,
     rows = pairs(n_days, mode, today)
     if not rows:
         return "# ---- per-day gamma levels: no history available ----"
+    # NOTE: showGL is declared once in the study's own input block — do NOT
+    # declare it here or thinkScript errors with "Identifier Already Used".
     L = [f"# ---- PER-DAY DEALER GAMMA ({len(rows)} sessions) ----",
          "#   Each day shows the walls from the PRIOR session's option chain —",
          "#   what you actually had pre-market that morning. Scroll back and the",
          "#   levels change with the date instead of showing today's everywhere.",
-         "input showGL = yes;",
          "def dt = GetYYYYMMDD();"]
     if mode == "ratio":
         L += ["#   futures: levels are stored as a fraction of the underlying's spot",

@@ -313,6 +313,50 @@ def gamma_block(gl, d) -> str:
     return "\n".join(lines)
 
 
+
+def validate(sym: str, script: str) -> list[str]:
+    """Catch the thinkScript errors we cannot compile-test here.
+
+    1. duplicate identifiers  -> "Identifier Already Used" (this shipped once,
+       when a generated block re-declared an input the template already had)
+    2. forward references     -> thinkScript needs declaration before use
+    3. unresolved __PLACEHOLDER__ markers
+    """
+    import re
+    problems = []
+    body = [ln.split("#")[0] for ln in script.split("\n")]
+
+    seen = {}
+    for n, ln in enumerate(body):
+        m = re.match(r"\s*(rec|def|plot|input)\s+([A-Za-z_][A-Za-z0-9_]*)", ln)
+        if not m:
+            continue
+        name = m.group(2)
+        if name in seen:
+            problems.append(f"{sym}: duplicate identifier '{name}' "
+                            f"(lines {seen[name]+1} and {n+1})")
+        else:
+            seen[name] = n
+
+    for n, ln in enumerate(body):
+        m = re.match(r"\s*(rec|def|plot|input)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=(.*)", ln)
+        if not m:
+            continue
+        expr, j = m.group(3), n + 1
+        while j < len(body) and body[j].strip() and not re.match(
+                r"\s*(rec|def|plot|input|AddCloud|AddLabel|AddChartBubble|Alert|[A-Za-z_]+\.)",
+                body[j]):
+            expr += " " + body[j]; j += 1
+        for name, dn in seen.items():
+            if name != m.group(2) and dn > n and re.search(r"\b" + re.escape(name) + r"\b", expr):
+                problems.append(f"{sym}: '{m.group(2)}' (line {n+1}) uses '{name}' "
+                                f"declared later (line {dn+1})")
+
+    for ph in sorted(set(re.findall(r"__[A-Z0-9]+__", script))):
+        problems.append(f"{sym}: unresolved placeholder {ph}")
+    return problems
+
+
 def main():
     GCOLOR = {"VOL-CALM": "GREEN", "VOL-STRESSED": "ORANGE", "VOL-NEUTRAL": "GRAY"}
     for sym, fname, fut in INST:
@@ -362,6 +406,13 @@ def main():
                   .replace(f"__Z{i}R__", res))
         # Emit as a copy-paste box to stdout (no file). Delimiters make it easy
         # to select the whole study for each instrument.
+        errs = validate(sym, s)
+        if errs:
+            print("!!! GENERATED STUDY FAILED VALIDATION — do not paste into ToS:",
+                  file=sys.stderr)
+            for e in errs:
+                print("   " + e, file=sys.stderr)
+            raise SystemExit(1)
         print(f"\n===== COPY BELOW into ThinkOrSwim — {sym} study ({len(az)} zones, {DATE}) =====")
         print(s.rstrip())
         print(f"===== END {sym} study =====")
