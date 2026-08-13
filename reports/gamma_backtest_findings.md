@@ -492,3 +492,28 @@ Python rule 1:1 (boxHi=`Highest(high[1],N)`, box≤`atrK·ATR(14)` Wilders, entr
 edge, stop far side, measured + 3R targets). One acknowledged difference: on an
 outside bar that breaks both sides the same day, the backtest records both trades
 while the chart's held-state picks the long. Rare; does not affect the edge.
+
+### Follow-up: failed-break filter + direction (`backtest_failed_break_filter.py`)
+
+**Q: does a FAILED poke on one side make the OTHER side's break run harder**
+(trapped-trader / spring-upthrust)? **A: no.** Breakouts whose opposite side had
+a failed poke within W days ("primed") did not beat the rest:
+
+| within W days | primed n | primed 3R | un-primed 3R |
+|---|---|---|---|
+| W=3 | 42 | +0.333R (t 1.13) | +0.330R |
+| W=5 | 55 | +0.236R (t 0.94) | +0.355R |
+
+Primed ≈ un-primed at W=3 and *worse* at W=5, small n throughout. Filter dropped.
+
+**But the test surfaced a real, bigger split — DIRECTION × EXIT:**
+| dir | n | measured | 2R | 3R | trail |
+|---|---|---|---|---|---|
+| **long** | 140 | +0.150 | +0.485 | **+0.807 (t 4.79)** | +0.224 |
+| **short** | 127 | **+0.172 (t 1.97)** | −0.001 | −0.195 (t −1.37) | +0.089 |
+
+Long breakouts RUN — hold for 3R. Short breakouts only reach the measured move
+(1× box) then get bought back — take the pop, do NOT hold a short for 3R.
+Caveat: 5y of a QQQ bull tape, so the long bias is partly drift; treat NQ shorts
+as lower-conviction too, but the exit asymmetry (shorts scalp, longs run) is the
+usable rule. Now baked into `generate_tos_breakout.py`'s bubbles and labels.

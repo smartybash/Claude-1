@@ -68,6 +68,15 @@ TEMPLATE = r"""# ===============================================================
 #   run 3x risk. Small frequent losses, occasional big win. Do NOT trade this
 #   if you cannot sit through a >50% miss rate.
 #
+#   DIRECTION MATTERS (tested, QQQ daily 5y): the edge is long-biased.
+#     LONG break  n=140  3R +0.807R (t 4.79)  -> LET IT RUN to 3R
+#     SHORT break n=127  3R -0.195R (t -1.37) but measured +0.172R (t 1.97)
+#       -> shorts only reach the 1x-box pop then get bought back; TAKE MEASURED,
+#          do not hold a short for 3R. (Caveat: 5y of a bull tape, so the long
+#          bias is partly drift; treat shorts as lower-conviction on NQ too.)
+#     A failed poke on one side does NOT make the other side's break stronger
+#     (primed +0.24R vs un-primed +0.36R) — that filter was tested and dropped.
+#
 #   NOTE the box does not predict the break (compression does NOT forecast
 #   expansion, t=-4.99). The tight range is only a clean place for a stop; the
 #   BREAK is the trigger. And the "gamma squeeze" label below is UNVALIDATED
@@ -133,11 +142,15 @@ Stop.SetDefaultColor(Color.RED);      Stop.SetStyle(Curve.LONG_DASH);
 TMeas.SetDefaultColor(Color.YELLOW);  TMeas.SetStyle(Curve.SHORT_DASH);
 T3R.SetDefaultColor(Color.CYAN);      T3R.SetStyle(Curve.SHORT_DASH);
 
+# Direction-aware exit (tested): LONG breakouts RUN (3R, +0.81R); SHORT
+# breakouts only reach the measured move then get bought back (3R loses -0.20R,
+# measured +0.17R). So long -> hold for 3R, short -> take the 1x-box pop.
 AddChartBubble(showBubbles and buySig, boxHi,
-    "BREAKOUT LONG  stop " + Round(stopL, 2) + "  3R " + Round(boxHi + 3 * boxH, 2),
+    "BREAKOUT LONG  stop " + Round(stopL, 2) + "  LET RUN -> 3R " + Round(boxHi + 3 * boxH, 2),
     Color.GREEN, no);
 AddChartBubble(showBubbles and sellSig, boxLo,
-    "BREAKOUT SHORT  stop " + Round(stopS, 2) + "  3R " + Round(boxLo - 3 * boxH, 2),
+    "BREAKOUT SHORT  stop " + Round(stopS, 2) + "  TAKE MEAS " + Round(boxLo - boxH, 2)
+        + " (don't hold for 3R)",
     Color.RED, yes);
 
 Alert(buySig,  "Chop-zone breakout LONG",  Alert.BAR, Sound.Chimes);
@@ -151,6 +164,8 @@ AddLabel(yes,
     if compressed then Color.YELLOW else Color.GRAY);
 AddLabel(yes, "false-breakout ~55% : winners run 3x, expect to be wrong > half",
     Color.GRAY);
+AddLabel(yes, "LONG break -> let run to 3R  |  SHORT break -> take measured move "
+    + "(shorts don't hold to 3R)", Color.LIGHT_GRAY);
 
 # ---- DEALER GAMMA (per day, from that morning's read) ----
 __GAMMALEVELS__

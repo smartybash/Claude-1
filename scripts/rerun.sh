@@ -67,5 +67,11 @@ echo
 echo "########## 4b. CLEAN STUDIES (VWAP + FVG, minimal — share all 4 boxes too) ##########"
 python3 scripts/generate_tos_simple.py
 echo
+echo "########## 4c. DAILY CONTEXT (higher-timeframe FVG + chop-zone breakout) ##########"
+echo "----- DAILY FVG context (MNQ) -----"
+python3 scripts/generate_tos_daily.py --sym MNQ
+echo "----- CHOP-ZONE BREAKOUT (MNQ, daily) -----"
+python3 scripts/generate_tos_breakout.py --sym MNQ
+echo
 echo "########## 5. SECTOR ROTATION (MAGS/SMH/IGV vs QQQ — leadership/breadth) ##########"
 python3 scripts/rotation.py
