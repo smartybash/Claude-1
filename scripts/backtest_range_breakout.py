@@ -33,8 +33,8 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def load_daily():
-    d = json.load(open(ROOT / "data/qqq_daily_5y.json"))
+def load_daily(sym="qqq"):
+    d = json.load(open(ROOT / f"data/{sym}_daily_5y.json"))
     df = pd.DataFrame({k: d[k] for k in ("open", "high", "low", "close", "volume")},
                       index=pd.to_datetime(d["time"]).tz_localize(None)).sort_index()
     return df
@@ -103,17 +103,19 @@ def summ(x):
                 t=(x.mean()/(sd/np.sqrt(len(x)))) if sd > 0 else 0)
 
 
-def run(N, atr_cap=None, comp_mode="quantile", atr_k=2.0):
+def run(N, atr_cap=None, comp_mode="quantile", atr_k=2.0, sym="qqq"):
     """comp_mode:
        'quantile' — box width in bottom tercile of trailing 60d (adaptive, but
                     needs a rolling quantile that thinkScript can't compute).
        'atr'      — box height <= atr_k * ATR(14). Dimensionless, one line of
                     thinkScript, so THIS is the rule the ToS chart ships. The
-                    daily backtest below proves the ATR rule keeps the edge."""
-    df = load_daily()
+                    daily backtest below proves the ATR rule keeps the edge.
+       sym        — which instrument's daily file to test (qqq/spy/iwm). Gamma
+                    regime tags only attach for QQQ (the only chain we log)."""
+    df = load_daily(sym)
     o, h, l, c = (df[x].values for x in ("open", "high", "low", "close"))
     n = len(df); a = atr(h, l, c)
-    gm = gamma_map()
+    gm = gamma_map() if sym == "qqq" else {}
     idx = df.index
 
     # rolling box + compression flag
@@ -201,6 +203,36 @@ def main():
     print("\nChart ships N=5, box<=2.0*ATR, exit=run-it (3R target / box-height "
           "measured move). False-breakout ~55%: low win rate, high payoff — the "
           "OPPOSITE psychology to the fade. Take the break, let it run.")
+
+    # ---- does the shippable rule GENERALISE across markets? (breadth test) ----
+    #   Same N=5 / box<=2.0*ATR rule on three different tapes: QQQ (Nasdaq),
+    #   SPY (large blend), IWM (small cap). If the edge is real it should survive
+    #   instruments it was never tuned on, not just QQQ.
+    print(f"\n{'='*70}\nGENERALISATION — N=5 box<=2.0*ATR across instruments "
+          f"(5y daily each)\n{'='*70}")
+    print(f"{'sym':>6} {'n':>5} {'meas R':>8} {'3R':>8} {'t(3R)':>7} {'falseBrk':>9} "
+          f"| {'LONG 3R':>8} {'SHORT 3R':>9}")
+    syms = ("qqq", "spy", "iwm")
+    pool = []
+    for sym in syms:
+        try:
+            T = run(5, comp_mode="atr", atr_k=2.0, sym=sym)
+        except FileNotFoundError:
+            print(f"{sym:>6}  (no data file)"); continue
+        T["sym"] = sym; pool.append(T)
+        s3 = summ(T["fixed3R"]); sm = summ(T["measured"])
+        lo = summ(T[T.dir == "long"]["fixed3R"]); sh = summ(T[T.dir == "short"]["fixed3R"])
+        print(f"{sym.upper():>6} {len(T):5d} {sm['mean']:+8.3f} {s3['mean']:+8.3f} "
+              f"{s3['t']:7.2f} {T.failback.mean()*100:8.0f}% | {lo['mean']:+8.3f} "
+              f"{sh['mean']:+9.3f}")
+    if pool:
+        P = pd.concat(pool, ignore_index=True); s3 = summ(P["fixed3R"])
+        lo = summ(P[P.dir == "long"]["fixed3R"]); sh = summ(P[P.dir == "short"]["fixed3R"])
+        print(f"{'POOL':>6} {len(P):5d} {summ(P['measured'])['mean']:+8.3f} "
+              f"{s3['mean']:+8.3f} {s3['t']:7.2f} {P.failback.mean()*100:8.0f}% | "
+              f"{lo['mean']:+8.3f} {sh['mean']:+9.3f}")
+        print("\nIf 3R stays positive and the long>short asymmetry holds on SPY & "
+              "IWM too, the edge is a market-wide breakout effect, not a QQQ artifact.")
 
 
 if __name__ == "__main__":

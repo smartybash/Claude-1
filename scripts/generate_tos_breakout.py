@@ -184,7 +184,20 @@ AddLabel(thruCall or thruPut,
     "SQUEEZE CONTEXT: break through " + (if thruCall then "CALL" else "PUT")
         + " wall (unvalidated, size-only)", Color.MAGENTA);
 AddLabel(belowFlip and (buySig or sellSig),
-    "below gamma flip = short-gamma regime (context only)", Color.PLUM);"""
+    "below gamma flip = short-gamma regime (context only)", Color.PLUM);
+
+# ---- DEALER-POSITIONING REGIME (live, off the flip line) ----
+#   The flip line recolours by regime: GREEN while price sits in long/positive
+#   gamma above it (range, walls hold), RED once it drops into short/negative
+#   gamma below it (trend, walls break -> breakouts run). This is the validated
+#   range/target read (neg-gamma expansion t=5.72), not a direction signal.
+GFlip.AssignValueColor(if IsNaN(GFlip) then Color.WHITE
+                       else if close > GFlip then Color.GREEN else Color.RED);
+AddLabel(showGL and !IsNaN(GFlip),
+    "DEALER REGIME NOW: " +
+    (if close > GFlip then "LONG gamma (above flip) -> range, walls tend to HOLD"
+     else "SHORT gamma (below flip) -> trend, walls tend to BREAK, breakouts run"),
+    (if close > GFlip then Color.GREEN else Color.RED));"""
 
 
 def main():

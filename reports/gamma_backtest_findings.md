@@ -517,3 +517,31 @@ Long breakouts RUN — hold for 3R. Short breakouts only reach the measured move
 Caveat: 5y of a QQQ bull tape, so the long bias is partly drift; treat NQ shorts
 as lower-conviction too, but the exit asymmetry (shorts scalp, longs run) is the
 usable rule. Now baked into `generate_tos_breakout.py`'s bubbles and labels.
+
+### Breadth expansion — does the breakout edge GENERALISE? (QQQ + SPY + IWM)
+
+Longer *calendar* history was not obtainable this session: Alpha Vantage is not
+connected, FMP historical chart/index endpoints are plan-locked, and IBKR caps
+daily bars at 5 years / 1000 per call. So instead of more QQQ years, the data
+was expanded in BREADTH — SPY (large blend) and IWM (small cap) added at 5y
+daily depth alongside QQQ (Nasdaq), all 2021-08-16 → 2026-08-13, ~1254 bars each.
+This tests whether the edge is market-wide or a QQQ artifact.
+
+**Shippable rule (N=5, box≤2.0×ATR, 3R exit) across instruments:**
+| sym | n | meas R | 3R | t(3R) | falseBrk | LONG 3R | SHORT 3R |
+|---|---|---|---|---|---|---|---|
+| QQQ | 255 | +0.189 | +0.325 | 2.76 | 55% | +0.788 | −0.195 |
+| SPY | 244 | +0.145 | +0.411 | 3.37 | 56% | +0.833 | −0.176 |
+| IWM | 278 | +0.043 | +0.245 | 2.22 | 60% | +0.458 | +0.015 |
+| **POOL** | **777** | +0.123 | **+0.323** | **4.81** | 57% | **+0.690** | **−0.111** |
+
+The edge holds on all three tapes it was never tuned on (pooled t=4.81, far
+stronger than any single instrument — the payoff of breadth). The **long > short
+asymmetry is robust everywhere**: longs run to 3R on all three; shorts lose on
+QQQ/SPY and are flat on IWM (small caps a touch more two-sided). Confirms a
+market-wide breakout effect, not a QQQ artifact, and confirms the direction-aware
+exit already on the chart (longs run, shorts scalp).
+
+**Failed-break filter, pooled (n=812):** still dead. Primed (opposite side failed
+within W days) +0.219R vs un-primed +0.361R at W=3; +0.237R vs +0.367R at W=5.
+The null holds across markets — filter stays dropped.

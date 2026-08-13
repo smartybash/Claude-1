@@ -419,7 +419,13 @@ def main():
         # PER-DAY gamma levels: each session shows the walls from the prior
         # session's chain (what was known pre-market). Falls back to the single
         # flat read for symbols with no option history.
-        _mode = {"MNQ": "ratio", "MES": "ratio", "QQQ": "absolute", "SPY": "absolute"}.get(sym)
+        # QQQ chain drives every instrument. QQQ = absolute (its own price);
+        # MNQ/MES/SPY = ratio (dimensionless wall/QQQ-spot x that instrument's
+        # own prior daily close). MNQ is genuinely Nasdaq so the scaling is
+        # clean; SPY/MES are S&P, so their scaled walls are ROUGH index-proxy
+        # levels (they inherit QQQ's Nasdaq skew) until a native SPY chain is
+        # available. Flagged on-chart in the block's own comments.
+        _mode = {"MNQ": "ratio", "MES": "ratio", "QQQ": "absolute", "SPY": "ratio"}.get(sym)
         _native = None
         if sym == "MNQ":
             _nq = (gc.load_gamma_levels("NQ") or {})
@@ -428,9 +434,14 @@ def main():
                            (("gamma_flip", "GF"), ("call_wall", "CW"), ("put_wall", "PW"))
                            if _nq.get(k) is not None}
         _blk = ""
-        if sym in ("MNQ", "QQQ"):                          # QQQ chain drives both
+        if sym in ("MNQ", "QQQ", "MES", "SPY"):           # QQQ chain drives all four
             try:
                 _blk = gdl.block(sym, _mode, 120, DATE, _native)
+                if sym in ("MES", "SPY") and _blk:         # honest cross-index caveat
+                    _blk = ("# NOTE: these walls are the QQQ (Nasdaq) chain scaled "
+                            "onto an S&P\n#   instrument -- rough index-proxy levels "
+                            "that inherit QQQ's skew.\n#   Use for regime/context, not "
+                            "to the tick, until a native SPY chain is read.\n") + _blk
             except Exception:
                 _blk = ""
         _gamma_txt = _blk or gamma_block(ctx.get("gamma_levels"), d)

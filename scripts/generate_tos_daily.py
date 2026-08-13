@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import scripts.gamma_context as gc          # noqa: E402
 import scripts.gex_daily_levels as gdl      # noqa: E402
-from scripts.generate_tos import validate, DATE   # noqa: E402
+from scripts.generate_tos import validate, DATE, REGIME   # noqa: E402
 
 TEMPLATE = r"""# =====================================================================
 # __SYM__ DAILY FVG context   __DATE__
@@ -194,6 +194,7 @@ AddLabel(yes, "__SYM__ daily | trend " + (if up then "UP" else "DOWN") +
 
 # ---- DEALER GAMMA (per day, from that morning's read) ----
 __GAMMALEVELS__
+__DEALERREGIME__
 """
 
 
@@ -209,15 +210,18 @@ def main():
         if "FOP" in str(nq.get("_source", "")):
             native = {t: nq[k] for k, t in (("gamma_flip", "GF"), ("call_wall", "CW"),
                                             ("put_wall", "PW")) if nq.get(k) is not None}
-    mode = "absolute" if a.sym in ("QQQ", "SPY") else "ratio"
+    mode = "absolute" if a.sym == "QQQ" else "ratio"   # only QQQ has its own chain
     try:
         blk = gdl.block(a.sym, mode, a.days, DATE, native)
     except Exception as e:                       # never ship a broken block
         blk = f"# ---- dealer gamma unavailable: {e} ----"
 
+    regime = REGIME if "plot GFlip" in blk else \
+        "# ---- dealer-regime layer omitted: no gamma levels available ----"
     s = (TEMPLATE.replace("__SYM__", a.sym)
                  .replace("__DATE__", DATE)
-                 .replace("__GAMMALEVELS__", blk))
+                 .replace("__GAMMALEVELS__", blk)
+                 .replace("__DEALERREGIME__", regime))
 
     errs = validate(a.sym + "-daily", s)
     if errs:

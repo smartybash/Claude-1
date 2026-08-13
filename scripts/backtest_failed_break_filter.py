@@ -35,8 +35,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import backtest_range_breakout as BR   # load_daily, atr, walk, failed_back_in, summ
 
 
-def build(N=5, atr_k=2.0, W=5):
-    df = BR.load_daily()
+def build(N=5, atr_k=2.0, W=5, sym="qqq"):
+    df = BR.load_daily(sym)
     o, h, l, c = (df[x].values for x in ("open", "high", "low", "close"))
     n = len(df); a = BR.atr(h, l, c)
     idx = df.index
@@ -93,6 +93,19 @@ def line(tag, x):
           f"meas {m['mean']:+.3f}R  win3R {s['win']:3.0f}%  falseBrk {fb:3.0f}%")
 
 
+SYMS = ("qqq", "spy", "iwm")
+
+
+def pooled(W):
+    parts = []
+    for sym in SYMS:
+        try:
+            t = build(W=W, sym=sym); t["sym"] = sym; parts.append(t)
+        except FileNotFoundError:
+            pass
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+
 def main():
     for W in (3, 5):
         T = build(W=W)
@@ -108,6 +121,17 @@ def main():
             sub = T[T.dir == d]
             line(f"{d}: PRIMED", sub[sub.primed])
             line(f"{d}: un-primed", sub[~sub.primed])
+
+    # breadth: does the null hold across markets, on the bigger pooled sample?
+    for W in (3, 5):
+        P = pooled(W)
+        if P.empty:
+            continue
+        print(f"\n{'='*78}\nFAILED-BREAK FILTER — POOLED QQQ+SPY+IWM, W={W} days"
+              f"\n{'='*78}")
+        line("ALL breakouts (pool)", P)
+        line("PRIMED (opposite side failed)", P[P.primed])
+        line("un-primed", P[~P.primed])
 
 
 if __name__ == "__main__":
