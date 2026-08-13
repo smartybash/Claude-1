@@ -435,3 +435,60 @@ first hour*, full stop — not "front-load the session."
   "first-2-hours-only" timing — neither survived OOS.
 - FVG continuation is a small positive edge every day; the gamma regime tells you
   *how far price is likely to travel*, not whether the FVG setup itself works.
+
+---
+
+## Chop-zone (range-compression) breakout — `backtest_range_breakout.py`
+
+Prompted by the 2026-08-13 failure: fading the call wall lost because price had
+compressed for several daily bars and then broke out and ran. Tests the break of
+a multi-day range, mechanically, both sides. QQQ daily, 5y.
+
+**Compression** = an N-day box (prior N daily highs/lows, excluding today).
+Two definitions, same result:
+- adaptive: box width in the bottom tercile of its trailing 60-day distribution
+- ATR-native: box height ≤ k·ATR(14) — the only one thinkScript can compute, so
+  it is the rule the chart ships.
+
+**Breakout** = today trades beyond the box. Entry at the box edge, stop the far
+side (risk = box height).
+
+### The edge is real, and it wants a RUN-IT exit
+| rule (5-day box, adaptive) | n | mean R | win% | t |
+|---|---|---|---|---|
+| measured move (1× box) | 246 | +0.129 | 56 | 2.05 |
+| fixed 2R | 246 | +0.312 | 43 | 3.29 |
+| **fixed 3R** | 246 | **+0.428** | 36 | **3.51** |
+| trail prior bar | 246 | +0.186 | 54 | 4.64 |
+
+ATR-native rule (what the ToS chart computes), 3R exit:
+| N, k | n | 3R mean R | t |
+|---|---|---|---|
+| **N=5, box≤2.0·ATR** | 252 | **+0.362** | 3.04 |
+| N=5, box≤2.5·ATR | 424 | +0.254 | 2.83 |
+| N=10, box≤2.0·ATR | 15 | +0.067 | — (too few) |
+
+The chart ships **N=5, box≤2.0·ATR, 3R / measured-move exit**. Higher payoff
+targets beat tight ones — the opposite of the fade. **False-breakout rate ≈55%**
+(price closes back inside the box within 3 days): you are wrong more than half the
+time and the winners carry it. Wrong psychology for a fader; that is the point.
+
+### Two things the data killed
+- **Compression does NOT predict expansion.** Next-day range after a compressed
+  box: 1.64% vs 1.93% normal (Welch t=−4.99). The tight range is *not* a coiled
+  spring; it is only a clean place for a stop. **The break is the only trigger.**
+  Reframe: fade the range *until* the box breaks, then flip to breakout-continuation.
+- **Gamma squeeze — CANNOT CONFIRM.** Theory: a break in negative gamma / through
+  a wall forces dealers to chase. On the 53 breakouts with a prior option read,
+  negative-gamma breakouts made **−0.09R** vs positive-gamma **+0.16R** — the
+  *wrong* direction, on a sample far too small to trust. The ToS chart therefore
+  draws the squeeze *condition* as a labelled, unvalidated context flag for
+  sizing only, **never as a buy/sell signal.** Shipping it as a signal would be
+  inventing an edge the data does not support.
+
+### Chart = backtest
+`generate_tos_breakout.py` emits a DAILY study whose ThinkScript reproduces the
+Python rule 1:1 (boxHi=`Highest(high[1],N)`, box≤`atrK·ATR(14)` Wilders, entry at
+edge, stop far side, measured + 3R targets). One acknowledged difference: on an
+outside bar that breaks both sides the same day, the backtest records both trades
+while the chart's held-state picks the long. Rare; does not affect the edge.
