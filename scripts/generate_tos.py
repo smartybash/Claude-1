@@ -219,6 +219,7 @@ ExitX.SetDefaultColor(Color.YELLOW);  ExitX.SetLineWeight(4);
 
 # ---- DEALER GAMMA (walls = how far price can travel) ----
 __GAMMALEVELS__
+__DEALERREGIME__
 
 # ---- confluence zones (optional, default OFF) ----
 input z1_hi = __Z1HI__;  input z1_lo = __Z1LO__;  input z1_resist = __Z1R__;
@@ -244,6 +245,52 @@ AddLabel(yes, "__SYM__ FVG continuation | " +
     if posGammaToday then Color.LIGHT_GRAY else Color.YELLOW);
 __EARNLABEL__
 """
+
+# Live dealer-positioning read, injected after the wall plots (which define
+# GFlip / CWall / PWall). Only included when those plots actually exist.
+REGIME = r"""
+# ---- DEALER-POSITIONING REGIME (live, read off the flip line) ----
+#   Which side of the gamma flip price sits on IS the dealer regime, live and
+#   bar by bar:
+#     ABOVE flip = long / POSITIVE gamma -> dealers dampen -> RANGE day: moves
+#                  stall, the walls tend to HOLD. Bank targets into a wall,
+#                  don't chase; a fixed 2R beats a runner here.
+#     BELOW flip = short / NEGATIVE gamma -> dealers amplify -> TREND day: moves
+#                  extend, the walls tend to BREAK. Let winners run, don't fade.
+#   VALIDATED as a range / target / sizing read (negative-gamma next-day
+#   expansion, t=5.72). It does NOT flip the setup direction -- continuation
+#   beat fading in BOTH regimes -- so there are NO fade arrows here. This tells
+#   you how FAR to expect price to travel and where to bank, not which way to bet.
+input showRegime = yes;
+def haveFlip   = showRegime and !IsNaN(GFlip);
+def longGamma  = haveFlip and close > GFlip;    # positive-gamma regime
+def shortGamma = haveFlip and close < GFlip;    # negative-gamma regime
+
+# 1) the flip line itself carries the live regime: GREEN while we sit in long
+#    gamma above it, RED once price drops into short gamma below it. The colour
+#    flipping at the line IS the regime change -- no extra dots needed.
+GFlip.AssignValueColor(if !haveFlip then Color.WHITE
+                       else if longGamma then Color.GREEN else Color.RED);
+
+# 2) wall reaction, read THROUGH the regime (first touch only, so it's rare):
+def hitCall = haveFlip and !IsNaN(CWall) and high >= CWall and high[1] < CWall;
+def hitPut  = haveFlip and !IsNaN(PWall) and low  <= PWall and low[1]  > PWall;
+AddChartBubble(hitCall, high,
+    (if longGamma then "CALL wall + long gamma: likely CAP -> bank longs, fade back inside"
+                  else "CALL wall + short gamma: BREAK risk -> don't fade, ride through"),
+    (if longGamma then Color.RED else Color.YELLOW), yes);
+AddChartBubble(hitPut, low,
+    (if longGamma then "PUT wall + long gamma: likely FLOOR -> bank shorts, expect bounce"
+                  else "PUT wall + short gamma: BREAK risk -> don't fade, ride through"),
+    (if longGamma then Color.GREEN else Color.YELLOW), no);
+
+# 3) one LIVE regime label (moves with price, unlike the baked chain read above)
+AddLabel(haveFlip,
+    "DEALER REGIME NOW: " +
+    (if longGamma  then "LONG gamma (above flip) -> range, walls hold, bank targets"
+     else if shortGamma then "SHORT gamma (below flip) -> trend, walls break, let it run"
+     else "at the flip -> transition, wait for a side"),
+    (if longGamma then Color.GREEN else if shortGamma then Color.RED else Color.GRAY));"""
 
 
 def load_any(name):
@@ -386,7 +433,12 @@ def main():
                 _blk = gdl.block(sym, _mode, 120, DATE, _native)
             except Exception:
                 _blk = ""
-        s = s.replace("__GAMMALEVELS__", _blk or gamma_block(ctx.get("gamma_levels"), d))
+        _gamma_txt = _blk or gamma_block(ctx.get("gamma_levels"), d)
+        s = s.replace("__GAMMALEVELS__", _gamma_txt)
+        # live dealer-regime layer only when the flip/wall plots actually exist
+        s = s.replace("__DEALERREGIME__",
+                      REGIME if "plot GFlip" in _gamma_txt else
+                      "# ---- dealer-regime layer omitted: no gamma levels available ----")
         # regime for the auto-target: net GEX sign if we have it, else spot vs flip
         _gl = ctx.get("gamma_levels") or {}
         if _gl.get("net_gex") is not None:
