@@ -173,11 +173,13 @@ def load_gamma_levels(sym: str) -> dict | None:
     lv = (blob.get("levels") or {}).get(key)
     if not lv:
         return None
-    fields = ("gamma_flip", "call_wall", "put_wall", "zero_gamma", "net_gex", "dealer_delta")
+    fields = ("gamma_flip", "call_wall", "put_wall", "zero_gamma", "net_gex",
+              "dealer_delta", "spot")
     out = {k: float(v) for k, v in lv.items() if k in fields and v is not None}
     if out:
         out["_date"] = blob.get("date", "")
-        out["_source"] = blob.get("source", "")
+        # prefer the per-entry source (accurate per symbol); fall back to global
+        out["_source"] = lv.get("source") or blob.get("source", "")
     return out or None
 
 

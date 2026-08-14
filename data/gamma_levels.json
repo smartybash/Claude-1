@@ -1,6 +1,6 @@
 {
   "date": "2026-08-13",
-  "source": "IBKR-FOP 20260814",
+  "source": "AlphaVantage 2026-08-13",
   "note": "NQ = native /NQ FOP read (QN2 20260814, 1DTE) 2026-08-13 pre-market. QQQ block stale (AV offline). Spot 29871.",
   "levels": {
     "NQ": {
@@ -8,7 +8,8 @@
       "gamma_flip": 29376.65,
       "zero_gamma": 29376.65,
       "call_wall": 30500.0,
-      "put_wall": 29300.0
+      "put_wall": 29300.0,
+      "source": "IBKR-FOP 20260814"
     },
     "ES": {
       "net_gex": null,
@@ -27,12 +28,14 @@
       "dealer_delta": -70768527.0
     },
     "SPY": {
-      "net_gex": null,
-      "gamma_flip": null,
-      "zero_gamma": null,
-      "call_wall": null,
-      "put_wall": null,
-      "dealer_delta": null
+      "net_gex": 21601718010.0,
+      "gamma_flip": 770.09,
+      "zero_gamma": 770.09,
+      "call_wall": 780.0,
+      "put_wall": 750.0,
+      "dealer_delta": -88896493.0,
+      "spot": 777.76,
+      "source": "AlphaVantage 2026-08-13"
     }
   }
 }

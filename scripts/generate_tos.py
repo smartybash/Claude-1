@@ -426,22 +426,34 @@ def main():
         # levels (they inherit QQQ's Nasdaq skew) until a native SPY chain is
         # available. Flagged on-chart in the block's own comments.
         _mode = {"MNQ": "ratio", "MES": "ratio", "QQQ": "absolute", "SPY": "ratio"}.get(sym)
-        _native = None
+        _KT = (("gamma_flip", "GF"), ("call_wall", "CW"), ("put_wall", "PW"))
+        _native = None                                     # today's absolute walls, native read
         if sym == "MNQ":
-            _nq = (gc.load_gamma_levels("NQ") or {})
+            _nq = gc.load_gamma_levels("NQ") or {}
             if "FOP" in str(_nq.get("_source", "")):      # native /NQ read beats scaling
-                _native = {t: _nq[k] for k, t in
-                           (("gamma_flip", "GF"), ("call_wall", "CW"), ("put_wall", "PW"))
-                           if _nq.get(k) is not None}
+                _native = {t: _nq[k] for k, t in _KT if _nq.get(k) is not None}
+        elif sym == "SPY":
+            _spy = gc.load_gamma_levels("SPY") or {}
+            if "AlphaVantage" in str(_spy.get("_source", "")):   # native SPY chain
+                _native = {t: _spy[k] for k, t in _KT if _spy.get(k) is not None}
+        elif sym == "MES":                                 # scale the NATIVE SPY read
+            _spy = gc.load_gamma_levels("SPY") or {}       # (S&P underlying) to MES points
+            _sp = _spy.get("spot")
+            if "AlphaVantage" in str(_spy.get("_source", "")) and _sp:
+                _native = {t: round(_spy[k] / _sp * px, 2) for k, t in _KT
+                           if _spy.get(k) is not None}
         _blk = ""
-        if sym in ("MNQ", "QQQ", "MES", "SPY"):           # QQQ chain drives all four
+        if sym in ("MNQ", "QQQ", "MES", "SPY"):           # QQQ chain drives the history
             try:
                 _blk = gdl.block(sym, _mode, 120, DATE, _native)
-                if sym in ("MES", "SPY") and _blk:         # honest cross-index caveat
-                    _blk = ("# NOTE: these walls are the QQQ (Nasdaq) chain scaled "
-                            "onto an S&P\n#   instrument -- rough index-proxy levels "
-                            "that inherit QQQ's skew.\n#   Use for regime/context, not "
-                            "to the tick, until a native SPY chain is read.\n") + _blk
+                if sym in ("MES", "SPY") and _blk:         # provenance note
+                    tag = ("today's walls = NATIVE S&P (SPY option chain); "
+                           if _native else "")
+                    _blk = (f"# NOTE: {tag}sessions BEFORE today are the QQQ "
+                            "(Nasdaq) chain\n#   scaled onto this S&P instrument -- "
+                            "rough proxies that inherit QQQ's skew, until an S&P\n"
+                            "#   option history accumulates. Use older walls for "
+                            "context, not to the tick.\n") + _blk
             except Exception:
                 _blk = ""
         _gamma_txt = _blk or gamma_block(ctx.get("gamma_levels"), d)

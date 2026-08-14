@@ -182,6 +182,11 @@ def write_levels(sym, res, source="gex_calc"):
              "put_wall": round(res["put_wall"], 2)}
     if res.get("dealer_delta") is not None:
         entry["dealer_delta"] = round(res["dealer_delta"], 0)
+    if res.get("spot") is not None:
+        entry["spot"] = round(res["spot"], 2)
+    # source is stored PER ENTRY (not just globally) so writing one symbol's
+    # levels can't strip another's provenance (e.g. SPY overwriting NQ's FOP tag).
+    entry["source"] = source
     blob["levels"][sym] = entry
     blob["source"] = source
     f.write_text(json.dumps(blob, indent=2))

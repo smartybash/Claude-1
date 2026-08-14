@@ -91,6 +91,9 @@ def main():
     ap.add_argument("--sym", required=True)
     ap.add_argument("--mult", type=float, default=100)
     ap.add_argument("--dte-max", type=int, default=35, help="aggregate expiries within N days")
+    ap.add_argument("--wall-band", type=float,
+                    help="restrict wall search to within this fraction of spot "
+                         "(e.g. 0.15) so far tail strikes don't masquerade as walls")
     ap.add_argument("--spot", type=float)
     ap.add_argument("--rate", type=float, default=0.0)
     ap.add_argument("--also-nq", type=float, help="also write NQ slot, levels scaled by this ratio")
@@ -114,6 +117,12 @@ def main():
     # walls: conventional = largest RAW open interest strike (calls above / puts below spot)
     ca = per[per["strike"] >= spot]
     pu = per[per["strike"] <= spot]
+    # optionally restrict to near-money strikes so a far tail LEAP/hedge strike
+    # (e.g. SPY's huge 520 put OI 33% below spot) can't masquerade as the wall.
+    if a.wall_band:
+        lo, hi = spot * (1 - a.wall_band), spot * (1 + a.wall_band)
+        ca = ca[ca["strike"] <= hi]
+        pu = pu[pu["strike"] >= lo]
     if not ca.empty and ca["call_oi"].max() > 0:
         res["call_wall"] = float(ca.loc[ca["call_oi"].idxmax(), "strike"])
     if not pu.empty and pu["put_oi"].max() > 0:
