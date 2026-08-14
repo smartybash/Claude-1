@@ -3,14 +3,15 @@
 #   1. REGIME    - trend vs balance (intraday_engine): decides the playbook.
 #                  Read on TWO clocks - whole session AND the last hour - and
 #                  flags a REGIME SHIFT when the last hour breaks from the morning.
-#   2. CONFLUENCE- HTF-anchored scored support/resistance zones (confluence)
-#                  + GAMMA/EM context (VIX expected-move band + vol regime);
-#                  the ONLY levels we trade; standalone 5-min levels ignored
-#   3. CANDLE    - 5/10/15/30-min triggers at the zones (candle_read)
-#   4. TOS       - copy-paste ThinkOrSwim studies (with EM band + gamma pin)
+#   2. LEVELS    - DEALER-GAMMA walls + flip = the tradeable map (validated),
+#                  plus GAMMA/EM context (VIX expected-move band + vol regime).
+#                  The "A+" confluence scoring was RETIRED: on ~2y it held no
+#                  better than random levels (reports/gamma_backtest_findings.md).
+#                  Confluence zones still print but as UNVALIDATED context only.
+#   3. CANDLE    - 5/10/15/30-min triggers at the levels (candle_read)
+#   4. TOS       - copy-paste ThinkOrSwim studies (FVG + breakout + gamma walls)
 #   5. ROTATION  - MAGS/SMH/IGV vs QQQ: since-open AND last-hour %chg + RS vs QQQ,
 #                  live breadth, and a ROTATION SHIFT flag (sector leadership/breadth)
-# confluence.py auto-cross-references QQQ (scaled) -> A++ = QQQ-confirmed zone.
 #
 # DELIVERY REQUIREMENT (every rerun / every gamma or data update, non-negotiable):
 #   share in chat BOTH the charts AND the FULL code for ALL FOUR ToS studies
@@ -55,7 +56,7 @@ SYM="${1:-NQ}"
 echo "########## 1. REGIME (decides trend-follow vs fade) ##########"
 python3 scripts/intraday_engine.py | sed -n '1,5p'
 echo
-echo "########## 2. CONFLUENCE ZONES (the levels that matter) ##########"
+echo "########## 2. DEALER-GAMMA LEVELS (the tradeable map; A+ confluence retired) ##########"
 python3 scripts/confluence.py
 echo
 echo "########## 3. CANDLE TRIGGERS (5/10/15/30m) ##########"

@@ -205,6 +205,7 @@ def main():
     # GAMMA CONTEXT (VIX-implied expected move + vol regime) — see gamma_context.py.
     emlo = emhi = None
     flip = None          # gamma flip (regime pivot), captured from gamma levels below
+    cw = pw = None       # dealer call/put walls = the tradeable map (A+ retired)
     gstate = None        # POSITIVE / NEGATIVE gamma state at open
     try:
         import scripts.gamma_context as gc
@@ -227,6 +228,7 @@ def main():
                      ("net_gex", "gamma_flip", "zero_gamma", "call_wall", "put_wall", "dealer_delta") if k in gl]
             print(f"  DEALER GAMMA ({gl.get('_source','')} {gl.get('_date','')}): " + " | ".join(parts))
             flip = gl.get("gamma_flip", gl.get("zero_gamma"))
+            cw, pw = gl.get("call_wall"), gl.get("put_wall")
             gr = gc.gamma_read(px, gl)
             gstate = gr.get("state")
             if gr["state"] != "UNKNOWN":
@@ -248,88 +250,80 @@ def main():
     print("SUPPORT below (long):")
     for z in below[:4]: print(fmt(z))
 
-    # A+ ZONES = pre-open score >=8 (the only zones with a validated edge). Surface
-    # the nearest few on each side of price so there's always a concrete map, not
-    # just the single best level.
-    # A+ scan is NOT capped by the display WINDOW: A+ zones are rare and worth
-    # showing wherever they sit, so pull from the full valid set (>=2 pre-open
-    # sources, per the refined filter) to always reach the nearest few each side.
-    aplus_all = [z for z in zi_all if z[6] >= 2 and z[5] >= 8]
-    aplus_above = sorted([z for z in aplus_all if z[0] > px], key=lambda x: x[0])
-    aplus_below = sorted([z for z in aplus_all if z[0] <= px], key=lambda x: -x[0])
-    N = 3
-    print(f"\nA+ ZONES (pre-open score>=8) — nearest {N} each side:")
-    print("  above price (short-side resistance):")
-    if aplus_above:
-        for z in aplus_above[:N][::-1]: print(fmt(z))
+    # ---- DEALER-GAMMA LEVELS = the tradeable map -------------------------
+    # A+ confluence scoring was RETIRED: on ~2y (backtest_confluence.py) A+ zones
+    # held 82% vs 87% for RANDOM levels -> no edge (and score/#sources barely
+    # moved the hold-rate; the old "lone 64% vs >=2 94%" was small-sample noise).
+    # The levels we actually trade are the dealer-gamma walls + flip (validated)
+    # and the FVG/breakout structure on the ToS charts. `sa`=call wall (upper),
+    # `sb`=put wall (lower).
+    sa, sb = cw, pw
+    print("\nDEALER-GAMMA LEVELS (the tradeable map):")
+    if cw or pw or flip:
+        if cw:   print(f"  call wall  {cw:.0f}{em_tag(cw)}  (upper magnet; fade-short in POS gamma, breakout trigger in NEG)")
+        if flip: print(f"  gamma flip {flip:.0f}  (regime pivot: above = range/fade, below = trend/go-with)")
+        if pw:   print(f"  put wall   {pw:.0f}{em_tag(pw)}  (lower magnet; fade-long in POS gamma, breakdown trigger in NEG)")
     else:
-        print("    none in range")
-    print(f"    ------ price {px:.0f} ------")
-    print("  below price (long-side support):")
-    if aplus_below:
-        for z in aplus_below[:N]: print(fmt(z))
+        print("  dealer gamma not loaded -> no validated levels; trade the ToS FVG/breakout structure.")
+
+    # Confluence zones kept ONLY as clearly-labelled, unvalidated context.
+    print("\nCONFLUENCE ZONES (context only — NOT validated: 2y hold-rate = random):")
+    if above[:2] or below[:2]:
+        for z in above[:2][::-1]: print(fmt(z))
+        print(f"    ------ price {px:.0f} ------")
+        for z in below[:2]: print(fmt(z))
     else:
         print("    none in range")
 
-    sa = aplus_above[0] if aplus_above else None  # nearest A+ resistance
-    sb = aplus_below[0] if aplus_below else None   # nearest A+ support
-    print("\nTRADEABLE (nearest A+ pair, score>=8, >=2 sources):")
-    if sb: print((f"  LONG off support {sb[1]:.0f}-{sb[2]:.0f} -> target {sa[1]:.0f}{em_tag(sa[1])}" if sa else f"  LONG off {sb[1]:.0f}-{sb[2]:.0f}"))
-    if sa: print((f"  SHORT off resistance {sa[1]:.0f}-{sa[2]:.0f} -> target {sb[2]:.0f}{em_tag(sb[2])}" if sb else f"  SHORT off {sa[1]:.0f}-{sa[2]:.0f}"))
-    if not sa and not sb: print("  none in range - stand aside")
-
-    # ---- A+ SETUP (plain-English note) -------------------------------------
-    # Always-on summary of today's highest-conviction plan, built from the
-    # regime (price vs gamma flip) + the nearest A+ pair, with the two rules
-    # that survived out-of-sample (see reports/gamma_backtest_findings.md):
-    #   * negative-gamma days travel further (trend);  positive-gamma = fade;
-    #   * skip the opening hour (9:30-10:30 ET) - worst window in every test.
+    # ---- SETUP (today, plain English) --------------------------------------
+    # Always-on summary of today's plan, from the regime (price vs gamma flip)
+    # + the dealer walls, with the two rules that survived out-of-sample
+    # (reports/gamma_backtest_findings.md): negative-gamma days trend (go with
+    # breaks), positive-gamma days fade the walls; skip the opening hour.
     try:
-        print("\nA+ SETUP (today, plain English):")
-        # regime line
+        print("\nSETUP (today, plain English — dealer gamma, A+ retired):")
         if flip:
             fdist = (px - flip) / px
-            if abs(fdist) <= 0.001:                     # within ~0.1% of flip
+            if abs(fdist) <= 0.001:
                 reg = "COILED"
                 regtxt = (f"price {px:.0f} is sitting ON the gamma flip {flip:.0f} - no edge yet; "
                           "wait for it to pick a side.")
             elif px > flip:
                 reg = "POSITIVE"
                 regtxt = (f"price {px:.0f} is ABOVE the flip {flip:.0f} -> POSITIVE gamma: "
-                          "range/mean-revert day, moves fade -> FADE the edges.")
+                          "range/mean-revert day, moves fade -> FADE the walls.")
             else:
                 reg = "NEGATIVE"
                 regtxt = (f"price {px:.0f} is BELOW the flip {flip:.0f} -> NEGATIVE gamma: "
                           "trend/expansion day, moves extend -> GO WITH breaks, don't fade.")
         else:
             reg = gstate or "UNKNOWN"
-            regtxt = "gamma flip not loaded - regime unknown; trade the A+ pair mechanically."
+            regtxt = "gamma flip not loaded - regime unknown; trade the ToS FVG/breakout structure."
         print(f"  Regime: {regtxt}")
 
-        # the play
         if reg == "NEGATIVE":
-            if sa and sb:
-                print(f"  Play: TREND. Take the break - long a clean break of {sa[2]:.0f} toward the "
-                      f"upper wall, or short a break of {sb[1]:.0f} toward the lower wall. Let it run.")
+            if cw or pw:
+                bits = []
+                if cw: bits.append(f"long a clean break of the call wall {cw:.0f}")
+                if pw: bits.append(f"short a break of the put wall {pw:.0f}")
+                print("  Play: TREND. Take the break - " + " or ".join(bits) + ". Let it run "
+                      "(neg-gamma breakouts win ~65% in the sample).")
             else:
-                print("  Play: TREND day - trade a decisive break toward the far wall; no A+ pair in range.")
-        else:  # POSITIVE / COILED / UNKNOWN -> fade the pair
-            if sb:
-                print(f"  LONG:  buy the {sb[1]:.0f}-{sb[2]:.0f} support on a tag+reject"
-                      + (f" -> target {sa[1]:.0f}{em_tag(sa[1])}" if sa else ""))
-            if sa:
-                print(f"  SHORT: sell the {sa[1]:.0f}-{sa[2]:.0f} resistance on a tag+reject"
-                      + (f" -> target {sb[2]:.0f}{em_tag(sb[2])}" if sb else ""))
-            if not sa and not sb:
-                print("  No A+ zone in range -> stand aside.")
-        # fixed rules
-        print("  Rules: skip the first hour (9:30-10:30 ET, worst window OOS); wait for a zone to be "
+                print("  Play: TREND day - trade a decisive break toward the far wall.")
+        else:  # POSITIVE / COILED / UNKNOWN -> fade the walls
+            if pw: print(f"  LONG:  buy the put wall {pw:.0f} on a tag+reject"
+                         + (f" -> target flip {flip:.0f}" if flip else ""))
+            if cw: print(f"  SHORT: sell the call wall {cw:.0f} on a tag+reject"
+                         + (f" -> target flip {flip:.0f}" if flip else ""))
+            if not cw and not pw:
+                print("  No dealer walls loaded -> stand aside / use the ToS structure.")
+        print("  Rules: skip the first hour (9:30-10:30 ET, worst window OOS); wait for a wall to be "
               "TAGGED and rejected - don't chase mid-range.")
         if flip:
             print(f"  Invalidation: a clean break/hold through the flip {flip:.0f} flips the bias "
                   f"({'stop fading, switch to trend' if reg != 'NEGATIVE' else 'trend fails, expect chop'}).")
     except Exception as e:
-        print(f"  (A+ setup note unavailable: {e})")
+        print(f"  (setup note unavailable: {e})")
 
     _chart(m5, above, below, px, now, zi, conf_prices, confirmed,
            em=(emlo, emhi, c["pin"]) if emlo is not None else None)
