@@ -47,18 +47,34 @@ def load_daily(sym="qqq"):
     raise FileNotFoundError(f"no daily file for {sym} (tried *_daily_full / *_daily_5y)")
 
 
-def gamma_map():
-    """session date -> prior session's option read (no lookahead)."""
+def gamma_reads(sym="QQQ"):
+    """Chronological option reads for `sym` from gex_history.jsonl."""
     reads = []
     for line in (ROOT / "data/gex_history.jsonl").read_text().splitlines():
         if line.strip():
-            r = json.loads(line); r["_d"] = pd.Timestamp(r["date"]).normalize()
+            r = json.loads(line)
+            if r.get("sym", "QQQ") != sym:
+                continue
+            r["_d"] = pd.Timestamp(r["date"]).normalize()
             reads.append(r)
     reads.sort(key=lambda r: r["_d"])
-    out = {}
-    for i in range(1, len(reads)):
-        out[reads[i]["_d"]] = reads[i - 1]      # prior read = pre-market known
-    return out
+    return reads
+
+
+def gamma_lookup(reads, day, max_stale=40):
+    """Most-recent read STRICTLY before `day` (no lookahead), carried forward up
+    to `max_stale` calendar days. Carry-forward lets a sparsely-sampled history
+    (e.g. monthly) tag every session, since the gamma regime changes slowly."""
+    day = pd.Timestamp(day).normalize()
+    prev = None
+    for r in reads:
+        if r["_d"] < day:
+            prev = r
+        else:
+            break
+    if prev is None or (day - prev["_d"]).days > max_stale:
+        return None
+    return prev
 
 
 def atr(h, l, c, n=14):
@@ -122,7 +138,7 @@ def run(N, atr_cap=None, comp_mode="quantile", atr_k=2.0, sym="qqq"):
     df = load_daily(sym)
     o, h, l, c = (df[x].values for x in ("open", "high", "low", "close"))
     n = len(df); a = atr(h, l, c)
-    gm = gamma_map() if sym == "qqq" else {}
+    reads = gamma_reads("QQQ") if sym == "qqq" else []
     idx = df.index
 
     # rolling box + compression flag
@@ -142,7 +158,7 @@ def run(N, atr_cap=None, comp_mode="quantile", atr_k=2.0, sym="qqq"):
                 continue
         bh, bl = box_hi[i], box_lo[i]; box_h = bh - bl
         if box_h <= 0: continue
-        g = gm.get(idx[i].normalize())
+        g = gamma_lookup(reads, idx[i]) if reads else None
         for dirn, brk in (("long", h[i] > bh), ("short", l[i] < bl)):
             if not brk: continue
             entry = bh if dirn == "long" else bl

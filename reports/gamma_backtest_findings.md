@@ -608,3 +608,37 @@ zones — are anchored to session (5-min) data that is only ~weeks deep here, so
 they cannot be pushed to 27y without a deep intraday pull. AV TIME_SERIES_INTRADAY
 can extend 5-min history (bounded, ~2y via month slices) if we want to re-test
 those next; noted as the follow-up, not done in this pass.
+
+### Extended gamma history — refining the regime split (`backfill_gamma_history.py`)
+
+The gamma history was ~1 year (279 daily QQQ reads, 2025-07+), so the regime
+splits were underpowered (breakout gamma-split was n=53). Backfilled MONTHLY QQQ
+option chains for 2023-01 → 2025-06 via AV HISTORICAL_OPTIONS (near-expiry,
+near-money walls, same rule as av_gex). History is now **310 QQQ reads,
+2023-01 → 2026-08**. `backtest_range_breakout.gamma_lookup` carries the most
+recent read forward (≤40 days) so a monthly read tags every subsequent session
+(the gamma regime changes slowly).
+
+**Breakout by regime — the finding REVERSED with more data (n 53 → 184):**
+| regime | n | trail mean | win% | false-breakout |
+|---|---|---|---|---|
+| NEG gamma (dealers amplify) | 63 | +0.237R | 65% | 46% |
+| POS gamma (dealers dampen) | 121 | +0.145R | 45% | 64% |
+
+At n=53 the split pointed the wrong way (neg −0.09 vs pos +0.16); at n=184 it
+points the *right* way — **negative-gamma breakouts win more (65% vs 45%) and
+fail far less (46% vs 64% false-breakout).** This tentatively rehabilitates the
+"squeeze" intuition, but as a REGIME-SIGN filter, not a "through-a-wall" one
+(punching through a wall was still weak: +0.11R vs +0.19R no-wall).
+
+**Daily FVG continuation by regime (QQQ, n=59 tagged):** POS gamma +1.077R 3R
+(t=3.14, n=34) vs NEG gamma +0.625R (t=1.57, n=25) — opposite lean to the
+breakout, consistent with "continuation-with-trend works best on calm dampened
+days," but n is small.
+
+**Honest caveats:** (1) carry-forward means one monthly read tags ~20 sessions,
+so these n's are inflated by clustering — the effective independent sample is
+much smaller; treat as *suggestive*, not established. (2) The 2023-25 backfill is
+monthly, not daily. Verdict: promising enough to **watch negative gamma as a
+breakout quality filter** and keep continuation on positive-gamma days, but not
+yet to hard-gate either. Denser backfill (weekly/daily) would settle it.

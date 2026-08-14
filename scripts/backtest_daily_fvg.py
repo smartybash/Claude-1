@@ -120,6 +120,8 @@ def signals(df, style="cont"):
 def collect(sym, style="cont", max_atr=MAX_ATR):
     df = BR.load_daily(sym)
     h, l, c = (df[x].values for x in ("high", "low", "close")); n = len(df)
+    idx = df.index
+    reads = BR.gamma_reads("QQQ") if sym == "qqq" else []   # regime tag (QQQ only)
     rows = []
     for s in signals(df, style):
         if max_atr and s["atr"] and s["risk"] / s["atr"] > max_atr:
@@ -128,6 +130,8 @@ def collect(sym, style="cont", max_atr=MAX_ATR):
         for rule in ("1R", "2R", "3R", "trail"):
             rec[rule] = fwd_R(s["dir"], s["i"], s["entry"], s["stop"], s["risk"],
                               h, l, c, n, rule)
+        g = BR.gamma_lookup(reads, idx[s["i"]]) if reads else None
+        rec["net"] = g.get("net_gex") if g else None
         rows.append(rec)
     return pd.DataFrame(rows)
 
@@ -161,6 +165,15 @@ def main():
              or (ROOT / f"data/{s}_daily_5y.json").exists()]
     if fpool:
         line("POOL FADE (against trend)", pd.concat(fpool, ignore_index=True))
+
+    # gamma-regime split (QQQ, carry-forward reads from the extended history)
+    if pool:
+        Q = pool[0]
+        G = Q.dropna(subset=["net"]) if "net" in Q else Q.iloc[0:0]
+        if len(G) >= 30:
+            print(f"\n  QQQ continuation by gamma regime (n={len(G)} tagged):")
+            line("    NEG gamma", G[G.net < 0])
+            line("    POS gamma", G[G.net > 0])
 
 
 if __name__ == "__main__":
