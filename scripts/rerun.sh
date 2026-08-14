@@ -68,6 +68,9 @@ echo
 echo "########## 4b. CLEAN STUDIES (VWAP + FVG, minimal — share all 4 boxes too) ##########"
 python3 scripts/generate_tos_simple.py
 echo
+echo "########## 4d. VALUE-AREA FADE (the focused setup: short VAH/call-wall reject -> POC/VAL) ##########"
+python3 scripts/generate_tos_va.py --sym MNQ
+echo
 echo "########## 4c. DAILY CONTEXT (higher-timeframe FVG + chop-zone breakout) ##########"
 echo "----- DAILY FVG context (MNQ) -----"
 python3 scripts/generate_tos_daily.py --sym MNQ
