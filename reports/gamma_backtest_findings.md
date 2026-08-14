@@ -642,3 +642,39 @@ much smaller; treat as *suggestive*, not established. (2) The 2023-25 backfill i
 monthly, not daily. Verdict: promising enough to **watch negative gamma as a
 breakout quality filter** and keep continuation on positive-gamma days, but not
 yet to hard-gate either. Denser backfill (weekly/daily) would settle it.
+
+### Deep-intraday re-validation (~2 years) — 5-min FVG CONFIRMED, confluence "A+" NOT
+
+Pulled QQQ 5-min from Alpha Vantage for 2024-07 → 2025-06 (extended_hours off) and
+combined with the existing months: intraday now spans **2024-07 → 2026-07, ~2
+years / 523 RTH sessions** (was ~weeks). `ingest_av_intraday.py` converts the AV
+monthly payloads to data/intraday/qqq_5m_YYYY-MM.csv.
+
+**5-min FVG (backtest_tos_fvg) — holds up strongly on 2y (n=1081):**
+| exit (chart logic, most-recent gap) | mean R | t |
+|---|---|---|
+| trailPrevLow | +0.189R | 6.44 |
+| fixed2R | +0.173R | 4.54 |
+| fixed3R | +0.150R | 3.50 |
+Chart logic (single most-recent gap, skip-first-hour) still beats multi-gap
+(+0.189 vs +0.129 trail), and a tighter maxStopATR raises mean R (2.0→+0.226,
+1.5→+0.291) at the cost of trades. Regime split ~even (NEG +0.423 / POS +0.409,
+small n). Verdict: the 5-min FVG continuation edge is real and stable across ~2y.
+
+**Confluence "A+" zones (backtest_confluence) — NOT validated on 2y:**
+| bucket | hold-rate |
+|---|---|
+| A+ (score ≥8) & ≥2 sources | 82% |
+| score <5 | 81% |
+| lone (1 source) | 80% / ≥2 → 82% / ≥4 → 79% |
+| **NULL (random levels)** | **87%** |
+
+On 2 years the A+ score adds **no edge** — A+ zones hold 82% vs 87% for RANDOM
+levels (i.e. slightly WORSE than luck), and score/source count barely move the
+hold-rate. The earlier eye-catching "lone 64% vs ≥2 94%" gap was small-sample
+noise; it collapses on the full sample. **The confluence scoring does not predict
+which levels hold.** This matches the decision to keep the confluence zones
+DEFAULT-OFF on the ToS studies — they should stay context-only, not a signal.
+The validated levels remain the dealer-gamma walls/flip and the FVG/breakout
+structure, not the confluence "A+" score. Confluence needs a rethink or retire.
+(NQ/SPY HTF not extended — AV has no futures; SPY would need its own pulls.)
