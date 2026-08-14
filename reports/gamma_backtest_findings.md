@@ -678,3 +678,27 @@ DEFAULT-OFF on the ToS studies — they should stay context-only, not a signal.
 The validated levels remain the dealer-gamma walls/flip and the FVG/breakout
 structure, not the confluence "A+" score. Confluence needs a rethink or retire.
 (NQ/SPY HTF not extended — AV has no futures; SPY would need its own pulls.)
+
+### Gamma backfill to 2020 — the neg-gamma breakout filter FIRMS UP (n=311)
+
+Backfilled monthly QQQ gamma back through 2020-2021 (COVID + recovery) via AV
+HISTORICAL_OPTIONS; history is now **334 QQQ reads, 2020-01 → 2026-08**
+(2022 and part of 2021 still pending — AV dropped mid-batch). Re-running the
+breakout regime split (carry-forward lookup):
+
+| regime | n | trail mean | win% | false-breakout |
+|---|---|---|---|---|
+| NEG gamma | 119 | +0.177R | 63% | 46% |
+| POS gamma | 192 | +0.112R | 43% | 67% |
+| through a wall | 31 | +0.156R | 65% | vs +0.135R no-wall |
+
+The split has now gone 53 → 184 → **311** as the history grew, and the finding
+has only strengthened and stabilised: **negative-gamma breakouts win ~63% vs
+43% and fail far less (46% vs 67% false-break)**, now across 2020-2026 incl. the
+COVID shock. "Through a wall" even edged positive on the bigger sample. This is
+strong enough to treat **negative gamma (price below the flip) as a breakout
+QUALITY / SIZING filter — size up below the flip, smaller/cleaner-box only
+above** — folded into generate_tos_breakout.py's regime labels. Caveat stands:
+carry-forward (monthly reads tag ~20 sessions) inflates n via clustering, so it's
+a sizing filter, not a hard gate. 2022 (the bear) still to be added when AV is
+back — expected to reinforce the neg-gamma side further.

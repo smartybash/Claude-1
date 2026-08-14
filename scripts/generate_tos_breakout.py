@@ -81,8 +81,9 @@ TEMPLATE = r"""# ===============================================================
 #
 #   NOTE the box does not predict the break (compression does NOT forecast
 #   expansion, t=-4.99). The tight range is only a clean place for a stop; the
-#   BREAK is the trigger. And the "gamma squeeze" label below is UNVALIDATED
-#   (n=53, pointed the wrong way) — context for sizing, never an entry.
+#   BREAK is the trigger. The gamma-regime label below is now a SUPPORTED sizing
+#   filter (n=311, 2020-2026: neg-gamma breakouts 63% win vs 43%) — size up below
+#   the flip, but it's still context for sizing, never a standalone entry.
 #
 #   Entry  : today trades beyond a compressed N-day box.
 #   Stop   : the opposite side of the box (risk = box height).
@@ -175,18 +176,22 @@ __SQUEEZE__
 """
 
 SQUEEZE = r"""
-# ---- GAMMA-SQUEEZE CONTEXT (UNVALIDATED — not a signal) ----
-#   A break in negative gamma / punching through a wall is the classic squeeze.
-#   Our data (n=53) did NOT confirm it and pointed the wrong way, so this is a
-#   neutral context flag for SIZING, never an entry trigger.
+# ---- GAMMA-REGIME CONTEXT (a SIZING filter, not an entry trigger) ----
+#   Extended gamma history (n=311 breakouts, 2020-2026) now SUPPORTS the squeeze:
+#   breakouts in NEGATIVE gamma (below the flip) won ~63% with a 46% false-break
+#   rate, vs ~43% win / 67% false in POSITIVE gamma. So a break while below the
+#   flip is HIGHER conviction -> size up; a break in positive gamma is lower
+#   conviction -> trade smaller / demand a cleaner box. Still a sizing filter,
+#   not a standalone signal (carry-forward sampling inflates n).
 def thruCall = buySig  and showGL and !IsNaN(CWall) and boxHi < CWall and high >= CWall;
 def thruPut  = sellSig and showGL and !IsNaN(PWall) and boxLo > PWall and low  <= PWall;
 def belowFlip = showGL and !IsNaN(GFlip) and close < GFlip;
 AddLabel(thruCall or thruPut,
-    "SQUEEZE CONTEXT: break through " + (if thruCall then "CALL" else "PUT")
-        + " wall (unvalidated, size-only)", Color.MAGENTA);
+    "through " + (if thruCall then "CALL" else "PUT")
+        + " wall (squeeze context, size-only)", Color.MAGENTA);
 AddLabel(belowFlip and (buySig or sellSig),
-    "below gamma flip = short-gamma regime (context only)", Color.PLUM);
+    "below flip = NEG gamma: HIGHER-conviction breakout (63% win vs 43%) -> size up",
+    Color.PLUM);
 
 # ---- DEALER-POSITIONING REGIME (live, off the flip line) ----
 #   The flip line recolours by regime: GREEN while price sits in long/positive
