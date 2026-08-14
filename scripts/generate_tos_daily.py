@@ -38,14 +38,18 @@ TEMPLATE = r"""# ===============================================================
 #   this one is for structure: which higher-timeframe gaps are still open,
 #   where the daily trend is, and where the dealer walls sit.
 #
-#   TESTED (QQQ daily, 5y, 1253 bars) — these are THIS chart's own numbers,
-#   from simulating the exact 3-slot + first-touch logic below:
-#     this chart          +0.406R/trade, 47% win, n=118, t=+3.53, +47.9R
-#     unlimited open gaps +0.161R/trade, 38% win, n=203, t=+2.95, +32.8R
-#     fading these gaps   -0.244R/trade, t=-4.38            <- never fade
+#   TESTED (QQQ/SPY/IWM daily, ~27y, backtest_daily_fvg.py) — the exact 3-slot
+#   first-touch continuation rule below, on the FULL history incl. 3 bear markets:
+#     continuation 3R   +0.427R/trade  t=7.95  n=1271 pooled   [QQQ +0.476]
+#     continuation 2R   +0.305R/trade
+#     fading (vs trend) +0.013R  t=0.18            <- fading is dead; continue only
+#     longs +0.563R (3R) beat shorts +0.196R — same structural long-bias as the
+#     breakout. This is the STRONGEST of the daily mechanical setups (t=7.95).
+#   (A trail-prior-bar rides daily trends far further, mean ~+3R, but with large
+#    variance from multi-month holds; the 2R/3R figures are the tradeable ones.)
 #   Capping at 3 slots and demanding a FIRST touch (price arriving from
-#   outside the gap) filters quality: fewer trades, far better each. About 24
-#   signals a year — this is a slow, structural chart, not a signal machine.
+#   outside the gap) filters quality. About 24 signals a year — a slow,
+#   structural chart, not a signal machine.
 #   Daily gaps fill in a median of 4 bars but average 22 (long tail), and a
 #   median of 22 sit open at once, which is why only 3 per side are drawn.
 #   Older gaps remain magnets but will not fire an arrow.

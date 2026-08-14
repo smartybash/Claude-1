@@ -574,3 +574,37 @@ measured move). N=5 stays the best box; the chart cites the 27y numbers now.
 **Failed-break filter over 27y (n=4,582 pooled):** conclusively dead — primed
 (opposite side failed within W days) +0.016R (t=0.30) vs un-primed +0.196R
 (t=6.39). A recent opposite-side failure REMOVES the edge. Stays dropped.
+
+### Daily FVG continuation over 27y (`backtest_daily_fvg.py`) — NEW, and the strongest daily edge
+
+The daily FVG chart's edge previously had no committed backtest (numbers were
+ad-hoc, 5y). Built `backtest_daily_fvg.py` reproducing the chart's exact rule
+(3 open-gap slots per side, first touch of the near edge, WITH the 20SMA trend,
+swing-K stop, maxStopATR=2.5) and ran it on the full ~27y history:
+
+| bucket | n | 2R | 3R | t(3R) | trail |
+|---|---|---|---|---|---|
+| QQQ continuation | 433 | +0.322 | +0.476 | 5.14 | +2.55 |
+| SPY continuation | 420 | +0.303 | +0.430 | 4.60 | +3.77 |
+| IWM continuation | 418 | +0.288 | +0.372 | 4.01 | +2.72 |
+| **POOL continuation** | **1271** | **+0.305** | **+0.427** | **7.95** | +3.01 |
+| POOL long only | 799 | +0.415 | +0.563 | 8.16 | +3.26 |
+| POOL short only | 472 | +0.119 | +0.196 | 2.33 | +2.59 |
+| POOL FADE (vs trend) | 573 | −0.047 | +0.013 | 0.18 | +1.49 |
+
+Verdict: daily FVG continuation is the **strongest daily mechanical setup we
+have** — pooled 3R +0.427R at t=7.95, holding on all three instruments over 27y
+incl. bears. **Fading is dead** (+0.013R, t=0.18), vindicating the chart's
+continuation-only arrows. Same long-bias as the breakout (long +0.563 vs short
++0.196). The trail exit shows a much larger mean (~+3R) but that is inflated by
+multi-month trend-rides with big variance; 2R/3R are the tradeable numbers.
+Daily chart now cites these committed figures.
+
+### Scope note — what the 27y pull can and cannot refine
+The Alpha Vantage expansion is DAILY only. Daily strategies were re-validated on
+it: chop-zone breakout and daily FVG (above), plus the direction/regime context.
+The INTRADAY setups — the 5-min FVG continuation study and the confluence "A+"
+zones — are anchored to session (5-min) data that is only ~weeks deep here, so
+they cannot be pushed to 27y without a deep intraday pull. AV TIME_SERIES_INTRADAY
+can extend 5-min history (bounded, ~2y via month slices) if we want to re-test
+those next; noted as the follow-up, not done in this pass.
