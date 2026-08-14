@@ -62,20 +62,11 @@ echo
 echo "########## 3. CANDLE TRIGGERS (5/10/15/30m) ##########"
 python3 scripts/candle_read.py | sed -n '/--- 5m/,/=== ACTIONABLE/p'
 echo
-echo "########## 4. ThinkOrSwim STUDIES (share FULL code for ALL 4 boxes in chat) ##########"
-python3 scripts/generate_tos.py
-echo
-echo "########## 4b. CLEAN STUDIES (VWAP + FVG, minimal — share all 4 boxes too) ##########"
-python3 scripts/generate_tos_simple.py
-echo
-echo "########## 4d. VALUE-AREA FADE (the focused setup: short VAH/call-wall reject -> POC/VAL) ##########"
+echo "########## 4. ThinkOrSwim STUDY — VALUE-AREA FADE (the only chart study) ##########"
+#   Sole ToS study: short the 2nd VAH/call-wall rejection -> POC/VAL. The FVG,
+#   breakout, daily-context and 4-box studies were retired from the rerun at the
+#   user's request; their generators remain in scripts/ if ever needed.
 python3 scripts/generate_tos_va.py --sym MNQ
-echo
-echo "########## 4c. DAILY CONTEXT (higher-timeframe FVG + chop-zone breakout) ##########"
-echo "----- DAILY FVG context (MNQ) -----"
-python3 scripts/generate_tos_daily.py --sym MNQ
-echo "----- CHOP-ZONE BREAKOUT (MNQ, daily) -----"
-python3 scripts/generate_tos_breakout.py --sym MNQ
 echo
 echo "########## 5. SECTOR ROTATION (MAGS/SMH/IGV vs QQQ — leadership/breadth) ##########"
 python3 scripts/rotation.py

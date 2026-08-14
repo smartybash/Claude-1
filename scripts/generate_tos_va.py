@@ -114,9 +114,12 @@ Sell.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
 Sell.SetDefaultColor(Color.RED);  Sell.SetLineWeight(5);
 
 def stop = VAH * (1 + stopBufPct / 100);
-AddChartBubble(showBubbles and shortSig, high,
-    "SHORT VAH reject #" + pokeN + "  stop " + Round(stop, 2)
-        + "  T1 POC " + Round(POC, 2) + "  T2 VAL " + Round(VAL, 2), Color.RED, yes);
+# keep the bubble WELL CLEAR of the candles: anchor it 3xATR above the bar's
+# high (not on the price), so it never sits on the action.
+def atr = Average(TrueRange(high, close, low), 14);
+AddChartBubble(showBubbles and shortSig, high + 3 * atr,
+    "SHORT #" + pokeN + "  stop " + Round(stop, 2)
+        + "  POC " + Round(POC, 2) + "  VAL " + Round(VAL, 2), Color.RED, yes);
 Alert(shortSig, "VAH rejection short", Alert.BAR, Sound.Ring);
 
 # ---- dealer gamma (call wall = VAH confluence; flip = regime) ----
