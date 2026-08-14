@@ -136,20 +136,38 @@ def compute_gex(df, spot, mult, iv_mode, T, r=0.0) -> dict:
     optional call_delta/put_delta."""
     net = net_gex_at(df, spot, mult, iv_mode, T, r)
     flip = find_flip(df, spot, mult, iv_mode, T, r)
+    # WALLS = gamma-weighted (Tanuki/SpotGamma style), NOT raw open interest.
+    # The wall is the strike carrying the most dealer GAMMA on its side
+    # (gamma * OI ~ gamma$), which peaks near-the-money — so walls sit around
+    # price, not on a deep round-number/LEAP strike where OI piles up but gamma
+    # is ~0. (Raw-OI walls were why the NQ put wall printed 900pts away.)
+    strike = df["strike"].astype(float)
     if not iv_mode:
-        cw = df["call_gamma"].fillna(0) * df["call_oi"].fillna(0)
-        pw = df["put_gamma"].fillna(0) * df["put_oi"].fillna(0)
-    else:
-        cw = df["call_oi"].fillna(0)
-        pw = df["put_oi"].fillna(0)
+        cg = df["call_gamma"].fillna(0)
+        pg = df["put_gamma"].fillna(0)
+    else:                                            # BS gamma at spot per strike
+        cg = pd.Series([bs_gamma(spot, float(k), float(iv or 0), T, r)
+                        for k, iv in zip(strike, df.get("call_iv", 0).fillna(0)
+                                         if "call_iv" in df else [0] * len(df))],
+                       index=df.index)
+        pg = pd.Series([bs_gamma(spot, float(k), float(iv or 0), T, r)
+                        for k, iv in zip(strike, df.get("put_iv", 0).fillna(0)
+                                         if "put_iv" in df else [0] * len(df))],
+                       index=df.index)
+    cw = cg * df["call_oi"].fillna(0)
+    pw = pg * df["put_oi"].fillna(0)
+    # call wall on/above spot, put wall on/below spot (the support/resistance sides)
+    cw_side = cw.where(strike >= spot, 0.0)
+    pw_side = pw.where(strike <= spot, 0.0)
+    call_wall = float(strike[cw_side.idxmax()]) if cw_side.max() > 0 else float(strike[cw.idxmax()])
+    put_wall = float(strike[pw_side.idxmax()]) if pw_side.max() > 0 else float(strike[pw.idxmax()])
     dealer_delta = None
     if {"call_delta", "put_delta"}.issubset(df.columns):
         # dealers are short customer calls / long puts -> dealer delta ~ -(cd*coi)+(pd*poi)
         dealer_delta = float((-(df["call_delta"].fillna(0) * df["call_oi"].fillna(0))
                               + (df["put_delta"].fillna(0) * df["put_oi"].fillna(0))).sum() * mult)
     return {"net_gex": net, "gamma_flip": flip,
-            "call_wall": float(df.loc[cw.idxmax(), "strike"]),
-            "put_wall": float(df.loc[pw.idxmax(), "strike"]),
+            "call_wall": call_wall, "put_wall": put_wall,
             "dealer_delta": dealer_delta}
 
 

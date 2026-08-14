@@ -112,21 +112,12 @@ def main():
     dte = max((sorted(win["exp_d"].unique())[0] - asof_d).days, 1)
     per = to_per_strike(win)
 
+    # Walls are GAMMA-WEIGHTED (Tanuki/SpotGamma style) inside compute_gex —
+    # gamma*OI peaks near-the-money, so no raw-OI override is needed (that used to
+    # pin the wall on a far tail LEAP strike). --wall-band is now redundant and
+    # ignored; kept only so old rerun commands don't break.
     res = gex_calc.compute_gex(per, spot, a.mult, iv_mode=False, T=dte / 365.0, r=a.rate)
     res["gamma_flip"] = gex_calc.find_flip(per, spot, a.mult, True, dte / 365.0, a.rate)
-    # walls: conventional = largest RAW open interest strike (calls above / puts below spot)
-    ca = per[per["strike"] >= spot]
-    pu = per[per["strike"] <= spot]
-    # optionally restrict to near-money strikes so a far tail LEAP/hedge strike
-    # (e.g. SPY's huge 520 put OI 33% below spot) can't masquerade as the wall.
-    if a.wall_band:
-        lo, hi = spot * (1 - a.wall_band), spot * (1 + a.wall_band)
-        ca = ca[ca["strike"] <= hi]
-        pu = pu[pu["strike"] >= lo]
-    if not ca.empty and ca["call_oi"].max() > 0:
-        res["call_wall"] = float(ca.loc[ca["call_oi"].idxmax(), "strike"])
-    if not pu.empty and pu["put_oi"].max() > 0:
-        res["put_wall"] = float(pu.loc[pu["put_oi"].idxmax(), "strike"])
     gex_calc.print_read(a.sym, spot, a.mult, False, res)
     print(f"  as-of {asof}  expiries<= +{a.dte_max}d  strikes {len(per)}  (Alpha Vantage)")
 
