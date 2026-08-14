@@ -60,22 +60,24 @@ TEMPLATE = r"""# ===============================================================
 #   compressed multi-day range — the trade for the day a coiled range finally
 #   lets go, when fading the edge is the losing side.
 #
-#   TESTED (QQQ daily, 5y) — THIS chart's exact rule (box <= k*ATR), from
-#   backtest_range_breakout.py:
-#     N=5, box<=2.0*ATR   n=252   3R exit +0.362R/trade  t=3.04
-#     measured move (1x box)      +0.190R/trade
-#   False-breakout rate ~55%: you are wrong more often than right, but winners
+#   TESTED (QQQ daily, 27y: 1999-2026, incl. dot-com/2008/2022 bears) — THIS
+#   chart's exact rule (box <= k*ATR), from backtest_range_breakout.py:
+#     N=5, box<=2.0*ATR   n=1533  3R exit +0.251R/trade  t=5.30
+#     measured move (1x box)      +0.089R/trade
+#   (A 5y bull-only slice ran hotter at +0.36R; +0.25R over 27y incl. bears is
+#   the honest, regime-robust number.)
+#   False-breakout rate ~59%: you are wrong more often than right, but winners
 #   run 3x risk. Small frequent losses, occasional big win. Do NOT trade this
 #   if you cannot sit through a >50% miss rate.
 #
-#   DIRECTION MATTERS (tested, QQQ daily 5y): the edge is long-biased.
-#     LONG break  n=140  3R +0.807R (t 4.79)  -> LET IT RUN to 3R
-#     SHORT break n=127  3R -0.195R (t -1.37) but measured +0.172R (t 1.97)
-#       -> shorts only reach the 1x-box pop then get bought back; TAKE MEASURED,
-#          do not hold a short for 3R. (Caveat: 5y of a bull tape, so the long
-#          bias is partly drift; treat shorts as lower-conviction on NQ too.)
-#     A failed poke on one side does NOT make the other side's break stronger
-#     (primed +0.24R vs un-primed +0.36R) — that filter was tested and dropped.
+#   DIRECTION MATTERS (QQQ daily 27y): the edge is long-biased, and this holds
+#   even WITH bear markets in the sample -- so it's structural, not just drift.
+#     LONG break   3R +0.530R  -> LET IT RUN to 3R
+#     SHORT break  3R -0.094R  -> shorts don't run; TAKE THE MEASURED MOVE
+#                     (1x box) and do not hold a short for 3R.
+#     A failed poke on one side does NOT make the other side's break stronger --
+#     it REMOVES the edge (primed +0.02R vs un-primed +0.20R, n=4.6k pooled 27y).
+#     Dropped.
 #
 #   NOTE the box does not predict the break (compression does NOT forecast
 #   expansion, t=-4.99). The tight range is only a clean place for a stop; the
@@ -142,9 +144,9 @@ Stop.SetDefaultColor(Color.RED);      Stop.SetStyle(Curve.LONG_DASH);
 TMeas.SetDefaultColor(Color.YELLOW);  TMeas.SetStyle(Curve.SHORT_DASH);
 T3R.SetDefaultColor(Color.CYAN);      T3R.SetStyle(Curve.SHORT_DASH);
 
-# Direction-aware exit (tested): LONG breakouts RUN (3R, +0.81R); SHORT
-# breakouts only reach the measured move then get bought back (3R loses -0.20R,
-# measured +0.17R). So long -> hold for 3R, short -> take the 1x-box pop.
+# Direction-aware exit (tested, QQQ 27y): LONG breakouts RUN (3R +0.53R); SHORT
+# breakouts don't (3R -0.09R) and only reach the 1x-box measured move. So
+# long -> hold for 3R, short -> take the measured-move pop.
 AddChartBubble(showBubbles and buySig, boxHi,
     "BREAKOUT LONG  stop " + Round(stopL, 2) + "  LET RUN -> 3R " + Round(boxHi + 3 * boxH, 2),
     Color.GREEN, no);
@@ -162,7 +164,7 @@ AddLabel(yes,
         + " (H " + Round(boxH, 2) + " <= " + atrK + "xATR)"
      else "no compression"),
     if compressed then Color.YELLOW else Color.GRAY);
-AddLabel(yes, "false-breakout ~55% : winners run 3x, expect to be wrong > half",
+AddLabel(yes, "false-breakout ~59% : winners run 3x, expect to be wrong > half",
     Color.GRAY);
 AddLabel(yes, "LONG break -> let run to 3R  |  SHORT break -> take measured move "
     + "(shorts don't hold to 3R)", Color.LIGHT_GRAY);

@@ -19,8 +19,9 @@ compressed for days and then broke out and ran. This tests that directly:
 Also measures the FAILURE rate (price closes back inside the box within 3 days)
 so we can see whether positive gamma really does fade breakouts.
 
-Daily QQQ 5y for the raw edge; gamma split limited to the 279 days with an
-option read (2025-07+). Honest about the small n there.
+Daily QQQ/SPY/IWM ~27y (Alpha Vantage, *_daily_full.json; falls back to the 5y
+IBKR file) for the raw edge; gamma split limited to the days with an option read
+(2025-07+). Honest about the small n there.
 """
 from __future__ import annotations
 
@@ -34,10 +35,16 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def load_daily(sym="qqq"):
-    d = json.load(open(ROOT / f"data/{sym}_daily_5y.json"))
-    df = pd.DataFrame({k: d[k] for k in ("open", "high", "low", "close", "volume")},
-                      index=pd.to_datetime(d["time"]).tz_localize(None)).sort_index()
-    return df
+    # prefer the longer history (*_daily_full.json, e.g. 20y from Alpha Vantage)
+    # when it exists; fall back to the 5y IBKR file otherwise.
+    for suf in ("_daily_full", "_daily_5y"):
+        p = ROOT / f"data/{sym}{suf}.json"
+        if p.exists():
+            d = json.load(open(p))
+            df = pd.DataFrame({k: d[k] for k in ("open", "high", "low", "close", "volume")},
+                              index=pd.to_datetime(d["time"]).tz_localize(None)).sort_index()
+            return df
+    raise FileNotFoundError(f"no daily file for {sym} (tried *_daily_full / *_daily_5y)")
 
 
 def gamma_map():
@@ -209,7 +216,7 @@ def main():
     #   SPY (large blend), IWM (small cap). If the edge is real it should survive
     #   instruments it was never tuned on, not just QQQ.
     print(f"\n{'='*70}\nGENERALISATION — N=5 box<=2.0*ATR across instruments "
-          f"(5y daily each)\n{'='*70}")
+          f"(full history each, ~27y)\n{'='*70}")
     print(f"{'sym':>6} {'n':>5} {'meas R':>8} {'3R':>8} {'t(3R)':>7} {'falseBrk':>9} "
           f"| {'LONG 3R':>8} {'SHORT 3R':>9}")
     syms = ("qqq", "spy", "iwm")

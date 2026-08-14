@@ -545,3 +545,32 @@ exit already on the chart (longs run, shorts scalp).
 **Failed-break filter, pooled (n=812):** still dead. Primed (opposite side failed
 within W days) +0.219R vs un-primed +0.361R at W=3; +0.237R vs +0.367R at W=5.
 The null holds across markets — filter stays dropped.
+
+### DEEP history — the edge over 27 years (Alpha Vantage full daily)
+
+Alpha Vantage reconnected, so the daily history was extended from 5y to the full
+series: QQQ & SPY 1999-11 → 2026-08 (6,736 bars each), IWM 2000-05 → 2026-08
+(6,592). Stored as `data/<sym>_daily_full.json`; `load_daily` prefers it over the
+5y file. This spans the dot-com bust, 2008 GFC, 2018, COVID-2020 and the 2022
+bear — a real regime stress test, not just the recent bull tape.
+
+**Shippable rule (N=5, box≤2.0×ATR, 3R) over ~27y:**
+| sym | n | meas R | 3R | t(3R) | falseBrk | LONG 3R | SHORT 3R |
+|---|---|---|---|---|---|---|---|
+| QQQ | 1533 | +0.089 | +0.251 | 5.30 | 59% | +0.530 | −0.094 |
+| SPY | 1542 | +0.044 | +0.136 | 2.97 | 61% | +0.345 | −0.165 |
+| IWM | 1481 | +0.041 | +0.082 | 1.77 | 62% | +0.245 | −0.114 |
+| **POOL** | **4556** | +0.058 | **+0.157** | **5.85** | 60% | **+0.375** | **−0.123** |
+
+Verdict: the breakout edge **survives 27 years and three bear markets** — pooled
+3R +0.157R/trade at t=5.85. It is *smaller* than the 5y bull-slice (+0.32R
+pooled), which is the honest correction: the recent number was flattered by a
+one-directional tape. The **long > short asymmetry persists WITH bears in the
+sample** (long +0.375 vs short −0.123 pooled), so it is a structural property of
+breakouts, not just drift — longs follow through, downside breaks get bought
+back. Confirms the chart's direction-aware exit (longs run to 3R, shorts take the
+measured move). N=5 stays the best box; the chart cites the 27y numbers now.
+
+**Failed-break filter over 27y (n=4,582 pooled):** conclusively dead — primed
+(opposite side failed within W days) +0.016R (t=0.30) vs un-primed +0.196R
+(t=6.39). A recent opposite-side failure REMOVES the edge. Stays dropped.
