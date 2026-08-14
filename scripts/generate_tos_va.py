@@ -91,6 +91,8 @@ input stopBufPct   = 0.25;   # stop = VAH * (1 + 0.25%)
 input showSignals  = yes;
 input showBubbles  = yes;
 input showGL       = yes;    # dealer call wall / flip (VAH ~ call wall)
+input useBreadth   = yes;    # sector-leadership filter (MAGS/SMH/IGV)
+input breadthLen   = 6;      # momentum lookback (6 bars ~ 30m on 5-min)
 
 # ---- prior-day value area (baked per day, Python-computed) ----
 __VABLOCK__
@@ -107,7 +109,19 @@ rec armed  = if newD then 1 else if pulled then 1 else if tagged and armed[1] ==
 def newPoke = tagged and armed[1] == 1 and afterOpen and rth;
 rec pokeN   = if newD then 0 else if newPoke then pokeN[1] + 1 else pokeN[1];
 def reject  = newPoke and close < VAH;
-def shortSig = showSignals and reject and pokeN >= minAttempt;
+
+# ---- SECTOR-LEADERSHIP breadth filter (MAGS / SMH / IGV) ----
+#   Don't fade-short into rising leadership. Count how many leaders are up over
+#   the last `breadthLen` bars; if >=2 are rising, risk appetite is on -> block
+#   the short. (Logical confluence filter -- reads the live leaders in ToS; not
+#   yet backtested on 2y, we lack deep intraday history for these ETFs.)
+def upCount = (if close("MAGS") > close("MAGS")[breadthLen] then 1 else 0)
+            + (if close("SMH")  > close("SMH")[breadthLen]  then 1 else 0)
+            + (if close("IGV")  > close("IGV")[breadthLen]  then 1 else 0);
+def leadersUp = upCount >= 2;
+def breadthOK = !useBreadth or !leadersUp;      # ok to short when leaders NOT rising
+
+def shortSig = showSignals and reject and pokeN >= minAttempt and breadthOK;
 
 plot Sell = if shortSig then VAH else Double.NaN;
 Sell.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
@@ -137,6 +151,10 @@ AddLabel(showGL and !IsNaN(CWall),
         + (if !IsNaN(VAH) and AbsValue(VAH - CWall) / VAH < 0.004
            then "  == VAH (A+ fade confluence)" else ""),
     Color.RED);
+AddLabel(useBreadth,
+    "leaders MAGS/SMH/IGV " + upCount + "/3 up -> "
+        + (if leadersUp then "RISING: shorts BLOCKED" else "weak: shorts OK"),
+    if leadersUp then Color.GREEN else Color.GRAY);
 """
 
 
