@@ -702,3 +702,32 @@ above** — folded into generate_tos_breakout.py's regime labels. Caveat stands:
 carry-forward (monthly reads tag ~20 sessions) inflates n via clustering, so it's
 a sizing filter, not a hard gate. 2022 (the bear) still to be added when AV is
 back — expected to reinforce the neg-gamma side further.
+
+### Value-Area FADE (Flow-Zone setup) — `backtest_va_fade.py`
+
+The user's setup: on a positive-gamma day, price makes ≥2 attempts at the prior
+VAH (= call wall), fails, and rotates down POC → VAL (→ breakout). Short the VAH
+rejection. Tested on QQQ 5-min RTH, 139 days (one trade/day = first VAH rejection
+after 10:00 ET; prior-session VA from the 70% volume profile; stop above VAH).
+
+| bucket | reach POC | reach VAL | target POC | target VAL |
+|---|---|---|---|---|
+| ALL | 63% | 35% | +0.33R (71% win) | +0.43R (53%) |
+| POSITIVE gamma | 64% | 35% | +0.27R (71%) | +0.14R (46%) |
+| NEGATIVE gamma | 61% | 34% | +0.42R (72%) | **+0.79R (61%)** |
+| **≥2nd attempt ("2 pokes then fail")** | 67% | 33% | **+0.68R (73%)** | **+0.81R (52%)** |
+
+Verdict — the setup is real, with two refinements to the thesis:
+1. **The "2 attempts then fail" is the edge amplifier** (user's instinct, confirmed):
+   the ≥2nd-poke rejection makes +0.68R to POC vs +0.23R for a 1st poke — roughly
+   3× better. Wait for the second rejection.
+2. **Target should follow the regime, not the label:** the fade-to-POC works in
+   BOTH regimes (~71% win). But in POSITIVE gamma price PINS at POC — the run to
+   VAL is weak (+0.14R). The full POC→VAL→breakout leg (the user's example) is
+   actually NEGATIVE-gamma/expansion behaviour (VAL +0.79R). So: **pos gamma →
+   target POC and expect the pin; neg gamma (or once VAL breaks) → let it run to
+   VAL/breakout.** The example day was a pos-open that expanded — a transition.
+
+Primary tradeable rule: short the 2nd VAH(call-wall) rejection after 10:00,
+target POC; extend to VAL only if momentum/negative gamma. Stop above VAH.
+(VAH≈call-wall confluence subset too small here, n≈2, to confirm separately.)
