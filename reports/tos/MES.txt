@@ -28,11 +28,11 @@ input breadthLen   = 6;      # momentum lookback (6 bars ~ 30m on 5-min)
 # ---- prior-day value area (baked per day, Python-computed) ----
 # ---- PRIOR-DAY VALUE AREA (from that day's prior session, baked) ----
 def vad = GetYYYYMMDD();
-def VAH = if vad == 20260721 then 7533.50 else if vad == 20260722 then 7551.52 else if vad == 20260723 then 7554.70 else if vad == 20260724 then 7457.19 else if vad == 20260727 then 7469.85 else if vad == 20260728 then 7456.33 else if vad == 20260729 then 7485.06 else if vad == 20260730 then 7443.02 else if vad == 20260731 then 7445.90 else if vad == 20260803 then 7539.86 else if vad == 20260804 then 7636.80 else if vad == 20260805 then 7784.70 else if vad == 20260806 then 7795.66 else if vad == 20260807 then 7750.36 else if vad == 20260810 then 7781.13 else if vad == 20260811 then 7784.27 else if vad == 20260812 then 7778.88 else if vad == 20260813 then 7776.38 else if vad == 20260814 then 7828.43 else if vad == 20260817 then 7813.97 else if vad == 20260818 then 7809.07 else Double.NaN;
+def VAH = if vad == 20260805 then 7784.70 else if vad == 20260806 then 7795.66 else if vad == 20260807 then 7750.36 else if vad == 20260810 then 7781.13 else if vad == 20260811 then 7784.27 else if vad == 20260812 then 7778.88 else if vad == 20260813 then 7776.38 else if vad == 20260814 then 7828.43 else if vad == 20260817 then 7813.97 else if vad == 20260818 then 7809.07 else Double.NaN;
 plot pVAH = VAH;  pVAH.SetDefaultColor(Color.RED);  pVAH.SetStyle(Curve.LONG_DASH);  pVAH.SetLineWeight(2);
-def POC = if vad == 20260721 then 7520.18 else if vad == 20260722 then 7547.57 else if vad == 20260723 then 7542.46 else if vad == 20260724 then 7439.32 else if vad == 20260727 then 7449.05 else if vad == 20260728 then 7444.60 else if vad == 20260729 then 7471.31 else if vad == 20260730 then 7401.92 else if vad == 20260731 then 7431.60 else if vad == 20260803 then 7514.90 else if vad == 20260804 then 7631.10 else if vad == 20260805 then 7771.70 else if vad == 20260806 then 7767.35 else if vad == 20260807 then 7735.31 else if vad == 20260810 then 7764.69 else if vad == 20260811 then 7779.57 else if vad == 20260812 then 7747.27 else if vad == 20260813 then 7774.88 else if vad == 20260814 then 7822.07 else if vad == 20260817 then 7800.95 else if vad == 20260818 then 7793.50 else Double.NaN;
+def POC = if vad == 20260805 then 7771.70 else if vad == 20260806 then 7767.35 else if vad == 20260807 then 7735.31 else if vad == 20260810 then 7764.69 else if vad == 20260811 then 7779.57 else if vad == 20260812 then 7747.27 else if vad == 20260813 then 7774.88 else if vad == 20260814 then 7822.07 else if vad == 20260817 then 7800.95 else if vad == 20260818 then 7793.50 else Double.NaN;
 plot pPOC = POC;  pPOC.SetDefaultColor(Color.YELLOW);  pPOC.SetStyle(Curve.SHORT_DASH);  pPOC.SetLineWeight(2);
-def VAL = if vad == 20260721 then 7496.50 else if vad == 20260722 then 7525.78 else if vad == 20260723 then 7535.58 else if vad == 20260724 then 7425.90 else if vad == 20260727 then 7432.15 else if vad == 20260728 then 7425.05 else if vad == 20260729 then 7443.81 else if vad == 20260730 then 7385.48 else if vad == 20260731 then 7399.80 else if vad == 20260803 then 7471.76 else if vad == 20260804 then 7598.80 else if vad == 20260805 then 7711.90 else if vad == 20260806 then 7746.49 else if vad == 20260807 then 7727.35 else if vad == 20260810 then 7762.10 else if vad == 20260811 then 7771.53 else if vad == 20260812 then 7742.90 else if vad == 20260813 then 7764.38 else if vad == 20260814 then 7806.17 else if vad == 20260817 then 7798.21 else if vad == 20260818 then 7776.20 else Double.NaN;
+def VAL = if vad == 20260805 then 7711.90 else if vad == 20260806 then 7746.49 else if vad == 20260807 then 7727.35 else if vad == 20260810 then 7762.10 else if vad == 20260811 then 7771.53 else if vad == 20260812 then 7742.90 else if vad == 20260813 then 7764.38 else if vad == 20260814 then 7806.17 else if vad == 20260817 then 7798.21 else if vad == 20260818 then 7776.20 else Double.NaN;
 plot pVAL = VAL;  pVAL.SetDefaultColor(Color.GREEN);  pVAL.SetStyle(Curve.LONG_DASH);  pVAL.SetLineWeight(2);
 
 def rth  = SecondsFromTime(0930) >= 0 and SecondsTillTime(1600) > 0;
@@ -72,8 +72,7 @@ def stop = VAH * (1 + stopBufPct / 100);
 # high (not on the price), so it never sits on the action.
 def atr = Average(TrueRange(high, close, low), 14);
 AddChartBubble(showBubbles and shortSig, high + 3 * atr,
-    "SHORT #" + pokeN + "  stop " + Round(stop, 2)
-        + "  POC " + Round(POC, 2) + "  VAL " + Round(VAL, 2), Color.RED, yes);
+    "SHORT #" + pokeN + " stop " + Round(stop, 2), Color.RED, yes);
 Alert(shortSig, "VAH rejection short", Alert.BAR, Sound.Ring);
 
 # ---- dealer gamma (call wall = VAH confluence; flip = regime) ----
@@ -98,20 +97,19 @@ def PWallnat = if dt == 20260818 then 7690.62 else Double.NaN;   # native read, 
 plot PWall = if !showGL then Double.NaN else if !IsNaN(PWallnat) then PWallnat else if !IsNaN(PWallv) then PWallv * anchor else Double.NaN;
 PWall.SetDefaultColor(Color.GREEN);  PWall.SetStyle(Curve.LONG_DASH);  PWall.SetLineWeight(3);
 
-# ---- regime-aware target guidance (validated) ----
+# ---- compact labels (one short chip each, so the top row stays readable) ----
 def posGamma = showGL and !IsNaN(GFlip) and close > GFlip;
 AddLabel(!IsNaN(VAH),
-    "VA FADE | VAH " + Round(VAH, 2) + " POC " + Round(POC, 2) + " VAL " + Round(VAL, 2)
-        + (if posGamma then "  | POS gamma: target POC (pins), don't chase VAL"
-           else "  | NEG gamma: let it run POC -> VAL -> breakout"),
+    "VAH " + Round(VAH, 2) + "  POC " + Round(POC, 2) + "  VAL " + Round(VAL, 2),
+    Color.WHITE);
+AddLabel(!IsNaN(VAH),
+    (if posGamma then "POS gamma -> target POC" else "NEG gamma -> run to VAL"),
     if posGamma then Color.LIGHT_GRAY else Color.YELLOW);
 AddLabel(showGL and !IsNaN(CWall),
-    "call wall " + Round(CWall, 2)
-        + (if !IsNaN(VAH) and AbsValue(VAH - CWall) / VAH < 0.004
-           then "  == VAH (A+ fade confluence)" else ""),
+    "CW " + Round(CWall, 2)
+        + (if !IsNaN(VAH) and AbsValue(VAH - CWall) / VAH < 0.004 then " =VAH" else ""),
     Color.RED);
-AddLabel(yes,
-    "leaders MAGS/SMH/IGV " + upCount + "/3 up (context"
-        + (if useBreadth then " -> shorts " + (if leadersUp then "BLOCKED" else "OK") else "") + ")",
+AddLabel(showGL and !IsNaN(GFlip), "flip " + Round(GFlip, 2), Color.GRAY);
+AddLabel(useBreadth, "leaders " + upCount + "/3 up",
     if leadersUp then Color.GREEN else Color.GRAY);
 ===== END MES VALUE-AREA FADE study =====

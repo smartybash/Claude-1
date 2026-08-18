@@ -137,28 +137,26 @@ def stop = VAH * (1 + stopBufPct / 100);
 # high (not on the price), so it never sits on the action.
 def atr = Average(TrueRange(high, close, low), 14);
 AddChartBubble(showBubbles and shortSig, high + 3 * atr,
-    "SHORT #" + pokeN + "  stop " + Round(stop, 2)
-        + "  POC " + Round(POC, 2) + "  VAL " + Round(VAL, 2), Color.RED, yes);
+    "SHORT #" + pokeN + " stop " + Round(stop, 2), Color.RED, yes);
 Alert(shortSig, "VAH rejection short", Alert.BAR, Sound.Ring);
 
 # ---- dealer gamma (call wall = VAH confluence; flip = regime) ----
 __GAMMALEVELS__
 
-# ---- regime-aware target guidance (validated) ----
+# ---- compact labels (one short chip each, so the top row stays readable) ----
 def posGamma = showGL and !IsNaN(GFlip) and close > GFlip;
 AddLabel(!IsNaN(VAH),
-    "VA FADE | VAH " + Round(VAH, 2) + " POC " + Round(POC, 2) + " VAL " + Round(VAL, 2)
-        + (if posGamma then "  | POS gamma: target POC (pins), don't chase VAL"
-           else "  | NEG gamma: let it run POC -> VAL -> breakout"),
+    "VAH " + Round(VAH, 2) + "  POC " + Round(POC, 2) + "  VAL " + Round(VAL, 2),
+    Color.WHITE);
+AddLabel(!IsNaN(VAH),
+    (if posGamma then "POS gamma -> target POC" else "NEG gamma -> run to VAL"),
     if posGamma then Color.LIGHT_GRAY else Color.YELLOW);
 AddLabel(showGL and !IsNaN(CWall),
-    "call wall " + Round(CWall, 2)
-        + (if !IsNaN(VAH) and AbsValue(VAH - CWall) / VAH < 0.004
-           then "  == VAH (A+ fade confluence)" else ""),
+    "CW " + Round(CWall, 2)
+        + (if !IsNaN(VAH) and AbsValue(VAH - CWall) / VAH < 0.004 then " =VAH" else ""),
     Color.RED);
-AddLabel(yes,
-    "leaders MAGS/SMH/IGV " + upCount + "/3 up (context"
-        + (if useBreadth then " -> shorts " + (if leadersUp then "BLOCKED" else "OK") else "") + ")",
+AddLabel(showGL and !IsNaN(GFlip), "flip " + Round(GFlip, 2), Color.GRAY);
+AddLabel(useBreadth, "leaders " + upCount + "/3 up",
     if leadersUp then Color.GREEN else Color.GRAY);
 """
 
