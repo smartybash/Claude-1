@@ -91,7 +91,10 @@ input stopBufPct   = 0.25;   # stop = VAH * (1 + 0.25%)
 input showSignals  = yes;
 input showBubbles  = yes;
 input showGL       = yes;    # dealer call wall / flip (VAH ~ call wall)
-input useBreadth   = yes;    # sector-leadership filter (MAGS/SMH/IGV)
+input useBreadth   = no;     # sector-leadership veto (MAGS/SMH/IGV) -- OFF: backtest
+                             # showed blocking shorts into rising leaders was
+                             # backwards (blocked trades won MORE). Kept as a
+                             # context label; flip to yes only to experiment.
 input breadthLen   = 6;      # momentum lookback (6 bars ~ 30m on 5-min)
 
 # ---- prior-day value area (baked per day, Python-computed) ----
@@ -113,8 +116,10 @@ def reject  = newPoke and close < VAH;
 # ---- SECTOR-LEADERSHIP breadth filter (MAGS / SMH / IGV) ----
 #   Don't fade-short into rising leadership. Count how many leaders are up over
 #   the last `breadthLen` bars; if >=2 are rising, risk appetite is on -> block
-#   the short. (Logical confluence filter -- reads the live leaders in ToS; not
-#   yet backtested on 2y, we lack deep intraday history for these ETFs.)
+#   the short. BACKTESTED (backtest_breadth_filter.py, 67 signals / 12-mo leader
+#   history): as a hard veto it did NOT help -- blocked shorts (leaders rising)
+#   actually won more (72% vs 62%), because on a fade day the green leaders are
+#   the pop that rotates back to POC. So this defaults OFF (context label only).
 def upCount = (if close("MAGS") > close("MAGS")[breadthLen] then 1 else 0)
             + (if close("SMH")  > close("SMH")[breadthLen]  then 1 else 0)
             + (if close("IGV")  > close("IGV")[breadthLen]  then 1 else 0);
@@ -151,9 +156,9 @@ AddLabel(showGL and !IsNaN(CWall),
         + (if !IsNaN(VAH) and AbsValue(VAH - CWall) / VAH < 0.004
            then "  == VAH (A+ fade confluence)" else ""),
     Color.RED);
-AddLabel(useBreadth,
-    "leaders MAGS/SMH/IGV " + upCount + "/3 up -> "
-        + (if leadersUp then "RISING: shorts BLOCKED" else "weak: shorts OK"),
+AddLabel(yes,
+    "leaders MAGS/SMH/IGV " + upCount + "/3 up (context"
+        + (if useBreadth then " -> shorts " + (if leadersUp then "BLOCKED" else "OK") else "") + ")",
     if leadersUp then Color.GREEN else Color.GRAY);
 """
 

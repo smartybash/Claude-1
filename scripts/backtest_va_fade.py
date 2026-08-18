@@ -84,7 +84,8 @@ def simulate(b, vah, poc, val):
                 r_poc = (vah - poc) / risk if hit_poc else (-1 if stopped else (vah - exit_c) / risk)
                 r_val = (vah - val) / risk if hit_val else (-1 if stopped else (vah - exit_c) / risk)
                 return [dict(attempt=attempts, hit_poc=hit_poc, hit_val=hit_val,
-                             stopped=stopped, r_poc=r_poc, r_val=r_val)]
+                             stopped=stopped, r_poc=r_poc, r_val=r_val,
+                             entry_ts=idx[i])]
     return []
 
 

@@ -731,3 +731,57 @@ Verdict — the setup is real, with two refinements to the thesis:
 Primary tradeable rule: short the 2nd VAH(call-wall) rejection after 10:00,
 target POC; extend to VAL only if momentum/negative gamma. Stop above VAH.
 (VAH≈call-wall confluence subset too small here, n≈2, to confirm separately.)
+
+### Sector-leadership BREADTH filter on the VA-fade — `backtest_breadth_filter.py`
+
+User's idea: don't fade-short QQQ into rising leadership. Leaders = MAGS (Mag-7),
+SMH (semis), IGV (software). At each VA-fade short entry, count leaders RISING
+over the last 6 bars (30 min); if ≥2 up, risk appetite is ON → the filter would
+BLOCK the short. Deep 5-min history for these ETFs only goes back ~12 months
+(2025-08→2026-07), so the split is measured on the 67 QQQ VA-fade signals that
+fall in that window (target POC).
+
+| bucket | n | mean R | win% |
+|---|---|---|---|
+| KEEP (leaders NOT rising, <2 up) | 21 | +0.28R | 62% |
+| BLOCK (leaders rising, ≥2 up) | 46 | +0.23R | **72%** |
+| unfiltered baseline (all) | 67 | +0.25R | 69% |
+
+By exact up-count (noisy, small n): 0 up −0.36R/36%, 1 up +0.99R/90%, 2 up
++0.20R/75%, 3 up +0.25R/70%.
+
+**Verdict — the filter as specified does NOT earn its keep, and is directionally
+backwards.** The shorts it would BLOCK (leaders rising) actually won *more* often
+(72%) than the ones it keeps (62%); filtering nets only +0.05R and would throw
+away most (46/67) of the signals, including good ones. Intuition why: the VA-fade
+is a *fade day* setup — the leaders being green intraday is exactly the pop that's
+about to rotate back to POC, which is what the trade is fishing for. So rising
+leaders are not a reason to stand aside here. Recommendation: **drop the breadth
+gate as a hard veto** (keep it as an on-chart context label only). n=67 is small
+(12-mo overlap); revisit as leader intraday history deepens, but there is no
+positive signal to act on today. `useBreadth` in the ToS study defaults should be
+turned OFF given this.
+
+### Robert Rother's VWAP-retest scalp — `backtest_vwap_retest.py`
+
+Claim: price extends from session VWAP, retraces to VWAP, continuation entry in
+the extension direction, fixed R, VIX-gated → ~75% win. Tested both readings on
+QQQ 5-min RTH, 523 sessions (2024-07→2026-07), one trade/session.
+
+*Continuation reading* (enter on VWAP reclaim, fixed R target): **loses at every
+setting.** Win 24–41%, expectancy −0.08 to −0.23R, t as bad as −5.0. Best VIX-
+gated slice (VIX<18) is +0.019R (t=0.19 — pure noise). Price chops around VWAP;
+the reclaim doesn't lead to a clean continuation leg.
+
+*Mean-reversion reading* (fade the extension back TO VWAP, target=VWAP — the
+shape that would produce a high win rate): tops out at **56% win, +0.049R
+(t=1.24, not significant)** at ext=3 ATR/stopR=1.0. VIX gating leaves it at
+breakeven.
+
+**Verdict — no mechanical edge; the 75% claim does not survive.** Neither reading
+clears breakeven after the implied costs; the best win rate achieved (56%) is
+nowhere near 75%. VWAP is a genuine magnet/context tool, but "wait for VWAP
+retest, take the bounce, fixed R" is not a standalone mechanical edge on QQQ.
+What Robert likely has is *discretion* around the retest (regime, tape, level
+confluence) that a fixed rule can't capture. Keep VWAP as context; do not trade
+it as a mechanical system.
