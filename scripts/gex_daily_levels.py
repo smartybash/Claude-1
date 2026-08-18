@@ -26,8 +26,12 @@ ROOT = Path(__file__).resolve().parent.parent
 KEYS = (("gamma_flip", "GF"), ("call_wall", "CW"), ("put_wall", "PW"))
 
 
-def load_reads():
-    """Chronological QQQ option reads: date -> levels (+ spot for ratios)."""
+def load_reads(src_sym: str | None = None):
+    """Chronological option reads: date -> levels (+ spot for ratios).
+
+    src_sym filters to one logged symbol (e.g. 'QQQ' for the Nasdaq family,
+    'SPY' for the S&P family) so a chart doesn't mix QQQ and SPY reads on the
+    same date. Falls back to all-with-spot when src_sym isn't in the log."""
     out = []
     f = ROOT / "data" / "gex_history.jsonl"
     for line in f.read_text().splitlines():
@@ -36,6 +40,8 @@ def load_reads():
         r = json.loads(line)
         if r.get("spot"):
             out.append(r)
+    if src_sym and any(r.get("sym") == src_sym for r in out):
+        out = [r for r in out if r.get("sym") == src_sym]
     out.sort(key=lambda r: r["date"])
     return out
 
@@ -49,9 +55,9 @@ def _vals(read, mode):
     return vals
 
 
-def pairs(n_days: int, mode: str, today: str | None = None):
+def pairs(n_days: int, mode: str, today: str | None = None, src_sym: str | None = None):
     """[(YYYYMMDD of the SESSION, {GF/CW/PW: value}), ...] using the PRIOR read."""
-    reads = load_reads()
+    reads = load_reads(src_sym)
     rows = []
     for prev, cur in zip(reads, reads[1:]):
         # `cur` is the next session we have a record for; the read available
@@ -75,7 +81,9 @@ def block(sym: str, mode: str, n_days: int = 120, today: str | None = None,
 
     today_native: absolute levels for the CURRENT session that beat the scaled
     read (e.g. the NQ-native FOP computation). Applied only to today's date."""
-    rows = pairs(n_days, mode, today)
+    src = {"MNQ": "QQQ", "QQQ": "QQQ", "NQ": "QQQ",
+           "MES": "SPY", "SPY": "SPY", "ES": "SPY"}.get(sym.upper())
+    rows = pairs(n_days, mode, today, src)
     if not rows:
         return "# ---- per-day gamma levels: no history available ----"
     # NOTE: showGL is declared once in the study's own input block — do NOT
