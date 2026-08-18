@@ -1,15 +1,16 @@
 {
   "date": "2026-08-13",
-  "source": "AlphaVantage 2026-08-13",
+  "source": "AlphaVantage 2026-08-17",
   "note": "NQ = native /NQ FOP read (QN2 20260814, 1DTE) 2026-08-13 pre-market. QQQ block stale (AV offline). Spot 29871.",
   "levels": {
     "NQ": {
-      "net_gex": 331057849.0,
-      "gamma_flip": 29376.65,
-      "zero_gamma": 29376.65,
-      "call_wall": 30500.0,
-      "put_wall": 29300.0,
-      "source": "IBKR-FOP 20260814"
+      "net_gex": 6605973860.0,
+      "gamma_flip": 29893,
+      "zero_gamma": 29893,
+      "call_wall": 30096,
+      "put_wall": 28859,
+      "dealer_delta": -115203332.0,
+      "source": "QQQ-scaled x41.228 (2026-08-17)"
     },
     "ES": {
       "net_gex": null,
@@ -20,22 +21,22 @@
       "dealer_delta": null
     },
     "QQQ": {
-      "net_gex": 263765804.0,
-      "gamma_flip": 718.49,
-      "zero_gamma": 718.49,
-      "call_wall": 735.0,
+      "net_gex": 6605973860.0,
+      "gamma_flip": 725.08,
+      "zero_gamma": 725.08,
+      "call_wall": 730.0,
       "put_wall": 700.0,
-      "dealer_delta": -70768527.0
+      "dealer_delta": -115203332.0,
+      "source": "AlphaVantage 2026-08-17"
     },
     "SPY": {
-      "net_gex": 21601718010.0,
-      "gamma_flip": 770.09,
-      "zero_gamma": 770.09,
+      "net_gex": -5113424730.0,
+      "gamma_flip": 773.63,
+      "zero_gamma": 773.63,
       "call_wall": 780.0,
-      "put_wall": 750.0,
-      "dealer_delta": -88896493.0,
-      "spot": 777.76,
-      "source": "AlphaVantage 2026-08-13"
+      "put_wall": 765.0,
+      "dealer_delta": -145612506.0,
+      "source": "AlphaVantage 2026-08-17"
     }
   }
 }

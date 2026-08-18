@@ -174,12 +174,19 @@ def main():
         print(f"no value-area history for {a.sym}", file=sys.stderr); raise SystemExit(1)
 
     native = None
-    if a.sym == "MNQ":
-        import scripts.gamma_context as gc
-        nq = gc.load_gamma_levels("NQ") or {}
-        if "FOP" in str(nq.get("_source", "")):
-            native = {t: nq[k] for k, t in (("gamma_flip", "GF"), ("call_wall", "CW"),
-                                            ("put_wall", "PW")) if nq.get(k) is not None}
+    import scripts.gamma_context as gc
+    # Fixed absolute gamma levels for TODAY (beats the ratio-mode line, which
+    # re-anchors to live price and drifts intraday). MNQ <- NQ slot (QQQ-scaled
+    # or native FOP); MES <- SPY native slot scaled by the ES/SPY close ratio;
+    # SPY <- its own native slot.
+    NATIVE_SRC = {"MNQ": ("NQ", 1.0), "MES": ("SPY", 10.0531), "SPY": ("SPY", 1.0)}
+    if a.sym in NATIVE_SRC:
+        slot, mult = NATIVE_SRC[a.sym]
+        g = gc.load_gamma_levels(slot) or {}
+        if g.get("gamma_flip") is not None:
+            native = {t: round(g[k] * mult, 2)
+                      for k, t in (("gamma_flip", "GF"), ("call_wall", "CW"), ("put_wall", "PW"))
+                      if g.get(k) is not None}
     mode = "absolute" if a.sym == "QQQ" else "ratio"
     try:
         blk = gdl.block(a.sym, mode, a.days, DATE, native)

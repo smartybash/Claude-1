@@ -332,3 +332,5 @@
 {"date": "2026-08-07", "sym": "QQQ", "spot": 722.67, "net_gex": 5576376635.0, "gamma_flip": 715.32, "call_wall": 730.0, "put_wall": 700.0, "dealer_delta": -90067122.0}
 {"date": "2026-08-10", "sym": "QQQ", "spot": 720.91, "net_gex": 2037806186.0, "gamma_flip": 717.47, "call_wall": 735.0, "put_wall": 680.0, "dealer_delta": -72192117.0}
 {"date": "2026-08-11", "sym": "QQQ", "spot": 718.46, "net_gex": 263765804.0, "gamma_flip": 718.49, "call_wall": 735.0, "put_wall": 700.0, "dealer_delta": -70768527.0}
+{"date": "2026-08-17", "sym": "SPY", "spot": 772.62, "net_gex": -5113424730.0, "gamma_flip": 773.63, "call_wall": 780.0, "put_wall": 765.0, "dealer_delta": -145612506.0}
+{"date": "2026-08-17", "sym": "QQQ", "spot": 729.52, "net_gex": 6605973860.0, "gamma_flip": 725.08, "call_wall": 730.0, "put_wall": 700.0, "dealer_delta": -115203332.0}

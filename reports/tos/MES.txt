@@ -1,0 +1,117 @@
+
+===== COPY BELOW into ThinkOrSwim — MES VALUE-AREA FADE (2026-08-18) =====
+# =====================================================================
+# MES VALUE-AREA FADE   2026-08-18
+#   The ONLY setup here: SHORT the rejection of prior VAH (= call wall on a
+#   fade day), 2nd attempt, after 10:00 ET. Targets POC then VAL.
+#
+#   TESTED (backtest_va_fade.py, QQQ 5-min, 139 days):
+#     short the 2nd VAH rejection -> target POC +0.68R (73% win), reaches POC 67%.
+#     POSITIVE gamma: price PINS at POC -> take POC, don't chase VAL.
+#     NEGATIVE gamma: runs POC -> VAL -> breakout -> let it run.
+#   Stop just above VAH. 1st-poke rejections are weaker (+0.23R) — wait for #2.
+# =====================================================================
+declare upper;
+
+input minAttempt   = 2;      # take the Nth rejection (2 = the tested edge)
+input skipUntil    = 1000;   # ignore VAH pokes before 10:00 ET
+input stopBufPct   = 0.25;   # stop = VAH * (1 + 0.25%)
+input showSignals  = yes;
+input showBubbles  = yes;
+input showGL       = yes;    # dealer call wall / flip (VAH ~ call wall)
+input useBreadth   = no;     # sector-leadership veto (MAGS/SMH/IGV) -- OFF: backtest
+                             # showed blocking shorts into rising leaders was
+                             # backwards (blocked trades won MORE). Kept as a
+                             # context label; flip to yes only to experiment.
+input breadthLen   = 6;      # momentum lookback (6 bars ~ 30m on 5-min)
+
+# ---- prior-day value area (baked per day, Python-computed) ----
+# ---- PRIOR-DAY VALUE AREA (from that day's prior session, baked) ----
+def vad = GetYYYYMMDD();
+def VAH = if vad == 20260721 then 7533.50 else if vad == 20260722 then 7551.52 else if vad == 20260723 then 7554.70 else if vad == 20260724 then 7457.19 else if vad == 20260727 then 7469.85 else if vad == 20260728 then 7456.33 else if vad == 20260729 then 7485.06 else if vad == 20260730 then 7443.02 else if vad == 20260731 then 7445.90 else if vad == 20260803 then 7539.86 else if vad == 20260804 then 7636.80 else if vad == 20260805 then 7784.70 else if vad == 20260806 then 7795.66 else if vad == 20260807 then 7750.36 else if vad == 20260810 then 7781.13 else if vad == 20260811 then 7784.27 else if vad == 20260812 then 7778.88 else if vad == 20260813 then 7776.38 else if vad == 20260814 then 7828.43 else if vad == 20260817 then 7813.97 else if vad == 20260818 then 7809.07 else Double.NaN;
+plot pVAH = VAH;  pVAH.SetDefaultColor(Color.RED);  pVAH.SetStyle(Curve.LONG_DASH);  pVAH.SetLineWeight(2);
+def POC = if vad == 20260721 then 7520.18 else if vad == 20260722 then 7547.57 else if vad == 20260723 then 7542.46 else if vad == 20260724 then 7439.32 else if vad == 20260727 then 7449.05 else if vad == 20260728 then 7444.60 else if vad == 20260729 then 7471.31 else if vad == 20260730 then 7401.92 else if vad == 20260731 then 7431.60 else if vad == 20260803 then 7514.90 else if vad == 20260804 then 7631.10 else if vad == 20260805 then 7771.70 else if vad == 20260806 then 7767.35 else if vad == 20260807 then 7735.31 else if vad == 20260810 then 7764.69 else if vad == 20260811 then 7779.57 else if vad == 20260812 then 7747.27 else if vad == 20260813 then 7774.88 else if vad == 20260814 then 7822.07 else if vad == 20260817 then 7800.95 else if vad == 20260818 then 7793.50 else Double.NaN;
+plot pPOC = POC;  pPOC.SetDefaultColor(Color.YELLOW);  pPOC.SetStyle(Curve.SHORT_DASH);  pPOC.SetLineWeight(2);
+def VAL = if vad == 20260721 then 7496.50 else if vad == 20260722 then 7525.78 else if vad == 20260723 then 7535.58 else if vad == 20260724 then 7425.90 else if vad == 20260727 then 7432.15 else if vad == 20260728 then 7425.05 else if vad == 20260729 then 7443.81 else if vad == 20260730 then 7385.48 else if vad == 20260731 then 7399.80 else if vad == 20260803 then 7471.76 else if vad == 20260804 then 7598.80 else if vad == 20260805 then 7711.90 else if vad == 20260806 then 7746.49 else if vad == 20260807 then 7727.35 else if vad == 20260810 then 7762.10 else if vad == 20260811 then 7771.53 else if vad == 20260812 then 7742.90 else if vad == 20260813 then 7764.38 else if vad == 20260814 then 7806.17 else if vad == 20260817 then 7798.21 else if vad == 20260818 then 7776.20 else Double.NaN;
+plot pVAL = VAL;  pVAL.SetDefaultColor(Color.GREEN);  pVAL.SetStyle(Curve.LONG_DASH);  pVAL.SetLineWeight(2);
+
+def rth  = SecondsFromTime(0930) >= 0 and SecondsTillTime(1600) > 0;
+def newD = GetDay() != GetDay()[1];
+def afterOpen = SecondsFromTime(skipUntil) >= 0;
+def tol  = 0.0006 * VAH;
+
+# count distinct VAH pokes: re-arm after price pulls >=0.15% below VAH
+def tagged = !IsNaN(VAH) and high >= VAH - tol;
+def pulled = !IsNaN(VAH) and low  < VAH * (1 - 0.0015);
+rec armed  = if newD then 1 else if pulled then 1 else if tagged and armed[1] == 1 then 0 else armed[1];
+def newPoke = tagged and armed[1] == 1 and afterOpen and rth;
+rec pokeN   = if newD then 0 else if newPoke then pokeN[1] + 1 else pokeN[1];
+def reject  = newPoke and close < VAH;
+
+# ---- SECTOR-LEADERSHIP breadth filter (MAGS / SMH / IGV) ----
+#   Don't fade-short into rising leadership. Count how many leaders are up over
+#   the last `breadthLen` bars; if >=2 are rising, risk appetite is on -> block
+#   the short. BACKTESTED (backtest_breadth_filter.py, 67 signals / 12-mo leader
+#   history): as a hard veto it did NOT help -- blocked shorts (leaders rising)
+#   actually won more (72% vs 62%), because on a fade day the green leaders are
+#   the pop that rotates back to POC. So this defaults OFF (context label only).
+def upCount = (if close("MAGS") > close("MAGS")[breadthLen] then 1 else 0)
+            + (if close("SMH")  > close("SMH")[breadthLen]  then 1 else 0)
+            + (if close("IGV")  > close("IGV")[breadthLen]  then 1 else 0);
+def leadersUp = upCount >= 2;
+def breadthOK = !useBreadth or !leadersUp;      # ok to short when leaders NOT rising
+
+def shortSig = showSignals and reject and pokeN >= minAttempt and breadthOK;
+
+plot Sell = if shortSig then VAH else Double.NaN;
+Sell.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
+Sell.SetDefaultColor(Color.RED);  Sell.SetLineWeight(5);
+
+def stop = VAH * (1 + stopBufPct / 100);
+# keep the bubble WELL CLEAR of the candles: anchor it 3xATR above the bar's
+# high (not on the price), so it never sits on the action.
+def atr = Average(TrueRange(high, close, low), 14);
+AddChartBubble(showBubbles and shortSig, high + 3 * atr,
+    "SHORT #" + pokeN + "  stop " + Round(stop, 2)
+        + "  POC " + Round(POC, 2) + "  VAL " + Round(VAL, 2), Color.RED, yes);
+Alert(shortSig, "VAH rejection short", Alert.BAR, Sound.Ring);
+
+# ---- dealer gamma (call wall = VAH confluence; flip = regime) ----
+# ---- PER-DAY DEALER GAMMA (90 sessions) ----
+#   Each day shows the walls from the PRIOR session's option chain —
+#   what you actually had pre-market that morning. Scroll back and the
+#   levels change with the date instead of showing today's everywhere.
+def dt = GetYYYYMMDD();
+#   futures: levels are stored as a fraction of the underlying's spot
+#   and rescaled by this instrument's prior daily close.
+def anchor = close(period = AggregationPeriod.DAY)[1];
+def GFlipv = if dt == 20260407 then 0.994406 else if dt == 20260408 then 1.000169 else if dt == 20260409 then 0.966701 else if dt == 20260410 then 0.985054 else if dt == 20260413 then 0.988940 else if dt == 20260414 then 0.978095 else if dt == 20260415 then 0.964360 else if dt == 20260416 then 0.957984 else if dt == 20260417 then 0.976099 else if dt == 20260420 then 0.952757 else if dt == 20260421 then 0.991867 else if dt == 20260422 then 0.991119 else if dt == 20260423 then 0.980923 else if dt == 20260424 then 0.996978 else if dt == 20260427 then 0.976863 else if dt == 20260428 then 0.982047 else if dt == 20260429 then 0.993949 else if dt == 20260430 then 0.988930 else if dt == 20260501 then 0.983813 else if dt == 20260504 then 0.979486 else if dt == 20260505 then 0.990137 else if dt == 20260506 then 0.977848 else if dt == 20260507 then 0.970407 else if dt == 20260508 then 0.981353 else if dt == 20260511 then 0.969867 else if dt == 20260512 then 0.990379 else if dt == 20260513 then 1.001742 else if dt == 20260514 then 0.983417 else if dt == 20260515 then 0.981701 else if dt == 20260518 then 1.004582 else if dt == 20260519 then 1.005585 else if dt == 20260520 then 1.004733 else if dt == 20260521 then 0.985213 else if dt == 20260522 then 0.992487 else if dt == 20260526 then 0.989853 else if dt == 20260527 then 0.981993 else if dt == 20260528 then 0.991257 else if dt == 20260529 then 0.984188 else if dt == 20260601 then 0.987893 else if dt == 20260602 then 0.985856 else if dt == 20260603 then 0.987717 else if dt == 20260604 then 0.995183 else if dt == 20260605 then 1.001000 else if dt == 20260608 then 1.039587 else if dt == 20260609 then 1.005308 else if dt == 20260610 then 1.020240 else if dt == 20260611 then 1.034905 else if dt == 20260612 then 0.994940 else if dt == 20260615 then 0.990832 else if dt == 20260616 then 0.968389 else if dt == 20260617 then 1.002486 else if dt == 20260618 then 1.007714 else if dt == 20260622 then 0.988665 else if dt == 20260623 then 0.999783 else if dt == 20260624 then 1.032817 else if dt == 20260625 then 1.017283 else if dt == 20260626 then 1.009965 else if dt == 20260629 then 1.025151 else if dt == 20260630 then 0.998507 else if dt == 20260702 then 0.978928 else if dt == 20260706 then 1.021086 else if dt == 20260707 then 0.998133 else if dt == 20260708 then 1.022479 else if dt == 20260709 then 1.009628 else if dt == 20260710 then 0.992759 else if dt == 20260713 then 0.994682 else if dt == 20260714 then 1.014969 else if dt == 20260715 then 0.997402 else if dt == 20260716 then 1.003358 else if dt == 20260717 then 1.016800 else if dt == 20260720 then 1.026513 else if dt == 20260721 then 1.024250 else if dt == 20260722 then 1.005234 else if dt == 20260723 then 1.009655 else if dt == 20260724 then 1.025205 else if dt == 20260727 then 1.036266 else if dt == 20260728 then 1.039981 else if dt == 20260729 then 1.044854 else if dt == 20260730 then 1.048215 else if dt == 20260731 then 1.002742 else if dt == 20260803 then 1.004086 else if dt == 20260804 then 0.987506 else if dt == 20260805 then 0.960777 else if dt == 20260806 then 0.983115 else if dt == 20260807 then 0.995403 else if dt == 20260810 then 0.989829 else if dt == 20260811 then 0.995228 else if dt == 20260817 then 1.000042 else if dt == 20260817 then 1.001307 else if dt == 20260818 then 0.993914 else Double.NaN;
+def GFlipnat = if dt == 20260818 then 7777.38 else Double.NaN;   # native read, beats the scaled one
+plot GFlip = if !showGL then Double.NaN else if !IsNaN(GFlipnat) then GFlipnat else if !IsNaN(GFlipv) then GFlipv * anchor else Double.NaN;
+GFlip.SetDefaultColor(Color.WHITE);  GFlip.SetStyle(Curve.FIRM);  GFlip.SetLineWeight(2);
+def CWallv = if dt == 20260407 then 1.020183 else if dt == 20260408 then 1.016501 else if dt == 20260409 then 1.007049 else if dt == 20260410 then 1.033617 else if dt == 20260413 then 1.030742 else if dt == 20260414 then 1.017705 else if dt == 20260415 then 1.002371 else if dt == 20260416 then 1.020568 else if dt == 20260417 then 1.008254 else if dt == 20260420 then 1.001556 else if dt == 20260421 then 1.028282 else if dt == 20260422 then 1.028870 else if dt == 20260423 then 1.014106 else if dt == 20260424 then 1.020267 else if dt == 20260427 then 1.017409 else if dt == 20260428 then 1.016643 else if dt == 20260429 then 1.026195 else if dt == 20260430 then 1.026397 else if dt == 20260501 then 1.018223 else if dt == 20260504 then 1.009396 else if dt == 20260505 then 1.004150 else if dt == 20260506 then 1.003589 else if dt == 20260507 then 1.002664 else if dt == 20260508 then 1.004838 else if dt == 20260511 then 1.012402 else if dt == 20260512 then 1.018330 else if dt == 20260513 then 1.019975 else if dt == 20260514 then 1.006697 else if dt == 20260515 then 1.006595 else if dt == 20260518 then 1.004101 else if dt == 20260519 then 1.034859 else if dt == 20260520 then 1.012088 else if dt == 20260521 then 1.052233 else if dt == 20260522 then 1.021265 else if dt == 20260526 then 1.017493 else if dt == 20260527 then 1.000384 else if dt == 20260528 then 1.000384 else if dt == 20260529 then 1.018800 else if dt == 20260601 then 1.015682 else if dt == 20260602 then 1.010292 else if dt == 20260603 then 1.004594 else if dt == 20260604 then 1.009245 else if dt == 20260605 then 1.013883 else if dt == 20260608 then 1.069138 else if dt == 20260609 then 1.033592 else if dt == 20260610 then 1.045907 else if dt == 20260611 then 1.067790 else if dt == 20260612 then 1.028778 else if dt == 20260615 then 1.023301 else if dt == 20260616 then 1.008444 else if dt == 20260617 then 1.016539 else if dt == 20260618 then 1.023004 else if dt == 20260622 then 1.013281 else if dt == 20260623 then 1.016329 else if dt == 20260624 then 1.062684 else if dt == 20260625 then 1.042796 else if dt == 20260626 then 1.045238 else if dt == 20260629 then 1.060940 else if dt == 20260630 then 1.105598 else if dt == 20260702 then 1.087562 else if dt == 20260706 then 1.122350 else if dt == 20260707 then 1.009696 else if dt == 20260708 then 1.042268 else if dt == 20260709 then 1.027503 else if dt == 20260710 then 1.008747 else if dt == 20260713 then 1.005787 else if dt == 20260714 then 1.026030 else if dt == 20260715 then 1.014326 else if dt == 20260716 then 1.017209 else if dt == 20260717 then 1.035784 else if dt == 20260720 then 1.050723 else if dt == 20260721 then 1.049333 else if dt == 20260722 then 1.029968 else if dt == 20260723 then 1.031948 else if dt == 20260724 then 1.050813 else if dt == 20260727 then 1.066643 else if dt == 20260728 then 1.070271 else if dt == 20260729 then 1.080649 else if dt == 20260730 then 1.059338 else if dt == 20260731 then 1.020795 else if dt == 20260803 then 1.017797 else if dt == 20260804 then 1.042351 else if dt == 20260805 then 1.007480 else if dt == 20260806 then 1.024833 else if dt == 20260807 then 1.027081 else if dt == 20260810 then 1.010143 else if dt == 20260811 then 1.019545 else if dt == 20260817 then 1.023021 else if dt == 20260817 then 1.009552 else if dt == 20260818 then 1.000658 else Double.NaN;
+def CWallnat = if dt == 20260818 then 7841.42 else Double.NaN;   # native read, beats the scaled one
+plot CWall = if !showGL then Double.NaN else if !IsNaN(CWallnat) then CWallnat else if !IsNaN(CWallv) then CWallv * anchor else Double.NaN;
+CWall.SetDefaultColor(Color.RED);  CWall.SetStyle(Curve.LONG_DASH);  CWall.SetLineWeight(3);
+def PWallv = if dt == 20260407 then 0.969173 else if dt == 20260408 then 0.931793 else if dt == 20260409 then 0.945966 else if dt == 20260410 then 0.954865 else if dt == 20260413 then 0.952210 else if dt == 20260414 then 0.953089 else if dt == 20260415 then 0.938728 else if dt == 20260416 then 0.942063 else if dt == 20260417 then 0.937910 else if dt == 20260420 then 0.924513 else if dt == 20260421 then 0.927773 else if dt == 20260422 then 0.928304 else if dt == 20260423 then 0.914983 else if dt == 20260424 then 0.920542 else if dt == 20260427 then 0.904364 else if dt == 20260428 then 0.948867 else if dt == 20260429 then 0.912173 else if dt == 20260430 then 0.912353 else if dt == 20260501 then 0.950841 else if dt == 20260504 then 0.942598 else if dt == 20260505 then 0.959522 else if dt == 20260506 then 0.944986 else if dt == 20260507 then 0.923883 else if dt == 20260508 then 0.925886 else if dt == 20260511 then 0.906943 else if dt == 20260512 then 0.912985 else if dt == 20260513 then 0.920810 else if dt == 20260514 then 0.922806 else if dt == 20260515 then 0.833044 else if dt == 20260518 then 0.848536 else if dt == 20260519 then 0.850569 else if dt == 20260520 then 0.940814 else if dt == 20260521 then 0.925965 else if dt == 20260522 then 0.923335 else if dt == 20260526 then 0.905986 else if dt == 20260527 then 0.890753 else if dt == 20260528 then 0.890753 else if dt == 20260529 then 0.882960 else if dt == 20260601 then 0.880258 else if dt == 20260602 then 0.875586 else if dt == 20260603 then 0.870648 else if dt == 20260604 then 0.874679 else if dt == 20260605 then 0.878699 else if dt == 20260608 then 0.926586 else if dt == 20260609 then 0.977722 else if dt == 20260610 then 0.989371 else if dt == 20260611 then 0.937924 else if dt == 20260612 then 0.973168 else if dt == 20260615 then 0.967987 else if dt == 20260616 then 0.941214 else if dt == 20260617 then 0.961591 else if dt == 20260618 then 0.967706 else if dt == 20260622 then 0.945729 else if dt == 20260623 then 0.948574 else if dt == 20260624 then 0.978788 else if dt == 20260625 then 0.973277 else if dt == 20260626 then 0.975555 else if dt == 20260629 then 0.990211 else if dt == 20260630 then 0.988129 else if dt == 20260702 then 0.951617 else if dt == 20260706 then 0.982056 else if dt == 20260707 then 0.968201 else if dt == 20260708 then 0.985929 else if dt == 20260709 then 0.985277 else if dt == 20260710 then 0.967292 else if dt == 20260713 then 0.964453 else if dt == 20260714 then 0.983865 else if dt == 20260715 then 0.972641 else if dt == 20260716 then 0.975406 else if dt == 20260717 then 0.993218 else if dt == 20260720 then 0.993149 else if dt == 20260721 then 0.991835 else if dt == 20260722 then 0.987640 else if dt == 20260723 then 0.989539 else if dt == 20260724 then 0.993234 else if dt == 20260727 then 0.993586 else if dt == 20260728 then 0.996965 else if dt == 20260729 then 0.962222 else if dt == 20260730 then 0.998804 else if dt == 20260731 then 0.962464 else if dt == 20260803 then 0.988717 else if dt == 20260804 then 0.942399 else if dt == 20260805 then 0.910873 else if dt == 20260806 then 0.976031 else if dt == 20260807 then 0.978173 else if dt == 20260810 then 0.968630 else if dt == 20260811 then 0.943252 else if dt == 20260817 then 0.974306 else if dt == 20260817 then 0.990137 else if dt == 20260818 then 0.959535 else Double.NaN;
+def PWallnat = if dt == 20260818 then 7690.62 else Double.NaN;   # native read, beats the scaled one
+plot PWall = if !showGL then Double.NaN else if !IsNaN(PWallnat) then PWallnat else if !IsNaN(PWallv) then PWallv * anchor else Double.NaN;
+PWall.SetDefaultColor(Color.GREEN);  PWall.SetStyle(Curve.LONG_DASH);  PWall.SetLineWeight(3);
+
+# ---- regime-aware target guidance (validated) ----
+def posGamma = showGL and !IsNaN(GFlip) and close > GFlip;
+AddLabel(!IsNaN(VAH),
+    "VA FADE | VAH " + Round(VAH, 2) + " POC " + Round(POC, 2) + " VAL " + Round(VAL, 2)
+        + (if posGamma then "  | POS gamma: target POC (pins), don't chase VAL"
+           else "  | NEG gamma: let it run POC -> VAL -> breakout"),
+    if posGamma then Color.LIGHT_GRAY else Color.YELLOW);
+AddLabel(showGL and !IsNaN(CWall),
+    "call wall " + Round(CWall, 2)
+        + (if !IsNaN(VAH) and AbsValue(VAH - CWall) / VAH < 0.004
+           then "  == VAH (A+ fade confluence)" else ""),
+    Color.RED);
+AddLabel(yes,
+    "leaders MAGS/SMH/IGV " + upCount + "/3 up (context"
+        + (if useBreadth then " -> shorts " + (if leadersUp then "BLOCKED" else "OK") else "") + ")",
+    if leadersUp then Color.GREEN else Color.GRAY);
+===== END MES VALUE-AREA FADE study =====
