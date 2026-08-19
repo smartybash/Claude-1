@@ -70,3 +70,8 @@ python3 scripts/generate_tos_va.py --sym MNQ
 echo
 echo "########## 5. SECTOR ROTATION (MAGS/SMH/IGV vs QQQ — leadership/breadth) ##########"
 python3 scripts/rotation.py
+echo
+echo "########## 6. ATAS LEVELS SHEET (VAH/POC/VAL + walls + flip for the footprint) ##########"
+#   Morning levels to draw in ATAS; order-flow imbalance only counts AT a level.
+#   Playbook: reports/atas_imbalance_playbook.md
+python3 scripts/export_levels_atas.py
