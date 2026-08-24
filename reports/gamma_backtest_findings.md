@@ -785,3 +785,40 @@ retest, take the bounce, fixed R" is not a standalone mechanical edge on QQQ.
 What Robert likely has is *discretion* around the retest (regime, tape, level
 confluence) that a fixed rule can't capture. Keep VWAP as context; do not trade
 it as a mechanical system.
+
+### ICT / "Tempa Trades" liquidity-sweep reversal — `backtest_ict_sweep.py`
+
+Claim (video): in 9:30-11:00 ET, wait for a sweep of prior-day High/Low, reversal
+back through it, enter on the reclaim (FVG/IFVG trigger), target the 50%-of-range
+midpoint / opposite side; premium-discount gating. Cited a 17-day Dec-2025 win
+streak. Mechanised the bread-and-butter version on QQQ 5-min, 523 sessions:
+prior-session H/L swept then reclaimed on a bar close, stop at the sweep extreme,
+long sweeps of the low (discount) / short sweeps of the high (premium).
+
+| window | n | reach mid | stopped | target mid | target opp | fixed 2R |
+|---|---|---|---|---|---|---|
+| **09:30-11:00 (his)** | 251 | 33% | 63% | -0.19R (37%) t=-2.78 | -0.22R t=-2.53 | -0.10R |
+| 10:30-16:00 (ours) | 287 | 22% | 52% | -0.10R (34%) | -0.09R | -0.07R |
+| full RTH | 355 | 28% | 55% | -0.18R (37%) t=-3.33 | -0.20R | -0.10R |
+
+Gamma split doesn't rescue it (POS mid -0.23R, NEG mid -0.14R in his window).
+
+**Verdict — the mechanical core does NOT work; it loses at every window, target
+and regime, and his own 9:30-11:00 window is the WORST (-0.19R, t=-2.78, stopped
+63%).** Reason: a naive "sweep then reclaim-close" fade catches every failed
+sweep — price pokes the prior-day level, ticks back, then continues in the
+original direction and runs the tight stop at the sweep extreme. The discretion
+he actually adds — *which* FVG, quality of the "reaction/momentum," draw-on-
+liquidity anticipation — is what makes it work for him and can't be mechanised
+from the description; the "17-day win streak in December" is a cherry-picked,
+small-sample, single-regime marketing stat, not evidence.
+
+Important nuance — we already own the *validated* cousins of this idea:
+- **FVG continuation with VWAP** validated on 2y (t=6.44) — the entry trigger he
+  uses, but taken WITH the trend and VWAP, not as a counter-trend sweep fade.
+- **2nd-VAH-rejection fade → POC** (+0.68R, 73%) — the "reject a key level and
+  reverse to the midpoint" idea, but with the 2nd-attempt filter, regime-aware
+  target, and skip-first-hour, all of which this ICT version lacks.
+So the ICT *skeleton* isn't worthless; the specific filters are everything, and
+the naive sweep-reclaim is the wrong filter set. Nothing to add to the system
+here — we have the tested versions already.
