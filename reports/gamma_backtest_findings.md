@@ -822,3 +822,41 @@ Important nuance — we already own the *validated* cousins of this idea:
 So the ICT *skeleton* isn't worthless; the specific filters are everything, and
 the naive sweep-reclaim is the wrong filter set. Nothing to add to the system
 here — we have the tested versions already.
+
+### ICT / "Dhesi" trade — New Week Opening Gap (NWOG) as a draw — `backtest_nwog.py`
+
+The Dhesi video is the same ICT top-down family as the Tempa trade (daily FVG ->
+hourly FVG -> 15m CISD -> 1m IFVG entry), whose mechanical core already tested
+negative (backtest_ict_sweep). The one genuinely new, testable claim is the
+**New Week Opening Gap** as a high-probability "draw on liquidity" (price is
+magnetically drawn to fill the weekend gap, used as the trade target). Tested on
+QQQ daily, 27y, 1,351 weekend/holiday gaps.
+
+**Fill rate:** 61% same session, 77% within 3, **84% within the week.** Sounds
+like an edge — but it's dominated by tiny noise gaps, and it INVERTS with size:
+
+| gap size | n | fill same-day | fill within week |
+|---|---|---|---|
+| small <0.5% | 752 | 75% | **91%** |
+| 0.5-1.0% | 351 | 50% | 80% |
+| 1.0-2.0% | 182 | 36% | 68% |
+| **big >2.0%** | 66 | 23% | **64%** |
+
+**Fade-to-fill trade** (enter gap open, target prior close, stop 1x gap):
+n=1351, win 33%, **mean -0.34R (t=-13.2)** — a strong net loser. Big gaps (>=1%)
+are only breakeven (-0.03R, t=-0.54).
+
+**Verdict — the NWOG "draw" is a real magnet over a week but NOT a standalone
+tradeable edge, and it's WEAKEST exactly for the big gaps ICT flags as
+high-probability.** The 84% headline is the classic gap-fill illusion: given a
+week, most levels get touched (survivorship), you don't control the path (it can
+run against you first), and the reward (gap size) doesn't cover the stop. So as a
+target/magnet it has mild context value; as a mechanical trade it loses.
+
+Net across the ICT videos (Tempa + Dhesi): the mechanical cores don't survive
+testing; what works for the presenters is discretion (FVG selection, "reaction"
+quality) + a good regime + selection bias. The ONE universally sound takeaway,
+worth adopting regardless: **fix dollar risk per trade, size contracts off the
+stop distance** — that's correct risk management, not a strategy. Nothing new to
+add to the system; we already hold the validated cousins (FVG continuation w/
+VWAP t=6.44; 2nd-VAH-rejection fade +0.68R).
