@@ -860,3 +860,50 @@ worth adopting regardless: **fix dollar risk per trade, size contracts off the
 stop distance** — that's correct risk management, not a strategy. Nothing new to
 add to the system; we already hold the validated cousins (FVG continuation w/
 VWAP t=6.44; 2nd-VAH-rejection fade +0.68R).
+
+### 15-min ORB + 1-min imbalance ("Kasraborhan" Reddit post) — `backtest_orb15.py`
+
+Rules: mark ORH/ORL off the first 15 min; wait for a candle to CLOSE outside the
+range; confirm with a 3-candle imbalance (FVG) in the break direction; enter on
+that imbalance's close; stop beyond the imbalance; target 2R if stop <30 NQ pts
+else 1R; 1 trade/day (2 max); move to BE once structure clears.
+
+Tested on QQQ as the NQ proxy, both timeframes. NQ's 30-pt stop threshold maps to
+~0.10% of price.
+
+| test | n | win% | mean R | PF |
+|---|---|---|---|---|
+| **1-min, WITH imbalance (his rules)** | 182 | 42% | **-0.075R** | **0.87** |
+| 1-min, plain ORB (control) | 251 | 51% | +0.005R | 1.01 |
+| 5-min, WITH imbalance | 431 | 44% | -0.098R | 0.83 |
+| 5-min, plain ORB (control) | 523 | 53% | +0.066R | 1.16 |
+
+**The imbalance confirmation — the thing he sells as the key filter — made it
+WORSE on both timeframes** (PF 0.87/0.83 vs 1.01/1.16 for plain ORB). Waiting for
+the FVG delays entry into a move that has already extended, and the resulting
+tight stop (median 0.115% on 1-min) gets run. Nothing reproduces his claimed
+PF 1.43-1.71.
+
+**The posted stats do not reconcile with each other** (the bigger red flag):
+- Title claims **$33,000+**; the real Tradezella panel shows **$6,456.77** net
+  (2.68% ROI, 52 trades). The $65,040 and $20,460 figures are BACKTESTS, not cash.
+- Trade counts quoted across the same post: **52 / 237 / "200+" / "1517"**.
+- The caption says "1517 trade automated backtesting" over an equity curve
+  spanning 05/03-07/14 (~50 sessions) = **~30 trades/day, contradicting his own
+  "one trade a day, two max" rule.** Whatever produced that curve is not the
+  strategy described.
+- Win rates quoted: **56.86% / 44.75% / 41.1%.**
+- **Calmar 200.41** against a -13.1% max drawdown is arithmetically nonsense
+  (implies ~2,600% annualised), which discredits that whole panel.
+- His own honest number: **planned vs realised R = 1.24R / 0.31R** — the
+  move-to-BE rule gives back ~75% of planned edge.
+
+**Verdict — the CONCEPT is legitimate, the marketed version is not.** Opening
+range breakout is one of the few genuinely documented intraday edges (Crabel's
+ORB work; the Zarattini/Aziz ORB studies), and our own control confirms a thin
+real edge (PF 1.01-1.16, long-biased, better in POS gamma at 5-min: +0.108R
+t=2.02). But that edge is thin enough that costs and slippage matter, and his
+specific imbalance filter subtracts from it. Not worth adopting as presented. We
+already hold a better-evidenced breakout edge (chop-zone/compression breakout,
++0.157R t=5.85 over 27y) plus FVG continuation taken WITH trend and VWAP (t=6.44)
+— i.e. the two good ideas in this post, in versions that actually tested positive.
