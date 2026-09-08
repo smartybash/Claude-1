@@ -907,3 +907,46 @@ specific imbalance filter subtracts from it. Not worth adopting as presented. We
 already hold a better-evidenced breakout edge (chop-zone/compression breakout,
 +0.157R t=5.85 over 27y) plus FVG continuation taken WITH trend and VWAP (t=6.44)
 — i.e. the two good ideas in this post, in versions that actually tested positive.
+
+### Initial Balance: breakout has no edge, but IB WIDTH is a good regime dial
+`backtest_initial_balance.py`, `backtest_ib_regime_filter.py`
+
+Published ES/NQ stats claim narrow-IB days break out ~98% of the time. Reproduced
+on QQQ 5-min (523 sessions, IB = 09:30-10:30, width vs 14d ATR):
+
+| IB class | n | break rate | median extension |
+|---|---|---|---|
+| NARROW <0.5x ATR | 289 | **98%** | 0.65x IB width |
+| normal 0.5-1.0x | 214 | 90% | 0.45x |
+| WIDE >1.0x ATR | 20 | 60% | 0.27x |
+
+Break rate and the monotonic extension relationship both replicate. **But the
+breakout trade does not pay.** Standard entry (break close, stop = IB mid, target
++100% IB) = -0.073R / PF 0.86 on narrow days. A full sweep of stops (0.25/0.5/1.0x
+IB) x targets (0.25/0.5/0.75/1.0x IB) found no meaningful edge — best cell
++0.031R / PF 1.31 at stop 1.0x IB / target 0.25x IB, i.e. risking 4x the target,
+fragile and slippage-sensitive. Reason: the median extension (0.65x) sits BELOW
+the conventional +100% target, and a 98% break rate is trivial when the day has
+5.5h to exceed a 1h range — the same survivorship illusion as the 84% gap fill.
+
+**Where IB width IS useful: as a day-type dial for the VA fade.** Hypothesis —
+narrow IB = compression = the day wants to expand, so fading edges should be
+worse; wide IB = range already spent = balance, so fading should be better. It
+holds (VA fade, target POC):
+
+| split | n | win% | mean R | PF | t |
+|---|---|---|---|---|---|
+| WIDE IB >0.5x ATR | 58 | 67% | **+0.482R** | 2.51 | +2.84 |
+| NARROW IB <0.5x ATR | 81 | 74% | +0.228R | 1.91 | +2.58 |
+| wide IB + >=2nd attempt | 17 | 82% | **+1.160R** | 7.58 | +2.97 |
+| narrow IB + >=2nd attempt | 16 | 62% | +0.168R | 1.45 | +0.68 |
+| baseline (no IB filter) | 139 | 71% | +0.334R | 2.20 | +3.80 |
+
+The fade pays ~2x as much on wide-IB (balance) days. The wide+2nd-attempt cell is
+n=17 — indicative only; the robust evidence is the all-signals split. Note the
+fade stays positive on narrow-IB days too (+0.228R, t=2.58), so narrow IB means
+"size down / take POC" rather than "stand aside".
+
+This is the basis of `reports/atas_playbook.md`: one dial (IB width at 10:30),
+two setups (VA fade primary, FVG continuation for trend days), three ATAS
+indicators (Market Profile & TPO, Stacked Imbalance, Cluster Search).
