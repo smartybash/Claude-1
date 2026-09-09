@@ -1,0 +1,587 @@
+<title>NQ Trigger Cards</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F1F3F5; --panel:#FFFFFF; --panel-2:#E9EDF1;
+    --ink:#16202B; --ink-2:#3E4C5A; --muted:#6B7A8A; --rule:#D3DAE1;
+    --brass:#A97516; --brass-soft:#F0E3C8;
+    --buy:#2A6FB5; --sell:#C0392B; --buy-soft:#DCE9F6; --sell-soft:#F8E1DE;
+    --shadow:0 1px 2px rgba(22,32,43,.07), 0 8px 24px rgba(22,32,43,.05);
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --cond:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+    --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0E151E; --panel:#151F2B; --panel-2:#1D2937;
+      --ink:#DDE5EC; --ink-2:#AFBDCA; --muted:#7C8B9A; --rule:#2A3846;
+      --brass:#D9A441; --brass-soft:#3A2F16;
+      --buy:#4E9BE0; --sell:#E4635A; --buy-soft:#152B41; --sell-soft:#3A1F1D;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0E151E; --panel:#151F2B; --panel-2:#1D2937;
+    --ink:#DDE5EC; --ink-2:#AFBDCA; --muted:#7C8B9A; --rule:#2A3846;
+    --brass:#D9A441; --brass-soft:#3A2F16;
+    --buy:#4E9BE0; --sell:#E4635A; --buy-soft:#152B41; --sell-soft:#3A1F1D;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--ground); color:var(--ink); font-family:var(--body);
+       line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1000px; margin:0 auto; padding:38px 20px 70px;}
+
+  .mast{border-bottom:2px solid var(--ink); padding-bottom:16px;}
+  .kicker{font-family:var(--cond); text-transform:uppercase; letter-spacing:.14em;
+          font-size:12px; font-weight:600; color:var(--brass);}
+  h1{font-family:var(--cond); font-weight:700; font-size:clamp(30px,5.4vw,46px);
+     line-height:1.03; margin:.18em 0 .12em; letter-spacing:-.01em; text-wrap:balance;}
+  .dek{color:var(--ink-2); font-size:15.5px; max-width:64ch; margin:0;}
+
+  h2{font-family:var(--cond); font-weight:700; font-size:13px; text-transform:uppercase;
+     letter-spacing:.16em; margin:38px 0 4px; padding-bottom:7px;
+     border-bottom:1px solid var(--rule);}
+  .lede{color:var(--ink-2); font-size:15px; margin:12px 0 14px; max-width:70ch;}
+
+  /* calibration strip */
+  .cal{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule);
+       border:1px solid var(--rule); margin:16px 0 6px;}
+  .cal>div{background:var(--panel); padding:11px 13px;}
+  .cal .lab{font-family:var(--cond); text-transform:uppercase; letter-spacing:.1em;
+            font-size:10px; font-weight:700; color:var(--muted);}
+  .cal .val{font-family:var(--mono); font-size:16px; font-weight:600; color:var(--brass);
+            font-variant-numeric:tabular-nums;}
+  .cal .sub{font-size:11.5px; color:var(--muted); font-family:var(--mono);}
+  @media(max-width:760px){.cal{grid-template-columns:repeat(2,1fr)}}
+
+  /* setup card */
+  .card{border:1px solid var(--rule); background:var(--panel); margin:26px 0;
+        box-shadow:var(--shadow);}
+  .card>header{padding:14px 18px; border-bottom:1px solid var(--rule);
+    background:var(--panel-2); display:flex; gap:12px; align-items:baseline; flex-wrap:wrap;}
+  .card h3{font-family:var(--cond); font-size:22px; font-weight:700; margin:0;}
+  .tag{font-family:var(--mono); font-size:11px; font-weight:600; padding:3px 8px;
+       border-radius:2px; white-space:nowrap;}
+  .tag.rev{background:var(--sell-soft); color:var(--sell);}
+  .tag.cont{background:var(--buy-soft); color:var(--buy);}
+  .card .mech{font-size:13.5px; color:var(--ink-2); margin:0; flex:1 1 300px;}
+  .card .inner{padding:6px 18px 20px;}
+
+  figure{margin:14px 0 6px; overflow-x:auto;}
+  svg{max-width:100%; height:auto; display:block;}
+  figcaption{font-size:12.5px; color:var(--muted); margin-top:8px; max-width:72ch;}
+
+  .wt{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--rule);
+      border:1px solid var(--rule); margin:18px 0 0;}
+  @media(max-width:760px){.wt{grid-template-columns:1fr}}
+  .wt>div{background:var(--panel); padding:14px 16px;}
+  .wt h4{font-family:var(--cond); text-transform:uppercase; letter-spacing:.11em;
+         font-size:11px; font-weight:700; margin:0 0 9px;}
+  .wt .wait h4{color:var(--muted);}
+  .wt .trig h4{color:var(--brass);}
+  .wt ul{margin:0; padding:0; list-style:none; font-size:13.5px;}
+  .wt li{padding:6px 0 6px 20px; position:relative; border-bottom:1px dotted var(--rule);}
+  .wt li:last-child{border-bottom:0;}
+  .wt .wait li::before{content:"◦"; position:absolute; left:2px; color:var(--muted); font-size:15px; top:3px;}
+  .wt .trig li::before{content:"▸"; position:absolute; left:2px; color:var(--brass); font-size:12px; top:6px;}
+  .wt code{font-family:var(--mono); font-size:12.5px; background:var(--panel-2);
+           padding:1px 5px; border-radius:2px; color:var(--ink);}
+
+  .exec{display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--rule);
+        border:1px solid var(--rule); border-top:0;}
+  @media(max-width:760px){.exec{grid-template-columns:repeat(2,1fr)}}
+  .exec>div{background:var(--panel); padding:11px 13px;}
+  .exec .lab{font-family:var(--cond); text-transform:uppercase; letter-spacing:.1em;
+             font-size:10px; font-weight:700; color:var(--muted); margin-bottom:2px;}
+  .exec .v{font-family:var(--mono); font-size:12.5px; line-height:1.4;}
+  .exec .v.stop{color:var(--sell);} .exec .v.tgt{color:var(--buy);}
+
+  .callout{border-left:3px solid var(--brass); background:var(--brass-soft);
+           padding:12px 16px; margin:18px 0; font-size:14px;}
+  .callout b{font-family:var(--cond); letter-spacing:.04em;}
+  .no{border-left-color:var(--sell); background:var(--sell-soft);}
+  .no b{color:var(--sell);}
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:12px 0;}
+  th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--rule); vertical-align:top;}
+  th{font-family:var(--cond); text-transform:uppercase; letter-spacing:.09em;
+     font-size:11px; color:var(--muted); font-weight:600;}
+  td.k{font-family:var(--mono); font-size:12.5px; white-space:nowrap;}
+  footer{margin-top:44px; border-top:2px solid var(--ink); padding-top:15px;
+         font-size:13px; color:var(--muted); display:grid; gap:8px;}
+  footer b{color:var(--ink); font-family:var(--cond); letter-spacing:.04em;}
+</style>
+
+<div class="wrap">
+
+  <div class="mast">
+    <div class="kicker">NQU6 · 5-min footprint · Rithmic</div>
+    <h1>Three triggers, drawn to your screen.</h1>
+    <p class="dek">Each card shows the same two things: what you watch while you <em>wait</em>,
+    and the one bar that makes it a <em>trade</em>. Cell sizes and delta values below are
+    calibrated to your own tape, not generic numbers.</p>
+  </div>
+
+  <h2>First — your calibration</h2>
+  <p class="lede">Read off your own footprint. These are the numbers every card below uses,
+  so a signal means the same thing every time.</p>
+  <div class="cal">
+    <div><div class="lab">Typical cluster</div><div class="val">300–600</div><div class="sub">per price level, 5-min</div></div>
+    <div><div class="lab">Big cluster</div><div class="val">800–1200+</div><div class="sub">Cluster Search ≥ 900</div></div>
+    <div><div class="lab">Big bar delta</div><div class="val">± 500+</div><div class="sub">yours run ±100–800</div></div>
+    <div><div class="lab">Normal bar volume</div><div class="val">3K–10K</div><div class="sub">falling vol = fading push</div></div>
+  </div>
+
+  <!-- ================= SETUP 1 ================= -->
+  <div class="card">
+    <header>
+      <span class="tag rev">REVERSAL</span>
+      <h3>1 · Absorption at a level</h3>
+      <p class="mech">Sellers hit hard <em>into</em> your level and get nothing. They're trapped, and they have to buy back.</p>
+    </header>
+    <div class="inner">
+      <figure>
+        <svg viewBox="0 0 720 452" role="img" aria-label="Absorption setup: price falls into the vPOC level with heavy negative delta, the footprint shows huge bid volume at the level with no downside progress, price closes back above and the delta flips positive on the next bar">
+          <defs>
+            <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--brass)"/></marker>
+          </defs>
+
+          <!-- ---- BAND A: price ---- -->
+          <text x="10" y="14" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">PRICE — 5 MIN</text>
+          <line x1="96" y1="46" x2="700" y2="46" stroke="var(--buy)" stroke-width="1.3" stroke-dasharray="6 3"/>
+          <text x="10" y="50" font-family="IBM Plex Mono" font-size="11" fill="var(--buy)">T1 · VAL 29555</text>
+          <line x1="96" y1="118" x2="700" y2="118" stroke="currentColor" stroke-width="2"/>
+          <text x="10" y="115" font-family="IBM Plex Mono" font-size="11.5" font-weight="600" fill="currentColor">vPOC 29500</text>
+          <text x="10" y="130" font-family="IBM Plex Mono" font-size="9.5" fill="currentColor" opacity=".6">your drawn level</text>
+          <line x1="96" y1="168" x2="700" y2="168" stroke="var(--sell)" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="10" y="172" font-family="IBM Plex Mono" font-size="11" fill="var(--sell)">STOP</text>
+
+          <!-- candles: 1 approach, 2 trigger, 3 confirm -->
+          <g stroke-linecap="butt">
+            <!-- bar 1: falling, red -->
+            <line x1="180" y1="62" x2="180" y2="126" stroke="var(--sell)" stroke-width="1.4"/>
+            <rect x="171" y="70" width="18" height="46" fill="var(--sell)"/>
+            <!-- bar 2: TRIGGER long lower wick, closes above level -->
+            <line x1="380" y1="96" x2="380" y2="158" stroke="var(--buy)" stroke-width="1.4"/>
+            <rect x="371" y="100" width="18" height="14" fill="none" stroke="var(--buy)" stroke-width="2"/>
+            <!-- bar 3: confirm, blue up -->
+            <line x1="580" y1="66" x2="580" y2="112" stroke="var(--buy)" stroke-width="1.4"/>
+            <rect x="571" y="72" width="18" height="34" fill="var(--buy)"/>
+          </g>
+          <text x="150" y="180" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">bar 1 · approach</text>
+          <text x="336" y="180" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="var(--brass)">bar 2 · TRIGGER</text>
+          <text x="548" y="180" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">bar 3 · confirm</text>
+
+          <!-- wick-below-level callout -->
+          <line x1="392" y1="152" x2="452" y2="146" stroke="var(--brass)" stroke-width="1.1"/>
+          <text x="456" y="143" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)">wick pokes below…</text>
+          <line x1="392" y1="104" x2="452" y2="98" stroke="var(--brass)" stroke-width="1.1"/>
+          <text x="456" y="95" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="var(--brass)">…but CLOSES back above</text>
+          <circle cx="398" cy="100" r="5" fill="var(--brass)"/>
+          <text x="456" y="112" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--brass)">ENTRY on that close</text>
+
+          <line x1="10" y1="196" x2="710" y2="196" stroke="currentColor" opacity=".2"/>
+
+          <!-- ---- BAND B: footprint ---- -->
+          <text x="10" y="215" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">FOOTPRINT — BID × ASK</text>
+          <g font-family="IBM Plex Mono" font-size="10.5">
+            <!-- price ladder labels -->
+            <g fill="currentColor" opacity=".65" font-size="9.5">
+              <text x="10" y="242">29515</text><text x="10" y="262">29510</text>
+              <text x="10" y="282">29505</text><text x="10" y="302">29500</text>
+              <text x="10" y="322">29495</text>
+            </g>
+            <!-- bar 1 column -->
+            <g>
+              <rect x="118" y="230" width="124" height="16" fill="var(--sell-soft)"/>
+              <text x="124" y="242" fill="var(--sell)">418 × 205</text>
+              <rect x="118" y="250" width="124" height="16" fill="var(--sell-soft)"/>
+              <text x="124" y="262" fill="var(--sell)">610 × 288</text>
+              <rect x="118" y="270" width="124" height="16" fill="var(--sell-soft)"/>
+              <text x="124" y="282" fill="var(--sell)">544 × 261</text>
+              <text x="124" y="302" fill="currentColor" opacity=".55">— × —</text>
+              <text x="124" y="322" fill="currentColor" opacity=".55">— × —</text>
+            </g>
+            <!-- bar 2 column : TRIGGER -->
+            <g>
+              <rect x="316" y="228" width="132" height="98" fill="none" stroke="var(--brass)" stroke-width="2"/>
+              <text x="322" y="242" fill="currentColor">232 × 268</text>
+              <text x="322" y="262" fill="currentColor">486 × 512</text>
+              <rect x="318" y="270" width="128" height="16" fill="var(--sell-soft)"/>
+              <text x="322" y="282" fill="var(--sell)" font-weight="700">905 × 430</text>
+              <rect x="318" y="290" width="128" height="16" fill="var(--sell-soft)"/>
+              <text x="322" y="302" fill="var(--sell)" font-weight="700">1180 × 395</text>
+              <text x="322" y="322" fill="currentColor" opacity=".55">188 × 96</text>
+            </g>
+            <!-- bar 3 column -->
+            <g>
+              <rect x="516" y="250" width="124" height="16" fill="var(--buy-soft)"/>
+              <text x="522" y="262" fill="var(--buy)">240 × 505</text>
+              <rect x="516" y="270" width="124" height="16" fill="var(--buy-soft)"/>
+              <text x="522" y="282" fill="var(--buy)">318 × 640</text>
+              <text x="522" y="302" fill="currentColor" opacity=".55">120 × 210</text>
+            </g>
+          </g>
+          <text x="456" y="300" font-family="IBM Plex Mono" font-size="10" fill="var(--sell)" font-weight="600">huge BID = sellers hitting</text>
+          <text x="456" y="314" font-family="IBM Plex Mono" font-size="10" fill="var(--sell)">1180 vs 395 ask — and the</text>
+          <text x="456" y="328" font-family="IBM Plex Mono" font-size="10" fill="var(--sell)">low still doesn't extend</text>
+
+          <line x1="10" y1="344" x2="710" y2="344" stroke="currentColor" opacity=".2"/>
+
+          <!-- ---- BAND C: delta / volume strip ---- -->
+          <text x="10" y="362" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">YOUR DELTA / VOLUME ROW</text>
+          <g font-family="IBM Plex Mono" font-size="12" font-weight="600">
+            <text x="10" y="392" font-size="10" fill="var(--muted)" font-weight="400">Delta</text>
+            <rect x="118" y="378" width="124" height="20" fill="var(--sell)" opacity=".85"/><text x="160" y="392" fill="#fff">−791</text>
+            <rect x="316" y="378" width="132" height="20" fill="var(--sell)" opacity=".85"/><text x="360" y="392" fill="#fff">−505</text>
+            <rect x="516" y="378" width="124" height="20" fill="var(--buy)" opacity=".85"/><text x="562" y="392" fill="#fff">+255</text>
+            <text x="10" y="418" font-size="10" fill="var(--muted)" font-weight="400">Volume</text>
+            <text x="160" y="418" fill="currentColor" opacity=".8">8K</text>
+            <text x="360" y="418" fill="currentColor" opacity=".8">12K</text>
+            <text x="562" y="418" fill="currentColor" opacity=".8">6K</text>
+          </g>
+          <text x="316" y="440" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)" font-weight="600">big negative delta + highest volume + price UP = absorption</text>
+        </svg>
+        <figcaption>The tell is the contradiction: delta says sellers won bar 2 decisively (−505 on 12K, the heaviest bar), but the candle closed <em>up</em> and off the level. Aggression spent, nothing gained.</figcaption>
+      </figure>
+
+      <div class="wt">
+        <div class="wait">
+          <h4>While you wait</h4>
+          <ul>
+            <li>Price approaching one of your drawn levels — <code>vPOC</code>, <code>VAL</code>, <code>VAH</code>. Not floating between them.</li>
+            <li>Delta printing <b>heavily negative</b> bar after bar as it falls (<code>−791</code>, <code>−505</code>).</li>
+            <li>Volume <b>rising</b> into the level — that's the aggression arriving.</li>
+            <li>Watch the bid column swell at the level: cells going <code>900+</code>, <code>1000+</code>.</li>
+          </ul>
+        </div>
+        <div class="trig">
+          <h4>The trigger bar</h4>
+          <ul>
+            <li>Delta still strongly negative (<code>−500</code> or worse)…</li>
+            <li>…but the bar <b>closes back at or above the level</b>.</li>
+            <li>The low <b>fails to extend</b> beyond the prior bar's low.</li>
+            <li><b>Enter on that close.</b> Don't wait for a retest — it often doesn't come.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exec">
+        <div><div class="lab">Entry</div><div class="v">close of trigger bar</div></div>
+        <div><div class="lab">Stop</div><div class="v stop">2–3 ticks under trigger bar low</div></div>
+        <div><div class="lab">T1</div><div class="v tgt">next drawn level up</div></div>
+        <div><div class="lab">T2</div><div class="v tgt">VAH / far side of value</div></div>
+        <div><div class="lab">Invalid if</div><div class="v stop">price closes back below the level</div></div>
+      </div>
+      <div class="callout no"><b>Skip it if</b> delta is big <em>and</em> price keeps falling.
+      That's not absorption, that's just trend — you'd be catching a knife.</div>
+    </div>
+  </div>
+
+  <!-- ================= SETUP 2 ================= -->
+  <div class="card">
+    <header>
+      <span class="tag rev">REVERSAL</span>
+      <h3>2 · Trap at the extreme</h3>
+      <p class="mech">Price breaks your Globex/RTH extreme, buyers pile in, then it closes back inside. Everyone who bought the break is offside.</p>
+    </header>
+    <div class="inner">
+      <figure>
+        <svg viewBox="0 0 720 452" role="img" aria-label="Trap setup: price breaks above the Globex high with strong positive delta, the footprint shows heavy ask volume at the new high that fails to extend, then the bar closes back below the level and delta flips negative">
+          <!-- BAND A -->
+          <text x="10" y="14" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">PRICE — 5 MIN</text>
+          <line x1="96" y1="52" x2="700" y2="52" stroke="var(--sell)" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="10" y="50" font-family="IBM Plex Mono" font-size="11" fill="var(--sell)">STOP · above the poke</text>
+          <line x1="96" y1="86" x2="700" y2="86" stroke="currentColor" stroke-width="2"/>
+          <text x="10" y="83" font-family="IBM Plex Mono" font-size="11.5" font-weight="600" fill="currentColor">Globex high 29650</text>
+          <text x="10" y="97" font-family="IBM Plex Mono" font-size="9.5" fill="currentColor" opacity=".6">or RTH high / VAH</text>
+          <line x1="96" y1="150" x2="700" y2="150" stroke="var(--buy)" stroke-width="1.3" stroke-dasharray="6 3"/>
+          <text x="10" y="147" font-family="IBM Plex Mono" font-size="11" fill="var(--buy)">T1 · vPOC 29610</text>
+
+          <g stroke-linecap="butt">
+            <!-- bar1: drive up through level -->
+            <line x1="180" y1="60" x2="180" y2="122" stroke="var(--buy)" stroke-width="1.4"/>
+            <rect x="171" y="66" width="18" height="50" fill="var(--buy)"/>
+            <!-- bar2: TRIGGER — new high, closes back below level -->
+            <line x1="380" y1="42" x2="380" y2="104" stroke="var(--sell)" stroke-width="1.4"/>
+            <rect x="371" y="90" width="18" height="12" fill="var(--sell)"/>
+            <!-- bar3: confirm down -->
+            <line x1="580" y1="88" x2="580" y2="148" stroke="var(--sell)" stroke-width="1.4"/>
+            <rect x="571" y="96" width="18" height="46" fill="var(--sell)"/>
+          </g>
+          <text x="150" y="180" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">bar 1 · the break</text>
+          <text x="336" y="180" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="var(--brass)">bar 2 · TRIGGER</text>
+          <text x="548" y="180" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">bar 3 · confirm</text>
+
+          <line x1="392" y1="46" x2="452" y2="40" stroke="var(--brass)" stroke-width="1.1"/>
+          <text x="456" y="37" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)">new high — no acceptance</text>
+          <line x1="392" y1="96" x2="452" y2="112" stroke="var(--brass)" stroke-width="1.1"/>
+          <text x="456" y="116" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="var(--brass)">closes BACK BELOW the level</text>
+          <circle cx="398" cy="96" r="5" fill="var(--brass)"/>
+          <text x="456" y="130" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--brass)">ENTRY short on that close</text>
+
+          <line x1="10" y1="196" x2="710" y2="196" stroke="currentColor" opacity=".2"/>
+
+          <!-- BAND B -->
+          <text x="10" y="215" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">FOOTPRINT — BID × ASK</text>
+          <g font-family="IBM Plex Mono" font-size="10.5">
+            <g fill="currentColor" opacity=".65" font-size="9.5">
+              <text x="10" y="242">29665</text><text x="10" y="262">29660</text>
+              <text x="10" y="282">29655</text><text x="10" y="302">29650</text>
+              <text x="10" y="322">29645</text>
+            </g>
+            <g>
+              <text x="124" y="282" fill="currentColor" opacity=".55">— × —</text>
+              <rect x="118" y="290" width="124" height="16" fill="var(--buy-soft)"/>
+              <text x="124" y="302" fill="var(--buy)">305 × 618</text>
+              <rect x="118" y="310" width="124" height="16" fill="var(--buy-soft)"/>
+              <text x="124" y="322" fill="var(--buy)">288 × 540</text>
+            </g>
+            <g>
+              <rect x="316" y="228" width="132" height="98" fill="none" stroke="var(--brass)" stroke-width="2"/>
+              <rect x="318" y="230" width="128" height="16" fill="var(--buy-soft)"/>
+              <text x="322" y="242" fill="var(--buy)" font-weight="700">240 × 1090</text>
+              <rect x="318" y="250" width="128" height="16" fill="var(--buy-soft)"/>
+              <text x="322" y="262" fill="var(--buy)" font-weight="700">311 × 1240</text>
+              <rect x="318" y="270" width="128" height="16" fill="var(--buy-soft)"/>
+              <text x="322" y="282" fill="var(--buy)" font-weight="700">402 × 960</text>
+              <text x="322" y="302" fill="currentColor">560 × 470</text>
+              <text x="322" y="322" fill="currentColor" opacity=".55">180 × 120</text>
+            </g>
+            <g>
+              <rect x="516" y="290" width="124" height="16" fill="var(--sell-soft)"/>
+              <text x="522" y="302" fill="var(--sell)">690 × 250</text>
+              <rect x="516" y="310" width="124" height="16" fill="var(--sell-soft)"/>
+              <text x="522" y="322" fill="var(--sell)">742 × 208</text>
+            </g>
+          </g>
+          <text x="456" y="248" font-family="IBM Plex Mono" font-size="10" fill="var(--buy)" font-weight="600">huge ASK = buyers lifting</text>
+          <text x="456" y="262" font-family="IBM Plex Mono" font-size="10" fill="var(--buy)">1240 vs 311 bid — every</text>
+          <text x="456" y="276" font-family="IBM Plex Mono" font-size="10" fill="var(--buy)">one of them now trapped</text>
+
+          <line x1="10" y1="344" x2="710" y2="344" stroke="currentColor" opacity=".2"/>
+
+          <!-- BAND C -->
+          <text x="10" y="362" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">YOUR DELTA / VOLUME ROW</text>
+          <g font-family="IBM Plex Mono" font-size="12" font-weight="600">
+            <text x="10" y="392" font-size="10" fill="var(--muted)" font-weight="400">Delta</text>
+            <rect x="118" y="378" width="124" height="20" fill="var(--buy)" opacity=".85"/><text x="160" y="392" fill="#fff">+510</text>
+            <rect x="316" y="378" width="132" height="20" fill="var(--buy)" opacity=".85"/><text x="360" y="392" fill="#fff">+624</text>
+            <rect x="516" y="378" width="124" height="20" fill="var(--sell)" opacity=".85"/><text x="558" y="392" fill="#fff">−553</text>
+            <text x="10" y="418" font-size="10" fill="var(--muted)" font-weight="400">Volume</text>
+            <text x="160" y="418" fill="currentColor" opacity=".8">9K</text>
+            <text x="360" y="418" fill="currentColor" opacity=".8">11K</text>
+            <text x="562" y="418" fill="currentColor" opacity=".8">7K</text>
+          </g>
+          <text x="316" y="440" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)" font-weight="600">strongest BUY delta of the move — and the bar closed red, back inside</text>
+        </svg>
+        <figcaption>Bar 2 is the whole trade: the biggest buying of the session (+624 on 11K, ask cells 960–1240) produced a candle that closed <em>below</em> the level it broke. That buying is now inventory that has to be sold.</figcaption>
+      </figure>
+
+      <div class="wt">
+        <div class="wait">
+          <h4>While you wait</h4>
+          <ul>
+            <li>Price pressing one of your session extremes — <code>Globex high/low</code>, <code>RTH high/low</code>.</li>
+            <li>Delta <b>strongly positive</b> into the break (<code>+510</code>) — you want them committed.</li>
+            <li>Ask cells at the new high going <code>900+</code>. The more that lift, the better the trap.</li>
+            <li><b>Nothing happens above the level.</b> No follow-through, no fresh highs building volume.</li>
+          </ul>
+        </div>
+        <div class="trig">
+          <h4>The trigger bar</h4>
+          <ul>
+            <li>Made a <b>new high beyond the level</b>…</li>
+            <li>…and <b>closed back below it</b>.</li>
+            <li>Bonus: <code>Big Trades</code> bubble prints at the high — size took the other side.</li>
+            <li><b>Enter short on that close.</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="exec">
+        <div><div class="lab">Entry</div><div class="v">close of trigger bar</div></div>
+        <div><div class="lab">Stop</div><div class="v stop">2–3 ticks above the poke high</div></div>
+        <div><div class="lab">T1</div><div class="v tgt">vPOC below</div></div>
+        <div><div class="lab">T2</div><div class="v tgt">VAL / opposite extreme</div></div>
+        <div><div class="lab">Invalid if</div><div class="v stop">price trades back above the poke high</div></div>
+      </div>
+      <div class="callout"><b>Why the stop is so tight.</b> The poke high isn't an arbitrary
+      buffer — it's the exact price that proves the auction wasn't failed. If it trades
+      through, your reason for being short is gone. Small, specific, cheap.</div>
+    </div>
+  </div>
+
+  <!-- ================= SETUP 3 ================= -->
+  <div class="card">
+    <header>
+      <span class="tag cont">CONTINUATION</span>
+      <h3>3 · Run the empty pocket</h3>
+      <p class="mech">Between two fat shelves on your profile there's a thin gap. Nobody defends it — price crosses it fast.</p>
+    </header>
+    <div class="inner">
+      <figure>
+        <svg viewBox="0 0 720 452" role="img" aria-label="Thin pocket setup: the volume profile shows a thin gap between two fat shelves, price enters the gap, footprint cells are tiny with no defence, and price travels quickly to the far shelf">
+          <!-- BAND A: profile + price -->
+          <text x="10" y="14" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">YOUR 1H VOLUME PROFILE + PRICE</text>
+          <!-- profile bars from left -->
+          <g fill="currentColor" opacity=".3">
+            <rect x="96" y="34" width="132" height="12"/>
+            <rect x="96" y="50" width="158" height="12"/>
+            <rect x="96" y="66" width="120" height="12"/>
+          </g>
+          <text x="262" y="60" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="currentColor" opacity=".75">FAT — price sticks (target)</text>
+          <!-- thin -->
+          <g fill="var(--brass)" opacity=".9">
+            <rect x="96" y="86" width="22" height="12"/>
+            <rect x="96" y="102" width="17" height="12"/>
+            <rect x="96" y="118" width="20" height="12"/>
+          </g>
+          <text x="128" y="112" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--brass)">THIN — the pocket</text>
+          <!-- fat below -->
+          <g fill="currentColor" opacity=".3">
+            <rect x="96" y="138" width="146" height="12"/>
+            <rect x="96" y="154" width="168" height="12"/>
+          </g>
+          <text x="272" y="164" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="currentColor" opacity=".75">FAT — vPOC 29500</text>
+
+          <!-- price path travelling down through pocket -->
+          <polyline points="400,44 430,52 452,60 470,74 486,92 500,108 516,124 536,140 560,150 590,156 620,154 650,158"
+                    fill="none" stroke="var(--sell)" stroke-width="2.2"/>
+          <circle cx="470" cy="74" r="5" fill="var(--brass)"/>
+          <text x="482" y="70" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--brass)">ENTRY — enters the pocket</text>
+          <line x1="400" y1="60" x2="700" y2="60" stroke="var(--sell)" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <text x="604" y="56" font-family="IBM Plex Mono" font-size="10" fill="var(--sell)">STOP · back in the shelf</text>
+          <line x1="400" y1="152" x2="700" y2="152" stroke="var(--buy)" stroke-width="1.2" stroke-dasharray="6 3"/>
+          <text x="604" y="168" font-family="IBM Plex Mono" font-size="10" fill="var(--buy)">TARGET · far shelf</text>
+
+          <line x1="10" y1="196" x2="710" y2="196" stroke="currentColor" opacity=".2"/>
+
+          <!-- BAND B: footprint thin vs fat -->
+          <text x="10" y="215" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">FOOTPRINT — THIN CELLS ARE THE SIGNAL</text>
+          <g font-family="IBM Plex Mono" font-size="10.5">
+            <text x="118" y="240" font-size="10" fill="var(--muted)">in the shelf (before)</text>
+            <g>
+              <rect x="118" y="248" width="124" height="16" fill="currentColor" opacity=".08"/>
+              <text x="124" y="260" fill="currentColor">544 × 512</text>
+              <rect x="118" y="268" width="124" height="16" fill="currentColor" opacity=".08"/>
+              <text x="124" y="280" fill="currentColor">610 × 588</text>
+              <rect x="118" y="288" width="124" height="16" fill="currentColor" opacity=".08"/>
+              <text x="124" y="300" fill="currentColor">487 × 465</text>
+              <text x="124" y="322" font-size="9.5" fill="var(--muted)">two-sided, defended</text>
+            </g>
+
+            <text x="330" y="240" font-size="10" font-weight="600" fill="var(--brass)">inside the pocket (TRIGGER)</text>
+            <g>
+              <rect x="326" y="244" width="140" height="82" fill="none" stroke="var(--brass)" stroke-width="2"/>
+              <rect x="330" y="248" width="130" height="16" fill="var(--sell-soft)"/>
+              <text x="336" y="260" fill="var(--sell)" font-weight="700">88 × 26</text>
+              <rect x="330" y="268" width="130" height="16" fill="var(--sell-soft)"/>
+              <text x="336" y="280" fill="var(--sell)" font-weight="700">54 × 12</text>
+              <rect x="330" y="288" width="130" height="16" fill="var(--sell-soft)"/>
+              <text x="336" y="300" fill="var(--sell)" font-weight="700">41 × 9</text>
+              <text x="336" y="322" font-size="9.5" fill="var(--brass)">one-sided, nobody home</text>
+            </g>
+
+            <text x="536" y="240" font-size="10" fill="var(--muted)">at the far shelf (exit)</text>
+            <g>
+              <rect x="536" y="248" width="124" height="16" fill="currentColor" opacity=".08"/>
+              <text x="542" y="260" fill="currentColor">705 × 690</text>
+              <rect x="536" y="268" width="124" height="16" fill="currentColor" opacity=".08"/>
+              <text x="542" y="280" fill="currentColor">830 × 812</text>
+              <text x="542" y="302" font-size="9.5" fill="var(--muted)">volume returns —</text>
+              <text x="542" y="316" font-size="9.5" fill="var(--muted)">take the trade off</text>
+            </g>
+          </g>
+
+          <line x1="10" y1="344" x2="710" y2="344" stroke="currentColor" opacity=".2"/>
+
+          <!-- BAND C -->
+          <text x="10" y="362" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">YOUR DELTA / VOLUME ROW</text>
+          <g font-family="IBM Plex Mono" font-size="12" font-weight="600">
+            <text x="10" y="392" font-size="10" fill="var(--muted)" font-weight="400">Delta</text>
+            <rect x="118" y="378" width="124" height="20" fill="var(--sell)" opacity=".55"/><text x="160" y="392" fill="#fff">−180</text>
+            <rect x="326" y="378" width="140" height="20" fill="var(--sell)" opacity=".85"/><text x="372" y="392" fill="#fff">−410</text>
+            <rect x="536" y="378" width="124" height="20" fill="var(--sell)" opacity=".55"/><text x="576" y="392" fill="#fff">−120</text>
+            <text x="10" y="418" font-size="10" fill="var(--muted)" font-weight="400">Volume</text>
+            <text x="160" y="418" fill="currentColor" opacity=".8">7K</text>
+            <text x="372" y="418" fill="var(--brass)" font-weight="700">3K</text>
+            <text x="576" y="418" fill="currentColor" opacity=".8">9K</text>
+          </g>
+          <text x="326" y="440" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)" font-weight="600">LOW volume + one-sided delta = price is falling through empty air</text>
+        </svg>
+        <figcaption>This is the opposite signature to setups 1 and 2. There, huge cells meant someone was fighting. Here, tiny one-sided cells on <em>low</em> volume mean nobody is — so price keeps going until it reaches the next shelf.</figcaption>
+      </figure>
+
+      <div class="wt">
+        <div class="wait">
+          <h4>While you wait</h4>
+          <ul>
+            <li>On your 1H profile, find where the histogram is <b>pinched thin</b> between two fat areas. Mark both edges.</li>
+            <li>Price trading in the fat shelf, cells <b>two-sided</b> (<code>544 × 512</code>) — that's balance, no trade yet.</li>
+            <li>Note which direction the day is leaning: delta and price agreeing.</li>
+          </ul>
+        </div>
+        <div class="trig">
+          <h4>The trigger bar</h4>
+          <ul>
+            <li>Price <b>leaves the shelf and enters the pocket</b>.</li>
+            <li>Cells go <b>small and one-sided</b> (<code>88 × 26</code>, <code>54 × 12</code>).</li>
+            <li>Bar <b>volume drops</b> (<code>3K</code> vs the 7–9K around it) — no one is defending.</li>
+            <li><b>Enter in the direction of travel.</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="exec">
+        <div><div class="lab">Entry</div><div class="v">as it enters the pocket</div></div>
+        <div><div class="lab">Stop</div><div class="v stop">back inside the shelf it left</div></div>
+        <div><div class="lab">T1</div><div class="v tgt">far edge of the pocket</div></div>
+        <div><div class="lab">T2</div><div class="v tgt">the fat shelf / vPOC beyond</div></div>
+        <div><div class="lab">Invalid if</div><div class="v stop">cells fatten up mid-pocket</div></div>
+      </div>
+      <div class="callout no"><b>Never</b> put a target inside a pocket — price won't stop
+      there. And never treat a thin area as support. That's the mistake this setup exists
+      to stop you making.</div>
+    </div>
+  </div>
+
+  <!-- ================= SUMMARY ================= -->
+  <h2>The three, side by side</h2>
+  <table>
+    <thead><tr><th>Setup</th><th>Cells look like</th><th>Delta says</th><th>Volume</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k"><b>1 Absorption</b></td>
+        <td class="k">huge, lopsided <b>bid</b> at a level</td>
+        <td class="k">big − but price up</td>
+        <td class="k">highest of the move</td>
+        <td class="k">closes back <b>above</b> the level</td>
+      </tr>
+      <tr>
+        <td class="k"><b>2 Trap</b></td>
+        <td class="k">huge <b>ask</b> at a new high</td>
+        <td class="k">biggest + of the move</td>
+        <td class="k">high</td>
+        <td class="k">closes back <b>inside</b> the level</td>
+      </tr>
+      <tr>
+        <td class="k"><b>3 Pocket</b></td>
+        <td class="k">tiny, one-sided</td>
+        <td class="k">one-way, modest</td>
+        <td class="k"><b>low</b></td>
+        <td class="k">enters the thin zone</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>One line to remember all three.</b> Big volume where price
+  <em>stops</em> = fade it (1 &amp; 2). Small volume where price <em>moves</em> = go with it (3).
+  Everything else on the screen is noise.</div>
+
+  <footer>
+    <div><b>All numbers are calibrated to your tape</b> — NQU6 on Rithmic, 5-min bars, clusters
+    300–600 typical and 800–1200 big. If you switch to ES, everything scales down; re-read one
+    session before trusting the thresholds.</div>
+    <div><b>One trade at a time.</b> Only one of these three is ever live at a given price.
+    If you can't say which one you're in, you're not in a trade.</div>
+  </footer>
+
+</div>
