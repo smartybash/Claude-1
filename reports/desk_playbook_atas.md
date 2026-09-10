@@ -39,7 +39,7 @@ These are the prices where risk changed hands. Mark them and do not add more.
 - **Naked POCs** — POCs from earlier sessions never revisited. Unfinished
   business; price is drawn to them.
 - **HVN** (high-volume node) — thick shelf = acceptance = price *sticks*
-- **LVN** (low-volume node) — thin gap = rejection = price *travels fast*
+- **LVN** (low-volume node) — thin gap. Its **edges act as support/resistance** (price was rejected there before); the **interior** travels fast, but only after a close is accepted through an edge.
 
 **From the overnight session:**
 - **Globex High / Low** (the most-run stops of the morning)
@@ -50,9 +50,11 @@ These are the prices where risk changed hands. Mark them and do not add more.
 **Always on:** session **VWAP** — real because execution algos are benchmarked to
 it, so size genuinely defends it.
 
-> **The HVN/LVN distinction is the most underused edge on this list.** LVNs are
-> not support — they are vacuum. Never set a target *short of* an LVN and never
-> expect one to hold. HVNs are where rotations die: that is where you take profit.
+> **The HVN/LVN distinction is the most underused edge on this list.** An LVN
+> **edge** is a genuine S/R level — first touch is a fade until a close proves
+> otherwise. Only once price closes through does the thin interior let it run to
+> the next shelf. Never put a *target* inside an LVN; price doesn't rest there.
+> HVNs are the opposite: rotations die at shelves, so that is where you take profit.
 
 ---
 

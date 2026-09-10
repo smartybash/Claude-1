@@ -74,6 +74,7 @@
 
   .wt{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--rule);
       border:1px solid var(--rule); margin:18px 0 0;}
+  .wt.one{grid-template-columns:1fr}
   @media(max-width:760px){.wt{grid-template-columns:1fr}}
   .wt>div{background:var(--panel); padding:14px 16px;}
   .wt h4{font-family:var(--cond); text-transform:uppercase; letter-spacing:.11em;
@@ -414,133 +415,152 @@
   <!-- ================= SETUP 3 ================= -->
   <div class="card">
     <header>
-      <span class="tag cont">CONTINUATION</span>
-      <h3>3 · Run the empty pocket</h3>
-      <p class="mech">Between two fat shelves on your profile there's a thin gap. Nobody defends it — price crosses it fast.</p>
+      <span class="tag cont">DECISION POINT</span>
+      <h3>3 · The LVN edge — reject or run</h3>
+      <p class="mech">A thin zone is a price the market <em>already rejected once</em>. Its <b>edge</b> is where that judgement gets re-tested. It either holds — and you fade it — or it's accepted through, and price covers the gap fast. You don't guess which. The footprint tells you.</p>
     </header>
     <div class="inner">
       <figure>
-        <svg viewBox="0 0 720 452" role="img" aria-label="Thin pocket setup: the volume profile shows a thin gap between two fat shelves, price enters the gap, footprint cells are tiny with no defence, and price travels quickly to the far shelf">
-          <!-- BAND A: profile + price -->
-          <text x="10" y="14" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">YOUR 1H VOLUME PROFILE + PRICE</text>
-          <!-- profile bars from left -->
+        <svg viewBox="0 0 720 452" role="img" aria-label="LVN edge decision: price arrives at the edge of a thin zone and either rejects and returns to the shelf, or is accepted through and runs to the far shelf; the footprint cells distinguish the two">
+          <!-- BAND A -->
+          <text x="10" y="14" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">1H PROFILE — THE EDGE IS THE DECISION POINT</text>
           <g fill="currentColor" opacity=".3">
-            <rect x="96" y="34" width="132" height="12"/>
-            <rect x="96" y="50" width="158" height="12"/>
-            <rect x="96" y="66" width="120" height="12"/>
+            <rect x="96" y="30" width="132" height="12"/>
+            <rect x="96" y="46" width="164" height="12"/>
+            <rect x="96" y="62" width="126" height="12"/>
           </g>
-          <text x="262" y="60" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="currentColor" opacity=".75">FAT — price sticks (target)</text>
-          <!-- thin -->
+          <text x="272" y="56" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="currentColor" opacity=".75">FAT shelf — price came from here</text>
           <g fill="var(--brass)" opacity=".9">
-            <rect x="96" y="86" width="22" height="12"/>
-            <rect x="96" y="102" width="17" height="12"/>
-            <rect x="96" y="118" width="20" height="12"/>
+            <rect x="96" y="90" width="22" height="12"/>
+            <rect x="96" y="106" width="16" height="12"/>
+            <rect x="96" y="122" width="20" height="12"/>
           </g>
-          <text x="128" y="112" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--brass)">THIN — the pocket</text>
-          <!-- fat below -->
+          <text x="126" y="116" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--brass)">THIN — rejected before</text>
           <g fill="currentColor" opacity=".3">
-            <rect x="96" y="138" width="146" height="12"/>
-            <rect x="96" y="154" width="168" height="12"/>
+            <rect x="96" y="148" width="150" height="12"/>
+            <rect x="96" y="164" width="172" height="12"/>
           </g>
-          <text x="272" y="164" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="currentColor" opacity=".75">FAT — vPOC 29500</text>
+          <text x="278" y="174" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="currentColor" opacity=".75">FAT shelf — vPOC 29500</text>
 
-          <!-- price path travelling down through pocket -->
-          <polyline points="400,44 430,52 452,60 470,74 486,92 500,108 516,124 536,140 560,150 590,156 620,154 650,158"
-                    fill="none" stroke="var(--sell)" stroke-width="2.2"/>
-          <circle cx="470" cy="74" r="5" fill="var(--brass)"/>
-          <text x="482" y="70" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--brass)">ENTRY — enters the pocket</text>
-          <line x1="400" y1="60" x2="700" y2="60" stroke="var(--sell)" stroke-width="1.2" stroke-dasharray="4 3"/>
-          <text x="604" y="56" font-family="IBM Plex Mono" font-size="10" fill="var(--sell)">STOP · back in the shelf</text>
-          <line x1="400" y1="152" x2="700" y2="152" stroke="var(--buy)" stroke-width="1.2" stroke-dasharray="6 3"/>
-          <text x="604" y="168" font-family="IBM Plex Mono" font-size="10" fill="var(--buy)">TARGET · far shelf</text>
+          <line x1="300" y1="84" x2="700" y2="84" stroke="currentColor" stroke-width="2"/>
+          <text x="300" y="80" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="currentColor">LVN edge 29545 — S/R</text>
+          <line x1="300" y1="140" x2="700" y2="140" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" opacity=".6"/>
+          <text x="300" y="152" font-family="IBM Plex Mono" font-size="10" fill="currentColor" opacity=".7">far edge 29505</text>
 
-          <line x1="10" y1="196" x2="710" y2="196" stroke="currentColor" opacity=".2"/>
+          <polyline points="330,32 360,44 390,58 420,70 450,80" fill="none" stroke="currentColor" stroke-width="2.2" opacity=".8"/>
+          <circle cx="452" cy="82" r="6" fill="var(--brass)"/>
+          <text x="356" y="24" font-family="IBM Plex Mono" font-size="10" fill="currentColor" opacity=".7">arrives from the shelf</text>
 
-          <!-- BAND B: footprint thin vs fat -->
-          <text x="10" y="215" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">FOOTPRINT — THIN CELLS ARE THE SIGNAL</text>
+          <path d="M458,80 C490,74 510,58 560,44 L610,36" fill="none" stroke="var(--buy)" stroke-width="2.4"/>
+          <polygon points="610,36 600,32 601,41" fill="var(--buy)"/>
+          <text x="470" y="56" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--buy)">A · REJECTS → fade back into the shelf</text>
+
+          <path d="M458,88 C486,100 500,118 520,134 L560,158" fill="none" stroke="var(--sell)" stroke-width="2.4" stroke-dasharray="5 3"/>
+          <polygon points="560,158 549,152 551,161" fill="var(--sell)"/>
+          <text x="470" y="122" font-family="IBM Plex Mono" font-size="10.5" font-weight="700" fill="var(--sell)">B · ACCEPTED → runs the gap</text>
+          <text x="470" y="136" font-family="IBM Plex Mono" font-size="9.5" fill="var(--sell)" opacity=".85">only after a CLOSE beyond the edge</text>
+
+          <line x1="10" y1="192" x2="710" y2="192" stroke="currentColor" opacity=".2"/>
+
+          <!-- BAND B -->
+          <text x="10" y="210" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">THE FOOTPRINT AT THE EDGE DECIDES IT</text>
           <g font-family="IBM Plex Mono" font-size="10.5">
-            <text x="118" y="240" font-size="10" fill="var(--muted)">in the shelf (before)</text>
-            <g>
-              <rect x="118" y="248" width="124" height="16" fill="currentColor" opacity=".08"/>
-              <text x="124" y="260" fill="currentColor">544 × 512</text>
-              <rect x="118" y="268" width="124" height="16" fill="currentColor" opacity=".08"/>
-              <text x="124" y="280" fill="currentColor">610 × 588</text>
-              <rect x="118" y="288" width="124" height="16" fill="currentColor" opacity=".08"/>
-              <text x="124" y="300" fill="currentColor">487 × 465</text>
-              <text x="124" y="322" font-size="9.5" fill="var(--muted)">two-sided, defended</text>
-            </g>
+            <rect x="96" y="222" width="270" height="112" fill="none" stroke="var(--buy)" stroke-width="2"/>
+            <text x="106" y="240" font-size="11" font-weight="700" fill="var(--buy)">A · EDGE HOLDS — cells FATTEN</text>
+            <rect x="106" y="248" width="140" height="16" fill="currentColor" opacity=".08"/>
+            <text x="112" y="260" fill="currentColor">640 × 612</text>
+            <rect x="106" y="268" width="140" height="16" fill="currentColor" opacity=".08"/>
+            <text x="112" y="280" fill="currentColor">810 × 790</text>
+            <rect x="106" y="288" width="140" height="16" fill="currentColor" opacity=".08"/>
+            <text x="112" y="308" fill="currentColor">705 × 688</text>
+            <text x="256" y="262" font-size="9.5" fill="var(--buy)">two-sided —</text>
+            <text x="256" y="276" font-size="9.5" fill="var(--buy)">someone is</text>
+            <text x="256" y="290" font-size="9.5" fill="var(--buy)">defending it</text>
+            <text x="106" y="326" font-size="9.5" fill="var(--buy)" font-weight="600">volume RETURNS = the edge is real</text>
 
-            <text x="330" y="240" font-size="10" font-weight="600" fill="var(--brass)">inside the pocket (TRIGGER)</text>
-            <g>
-              <rect x="326" y="244" width="140" height="82" fill="none" stroke="var(--brass)" stroke-width="2"/>
-              <rect x="330" y="248" width="130" height="16" fill="var(--sell-soft)"/>
-              <text x="336" y="260" fill="var(--sell)" font-weight="700">88 × 26</text>
-              <rect x="330" y="268" width="130" height="16" fill="var(--sell-soft)"/>
-              <text x="336" y="280" fill="var(--sell)" font-weight="700">54 × 12</text>
-              <rect x="330" y="288" width="130" height="16" fill="var(--sell-soft)"/>
-              <text x="336" y="300" fill="var(--sell)" font-weight="700">41 × 9</text>
-              <text x="336" y="322" font-size="9.5" fill="var(--brass)">one-sided, nobody home</text>
-            </g>
-
-            <text x="536" y="240" font-size="10" fill="var(--muted)">at the far shelf (exit)</text>
-            <g>
-              <rect x="536" y="248" width="124" height="16" fill="currentColor" opacity=".08"/>
-              <text x="542" y="260" fill="currentColor">705 × 690</text>
-              <rect x="536" y="268" width="124" height="16" fill="currentColor" opacity=".08"/>
-              <text x="542" y="280" fill="currentColor">830 × 812</text>
-              <text x="542" y="302" font-size="9.5" fill="var(--muted)">volume returns —</text>
-              <text x="542" y="316" font-size="9.5" fill="var(--muted)">take the trade off</text>
-            </g>
+            <rect x="392" y="222" width="270" height="112" fill="none" stroke="var(--sell)" stroke-width="2"/>
+            <text x="402" y="240" font-size="11" font-weight="700" fill="var(--sell)">B · EDGE FAILS — cells stay THIN</text>
+            <rect x="402" y="248" width="140" height="16" fill="var(--sell-soft)"/>
+            <text x="408" y="260" fill="var(--sell)" font-weight="700">88 × 26</text>
+            <rect x="402" y="268" width="140" height="16" fill="var(--sell-soft)"/>
+            <text x="408" y="280" fill="var(--sell)" font-weight="700">54 × 12</text>
+            <rect x="402" y="288" width="140" height="16" fill="var(--sell-soft)"/>
+            <text x="408" y="308" fill="var(--sell)" font-weight="700">41 × 9</text>
+            <text x="552" y="262" font-size="9.5" fill="var(--sell)">one-sided —</text>
+            <text x="552" y="276" font-size="9.5" fill="var(--sell)">nobody home,</text>
+            <text x="552" y="290" font-size="9.5" fill="var(--sell)">it goes</text>
+            <text x="402" y="326" font-size="9.5" fill="var(--sell)" font-weight="600">volume STAYS LOW = no defence</text>
           </g>
 
-          <line x1="10" y1="344" x2="710" y2="344" stroke="currentColor" opacity=".2"/>
+          <line x1="10" y1="348" x2="710" y2="348" stroke="currentColor" opacity=".2"/>
 
           <!-- BAND C -->
-          <text x="10" y="362" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">YOUR DELTA / VOLUME ROW</text>
+          <text x="10" y="366" font-family="IBM Plex Sans Condensed" font-size="10.5" font-weight="700" fill="currentColor" opacity=".5" letter-spacing="1.3">YOUR DELTA / VOLUME ROW</text>
           <g font-family="IBM Plex Mono" font-size="12" font-weight="600">
-            <text x="10" y="392" font-size="10" fill="var(--muted)" font-weight="400">Delta</text>
-            <rect x="118" y="378" width="124" height="20" fill="var(--sell)" opacity=".55"/><text x="160" y="392" fill="#fff">−180</text>
-            <rect x="326" y="378" width="140" height="20" fill="var(--sell)" opacity=".85"/><text x="372" y="392" fill="#fff">−410</text>
-            <rect x="536" y="378" width="124" height="20" fill="var(--sell)" opacity=".55"/><text x="576" y="392" fill="#fff">−120</text>
-            <text x="10" y="418" font-size="10" fill="var(--muted)" font-weight="400">Volume</text>
-            <text x="160" y="418" fill="currentColor" opacity=".8">7K</text>
-            <text x="372" y="418" fill="var(--brass)" font-weight="700">3K</text>
-            <text x="576" y="418" fill="currentColor" opacity=".8">9K</text>
+            <text x="106" y="396" font-size="10" fill="var(--muted)" font-weight="400">Delta</text>
+            <rect x="166" y="382" width="80" height="20" fill="var(--sell)" opacity=".85"/><text x="188" y="396" fill="#fff">−480</text>
+            <text x="256" y="396" font-size="10" fill="var(--buy)" font-weight="400">but price holds → fade</text>
+            <text x="106" y="424" font-size="10" fill="var(--muted)" font-weight="400">Volume</text>
+            <text x="188" y="424" fill="var(--buy)" font-weight="700">9K</text>
+            <text x="256" y="424" font-size="10" fill="var(--muted)" font-weight="400">high = contested</text>
+
+            <text x="402" y="396" font-size="10" fill="var(--muted)" font-weight="400">Delta</text>
+            <rect x="462" y="382" width="80" height="20" fill="var(--sell)" opacity=".85"/><text x="484" y="396" fill="#fff">−410</text>
+            <text x="552" y="396" font-size="10" fill="var(--sell)" font-weight="400">price slices → run</text>
+            <text x="402" y="424" font-size="10" fill="var(--muted)" font-weight="400">Volume</text>
+            <text x="484" y="424" fill="var(--sell)" font-weight="700">3K</text>
+            <text x="552" y="424" font-size="10" fill="var(--muted)" font-weight="400">low = uncontested</text>
           </g>
-          <text x="326" y="440" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)" font-weight="600">LOW volume + one-sided delta = price is falling through empty air</text>
+          <text x="106" y="446" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)" font-weight="600">Same delta. Opposite trade. Volume and cell size are what separate them.</text>
         </svg>
-        <figcaption>This is the opposite signature to setups 1 and 2. There, huge cells meant someone was fighting. Here, tiny one-sided cells on <em>low</em> volume mean nobody is — so price keeps going until it reaches the next shelf.</figcaption>
+        <figcaption>Note the delta is almost identical in both branches (−480 vs −410). Delta alone cannot tell you which is happening — <em>cell size and bar volume</em> at the edge are the discriminator.</figcaption>
       </figure>
 
-      <div class="wt">
+      <div class="wt one">
         <div class="wait">
-          <h4>While you wait</h4>
+          <h4>While you wait — before either branch</h4>
           <ul>
-            <li>On your 1H profile, find where the histogram is <b>pinched thin</b> between two fat areas. Mark both edges.</li>
-            <li>Price trading in the fat shelf, cells <b>two-sided</b> (<code>544 × 512</code>) — that's balance, no trade yet.</li>
-            <li>Note which direction the day is leaning: delta and price agreeing.</li>
+            <li>On the 1H profile, mark <b>both edges</b> of every thin zone. The edges are the levels; the middle is not.</li>
+            <li>Price approaching an edge from the fat shelf. <b>Do not pre-commit to a direction.</b></li>
+            <li>Watch the cells <em>as it arrives</em>. That single bar decides which branch you're in.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="wt">
+        <div class="trig">
+          <h4>A · Edge holds → FADE <span style="color:var(--buy)">(the primary trade)</span></h4>
+          <ul>
+            <li>Cells at the edge <b>fatten and go two-sided</b> (<code>640 × 612</code>, <code>810 × 790</code>).</li>
+            <li>Bar volume <b>rises</b> — it's being contested.</li>
+            <li>Delta pushes hard but price <b>won't cross</b>, and the bar <b>closes back into the shelf</b>.</li>
+            <li><b>Enter the fade on that close.</b> Stop just through the thin zone — a few ticks. Target back across the shelf.</li>
           </ul>
         </div>
         <div class="trig">
-          <h4>The trigger bar</h4>
+          <h4>B · Edge accepted → RUN <span style="color:var(--sell)">(second best, later)</span></h4>
           <ul>
-            <li>Price <b>leaves the shelf and enters the pocket</b>.</li>
-            <li>Cells go <b>small and one-sided</b> (<code>88 × 26</code>, <code>54 × 12</code>).</li>
-            <li>Bar <b>volume drops</b> (<code>3K</code> vs the 7–9K around it) — no one is defending.</li>
-            <li><b>Enter in the direction of travel.</b></li>
+            <li>A bar <b>CLOSES beyond the edge</b> — not a wick through it.</li>
+            <li>Cells stay <b>thin and one-sided</b> (<code>88 × 26</code>), volume <b>drops</b> (<code>3K</code>).</li>
+            <li>Best entry is the <b>first shallow pullback that holds the broken edge</b> — the LVN now flips and acts as S/R the other way.</li>
+            <li>Target the <b>far shelf</b>. Nothing in between will stop it.</li>
           </ul>
         </div>
       </div>
       <div class="exec">
-        <div><div class="lab">Entry</div><div class="v">as it enters the pocket</div></div>
-        <div><div class="lab">Stop</div><div class="v stop">back inside the shelf it left</div></div>
-        <div><div class="lab">T1</div><div class="v tgt">far edge of the pocket</div></div>
-        <div><div class="lab">T2</div><div class="v tgt">the fat shelf / vPOC beyond</div></div>
-        <div><div class="lab">Invalid if</div><div class="v stop">cells fatten up mid-pocket</div></div>
+        <div><div class="lab">A · Entry</div><div class="v">close back into the shelf</div></div>
+        <div><div class="lab">A · Stop</div><div class="v stop">just through the thin zone</div></div>
+        <div><div class="lab">B · Entry</div><div class="v">pullback holding the broken edge</div></div>
+        <div><div class="lab">B · Stop</div><div class="v stop">back inside the thin zone</div></div>
+        <div><div class="lab">Both · Target</div><div class="v tgt">the fat shelf / vPOC beyond</div></div>
       </div>
-      <div class="callout no"><b>Never</b> put a target inside a pocket — price won't stop
-      there. And never treat a thin area as support. That's the mistake this setup exists
-      to stop you making.</div>
+      <div class="callout"><b>Correction to an earlier version of this card.</b> It said to enter
+      continuation <em>as price enters</em> the thin zone, and that thin areas are never support.
+      That was wrong — it puts you in at exactly the price where the rejection happens. An LVN
+      <b>is</b> support/resistance at its edges; the fast-travel behaviour only applies to the
+      interior, and only <em>after</em> a close through the edge. First touch is a fade until
+      proven otherwise.</div>
+      <div class="callout no"><b>Still true:</b> never put a <em>target</em> inside a thin zone.
+      Price doesn't come to rest there — that's why it's thin.</div>
     </div>
   </div>
 
@@ -564,17 +584,24 @@
         <td class="k">closes back <b>inside</b> the level</td>
       </tr>
       <tr>
-        <td class="k"><b>3 Pocket</b></td>
-        <td class="k">tiny, one-sided</td>
+        <td class="k"><b>3A LVN holds</b></td>
+        <td class="k">fatten, two-sided at the edge</td>
+        <td class="k">pushes, price won't cross</td>
+        <td class="k">rises</td>
+        <td class="k">closes back <b>into</b> the shelf</td>
+      </tr>
+      <tr>
+        <td class="k"><b>3B LVN accepted</b></td>
+        <td class="k">stay tiny, one-sided</td>
         <td class="k">one-way, modest</td>
         <td class="k"><b>low</b></td>
-        <td class="k">enters the thin zone</td>
+        <td class="k"><b>closes beyond</b> the edge</td>
       </tr>
     </tbody>
   </table>
-  <div class="callout"><b>One line to remember all three.</b> Big volume where price
-  <em>stops</em> = fade it (1 &amp; 2). Small volume where price <em>moves</em> = go with it (3).
-  Everything else on the screen is noise.</div>
+  <div class="callout"><b>One line to remember all of them.</b> Volume arriving where price
+  <em>stops</em> = fade it (1, 2, 3A). Volume staying away while price <em>moves</em> = go with it
+  (3B). Every level is a fade until a close proves otherwise.</div>
 
   <footer>
     <div><b>All numbers are calibrated to your tape</b> — NQU6 on Rithmic, 5-min bars, clusters
