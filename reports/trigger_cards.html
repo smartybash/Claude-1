@@ -104,6 +104,21 @@
   .no{border-left-color:var(--sell); background:var(--sell-soft);}
   .no b{color:var(--sell);}
 
+  /* trade / avoid panel */
+  .ta{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--rule);
+      border:1px solid var(--rule); margin:18px 0;}
+  @media(max-width:760px){.ta{grid-template-columns:1fr}}
+  .ta>div{background:var(--panel); padding:15px 17px;}
+  .ta h4{font-family:var(--cond); text-transform:uppercase; letter-spacing:.11em;
+         font-size:11.5px; font-weight:700; margin:0 0 10px;}
+  .ta .go h4{color:var(--buy);} .ta .nogo h4{color:var(--sell);}
+  .ta ul{margin:0; padding:0; list-style:none; font-size:13.5px;}
+  .ta li{padding:7px 0 7px 22px; position:relative; border-bottom:1px dotted var(--rule);}
+  .ta li:last-child{border-bottom:0;}
+  .ta .go li::before{content:"✓"; position:absolute; left:2px; color:var(--buy); font-weight:700;}
+  .ta .nogo li::before{content:"✕"; position:absolute; left:2px; color:var(--sell); font-weight:700;}
+  .ta code{font-family:var(--mono); font-size:12.5px; background:var(--panel-2);
+           padding:1px 5px; border-radius:2px; color:var(--ink);}
   table{width:100%; border-collapse:collapse; font-size:13.5px; margin:12px 0;}
   th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--rule); vertical-align:top;}
   th{font-family:var(--cond); text-transform:uppercase; letter-spacing:.09em;
@@ -133,6 +148,109 @@
     <div><div class="lab">Big bar delta</div><div class="val">± 500+</div><div class="sub">yours run ±100–800</div></div>
     <div><div class="lab">Normal bar volume</div><div class="val">3K–10K</div><div class="sub">falling vol = fading push</div></div>
   </div>
+
+  <h2>The gate — trade or stand down</h2>
+  <p class="lede">Run this before you look for any setup. Most of the session ends at
+  &ldquo;stand down&rdquo;, and that is the job working correctly — you are paid for the few bars
+  where all of it lines up, not for participating.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 402" role="img" aria-label="Decision flow: price must be at a mapped level and inside a trade window, then the footprint behaviour routes to a fade, a stand-down, or a go-with trade">
+      <defs>
+        <marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <marker id="fr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--sell)"/></marker>
+      </defs>
+      <g font-family="IBM Plex Mono" font-size="12">
+        <rect x="260" y="14" width="200" height="32" rx="2" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".4"/>
+        <text x="360" y="34" text-anchor="middle" fill="currentColor" font-weight="600">price arrives</text>
+        <line x1="360" y1="46" x2="360" y2="64" stroke="currentColor" stroke-width="1.4" marker-end="url(#fa)"/>
+
+        <rect x="230" y="66" width="260" height="38" rx="2" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".4"/>
+        <text x="360" y="90" text-anchor="middle" fill="currentColor">at a level from your map?</text>
+        <line x1="490" y1="85" x2="556" y2="85" stroke="var(--sell)" stroke-width="1.4" marker-end="url(#fr)"/>
+        <text x="500" y="79" font-size="10" fill="var(--sell)">no</text>
+        <rect x="558" y="66" width="152" height="38" rx="2" fill="var(--sell-soft)" stroke="var(--sell)" stroke-width="1.4"/>
+        <text x="634" y="90" text-anchor="middle" fill="var(--sell)" font-weight="700" font-size="11.5">STAND DOWN</text>
+
+        <line x1="360" y1="104" x2="360" y2="122" stroke="currentColor" stroke-width="1.4" marker-end="url(#fa)"/>
+        <rect x="230" y="124" width="260" height="38" rx="2" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".4"/>
+        <text x="360" y="148" text-anchor="middle" fill="currentColor">inside a trade window?</text>
+        <line x1="490" y1="143" x2="556" y2="143" stroke="var(--sell)" stroke-width="1.4" marker-end="url(#fr)"/>
+        <text x="500" y="137" font-size="10" fill="var(--sell)">no</text>
+        <rect x="558" y="124" width="152" height="38" rx="2" fill="var(--sell-soft)" stroke="var(--sell)" stroke-width="1.4"/>
+        <text x="634" y="148" text-anchor="middle" fill="var(--sell)" font-weight="700" font-size="11.5">STAND DOWN</text>
+
+        <line x1="360" y1="162" x2="360" y2="180" stroke="currentColor" stroke-width="1.4" marker-end="url(#fa)"/>
+        <rect x="196" y="182" width="328" height="38" rx="2" fill="var(--brass-soft)" stroke="var(--brass)" stroke-width="1.6"/>
+        <text x="360" y="206" text-anchor="middle" fill="var(--brass)" font-weight="700">what is the footprint doing there?</text>
+
+        <path d="M300,220 L300,238 L112,238 L112,256" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#fa)"/>
+        <path d="M360,220 L360,256" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#fa)"/>
+        <path d="M420,220 L420,238 L608,238 L608,256" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#fa)"/>
+
+        <rect x="16" y="258" width="192" height="118" rx="2" fill="var(--panel-2)" stroke="var(--brass)" stroke-width="1.6"/>
+        <text x="112" y="280" text-anchor="middle" fill="currentColor" font-size="11.5" font-weight="600">BIG volume</text>
+        <text x="112" y="296" text-anchor="middle" fill="currentColor" font-size="11.5" font-weight="600">price STOPS</text>
+        <line x1="40" y1="310" x2="184" y2="310" stroke="currentColor" stroke-opacity=".25"/>
+        <text x="112" y="332" text-anchor="middle" fill="var(--brass)" font-size="13" font-weight="700">FADE IT</text>
+        <text x="112" y="352" text-anchor="middle" fill="var(--brass)" font-size="10.5">Setups 1 · 2 · 3A</text>
+        <text x="112" y="368" text-anchor="middle" fill="currentColor" opacity=".6" font-size="10">someone is defending</text>
+
+        <rect x="266" y="258" width="188" height="118" rx="2" fill="var(--sell-soft)" stroke="var(--sell)" stroke-width="1.6"/>
+        <text x="360" y="280" text-anchor="middle" fill="currentColor" font-size="11.5" font-weight="600">BIG volume</text>
+        <text x="360" y="296" text-anchor="middle" fill="currentColor" font-size="11.5" font-weight="600">price MOVES</text>
+        <line x1="290" y1="310" x2="430" y2="310" stroke="currentColor" stroke-opacity=".25"/>
+        <text x="360" y="332" text-anchor="middle" fill="var(--sell)" font-size="13" font-weight="700">STAND DOWN</text>
+        <text x="360" y="352" text-anchor="middle" fill="var(--sell)" font-size="10.5">no setup exists here</text>
+        <text x="360" y="368" text-anchor="middle" fill="currentColor" opacity=".6" font-size="10">this is just trend — chasing</text>
+
+        <rect x="512" y="258" width="192" height="118" rx="2" fill="var(--panel-2)" stroke="var(--buy)" stroke-width="1.6"/>
+        <text x="608" y="280" text-anchor="middle" fill="currentColor" font-size="11.5" font-weight="600">LOW volume</text>
+        <text x="608" y="296" text-anchor="middle" fill="currentColor" font-size="11.5" font-weight="600">price MOVES</text>
+        <line x1="536" y1="310" x2="680" y2="310" stroke="currentColor" stroke-opacity=".25"/>
+        <text x="608" y="332" text-anchor="middle" fill="var(--buy)" font-size="13" font-weight="700">GO WITH IT</text>
+        <text x="608" y="352" text-anchor="middle" fill="var(--buy)" font-size="10.5">Setup 3B</text>
+        <text x="608" y="368" text-anchor="middle" fill="currentColor" opacity=".6" font-size="10">nobody is defending</text>
+      </g>
+    </svg>
+    <figcaption>The middle branch is the one that costs people money. Heavy volume <em>with</em>
+    price moving feels like the strongest signal on the screen — it is simply a trend already
+    under way, and there is no entry in it with a definable stop.</figcaption>
+  </figure>
+
+  <div class="ta">
+    <div class="go">
+      <h4>Trade when — all of these</h4>
+      <ul>
+        <li>Price is <b>at a mapped level</b>: <code>vPOC</code>, <code>VAH</code>, <code>VAL</code>, <code>RTH H/L</code>, <code>Globex H/L</code>, or an <code>LVN edge</code>.</li>
+        <li>Clock is inside a <b>trade window</b> (below).</li>
+        <li><b>2 of the setup's 4</b> footprint signals are present.</li>
+        <li>The bar <b>CLOSES</b> to trigger it — a wick through is not a trigger.</li>
+        <li>You can say the <b>invalidation price</b> out loud in one sentence.</li>
+        <li>You are <b>under 2 losses</b> for the day.</li>
+      </ul>
+    </div>
+    <div class="nogo">
+      <h4>Avoid when — any one of these</h4>
+      <ul>
+        <li><b>Price is mid-range</b>, between levels. No location, no trade — this is most of the day.</li>
+        <li>Price is <b>inside an LVN</b>, not at its edge. Wait for an edge.</li>
+        <li><b>Big volume and price still moving</b> — you'd be chasing a trend, not fading a level.</li>
+        <li>Only a <b>wick</b> through the level. No close, no trigger.</li>
+        <li><b>3rd or later test</b> of the same level today — each test consumes the resting orders that made it work.</li>
+        <li>Price has <b>accepted beyond</b> your level — it's building volume out there. The level is dead; stop fading it.</li>
+        <li><b>11:30–14:00</b>, or the <b>first 5 minutes</b> after the open.</li>
+        <li><b>FOMC / CPI / NFP</b> inside 15 minutes either side.</li>
+        <li>Signals <b>conflict</b> — e.g. absorption tell, but the day type says initiative.</li>
+        <li>You're on a <b>delayed or eval feed</b>. Every cell number is then meaningless.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout"><b>The honest ratio.</b> On a normal session you'll get
+  <b>0–2</b> of these, not eight. If you're finding a setup every twenty minutes you've
+  stopped requiring a level and started reading the footprint in mid-range — where it
+  is noise.</div>
 
   <!-- ================= SETUP 1 ================= -->
   <div class="card">
@@ -409,6 +527,9 @@
       <div class="callout"><b>Why the stop is so tight.</b> The poke high isn't an arbitrary
       buffer — it's the exact price that proves the auction wasn't failed. If it trades
       through, your reason for being short is gone. Small, specific, cheap.</div>
+      <div class="callout no"><b>Skip it if</b> price closes back <em>above</em> the level after
+      your entry, or if volume keeps <em>building</em> above it — that's acceptance, not a trap.
+      The break was real and the trapped traders you were counting on don't exist.</div>
     </div>
   </div>
 
@@ -602,6 +723,47 @@
   <div class="callout"><b>One line to remember all of them.</b> Volume arriving where price
   <em>stops</em> = fade it (1, 2, 3A). Volume staying away while price <em>moves</em> = go with it
   (3B). Every level is a fade until a close proves otherwise.</div>
+
+  <h2>Session windows — when the screen is worth watching</h2>
+  <p class="lede">Same setup, different hour, different outcome. The levels don't change
+  through the day but the participation behind them does, and these signals need
+  participation to mean anything.</p>
+  <figure>
+    <svg viewBox="0 0 720 178" role="img" aria-label="Session timeline in Eastern Time showing which windows are tradeable and which to sit out">
+      <g font-family="IBM Plex Mono" font-size="11">
+        <rect x="10"  y="44" width="72"  height="40" fill="var(--sell-soft)" stroke="var(--sell)" stroke-width="1.4"/>
+        <rect x="82"  y="44" width="56"  height="40" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".35"/>
+        <rect x="138" y="44" width="212" height="40" fill="var(--brass-soft)" stroke="var(--brass)" stroke-width="2"/>
+        <rect x="350" y="44" width="168" height="40" fill="var(--sell-soft)" stroke="var(--sell)" stroke-width="1.4"/>
+        <rect x="518" y="44" width="140" height="40" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".35"/>
+        <rect x="658" y="44" width="52"  height="40" fill="var(--sell-soft)" stroke="var(--sell)" stroke-width="1.4"/>
+
+        <text x="12"  y="38" fill="var(--sell)">09:30</text>
+        <text x="84"  y="38" fill="currentColor" opacity=".6">09:35</text>
+        <text x="140" y="38" fill="var(--brass)" font-weight="700">10:00</text>
+        <text x="352" y="38" fill="var(--sell)">11:30</text>
+        <text x="520" y="38" fill="currentColor" opacity=".6">14:00</text>
+        <text x="660" y="38" fill="var(--sell)">15:30</text>
+
+        <text x="16"  y="61" fill="var(--sell)" font-size="10" font-weight="700">AVOID</text>
+        <text x="16"  y="75" fill="var(--sell)" font-size="9">spreads widest</text>
+        <text x="86"  y="61" fill="currentColor" font-size="10">thin OK</text>
+        <text x="86"  y="75" fill="currentColor" opacity=".6" font-size="9">Globex lvls only</text>
+        <text x="144" y="62" fill="var(--brass)" font-size="12" font-weight="700">PRIME — all setups live</text>
+        <text x="144" y="77" fill="var(--brass)" font-size="9.5">IB completes 10:30 · traps resolve · real participation</text>
+        <text x="356" y="61" fill="var(--sell)" font-size="10" font-weight="700">AVOID — lunch</text>
+        <text x="356" y="75" fill="var(--sell)" font-size="9">low volume fakes every signal</text>
+        <text x="522" y="61" fill="currentColor" font-size="10">tradeable</text>
+        <text x="522" y="75" fill="currentColor" opacity=".6" font-size="9">3B, or 1 at the day's extreme</text>
+        <text x="662" y="61" fill="var(--sell)" font-size="10" font-weight="700">AVOID</text>
+        <text x="662" y="75" fill="var(--sell)" font-size="9">MOC</text>
+
+        <text x="10" y="112" fill="currentColor" opacity=".7" font-size="11">Lunch is the trap: your levels still print, the footprint still colours cells, but 2K-bar</text>
+        <text x="10" y="128" fill="currentColor" opacity=".7" font-size="11">volume makes a &quot;big cluster&quot; out of ordinary trade. The signal looks identical and means nothing.</text>
+        <text x="10" y="154" fill="var(--sell)" font-size="11" font-weight="600">Hard stop regardless of clock: 2 losses, or a scheduled release inside 15 minutes.</text>
+      </g>
+    </svg>
+  </figure>
 
   <footer>
     <div><b>All numbers are calibrated to your tape</b> — NQU6 on Rithmic, 5-min bars, clusters
