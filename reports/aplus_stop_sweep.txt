@@ -1,0 +1,6 @@
+QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
+spec: both sides · all 8 fixed levels · no open condition · no IB filter
+stop translated to NQ points at 29400
+
+--- no flow filter ---
+   stop  NQ pts                                                        meanRR  freq
