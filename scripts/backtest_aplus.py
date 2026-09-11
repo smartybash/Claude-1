@@ -53,26 +53,44 @@ LEVEL_TOL = 0.0015    # levels closer together than this are deduped
 
 
 # ------------------------------- levels --------------------------------------
-def session_profile(bars):
+# One profile per session, and one high/low pair, computed once. Without these
+# caches the naked-POC scan recomputes the same 60 profiles for every day and
+# the whole run takes ~20 minutes instead of ~1.
+_PROF: dict = {}
+_RANGE: dict = {}
+
+
+def session_profile(bars, key=None):
+    if key is not None and key in _PROF:
+        return _PROF[key]
     p = volume_profile(bars, 50)
-    if not p:
-        return None
-    poc, vah, val = p
-    return (poc, vah, val) if val < poc < vah else None
+    if p:
+        poc, vah, val = p
+        p = (poc, vah, val) if val < poc < vah else None
+    if key is not None:
+        _PROF[key] = p
+    return p
+
+
+def session_range(sess, d):
+    if d not in _RANGE:
+        b = sess[d]
+        _RANGE[d] = (float(b["low"].min()), float(b["high"].max()))
+    return _RANGE[d]
 
 
 def naked_pocs(sess, days, i):
     """POCs of earlier sessions that no later session has traded through."""
     out = []
     for j in range(max(0, i - 60), i):
-        p = session_profile(sess[days[j]])
+        p = session_profile(sess[days[j]], key=days[j])
         if not p:
             continue
         poc = p[0]
         touched = False
         for k in range(j + 1, i):
-            b = sess[days[k]]
-            if float(b["low"].min()) <= poc <= float(b["high"].max()):
+            lo, hi = session_range(sess, days[k])
+            if lo <= poc <= hi:
                 touched = True
                 break
         if not touched:
@@ -86,15 +104,19 @@ def build_levels(sess, days, i, open_px):
         return {}
     lv = {}
     prev = sess[days[i - 1]]
-    p = session_profile(prev)
+    p = session_profile(prev, key=days[i - 1])
     if not p:
         return {}
     lv["pdPOC"], lv["pdVAH"], lv["pdVAL"] = p
-    lv["pdHigh"] = float(prev["high"].max())
-    lv["pdLow"] = float(prev["low"].min())
+    lv["pdLow"], lv["pdHigh"] = session_range(sess, days[i - 1])
 
-    comp = pd.concat([sess[days[j]] for j in range(i - COMPOSITE_N, i)])
-    c = session_profile(comp)
+    ckey = ("comp", days[i])
+    if ckey in _PROF:
+        c = _PROF[ckey]
+    else:
+        comp = pd.concat([sess[days[j]] for j in range(i - COMPOSITE_N, i)])
+        c = session_profile(comp)
+        _PROF[ckey] = c
     if c:
         lv["cPOC"], lv["cVAH"], lv["cVAL"] = c
 
