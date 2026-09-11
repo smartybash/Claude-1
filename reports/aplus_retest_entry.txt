@@ -2,3 +2,9 @@ QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
 rejection bar closes -> limit rests AT the level for K bars
 
 === stop 0.15% (44 NQ pts) ===
+  patience  1 bars                           n= 166  win  31%  mean +0.079R  PF 1.12  t=+0.53     fill  42%  1.7/wk
+  patience  2 bars                           n= 208  win  31%  mean -0.011R  PF 0.98  t=-0.09     fill  52%  2.1/wk
+  patience  3 bars                           n= 231  win  31%  mean -0.048R  PF 0.93  t=-0.42     fill  58%  2.3/wk
+  patience  6 bars                           n= 276  win  32%  mean -0.047R  PF 0.93  t=-0.46     fill  69%  2.7/wk
+  patience 12 bars                           n= 300  win  32%  mean -0.043R  PF 0.94  t=-0.44     fill  75%  3.0/wk
+  -- with trigger-bar delta >=10% --
