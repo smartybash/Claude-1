@@ -2,3 +2,13 @@ QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
 all 8 fixed levels · both sides · target prior-day POC · first trigger after 10:00
 
 === stop 0.15%  (44 NQ pts beyond the level) ===
+  entry at LEVEL (lookahead)             n= 400  win  50%  mean +0.628R  PF 2.26  t=+4.68     4.0/wk
+  entry at CLOSE (realistic)             n= 395  win  45%  mean -0.047R  PF 0.91  t=-0.66     3.9/wk
+  resting LIMIT, every touch             n= 500  win  20%  mean -0.513R  PF 0.36  t=-10.30    5.0/wk
+  CLOSE + bar delta >=10%                n= 337  win  48%  mean -0.049R  PF 0.90  t=-0.73     3.4/wk
+  CLOSE + bar delta >=20%                n= 329  win  48%  mean -0.094R  PF 0.81  t=-1.43     3.3/wk
+
+=== stop 0.25%  (74 NQ pts beyond the level) ===
+  entry at LEVEL (lookahead)             n= 400  win  58%  mean +0.412R  PF 2.02  t=+4.63     4.0/wk
+  entry at CLOSE (realistic)             n= 395  win  52%  mean -0.010R  PF 0.98  t=-0.16     3.9/wk
+  resting LIMIT, every touch             n= 500  win  24%  mean -0.535R  PF 0.29  t=-13.51    5.0/wk
