@@ -1,0 +1,4 @@
+QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
+rejection bar closes -> limit rests AT the level for K bars
+
+=== stop 0.15% (44 NQ pts) ===
