@@ -8,3 +8,32 @@ rejection bar closes -> limit rests AT the level for K bars
   patience  6 bars                           n= 276  win  32%  mean -0.047R  PF 0.93  t=-0.46     fill  69%  2.7/wk
   patience 12 bars                           n= 300  win  32%  mean -0.043R  PF 0.94  t=-0.44     fill  75%  3.0/wk
   -- with trigger-bar delta >=10% --
+  patience  3 bars                           n= 161  win  34%  mean +0.063R  PF 1.09  t=+0.44     fill  46%  1.6/wk
+  patience  6 bars                           n= 214  win  33%  mean -0.018R  PF 0.97  t=-0.15     fill  61%  2.1/wk
+  patience 12 bars                           n= 235  win  32%  mean -0.025R  PF 0.96  t=-0.23     fill  67%  2.3/wk
+
+=== stop 0.25% (74 NQ pts) ===
+  patience  1 bars                           n= 166  win  46%  mean +0.196R  PF 1.37  t=+1.68     fill  42%  1.7/wk
+  patience  2 bars                           n= 208  win  45%  mean +0.090R  PF 1.16  t=+0.92     fill  52%  2.1/wk
+  patience  3 bars                           n= 231  win  43%  mean +0.037R  PF 1.07  t=+0.41     fill  58%  2.3/wk
+  patience  6 bars                           n= 276  win  42%  mean +0.004R  PF 1.01  t=+0.05     fill  69%  2.7/wk
+  patience 12 bars                           n= 300  win  43%  mean +0.028R  PF 1.05  t=+0.35     fill  75%  3.0/wk
+  -- with trigger-bar delta >=10% --
+  patience  3 bars                           n= 161  win  43%  mean +0.056R  PF 1.10  t=+0.51     fill  46%  1.6/wk
+  patience  6 bars                           n= 214  win  41%  mean -0.054R  PF 0.91  t=-0.61     fill  61%  2.1/wk
+  patience 12 bars                           n= 235  win  41%  mean -0.029R  PF 0.95  t=-0.33     fill  67%  2.3/wk
+
+=== detail: stop 0.25%, patience 6, bar delta >=10% ===
+  median -1.00R  max DD 34.8R  worst streak 9  best +5.3R
+  first half  to 2025-07-17                  n= 103  win  50%  mean +0.141R  PF 1.29  t=+1.05     fill  61%  2.1/wk
+  second half from 2025-07-17                n= 111  win  32%  mean -0.235R  PF 0.64  t=-2.02     fill  61%  2.2/wk
+
+  by level:
+    cVAH                                     n=   9  win  22%  mean -0.241R  PF 0.69  t=-0.46     fill  64%  0.1/wk
+    cVAL                                     n=   8  win  38%  mean +0.276R  PF 1.44  t=+0.35     fill  67%  0.1/wk
+    nPOCdn                                   n=   6  win  33%  mean +0.074R  PF 1.11  t=+0.11     fill  60%  0.1/wk
+    nPOCup                                   n=   9  win  56%  mean +0.472R  PF 2.06  t=+0.83     fill  47%  0.1/wk
+    pdHigh                                   n=  35  win  26%  mean -0.190R  PF 0.72  t=-0.77     fill  54%  0.3/wk
+    pdLow                                    n=  38  win  26%  mean -0.211R  PF 0.70  t=-0.97     fill  67%  0.4/wk
+    pdVAH                                    n=  66  win  55%  mean +0.025R  PF 1.06  t=+0.19     fill  66%  0.7/wk
+    pdVAL                                    n=  43  win  47%  mean -0.077R  PF 0.85  t=-0.46     fill  58%  0.4/wk
