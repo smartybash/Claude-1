@@ -1,0 +1,27 @@
+QQQ 5-min RTH — 509 sessions, 2024-07-22 to 2026-07-31
+
+======================================================================================
+PART 1 — BASE RATES BY OPENING LOCATION (prior-day value area)
+======================================================================================
+open            days    %   ret/ATR  P(back in)  P(POC)  P(VAH)  P(VAL)
+above value      210  41%    -0.074         64%     50%     64%     33%
+below value      134  26%    +0.048         61%     41%     33%     61%
+inside value     165  32%    +0.009        100%     76%     68%     63%
+
+open OUTSIDE value: 344 days (68%)
+  price returns INTO value same day : 63%
+  and then reaches the POC          : 74%
+  small gap (<0.5 ATR)   n= 264  back in  70%  ret/ATR -0.019
+  large gap (>=0.5 ATR)  n=  80  back in  40%  ret/ATR -0.053
+
+======================================================================================
+PART 2 — TRADEABLE RULES  (entry always at a printed bar close)
+======================================================================================
+A  return to value, stop 0.25 ATR   n= 189  win  51%  mean +0.047R  PF 1.11  t=+0.62     1.8/wk
+A  return to value, stop 0.40 ATR   n= 189  win  58%  mean +0.042R  PF 1.13  t=+0.75     1.8/wk
+A  return to value, stop 0.60 ATR   n= 189  win  62%  mean +0.078R  PF 1.41  t=+1.94     1.8/wk
+B  open drive, target 1R              n= 523  win  53%  mean +0.045R  PF 1.10  t=+1.09     5.0/wk
+B  open drive, target 2R              n= 523  win  46%  mean +0.112R  PF 1.23  t=+2.10     5.0/wk
+B  open drive, target hold to close   n= 523  win  41%  mean +0.113R  PF 1.21  t=+1.57     5.0/wk
+C  gap fade to value edge, stop 0.25 ATR  n= 303  win  51%  mean -0.026R  PF 0.95  t=-0.41     2.9/wk
+C  gap fade to value edge, stop 0.40 ATR  n= 303  win  61%  mean -0.005R  PF 0.99  t=-0.09     2.9/wk

@@ -107,6 +107,56 @@ the fact. That claim cannot be tested on 5-minute bars.
 
 ---
 
+## The open drive — tested, and rejected too
+
+After the level-touch families were exhausted, the opening sequence was tested
+(`backtest_open_location.py`, `backtest_open_drive.py`). Taking the direction of
+09:30-10:00 at 10:00, stop at the opposing IB extreme, target 2R, produced
++0.099R / PF 1.20 / t=+1.84 over 509 sessions — the only adequately-sampled
+positive in the programme.
+
+It was pre-committed to three checks: hold in both date halves, and strengthen
+on wide-gap and wide-IB days if the momentum mechanism is real. It failed all
+three.
+
+| split | n | mean R | t |
+|---|---|---|---|
+| first half 2024-07 → 2025-07 | 247 | +0.021R | **+0.28** |
+| second half 2025-07 → 2026-07 | 262 | +0.172R | +2.31 |
+| gap < 0.25 ATR | 189 | +0.067R | +0.77 |
+| gap 0.25–0.50 ATR | 75 | +0.047R | +0.35 |
+| gap ≥ 0.50 ATR | 80 | +0.146R | +1.08 |
+| narrow IB | 168 | +0.059R | +0.57 |
+| wide IB | 168 | +0.084R | +1.01 |
+
+The edge exists in one date half and not the other, shows no monotonic response
+to gap size or IB width, and the delta filter adds nothing (+0.099R → +0.104R).
+Median trade is **−0.38R**, max drawdown 16.8R, worst streak 8. Down-drives
+carry it (+0.181R, t=+2.24) and up-drives are flat (+0.024R, t=+0.34), which on
+a rising two-year sample is another warning rather than a feature.
+
+**Verdict: fitted artifact, not an edge.** Ten strategies tested, ten rejected.
+
+---
+
+## The base rates — the one genuinely usable output
+
+These are not a trade. They are context, and they are solid on 509 sessions.
+
+| | |
+|---|---|
+| days opening **outside** prior-day value | **68%** |
+| of those, price returns **into** value same day | **63%** |
+| ...and having returned, reaches the **POC** | **74%** |
+| return rate when the gap is **< 0.5 ATR** | **70%** |
+| return rate when the gap is **≥ 0.5 ATR** | **40%** |
+
+The gap-size split is the real finding: a **30-point swing** in return probability
+off a classifier that is known at 09:30, costs nothing, and needs no indicator.
+Half an ATR or more from the value edge and the day stops being a rotation.
+
+---
+
 ## What is left
 
 **ATAS Market Replay, Ticks + DOM mode, 20–30 sessions, one setup, executions
