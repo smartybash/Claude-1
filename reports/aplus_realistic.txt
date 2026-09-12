@@ -1,0 +1,41 @@
+QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
+all 8 fixed levels · both sides · target prior-day POC · first trigger after 10:00
+
+=== stop 0.15%  (44 NQ pts beyond the level) ===
+  entry at LEVEL (lookahead)             n= 400  win  50%  mean +0.628R  PF 2.26  t=+4.68     4.0/wk
+  entry at CLOSE (realistic)             n= 395  win  45%  mean -0.047R  PF 0.91  t=-0.66     3.9/wk
+  resting LIMIT, every touch             n= 500  win  20%  mean -0.513R  PF 0.36  t=-10.30    5.0/wk
+  CLOSE + bar delta >=10%                n= 337  win  48%  mean -0.049R  PF 0.90  t=-0.73     3.4/wk
+  CLOSE + bar delta >=20%                n= 329  win  48%  mean -0.094R  PF 0.81  t=-1.43     3.3/wk
+
+=== stop 0.25%  (74 NQ pts beyond the level) ===
+  entry at LEVEL (lookahead)             n= 400  win  58%  mean +0.412R  PF 2.02  t=+4.63     4.0/wk
+  entry at CLOSE (realistic)             n= 395  win  52%  mean -0.010R  PF 0.98  t=-0.16     3.9/wk
+  resting LIMIT, every touch             n= 500  win  24%  mean -0.535R  PF 0.29  t=-13.51    5.0/wk
+  CLOSE + bar delta >=10%                n= 337  win  53%  mean -0.041R  PF 0.90  t=-0.71     3.4/wk
+  CLOSE + bar delta >=20%                n= 329  win  53%  mean -0.070R  PF 0.84  t=-1.23     3.3/wk
+
+=== realistic entry: stop sweep (CLOSE + bar delta >=10%) ===
+   stop  NQ pts                                                        meanRR
+  0.15%      44  n= 337  win  48%  mean -0.049R  PF 0.90  t=-0.73        1.92
+  0.20%      59  n= 337  win  51%  mean -0.026R  PF 0.94  t=-0.41        1.61
+  0.25%      74  n= 337  win  53%  mean -0.041R  PF 0.90  t=-0.71        1.40
+  0.35%     103  n= 337  win  57%  mean -0.025R  PF 0.93  t=-0.50        1.11
+  0.50%     147  n= 337  win  61%  mean -0.010R  PF 0.97  t=-0.23        0.85
+  0.70%     206  n= 337  win  62%  mean -0.011R  PF 0.95  t=-0.32        0.64
+
+=== out of sample, realistic entry (stop 0.25%, bar delta >=10%) ===
+  first half  to 2025-07-17              n= 164  win  54%  mean +0.036R  PF 1.09  t=+0.38     3.3/wk
+  second half from 2025-07-17            n= 173  win  52%  mean -0.114R  PF 0.74  t=-1.66     3.4/wk
+
+  median +0.03R   max DD 29.5R   worst streak 6   best +8.7R   mean R:R 1.40
+
+  by level:
+    cVAH                                 n=  15  win  40%  mean -0.191R  PF 0.66  t=-0.66     0.1/wk
+    cVAL                                 n=  12  win  25%  mean -0.126R  PF 0.79  t=-0.30     0.1/wk
+    nPOCdn                               n=  11  win  55%  mean +0.053R  PF 1.12  t=+0.17     0.1/wk
+    nPOCup                               n=  19  win  42%  mean +0.130R  PF 1.35  t=+0.51     0.2/wk
+    pdHigh                               n=  67  win  54%  mean +0.211R  PF 1.53  t=+1.12     0.7/wk
+    pdLow                                n=  62  win  39%  mean -0.274R  PF 0.52  t=-2.39     0.6/wk
+    pdVAH                                n=  76  win  63%  mean -0.085R  PF 0.75  t=-1.01     0.8/wk
+    pdVAL                                n=  75  win  64%  mean -0.042R  PF 0.88  t=-0.46     0.7/wk

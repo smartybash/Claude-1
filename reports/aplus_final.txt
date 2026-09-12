@@ -1,0 +1,38 @@
+QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
+spec: both sides · no open-location condition · no IB filter
+      stop 0.25% beyond the level · target prior-day POC · first rejection after 10:00
+
+LEVEL SET
+  all 8 fixed levels                         n= 400  win  58%  mean +0.412R  PF 2.02  t=+4.63     4.0/wk
+  4 core levels (pd VAH/VAL/High/Low)        n= 359  win  59%  mean +0.399R  PF 2.00  t=+4.28     3.6/wk
+
+OUT OF SAMPLE — split by date, all 8 levels
+  first half  2024-07-01 to 2025-07-17       n= 189  win  60%  mean +0.556R  PF 2.42  t=+3.51     3.8/wk
+  second half 2025-07-17 to 2026-07-31       n= 211  win  56%  mean +0.283R  PF 1.68  t=+3.12     4.2/wk
+
+BY SIDE / BY LEVEL (all 8)
+  short                                      n= 235  win  63%  mean +0.484R  PF 2.37  t=+3.75     2.3/wk
+  long                                       n= 165  win  51%  mean +0.310R  PF 1.65  t=+2.74     1.6/wk
+    cVAH                                     n=  20  win  45%  mean +0.334R  PF 1.73  t=+0.96     0.2/wk
+    cVAL                                     n=  11  win  27%  mean -0.191R  PF 0.74  t=-0.33     0.1/wk
+    nPOCdn                                   n=  14  win  36%  mean +0.001R  PF 1.00  t=+0.00     0.1/wk
+    nPOCup                                   n=  25  win  60%  mean +0.585R  PF 2.94  t=+1.76     0.2/wk
+    pdHigh                                   n=  68  win  53%  mean +0.824R  PF 2.75  t=+2.15     0.7/wk
+    pdLow                                    n=  62  win  39%  mean +0.204R  PF 1.34  t=+1.01     0.6/wk
+    pdVAH                                    n= 122  win  71%  mean +0.297R  PF 2.06  t=+3.34     1.2/wk
+    pdVAL                                    n=  78  win  67%  mean +0.521R  PF 2.61  t=+3.72     0.8/wk
+
+ATTEMPT NUMBER (all 8)
+  1st attempt at the level                   n= 262  win  59%  mean +0.417R  PF 2.07  t=+3.54     2.6/wk
+  2nd or later attempt                       n= 138  win  55%  mean +0.402R  PF 1.93  t=+3.12     1.4/wk
+
+FLOW FILTERS (proxy delta — provisional)
+  none                                       n= 400  win  58%  mean +0.412R  PF 2.02  t=+4.63     4.0/wk
+  session CVD agrees with trade              n= 247  win  68%  mean +0.449R  PF 2.43  t=+5.57     2.5/wk
+  trigger-bar delta opposes poke >=10%       n= 351  win  62%  mean +0.521R  PF 2.44  t=+5.39     3.5/wk
+  trigger-bar delta opposes poke >=20%       n= 344  win  62%  mean +0.530R  PF 2.49  t=+5.42     3.4/wk
+
+RISK PROFILE (all 8, no flow filter)
+  worst trade -1.00R   best +22.44R   median +0.36R
+  max drawdown 11.8R   longest losing streak 6
+  mean R:R taken 2.67

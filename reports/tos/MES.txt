@@ -1,0 +1,115 @@
+
+===== COPY BELOW into ThinkOrSwim — MES VALUE-AREA FADE (2026-08-18) =====
+# =====================================================================
+# MES VALUE-AREA FADE   2026-08-18
+#   The ONLY setup here: SHORT the rejection of prior VAH (= call wall on a
+#   fade day), 2nd attempt, after 10:00 ET. Targets POC then VAL.
+#
+#   TESTED (backtest_va_fade.py, QQQ 5-min, 139 days):
+#     short the 2nd VAH rejection -> target POC +0.68R (73% win), reaches POC 67%.
+#     POSITIVE gamma: price PINS at POC -> take POC, don't chase VAL.
+#     NEGATIVE gamma: runs POC -> VAL -> breakout -> let it run.
+#   Stop just above VAH. 1st-poke rejections are weaker (+0.23R) — wait for #2.
+# =====================================================================
+declare upper;
+
+input minAttempt   = 2;      # take the Nth rejection (2 = the tested edge)
+input skipUntil    = 1000;   # ignore VAH pokes before 10:00 ET
+input stopBufPct   = 0.25;   # stop = VAH * (1 + 0.25%)
+input showSignals  = yes;
+input showBubbles  = yes;
+input showGL       = yes;    # dealer call wall / flip (VAH ~ call wall)
+input useBreadth   = no;     # sector-leadership veto (MAGS/SMH/IGV) -- OFF: backtest
+                             # showed blocking shorts into rising leaders was
+                             # backwards (blocked trades won MORE). Kept as a
+                             # context label; flip to yes only to experiment.
+input breadthLen   = 6;      # momentum lookback (6 bars ~ 30m on 5-min)
+
+# ---- prior-day value area (baked per day, Python-computed) ----
+# ---- PRIOR-DAY VALUE AREA (from that day's prior session, baked) ----
+def vad = GetYYYYMMDD();
+def VAH = if vad == 20260805 then 7784.70 else if vad == 20260806 then 7795.66 else if vad == 20260807 then 7750.36 else if vad == 20260810 then 7781.13 else if vad == 20260811 then 7784.27 else if vad == 20260812 then 7778.88 else if vad == 20260813 then 7776.38 else if vad == 20260814 then 7828.43 else if vad == 20260817 then 7813.97 else if vad == 20260818 then 7809.07 else Double.NaN;
+plot pVAH = VAH;  pVAH.SetDefaultColor(Color.RED);  pVAH.SetStyle(Curve.LONG_DASH);  pVAH.SetLineWeight(2);
+def POC = if vad == 20260805 then 7771.70 else if vad == 20260806 then 7767.35 else if vad == 20260807 then 7735.31 else if vad == 20260810 then 7764.69 else if vad == 20260811 then 7779.57 else if vad == 20260812 then 7747.27 else if vad == 20260813 then 7774.88 else if vad == 20260814 then 7822.07 else if vad == 20260817 then 7800.95 else if vad == 20260818 then 7793.50 else Double.NaN;
+plot pPOC = POC;  pPOC.SetDefaultColor(Color.YELLOW);  pPOC.SetStyle(Curve.SHORT_DASH);  pPOC.SetLineWeight(2);
+def VAL = if vad == 20260805 then 7711.90 else if vad == 20260806 then 7746.49 else if vad == 20260807 then 7727.35 else if vad == 20260810 then 7762.10 else if vad == 20260811 then 7771.53 else if vad == 20260812 then 7742.90 else if vad == 20260813 then 7764.38 else if vad == 20260814 then 7806.17 else if vad == 20260817 then 7798.21 else if vad == 20260818 then 7776.20 else Double.NaN;
+plot pVAL = VAL;  pVAL.SetDefaultColor(Color.GREEN);  pVAL.SetStyle(Curve.LONG_DASH);  pVAL.SetLineWeight(2);
+
+def rth  = SecondsFromTime(0930) >= 0 and SecondsTillTime(1600) > 0;
+def newD = GetDay() != GetDay()[1];
+def afterOpen = SecondsFromTime(skipUntil) >= 0;
+def tol  = 0.0006 * VAH;
+
+# count distinct VAH pokes: re-arm after price pulls >=0.15% below VAH
+def tagged = !IsNaN(VAH) and high >= VAH - tol;
+def pulled = !IsNaN(VAH) and low  < VAH * (1 - 0.0015);
+rec armed  = if newD then 1 else if pulled then 1 else if tagged and armed[1] == 1 then 0 else armed[1];
+def newPoke = tagged and armed[1] == 1 and afterOpen and rth;
+rec pokeN   = if newD then 0 else if newPoke then pokeN[1] + 1 else pokeN[1];
+def reject  = newPoke and close < VAH;
+
+# ---- SECTOR-LEADERSHIP breadth filter (MAGS / SMH / IGV) ----
+#   Don't fade-short into rising leadership. Count how many leaders are up over
+#   the last `breadthLen` bars; if >=2 are rising, risk appetite is on -> block
+#   the short. BACKTESTED (backtest_breadth_filter.py, 67 signals / 12-mo leader
+#   history): as a hard veto it did NOT help -- blocked shorts (leaders rising)
+#   actually won more (72% vs 62%), because on a fade day the green leaders are
+#   the pop that rotates back to POC. So this defaults OFF (context label only).
+def upCount = (if close("MAGS") > close("MAGS")[breadthLen] then 1 else 0)
+            + (if close("SMH")  > close("SMH")[breadthLen]  then 1 else 0)
+            + (if close("IGV")  > close("IGV")[breadthLen]  then 1 else 0);
+def leadersUp = upCount >= 2;
+def breadthOK = !useBreadth or !leadersUp;      # ok to short when leaders NOT rising
+
+def shortSig = showSignals and reject and pokeN >= minAttempt and breadthOK;
+
+plot Sell = if shortSig then VAH else Double.NaN;
+Sell.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
+Sell.SetDefaultColor(Color.RED);  Sell.SetLineWeight(5);
+
+def stop = VAH * (1 + stopBufPct / 100);
+# keep the bubble WELL CLEAR of the candles: anchor it 3xATR above the bar's
+# high (not on the price), so it never sits on the action.
+def atr = Average(TrueRange(high, close, low), 14);
+AddChartBubble(showBubbles and shortSig, high + 3 * atr,
+    "SHORT #" + pokeN + " stop " + Round(stop, 2), Color.RED, yes);
+Alert(shortSig, "VAH rejection short", Alert.BAR, Sound.Ring);
+
+# ---- dealer gamma (call wall = VAH confluence; flip = regime) ----
+# ---- PER-DAY DEALER GAMMA (1 sessions) ----
+#   Each day shows the walls from the PRIOR session's option chain —
+#   what you actually had pre-market that morning. Scroll back and the
+#   levels change with the date instead of showing today's everywhere.
+def dt = GetYYYYMMDD();
+#   futures: levels are stored as a fraction of the underlying's spot
+#   and rescaled by this instrument's prior daily close.
+def anchor = close(period = AggregationPeriod.DAY)[1];
+def GFlipv = if dt == 20260818 then 1.001307 else Double.NaN;
+def GFlipnat = if dt == 20260818 then 7777.38 else Double.NaN;   # native read, beats the scaled one
+plot GFlip = if !showGL then Double.NaN else if !IsNaN(GFlipnat) then GFlipnat else if !IsNaN(GFlipv) then GFlipv * anchor else Double.NaN;
+GFlip.SetDefaultColor(Color.WHITE);  GFlip.SetStyle(Curve.FIRM);  GFlip.SetLineWeight(2);
+def CWallv = if dt == 20260818 then 1.009552 else Double.NaN;
+def CWallnat = if dt == 20260818 then 7841.42 else Double.NaN;   # native read, beats the scaled one
+plot CWall = if !showGL then Double.NaN else if !IsNaN(CWallnat) then CWallnat else if !IsNaN(CWallv) then CWallv * anchor else Double.NaN;
+CWall.SetDefaultColor(Color.RED);  CWall.SetStyle(Curve.LONG_DASH);  CWall.SetLineWeight(3);
+def PWallv = if dt == 20260818 then 0.990137 else Double.NaN;
+def PWallnat = if dt == 20260818 then 7690.62 else Double.NaN;   # native read, beats the scaled one
+plot PWall = if !showGL then Double.NaN else if !IsNaN(PWallnat) then PWallnat else if !IsNaN(PWallv) then PWallv * anchor else Double.NaN;
+PWall.SetDefaultColor(Color.GREEN);  PWall.SetStyle(Curve.LONG_DASH);  PWall.SetLineWeight(3);
+
+# ---- compact labels (one short chip each, so the top row stays readable) ----
+def posGamma = showGL and !IsNaN(GFlip) and close > GFlip;
+AddLabel(!IsNaN(VAH),
+    "VAH " + Round(VAH, 2) + "  POC " + Round(POC, 2) + "  VAL " + Round(VAL, 2),
+    Color.WHITE);
+AddLabel(!IsNaN(VAH),
+    (if posGamma then "POS gamma -> target POC" else "NEG gamma -> run to VAL"),
+    if posGamma then Color.LIGHT_GRAY else Color.YELLOW);
+AddLabel(showGL and !IsNaN(CWall),
+    "CW " + Round(CWall, 2)
+        + (if !IsNaN(VAH) and AbsValue(VAH - CWall) / VAH < 0.004 then " =VAH" else ""),
+    Color.RED);
+AddLabel(showGL and !IsNaN(GFlip), "flip " + Round(GFlip, 2), Color.GRAY);
+AddLabel(useBreadth, "leaders " + upCount + "/3 up",
+    if leadersUp then Color.GREEN else Color.GRAY);
+===== END MES VALUE-AREA FADE study =====

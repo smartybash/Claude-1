@@ -1,0 +1,11 @@
+{
+  "date": "2026-08-07",
+  "source": "WealthCharts",
+  "note": "Fill each morning from WealthCharts (or run gex_calc.py --write on a chain export). net_gex sign is the primary regime call: negative=trend/long-day, positive=range. gamma_flip/zero_gamma: spot below flip = negative gamma. Futures micros share the set: MNQ->NQ, MES->ES. Leave a key null if you don't have it.",
+  "levels": {
+    "NQ":  {"net_gex": -0.6e9, "gamma_flip": 29549, "zero_gamma": 29549, "call_wall": 30000, "put_wall": 28800, "dealer_delta": -3.0e8},
+    "ES":  {"net_gex": null, "gamma_flip": null, "zero_gamma": null, "call_wall": null, "put_wall": null, "dealer_delta": null},
+    "QQQ": {"net_gex": null, "gamma_flip": null, "zero_gamma": null, "call_wall": null, "put_wall": null, "dealer_delta": null},
+    "SPY": {"net_gex": null, "gamma_flip": null, "zero_gamma": null, "call_wall": null, "put_wall": null, "dealer_delta": null}
+  }
+}
