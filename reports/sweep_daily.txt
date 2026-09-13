@@ -1,0 +1,120 @@
+QQQ / SPY daily — 1240 bars, 2021-07-27 to 2026-07-06
+~40 hypotheses printed; * marks |t| >= 3.2 (Bonferroni). Anything unstarred is noise.
+
+============================================================================================
+1  OVERNIGHT vs INTRADAY
+============================================================================================
+  QQQ  close->open (overnight) n=1240  mean   +3.65bp  win  55%  t=+1.51
+  QQQ  open->close (intraday)  n=1240  mean   +2.87bp  win  54%  t=+0.84
+  QQQ  close->close (buy&hold) n=1240  mean   +6.47bp  win  55%  t=+1.58
+  SPY  close->open (overnight) n=1240  mean   +2.32bp  win  55%  t=+1.26
+  SPY  open->close (intraday)  n=1240  mean   +2.59bp  win  53%  t=+1.00
+  SPY  close->close (buy&hold) n=1240  mean   +4.88bp  win  54%  t=+1.58
+
+============================================================================================
+2  DAY OF WEEK
+============================================================================================
+  QQQ  overnight  Mon   -0.1  Tue   +2.3  Wed  +10.2  Thu   +7.4  Fri   -1.9
+  QQQ  intraday   Mon  +18.1  Tue   -1.1  Wed   +5.8  Thu   -8.8  Fri   +1.4
+  SPY  overnight  Mon   +0.5  Tue   +2.2  Wed   +7.8  Thu   +3.1  Fri   -2.2
+  SPY  intraday   Mon  +12.3  Tue   -0.6  Wed   +3.2  Thu   -4.0  Fri   +2.9
+
+============================================================================================
+3  GAP -> that day's OPEN->CLOSE   (is a gap followed or faded?)
+============================================================================================
+  --- QQQ ---
+    gap dn > 1.0 ATR   n=  21  mean   +4.33bp  win  48%  t=+0.09
+    gap dn 0.5-1.0     n= 104  mean   +8.26bp  win  55%  t=+0.67
+    gap dn 0.15-0.5    n= 246  mean   -3.18bp  win  52%  t=-0.47
+    flat open          n= 408  mean   +9.96bp  win  55%  t=+1.60
+    gap up 0.15-0.5    n= 306  mean   +6.11bp  win  56%  t=+0.96
+    gap up 0.5-1.0     n= 131  mean  -16.55bp  win  47%  t=-1.67
+    gap up > 1.0 ATR   n=  24  mean  -15.77bp  win  58%  t=-0.55
+  --- SPY ---
+    gap dn > 1.0 ATR   n=  23  mean   +1.30bp  win  43%  t=+0.04
+    gap dn 0.5-1.0     n= 118  mean   +8.97bp  win  56%  t=+1.00
+    gap dn 0.15-0.5    n= 236  mean   +3.00bp  win  55%  t=+0.42
+    flat open          n= 385  mean   +9.02bp  win  54%  t=+2.25
+    gap up 0.15-0.5    n= 327  mean   -0.34bp  win  53%  t=-0.08
+    gap up 0.5-1.0     n= 128  mean   -4.66bp  win  53%  t=-0.69
+    gap up > 1.0 ATR   n=  23  mean  -58.52bp  win  43%  t=-1.91
+
+============================================================================================
+4  STREAKS -> NEXT DAY
+============================================================================================
+  --- QQQ ---
+    after 1 up     next close-close  n= 301  mean   +0.95bp  win  55%  t=+0.12
+    after 2 up     next close-close  n= 166  mean   +4.88bp  win  55%  t=+0.50
+    after 3+ up    next close-close  n= 210  mean   +3.96bp  win  57%  t=+0.50
+    after 1 dn     next close-close  n= 302  mean   -0.12bp  win  50%  t=-0.01
+    after 2 dn     next close-close  n= 151  mean   +6.21bp  win  54%  t=+0.49
+    after 3+ dn    next close-close  n= 109  mean  +48.64bp  win  64%  t=+3.35 *
+  --- SPY ---
+    after 1 up     next close-close  n= 303  mean   +2.27bp  win  54%  t=+0.38
+    after 2 up     next close-close  n= 164  mean   -0.34bp  win  52%  t=-0.05
+    after 3+ up    next close-close  n= 202  mean   +3.99bp  win  57%  t=+0.66
+    after 1 dn     next close-close  n= 304  mean   -0.95bp  win  51%  t=-0.15
+    after 2 dn     next close-close  n= 148  mean   +3.06bp  win  52%  t=+0.32
+    after 3+ dn    next close-close  n= 118  mean  +38.13bp  win  60%  t=+2.82
+
+============================================================================================
+5  CLOSE LOCATION IN RANGE -> NEXT DAY
+============================================================================================
+  --- QQQ ---
+    closed bottom 20%  next overnight n= 236  mean  +10.42bp  win  58%  t=+1.73
+                       next intraday  n= 236  mean   +7.29bp  win  53%  t=+0.75
+    20-40%             next overnight n= 207  mean  +11.88bp  win  57%  t=+1.88
+                       next intraday  n= 207  mean   +3.11bp  win  53%  t=+0.36
+    middle             next overnight n= 173  mean   -1.15bp  win  50%  t=-0.17
+                       next intraday  n= 173  mean   +2.71bp  win  60%  t=+0.30
+    60-80%             next overnight n= 225  mean   +3.71bp  win  59%  t=+0.69
+                       next intraday  n= 225  mean   -5.71bp  win  50%  t=-0.83
+    closed top 20%     next overnight n= 397  mean   -1.75bp  win  52%  t=-0.47
+                       next intraday  n= 397  mean   +4.39bp  win  54%  t=+0.81
+  --- SPY ---
+    closed bottom 20%  next overnight n= 233  mean   +9.33bp  win  61%  t=+1.97
+                       next intraday  n= 233  mean   +7.15bp  win  55%  t=+1.14
+    20-40%             next overnight n= 196  mean   +7.26bp  win  58%  t=+1.59
+                       next intraday  n= 196  mean   -1.20bp  win  52%  t=-0.14
+    middle             next overnight n= 184  mean   +6.03bp  win  60%  t=+1.18
+                       next intraday  n= 184  mean   -2.16bp  win  53%  t=-0.31
+    60-80%             next overnight n= 236  mean   -8.68bp  win  44%  t=-2.09
+                       next intraday  n= 236  mean   +1.12bp  win  53%  t=+0.23
+    closed top 20%     next overnight n= 379  mean   +2.43bp  win  55%  t=+0.85
+                       next intraday  n= 379  mean   +6.16bp  win  55%  t=+1.55
+
+============================================================================================
+6  TRAILING MOMENTUM -> NEXT DAY
+============================================================================================
+  --- QQQ ---
+     5d weakest quintile  next c-c  n= 248  mean   +6.71bp  win  54%  t=+0.54
+     5d strongest quintile next c-c  n= 248  mean   -1.20bp  win  52%  t=-0.15
+    10d weakest quintile  next c-c  n= 248  mean   +9.23bp  win  54%  t=+0.71
+    10d strongest quintile next c-c  n= 248  mean  +13.53bp  win  55%  t=+1.78
+    20d weakest quintile  next c-c  n= 247  mean  +10.35bp  win  55%  t=+0.78
+    20d strongest quintile next c-c  n= 247  mean  +10.57bp  win  53%  t=+1.37
+  --- SPY ---
+     5d weakest quintile  next c-c  n= 248  mean  +10.79bp  win  53%  t=+1.12
+     5d strongest quintile next c-c  n= 247  mean   +1.99bp  win  55%  t=+0.33
+    10d weakest quintile  next c-c  n= 248  mean   +7.25bp  win  50%  t=+0.70
+    10d strongest quintile next c-c  n= 248  mean   +8.82bp  win  57%  t=+1.67
+    20d weakest quintile  next c-c  n= 247  mean  +11.51bp  win  54%  t=+1.09
+    20d strongest quintile next c-c  n= 247  mean   +6.25bp  win  55%  t=+1.13
+
+============================================================================================
+7  OVERNIGHT LEG BY VOLATILITY REGIME  (the leg most likely to survive)
+============================================================================================
+  --- QQQ ---
+    calm  (low ATR)      overnight n= 409  mean   +9.85bp  win  62%  t=+3.60 *
+                         intraday  n= 409  mean   +2.44bp  win  53%  t=+0.64
+    mid                  overnight n= 422  mean   +6.94bp  win  55%  t=+1.98
+                         intraday  n= 422  mean   -0.08bp  win  56%  t=-0.02
+    stressed (high ATR)  overnight n= 409  mean   -5.96bp  win  48%  t=-1.05
+                         intraday  n= 409  mean   +6.33bp  win  53%  t=+0.77
+  --- SPY ---
+    calm  (low ATR)      overnight n= 409  mean   +5.00bp  win  58%  t=+2.45
+                         intraday  n= 409  mean   +1.82bp  win  55%  t=+0.66
+    mid                  overnight n= 422  mean   +4.88bp  win  58%  t=+2.02
+                         intraday  n= 422  mean   -1.54bp  win  51%  t=-0.43
+    stressed (high ATR)  overnight n= 409  mean   -2.99bp  win  49%  t=-0.65
+                         intraday  n= 409  mean   +7.63bp  win  54%  t=+1.20
