@@ -29,14 +29,17 @@ not carry tick or depth data, so there is genuinely nothing to record.
 
 ## Is it working?
 
-`Documents\ATAS_Export\_status.txt` answers that without anyone reading code. It
-refreshes every couple of seconds while the chart is live and looks like this:
+**A folder named `ATAS_Export` appears on your Desktop** the moment the
+indicator is added to a chart — before any market data arrives. Inside it,
+`_status.txt` refreshes every couple of seconds:
 
 ```
+recorder version:   2026-09-13.d
 OnCalculate calls:  4821
 trades received:    93102
 depth updates:      511230
 rows written:       688441
+WRITING HERE:       C:\Users\lenovo\Desktop\ATAS_Export
 last error:         (none)
 ```
 
@@ -45,7 +48,17 @@ last error:         (none)
 | rows written climbing | working — leave it running |
 | trades and depth both 0 | the platform is sending neither; replay is in the wrong mode (use **Ticks + DOM**) |
 | trades above 0, rows 0 | writing is failing — `last error` names the reason |
-| no `_status.txt` at all | the indicator is not on the chart, or the output folder cannot be created |
+| `recorder version` is not the latest | ATAS is running a stale DLL from an earlier build |
+| no folder on the Desktop at all | the indicator is not actually on the chart |
+
+Earlier versions defaulted to `Documents\ATAS_Export` and produced what looked
+like total silence. **Windows routinely redirects `Documents` to OneDrive**, so
+the literal path `C:\Users\<name>\Documents` is often not the folder the process
+writes into — the files existed, just not where they were being looked for. The
+Desktop is not redirected, and `WRITING HERE` in the status file now states the
+resolved absolute path rather than leaving it to be guessed. If the Desktop is
+not writable either, it falls back through the user profile and `%TEMP%`, and
+records every rejection in `folder choice`.
 
 If it is not working, send that file back. It says what went wrong instead of
 leaving it to guesswork.

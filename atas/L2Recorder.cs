@@ -43,7 +43,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-13.c";
+        private const string BuildTag = "2026-09-13.d";
 
         private readonly object _sync = new object();
 
@@ -58,13 +58,24 @@ namespace Claude1.Recorders
         private string _lastError = "(none)";
         private string _files = "(none yet)";
 
+        private string _resolved;
+        private string _folderNotes = "";
+
         private int _depthLevels = 10;
         private int _snapshotMs = 250;
 
+        /// <summary>
+        /// Defaults to the Desktop, not Documents. "Documents" is routinely
+        /// redirected to OneDrive, so the literal path C:\Users\name\Documents
+        /// may not be the folder this process actually writes into -- which is
+        /// how an earlier build appeared to produce nothing at all. A folder
+        /// appearing on the Desktop cannot be missed or looked for in the wrong
+        /// place. If this one is not writable, ResolveFolder falls back.
+        /// </summary>
         [DisplayName("Output folder")]
         public string OutputFolder { get; set; } =
             Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
                 "ATAS_Export");
 
         [DisplayName("Depth levels per side")]
@@ -98,6 +109,59 @@ namespace Claude1.Recorders
         }
 
         // ------------------------------------------------------------------
+        // where to write
+        // ------------------------------------------------------------------
+        private IEnumerable<string> Candidates()
+        {
+            yield return OutputFolder;
+            yield return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                "ATAS_Export");
+            yield return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "ATAS_Export");
+            yield return Path.Combine(Path.GetTempPath(), "ATAS_Export");
+        }
+
+        /// <summary>
+        /// First candidate folder that can actually be created and written to.
+        /// Creating a directory can succeed where writing then fails (policy,
+        /// antivirus, a synced folder that is offline), so each candidate is
+        /// probed with a real file before it is trusted.
+        /// </summary>
+        private string ResolveFolder()
+        {
+            if (_resolved != null)
+                return _resolved;
+
+            var tried = new List<string>();
+            foreach (var c in Candidates())
+            {
+                if (string.IsNullOrEmpty(c))
+                    continue;
+                try
+                {
+                    Directory.CreateDirectory(c);
+                    var probe = Path.Combine(c, "_probe.tmp");
+                    File.WriteAllText(probe, "ok");
+                    File.Delete(probe);
+                    _resolved = c;
+                    _folderNotes = tried.Count == 0
+                        ? "(first choice)"
+                        : "fell back, rejected: " + string.Join(" | ", tried);
+                    return _resolved;
+                }
+                catch (Exception ex)
+                {
+                    tried.Add(c + " [" + ex.GetType().Name + "]");
+                }
+            }
+
+            _folderNotes = "NOTHING WRITABLE, rejected: " + string.Join(" | ", tried);
+            return null;
+        }
+
+        // ------------------------------------------------------------------
         // status
         // ------------------------------------------------------------------
         private void WriteStatus(bool force)
@@ -109,7 +173,10 @@ namespace Claude1.Recorders
 
             try
             {
-                Directory.CreateDirectory(OutputFolder);
+                var dir = ResolveFolder();
+                if (dir == null)
+                    return;
+
                 var sb = new StringBuilder();
                 sb.AppendLine("L2 Recorder status");
                 sb.AppendLine("==================");
@@ -125,15 +192,17 @@ namespace Claude1.Recorders
                 sb.AppendLine();
                 sb.AppendLine("record tape:        " + RecordTape);
                 sb.AppendLine("record depth:       " + RecordDepth);
-                sb.AppendLine("output folder:      " + OutputFolder);
+                sb.AppendLine("requested folder:   " + OutputFolder);
+                sb.AppendLine("WRITING HERE:       " + dir);
+                sb.AppendLine("folder choice:      " + _folderNotes);
                 sb.AppendLine("data files:         " + _files);
                 sb.AppendLine("last error:         " + _lastError);
                 sb.AppendLine();
                 sb.AppendLine("If trades and depth updates are both 0, the platform is");
                 sb.AppendLine("sending neither. In Market Replay, switch the replay mode");
-                sb.AppendLine("to Ticks + DOM -- the other modes carry no tick or depth");
+                sb.AppendLine("to Ticks + DOM: the other modes carry no tick or depth");
                 sb.AppendLine("data and there is nothing for this to record.");
-                File.WriteAllText(Path.Combine(OutputFolder, "_status.txt"),
+                File.WriteAllText(Path.Combine(dir, "_status.txt"),
                                   sb.ToString(), Encoding.UTF8);
             }
             catch { /* if even this fails there is nowhere to report it */ }
@@ -171,11 +240,14 @@ namespace Claude1.Recorders
                 return;
 
             CloseFiles();
-            Directory.CreateDirectory(OutputFolder);
+
+            var dir = ResolveFolder();
+            if (dir == null)
+                throw new IOException("no writable output folder: " + _folderNotes);
 
             var sym = Clean(SymbolName());
-            var dPath = Path.Combine(OutputFolder, "L2_" + sym + "_" + date + ".csv");
-            var tPath = Path.Combine(OutputFolder, "TAPE_" + sym + "_" + date + ".csv");
+            var dPath = Path.Combine(dir, "L2_" + sym + "_" + date + ".csv");
+            var tPath = Path.Combine(dir, "TAPE_" + sym + "_" + date + ".csv");
 
             var dNew = !File.Exists(dPath);
             var tNew = !File.Exists(tPath);

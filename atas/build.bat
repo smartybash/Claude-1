@@ -56,15 +56,20 @@ if errorlevel 1 (
 
 echo.
 echo  ============================================================
-echo   DONE. L2Recorder.dll installed to
-echo   %USERPROFILE%\Documents\ATAS\Indicators
+echo   DONE. Installed:
+dir /b /t:w "%USERPROFILE%\Documents\ATAS\Indicators\L2Recorder.dll" 2>nul
+for %%F in ("%USERPROFILE%\Documents\ATAS\Indicators\L2Recorder.dll") do echo   %%~tF   %%~fF
+echo.
+echo   The timestamp above must be RIGHT NOW. If it is older, ATAS
+echo   is holding the old file open - close ATAS and run this again.
 echo.
 echo     1. Restart ATAS
 echo     2. Open the NQ chart
 echo     3. Ctrl+I, add "L2 Recorder (CSV)"
 echo.
-echo   It draws nothing. Files land in:
-echo   %USERPROFILE%\Documents\ATAS_Export\
+echo   It draws nothing on the chart. Instead a folder named
+echo   ATAS_Export appears ON YOUR DESKTOP the moment you add it.
+echo   Open _status.txt inside it.
 echo  ============================================================
 pause
 exit /b 0
