@@ -173,3 +173,96 @@ Rules for it to be worth anything:
 4. 20–30 sessions before drawing any conclusion.
 5. If you cannot execute the trigger cleanly under live speed, it is not an
    edge you own, regardless of what the sample says.
+
+---
+
+# Round two: the recorded tape (2026-09-09, 2026-09-10)
+
+954,203 trades with aggressor tags, recorded out of ATAS by `atas/L2Recorder.cs`.
+This is the first data in the project that bar files cannot produce.
+
+## Data quality — checked before anything was built on it
+
+| Check | Result |
+|---|---|
+| Aggressor split | 50.24/49.76 and 50.14/49.86 buy/sell. Correct: every contract bought is sold, so a full day must be near even. The flag is real. |
+| Clock | **UTC.** The one-hour CME maintenance halt sits at 21:00–22:00 in both files; that halt is 17:00–18:00 New York. RTH is therefore **13:30–20:00** in these files. |
+| Daily volume | 486k and 544k contracts — matches real NQ. Nothing is being dropped. |
+| Continuity | Largest non-halt gap between trades is 47 seconds. No holes. |
+| **Price grid** | **Broken: 5.00 points, not 0.25.** Only 61 and 94 distinct prices across ranges of 300 and 465 points. |
+
+The price grid is a recording-side defect, not a market fact. The chart's price
+step was set to 20 ticks, and ATAS applies it before the data reaches the
+indicator. Delta and volume survive it; price resolution does not. **The next
+recording must be made with the price step at 1 tick.**
+
+## What was tested, and what happened
+
+Two sessions gapped 370 points apart, so not one prior-day level was touched on
+the second day. Level work is impossible on this sample; everything below is
+microstructure, where the event count is in the hundreds rather than the twos.
+
+**The absorption 2×2 — all four cells negative.** Heavy aggression that fails to
+move price, held two minutes, at 30-second windows: −3.34 pts fading absorbed
+buying, −2.69 fading absorbed selling. Going with working aggression also loses.
+The delta dose-response is flat and its sign flips between the two days. There
+is nothing here.
+
+The "no progress" filter was also barely a filter: on a 5-point grid, 82% and
+74% of 30-second windows moved 5 points or less, and a third moved zero. Fixing
+the price step will sharpen this test as much as it sharpens anything.
+
+**Block prints — nothing, and barely present.** The top 0.1% of prints means
+size ≥ 9. This feed is 96.5% singles and blocks carry 2% of volume, so there is
+almost no institutional size to detect in the first place.
+
+**CVD divergence at 60-minute extremes — the one cell that cleared the bar, and
+it did not survive audit.** As swept: +8.32 pts, 74% win, n=78, t=+5.12. Three
+attacks:
+
+| Attack | Result |
+|---|---|
+| Overlap | The 78 "observations" were 21 independent episodes counted 2–3 times each. De-overlapped: **+3.48 pts, t=+1.00.** |
+| Per day | 09-09 **−3.67 pts**, 09-10 +6.33. The two days disagree once the duplication is removed. |
+| **Control** | Taking every local extreme with **no CVD condition at all** pays +3.87 pts — *better* than +3.48. CVD contributed nothing. |
+| Concentration | 3 of 21 trades supply 95% of the profit. |
+
+So the finding was overlap inflation plus one day plus mean reversion at local
+extremes wearing an order-flow costume. It joins the rejected pile.
+
+`H0` is worth keeping though: the sign of the last window's move, held forward,
+is negative at **every** horizon tested from 30 seconds to 20 minutes. This tape
+mean-reverts intraday. Nothing survived the significance bar after de-overlapping,
+but the sign is consistent, and it is the opposite of what a breakout trader
+assumes.
+
+## Why two sessions could never have settled this
+
+Per-trade standard deviation is **15.9 points ($318)** at roughly 10 independent
+signals per session. What that buys, at the |t| ≥ 3.0 bar this project uses:
+
+| True edge per trade | Trades needed | Sessions |
+|---|---|---|
+| 2 pts | 568 | 54 |
+| 3 pts | 252 | 24 |
+| 5 pts | 91 | 9 |
+| 8 pts | 35 | 3 |
+
+Three sessions can only resolve an edge of 8 points or larger. An 8-point-per-
+trade intraday edge does not exist; if it did it would have been arbitraged.
+**Twenty sessions is the point at which a realistic 3-point edge becomes
+detectable**, and that is the number to collect.
+
+## The collection spec
+
+1. **Price step = 1 tick** on the recording chart. Non-negotiable — it is the
+   one defect that degrades every test.
+2. **Send the `L2_*.csv` depth files.** The status file shows 4,089,447 depth
+   updates were recorded and none of them have been analysed, because only the
+   tape files were sent. Resting size, and whether it is pulled or replenished
+   as price arrives, is the entire reason the recorder was built and remains
+   completely untested.
+3. **Twenty sessions**, Ticks + DOM.
+4. Sessions with a **prior-day level in range** are worth more than quiet ones,
+   because level behaviour is the open question the gap between these two days
+   made untestable.
