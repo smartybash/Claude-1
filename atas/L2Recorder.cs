@@ -5,7 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-using ATAS.DataFeedsCore;
+// ATAS.DataFeedsCore is deliberately NOT imported: it declares its own
+// TradeDirection and MarketDataType alongside the ones in ATAS.Indicators,
+// and importing both makes every use of those names ambiguous (CS0104).
+// MarketDataArg comes from ATAS.Indicators, so its enums are the right ones.
 using ATAS.Indicators;
 
 namespace Claude1.Recorders
