@@ -38,6 +38,13 @@ namespace Claude1.Recorders
     [DisplayName("L2 Recorder (CSV)")]
     public class L2Recorder : Indicator
     {
+        /// <summary>
+        /// Bumped on every change. It is printed into _status.txt so a stale DLL
+        /// left behind by a failed build is visible rather than mistaken for the
+        /// current one.
+        /// </summary>
+        private const string BuildTag = "2026-09-13.c";
+
         private readonly object _sync = new object();
 
         private StreamWriter _depthWriter;
@@ -83,6 +90,11 @@ namespace Claude1.Recorders
         public L2Recorder()
         {
             try { DataSeries[0].IsHidden = true; } catch { }
+
+            // Written here, before any market data exists, so the status file
+            // appears the moment the indicator is added to a chart. That makes
+            // "no status file" mean one thing only: it is not on the chart.
+            WriteStatus(true);
         }
 
         // ------------------------------------------------------------------
@@ -101,6 +113,7 @@ namespace Claude1.Recorders
                 var sb = new StringBuilder();
                 sb.AppendLine("L2 Recorder status");
                 sb.AppendLine("==================");
+                sb.AppendLine("recorder version:   " + BuildTag);
                 sb.AppendLine("updated:            " +
                     now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 sb.AppendLine("instrument:         " + SymbolName());
