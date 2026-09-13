@@ -19,14 +19,29 @@ if errorlevel 1 (
     exit /b 1
 )
 
+if not exist "L2Recorder.csproj" (
+    echo  L2Recorder.csproj is not in this folder.
+    echo  Unzip all four files together, then run build.bat from that folder.
+    echo.
+    pause
+    exit /b 1
+)
+
 echo  Building against .NET 8...
+echo.
 dotnet build -c Release -v minimal
 if not errorlevel 1 goto done
 
 echo.
-echo  .NET 8 build failed. Some ATAS builds run on .NET 10 - retrying...
+echo  .NET 8 build failed. Newer ATAS builds run on .NET 10, retrying...
 echo.
 dotnet build -c Release -v minimal -p:TargetFramework=net10.0-windows
+if not errorlevel 1 goto done
+
+echo.
+echo  Retrying on .NET 9...
+echo.
+dotnet build -c Release -v minimal -p:TargetFramework=net9.0-windows
 if not errorlevel 1 goto done
 
 echo.

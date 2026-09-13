@@ -5,9 +5,8 @@
     and drops the result straight into the platform's Indicators folder.
 
     TargetFramework must match the .NET runtime the installed ATAS build uses.
-    ATAS 7.x ships on .NET 8; newer builds moved to .NET 10. If the build fails
-    with framework or assembly-version errors, change the value below to
-    net10.0-windows and rebuild -- that is the whole fix.
+    ATAS 7.x ships on .NET 8; newer builds moved to .NET 10. build.bat tries
+    both, so a mismatch here is not fatal.
 
     The ATAS install path is discovered from the usual locations. To point at a
     different one:  dotnet build -p:AtasDir="D:\Path\To\ATAS Platform"
@@ -21,28 +20,30 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <EnableDynamicLoading>true</EnableDynamicLoading>
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <!-- ATAS supplies these at runtime; shipping our own copies breaks loading. -->
+    <!-- ATAS supplies its own assemblies at runtime; shipping copies breaks loading. -->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- Where ATAS is installed. First hit wins. -->
-  <Choose>
-    <When Condition="'$(AtasDir)' != ''" />
-    <When Condition="Exists('$(LOCALAPPDATA)\ATAS Platform\ATAS.Indicators.dll')">
-      <PropertyGroup><AtasDir>$(LOCALAPPDATA)\ATAS Platform</AtasDir></PropertyGroup>
-    </When>
-    <When Condition="Exists('$(ProgramFiles)\ATAS Platform\ATAS.Indicators.dll')">
-      <PropertyGroup><AtasDir>$(ProgramFiles)\ATAS Platform</AtasDir></PropertyGroup>
-    </When>
-    <When Condition="Exists('$(ProgramW6432)\ATAS Platform\ATAS.Indicators.dll')">
-      <PropertyGroup><AtasDir>$(ProgramW6432)\ATAS Platform</AtasDir></PropertyGroup>
-    </When>
-    <When Condition="Exists('$(LOCALAPPDATA)\ATAS Platform\bin\ATAS.Indicators.dll')">
-      <PropertyGroup><AtasDir>$(LOCALAPPDATA)\ATAS Platform\bin</AtasDir></PropertyGroup>
-    </When>
-  </Choose>
+  <!--
+    Where ATAS is installed. These run in order and each only fires if nothing
+    earlier found it, so the first hit wins.
+  -->
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(LOCALAPPDATA)\ATAS Platform\ATAS.Indicators.dll')">
+    <AtasDir>$(LOCALAPPDATA)\ATAS Platform</AtasDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(ProgramFiles)\ATAS Platform\ATAS.Indicators.dll')">
+    <AtasDir>$(ProgramFiles)\ATAS Platform</AtasDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(ProgramW6432)\ATAS Platform\ATAS.Indicators.dll')">
+    <AtasDir>$(ProgramW6432)\ATAS Platform</AtasDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(LOCALAPPDATA)\ATAS Platform\bin\ATAS.Indicators.dll')">
+    <AtasDir>$(LOCALAPPDATA)\ATAS Platform\bin</AtasDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(USERPROFILE)\AppData\Roaming\ATAS Platform\ATAS.Indicators.dll')">
+    <AtasDir>$(USERPROFILE)\AppData\Roaming\ATAS Platform</AtasDir>
+  </PropertyGroup>
 
   <!-- Where the compiled indicator has to end up for ATAS to see it. -->
   <PropertyGroup Condition="'$(AtasIndicatorsDir)' == ''">
@@ -50,26 +51,21 @@
   </PropertyGroup>
 
   <Target Name="CheckAtasDir" BeforeTargets="BeforeBuild">
-    <Error Condition="'$(AtasDir)' == '' Or !Exists('$(AtasDir)\ATAS.Indicators.dll')"
-           Text="Could not find ATAS.Indicators.dll. Locate your ATAS install folder (the one containing ATAS.Indicators.dll) and rebuild with:  dotnet build -p:AtasDir=&quot;C:\Your\Path\ATAS Platform&quot;" />
+    <Error Condition="'$(AtasDir)' == ''"
+           Text="Could not find ATAS.Indicators.dll in any of the usual install folders. Search your drive for ATAS.Indicators.dll, then rebuild from this folder with:  dotnet build -c Release -p:AtasDir=&quot;C:\Your\Path\ATAS Platform&quot;" />
     <Message Importance="high" Text="ATAS assemblies: $(AtasDir)" />
   </Target>
 
   <!--
-    Reference every ATAS/OFT/Utils assembly in the install folder rather than
-    naming four of them: the exact split between ATAS.Indicators,
-    ATAS.DataFeedsCore, OFT.* and Utils.Common has moved between versions, and
-    referencing the lot costs nothing because none of them are copied.
+    Reference every ATAS, OFT and Utils assembly in the install folder rather
+    than naming a handful: the split between ATAS.Indicators,
+    ATAS.DataFeedsCore, OFT.* and Utils.* has moved between platform versions,
+    and referencing all of them costs nothing because none are copied.
   -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(AtasDir)' != ''">
     <Reference Include="$(AtasDir)\ATAS.*.dll" Private="false" />
     <Reference Include="$(AtasDir)\OFT.*.dll" Private="false" />
     <Reference Include="$(AtasDir)\Utils.*.dll" Private="false" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="**\*.cs" />
-    <Compile Include="L2Recorder.cs" />
   </ItemGroup>
 
   <Target Name="InstallToAtas" AfterTargets="Build">
@@ -77,7 +73,7 @@
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(AtasIndicatorsDir)"
           ContinueOnError="true" />
     <Message Importance="high"
-             Text="Installed $(TargetFileName) -> $(AtasIndicatorsDir)" />
+             Text="Installed $(TargetFileName) to $(AtasIndicatorsDir)" />
   </Target>
 
 </Project>
