@@ -266,3 +266,73 @@ detectable**, and that is the number to collect.
 4. Sessions with a **prior-day level in range** are worth more than quiet ones,
    because level behaviour is the open question the gap between these two days
    made untestable.
+
+---
+
+# Round three: four clean sessions with depth (2026-09-01 to 09-04)
+
+The first recordings that support the measurement the whole exercise was built
+for. 6.4M depth rows and 1.7M aggressor-tagged trades across four cash sessions.
+
+## Data quality
+
+| Check | Result |
+|---|---|
+| Price grid | **0.25 tick.** Fixed. 793–1,555 distinct prices per session. |
+| RTH coverage | **100%** of 13:30–20:00 on all four days, no gap over 5 seconds. |
+| Snapshot rate | median 268 ms, p99 ~400 ms. Matches the 250 ms throttle. |
+| Book integrity | **zero crossed or locked books.** Spread median 2 ticks, p95 3. |
+| Aggressor split | 50.6/49.4, 50.4/49.6, 50.3/49.7, 47.7/52.3. Sound. |
+| **09-01 duplication** | **Recorded twice.** The clock steps from 19:59:59.999 back to 13:30:00.000 at exactly the halfway row, in both files. Deduplicated in analysis; the recorder now writes `_run2` instead of appending. |
+| **Ladder reach** | **2.25 points, median.** Ten levels at a 0.25 tick. This is the binding limitation. |
+
+The ladder reach is the one number that constrains what can be asked. Resting
+size only becomes visible once price is already within about two points, so
+"watch a level build or evaporate from ten points away" is not answerable with
+this configuration. Whether ten levels is the recorder's cap or the feed's is
+not decidable from the files, since exactly ten always arrive: **set depth
+levels to 50 and record five minutes.** If ten still arrive it is the exchange
+feed (CME distributes market-by-price ten deep) and the question is closed.
+
+## What the two files together revealed
+
+At the touch, **filled volume exceeds cancellation by about 5 to 1** — 207k
+contracts traded against 43k added or pulled, and the same ratio on all four
+days. Size at the best bid and offer mostly disappears because it is traded,
+not because it is withdrawn. That is worth knowing: it argues against reading
+disappearing size at the touch as a spoof or a fake.
+
+## Three more hypotheses tested and rejected
+
+**Order book imbalance.** The standard measure, `(bid size − ask size) /
+total`, over ten levels. Dose-response across deciles is noise with no trend
+and no consistent sign. At the extremes, de-overlapped: **+0.09 to +0.26 points
+gross, t = +0.7 to +1.5** — below the bar, and a fraction of the half-point
+spread it would have to clear. Net of two points it is −1.7, which is simply
+the cost.
+
+**Absorption, properly instrumented.** Resting size decomposed into what was
+filled and what was cancelled, so "the bid took supply and refilled anyway" is
+computed rather than eyeballed. Gross **+0.25 points at t = +1.50** on 30
+seconds, decaying to nothing by five minutes.
+
+**Cancellation alone**, with trading stripped out entirely: −0.14 points,
+t = −0.91. Nothing.
+
+All three are negative on the same four sessions where the control — a random
+long — earns +0.13 to +1.19 points over the same horizons. The signals are not
+beating a coin flip, let alone the spread.
+
+## Where this leaves the search
+
+Every order-flow hypothesis tested at horizons from 10 seconds to 5 minutes has
+produced a gross edge under 0.3 points against a round-trip cost of 2. The
+pattern across three rounds is consistent and worth stating plainly: **the
+short-horizon microstructure signals in this data do not clear costs.** That is
+a real finding, not a failure to look hard enough — the imbalance and
+absorption tests are the two most commonly claimed edges in order flow, and
+both were measured directly rather than argued about.
+
+What has not been tested, and now can be, is level behaviour: these four
+sessions do contain prior-day levels in range, unlike the gapped pair in round
+two. That is the next test and the last one the current configuration supports.

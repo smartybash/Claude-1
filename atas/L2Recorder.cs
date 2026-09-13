@@ -44,7 +44,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-13.f";
+        private const string BuildTag = "2026-09-13.g";
 
         private readonly object _sync = new object();
 
@@ -326,8 +326,9 @@ namespace Claude1.Recorders
 
             var sym = Clean(SymbolName());
             var ext = Gzip ? ".csv.gz" : ".csv";
-            var dPath = Path.Combine(dir, "L2_" + sym + "_" + date + ext);
-            var tPath = Path.Combine(dir, "TAPE_" + sym + "_" + date + ext);
+            var run = NextRun(dir, sym, date, ext);
+            var dPath = RunPath(dir, "L2_" + sym + "_" + date, run, ext);
+            var tPath = RunPath(dir, "TAPE_" + sym + "_" + date, run, ext);
 
             var dNew = !File.Exists(dPath);
             var tNew = !File.Exists(tPath);
@@ -344,6 +345,33 @@ namespace Claude1.Recorders
 
             _openDate = date;
             _files = Path.GetFileName(dPath) + " + " + Path.GetFileName(tPath);
+        }
+
+        private static string RunPath(string dir, string stem, int run,
+                                      string ext)
+        {
+            return Path.Combine(dir, run <= 1 ? stem + ext
+                                              : stem + "_run" + run + ext);
+        }
+
+        /// <summary>
+        /// Replaying the same session twice with the indicator attached used to
+        /// append the whole day to the existing file a second time, producing a
+        /// file with every row present exactly twice and every resting size
+        /// silently doubled. A second run now writes _run2 alongside rather
+        /// than into the first, so nothing is lost and nothing is corrupted.
+        /// </summary>
+        private static int NextRun(string dir, string sym, string date,
+                                   string ext)
+        {
+            for (var run = 1; run < 100; run++)
+            {
+                var d = RunPath(dir, "L2_" + sym + "_" + date, run, ext);
+                var t = RunPath(dir, "TAPE_" + sym + "_" + date, run, ext);
+                if (!File.Exists(d) && !File.Exists(t))
+                    return run;
+            }
+            return 1;
         }
 
         /// <summary>
