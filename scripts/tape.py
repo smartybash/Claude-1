@@ -48,12 +48,14 @@ def load_day(path: Path) -> pd.DataFrame:
 
 def load_all() -> dict[str, pd.DataFrame]:
     out = {}
-    for p in sorted(TAPE.glob("TAPE_*.csv")):
+    # pandas decompresses .gz by extension, so both forms just work.
+    paths = sorted(list(TAPE.glob("TAPE_*.csv")) + list(TAPE.glob("TAPE_*.csv.gz")))
+    for p in paths:
         df = load_day(p)
         if len(df) < 1000:
             print(f"  skipping {p.name}: only {len(df)} rows")
             continue
-        out[p.stem.split("_")[-1]] = df
+        out[p.name.split("_")[-1].split(".")[0]] = df
     return out
 
 

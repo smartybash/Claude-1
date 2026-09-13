@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def load_depth(path: Path) -> pd.DataFrame:
+    # .csv and .csv.gz both work: pandas decompresses by extension.
     df = pd.read_csv(path, encoding="utf-8-sig")
     df["time"] = pd.to_datetime(df["time"], format="%Y-%m-%d %H:%M:%S.%f")
     return df.dropna(subset=["time"]).reset_index(drop=True)
