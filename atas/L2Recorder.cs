@@ -1,3 +1,7 @@
+// ATAS.DataFeedsCore is deliberately NOT imported: it declares its own
+// TradeDirection and MarketDataType alongside the ones in ATAS.Indicators,
+// and importing both makes every use of those names ambiguous (CS0104).
+// MarketDataArg comes from ATAS.Indicators, so its enums are the right ones.
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -5,10 +9,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-// ATAS.DataFeedsCore is deliberately NOT imported: it declares its own
-// TradeDirection and MarketDataType alongside the ones in ATAS.Indicators,
-// and importing both makes every use of those names ambiguous (CS0104).
-// MarketDataArg comes from ATAS.Indicators, so its enums are the right ones.
 using ATAS.Indicators;
 
 namespace Claude1.Recorders
@@ -16,21 +16,24 @@ namespace Claude1.Recorders
     /// <summary>
     /// Writes Level 2 depth snapshots and aggressor-tagged tape to CSV.
     ///
-    /// Two files per instrument per day, in OutputFolder:
     ///     L2_{symbol}_{yyyyMMdd}.csv     depth ladder, throttled snapshots
     ///     TAPE_{symbol}_{yyyyMMdd}.csv   every trade, with aggressor side
+    ///     _status.txt                    what this recorder is actually doing
     ///
-    /// The depth book updates far faster than anything worth recording, so
-    /// snapshots are throttled to SnapshotMs and truncated to DepthLevels per
-    /// side. At the defaults (250ms, 10 levels) a full RTH session is roughly
-    /// 1.9M depth rows -- large but workable. Raising either setting multiplies
-    /// the file size directly.
+    /// The status file is the point of this version. An earlier build swallowed
+    /// every exception and only created the data files from inside the market
+    /// data handlers, so when nothing arrived there was no output at all and no
+    /// way to tell whether the handlers were silent, the writes were failing, or
+    /// the indicator was not running. _status.txt is written from OnCalculate,
+    /// which always runs, and reports the counters and the last error.
     ///
-    /// Trades are never throttled: the aggressor tag is the whole point and
-    /// dropping trades would bias delta.
-    ///
-    /// Only [DisplayName] is used for the settings labels, so the build needs
-    /// no attribute package beyond System.ComponentModel.
+    /// Reading it:
+    ///   trades and depth both 0  -> the platform is sending neither; in Market
+    ///                               Replay this means the replay mode has no
+    ///                               tick or DOM data (use Ticks + DOM)
+    ///   trades above 0, rows 0   -> writing is failing; "last error" says why
+    ///   file does not exist      -> the indicator is not on the chart, or
+    ///                               cannot create the output folder at all
     /// </summary>
     [DisplayName("L2 Recorder (CSV)")]
     public class L2Recorder : Indicator
@@ -41,7 +44,12 @@ namespace Claude1.Recorders
         private StreamWriter _tapeWriter;
         private string _openDate = "";
         private DateTime _lastSnapshot = DateTime.MinValue;
+        private DateTime _lastStatus = DateTime.MinValue;
         private int _pending;
+
+        private long _calcs, _trades, _depthEvents, _rows;
+        private string _lastError = "(none)";
+        private string _files = "(none yet)";
 
         private int _depthLevels = 10;
         private int _snapshotMs = 250;
@@ -75,6 +83,47 @@ namespace Claude1.Recorders
         public L2Recorder()
         {
             try { DataSeries[0].IsHidden = true; } catch { }
+        }
+
+        // ------------------------------------------------------------------
+        // status
+        // ------------------------------------------------------------------
+        private void WriteStatus(bool force)
+        {
+            var now = DateTime.Now;
+            if (!force && (now - _lastStatus).TotalSeconds < 2)
+                return;
+            _lastStatus = now;
+
+            try
+            {
+                Directory.CreateDirectory(OutputFolder);
+                var sb = new StringBuilder();
+                sb.AppendLine("L2 Recorder status");
+                sb.AppendLine("==================");
+                sb.AppendLine("updated:            " +
+                    now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
+                sb.AppendLine("instrument:         " + SymbolName());
+                sb.AppendLine();
+                sb.AppendLine("OnCalculate calls:  " + _calcs);
+                sb.AppendLine("trades received:    " + _trades);
+                sb.AppendLine("depth updates:      " + _depthEvents);
+                sb.AppendLine("rows written:       " + _rows);
+                sb.AppendLine();
+                sb.AppendLine("record tape:        " + RecordTape);
+                sb.AppendLine("record depth:       " + RecordDepth);
+                sb.AppendLine("output folder:      " + OutputFolder);
+                sb.AppendLine("data files:         " + _files);
+                sb.AppendLine("last error:         " + _lastError);
+                sb.AppendLine();
+                sb.AppendLine("If trades and depth updates are both 0, the platform is");
+                sb.AppendLine("sending neither. In Market Replay, switch the replay mode");
+                sb.AppendLine("to Ticks + DOM -- the other modes carry no tick or depth");
+                sb.AppendLine("data and there is nothing for this to record.");
+                File.WriteAllText(Path.Combine(OutputFolder, "_status.txt"),
+                                  sb.ToString(), Encoding.UTF8);
+            }
+            catch { /* if even this fails there is nowhere to report it */ }
         }
 
         // ------------------------------------------------------------------
@@ -129,6 +178,7 @@ namespace Claude1.Recorders
                 _tapeWriter.WriteLine("time,price,volume,aggressor");
 
             _openDate = date;
+            _files = Path.GetFileName(dPath) + " + " + Path.GetFileName(tPath);
         }
 
         private void CloseFiles()
@@ -164,19 +214,23 @@ namespace Claude1.Recorders
         // ------------------------------------------------------------------
         protected override void OnCalculate(int bar, decimal value)
         {
-            // Nothing is drawn. This runs often enough to serve as a flush
-            // heartbeat, so a session that ends without OnDispose still lands
-            // its rows on disk.
-            if (bar == CurrentBar - 1)
+            // Nothing is drawn. This always runs, so it carries the status file
+            // and doubles as the flush heartbeat for a session that ends without
+            // a clean shutdown.
+            _calcs++;
+            lock (_sync)
             {
-                lock (_sync)
-                    FlushIfDue(true);
+                FlushIfDue(true);
+                WriteStatus(false);
             }
         }
 
         protected override void OnNewTrade(MarketDataArg arg)
         {
-            if (!RecordTape || arg == null)
+            if (arg == null)
+                return;
+            _trades++;
+            if (!RecordTape)
                 return;
 
             // Direction is the aggressor: Buy lifted the offer, Sell hit the bid.
@@ -192,16 +246,23 @@ namespace Claude1.Recorders
                     _tapeWriter.WriteLine(
                         Ts(arg.Time) + "," + Num(arg.Price) + "," +
                         Num(arg.Volume) + "," + side);
+                    _rows++;
                     _pending++;
                     FlushIfDue(false);
                 }
-                catch { /* never let a disk hiccup kill the feed thread */ }
+                catch (Exception ex)
+                {
+                    _lastError = "tape: " + ex.Message;
+                }
             }
         }
 
         protected override void MarketDepthChanged(MarketDataArg arg)
         {
-            if (!RecordDepth || arg == null)
+            if (arg == null)
+                return;
+            _depthEvents++;
+            if (!RecordDepth)
                 return;
 
             var now = arg.Time;
@@ -217,7 +278,10 @@ namespace Claude1.Recorders
 
                     var snap = MarketDepthInfo.GetMarketDepthSnapshot();
                     if (snap == null)
+                    {
+                        _lastError = "depth: GetMarketDepthSnapshot returned null";
                         return;
+                    }
 
                     // The snapshot arrives unordered; walk it once and keep the
                     // DepthLevels nearest the touch on each side.
@@ -239,20 +303,29 @@ namespace Claude1.Recorders
                     var stamp = Ts(now);
                     var n = Math.Min(DepthLevels, bids.Count);
                     for (var i = 0; i < n; i++)
+                    {
                         _depthWriter.WriteLine(
                             stamp + ",B," + i + "," + Num(bids[i].Price) + "," +
                             Num(bids[i].Volume));
+                        _rows++;
+                    }
 
                     n = Math.Min(DepthLevels, asks.Count);
                     for (var i = 0; i < n; i++)
+                    {
                         _depthWriter.WriteLine(
                             stamp + ",A," + i + "," + Num(asks[i].Price) + "," +
                             Num(asks[i].Volume));
+                        _rows++;
+                    }
 
                     _pending += DepthLevels * 2;
                     FlushIfDue(false);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    _lastError = "depth: " + ex.Message;
+                }
             }
         }
 
@@ -262,6 +335,7 @@ namespace Claude1.Recorders
             {
                 FlushIfDue(true);
                 CloseFiles();
+                WriteStatus(true);
             }
             base.OnDispose();
         }

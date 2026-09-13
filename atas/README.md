@@ -16,13 +16,39 @@ Take the **SDK**, not the Runtime. Version 8.0 or newer.
 
 **2. Double-click `build.bat`.**
 
-It finds ATAS, compiles against its assemblies, and copies `L2Recorder.dll` into
-`Documents\ATAS\Indicators\`. If the .NET 8 build fails it retries on .NET 10
-automatically, since newer ATAS builds moved runtime.
+It compiles against `C:\Program Files (x86)\ATAS Platform` and copies
+`L2Recorder.dll` into `Documents\ATAS\Indicators\`. Installed somewhere else?
+Pass the folder: `build.bat "D:\Path\ATAS Platform"`.
 
 **3. Restart ATAS**, open the NQ chart, `Ctrl+I`, add **"L2 Recorder (CSV)"**.
 
 It draws nothing on the chart. That is correct.
+
+**4. Market Replay must be in `Ticks + DOM` mode.** The other replay modes do
+not carry tick or depth data, so there is genuinely nothing to record.
+
+## Is it working?
+
+`Documents\ATAS_Export\_status.txt` answers that without anyone reading code. It
+refreshes every couple of seconds while the chart is live and looks like this:
+
+```
+OnCalculate calls:  4821
+trades received:    93102
+depth updates:      511230
+rows written:       688441
+last error:         (none)
+```
+
+| What it says | What it means |
+|---|---|
+| rows written climbing | working — leave it running |
+| trades and depth both 0 | the platform is sending neither; replay is in the wrong mode (use **Ticks + DOM**) |
+| trades above 0, rows 0 | writing is failing — `last error` names the reason |
+| no `_status.txt` at all | the indicator is not on the chart, or the output folder cannot be created |
+
+If it is not working, send that file back. It says what went wrong instead of
+leaving it to guesswork.
 
 ### If the build fails
 
