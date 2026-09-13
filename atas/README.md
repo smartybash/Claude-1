@@ -50,6 +50,27 @@ last error:         (none)
 If it is not working, send that file back. It says what went wrong instead of
 leaving it to guesswork.
 
+## Notes for anyone editing these files
+
+**Never put a comment in `L2Recorder.csproj`.** XML forbids a double hyphen
+inside a comment, and MSBuild rejects the entire project file with `MSB4025` if
+one appears — the build dies before a single line of C# is read. That failure has
+happened twice from prose written into that file. The csproj now contains no
+comments at all; explanation lives here instead, where it cannot break a build:
+
+- `TargetFramework` is `net8.0-windows` because **ATAS Platform 7.x runs on
+  .NET 8**. ATAS X is a different product on .NET 10; compiling against that
+  install raises `CS1705`, which is why `build.bat` hardcodes
+  `C:\Program Files (x86)\ATAS Platform`.
+- `CopyLocalLockFileAssemblies` is `false` and every `Reference` is
+  `Private="false"` — ATAS supplies its own assemblies at runtime, and shipping
+  copies alongside the indicator stops it loading.
+- References are wildcards over `ATAS.*`, `OFT.*` and `Utils.*` because the
+  split between those assemblies has moved between platform versions.
+- `ATAS.DataFeedsCore` is deliberately **not** imported in the C#: it declares
+  its own `TradeDirection` and `MarketDataType` alongside the ones in
+  `ATAS.Indicators`, and importing both makes every use ambiguous (`CS0104`).
+
 ### If the build fails
 
 Send back everything the window printed. The compiler error names the fix.
