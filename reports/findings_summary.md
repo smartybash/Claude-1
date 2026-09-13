@@ -336,3 +336,50 @@ both were measured directly rather than argued about.
 What has not been tested, and now can be, is level behaviour: these four
 sessions do contain prior-day levels in range, unlike the gapped pair in round
 two. That is the next test and the last one the current configuration supports.
+
+## The level test
+
+Prior-session profile (high, low, close, VAH, POC, VAL) plus the current
+session's initial balance, all fixed before price arrives. Entry is a **resting
+limit at the level**, filled when price trades there, and the outcome is
+resolved by walking the tick tape forward one trade at a time to a stop or a
+target — the convention that removes the lookahead which destroyed the earlier
+level work.
+
+Raw run: 198 touches, +6.56 points, t=+3.13 on a 20/40 stop and target. The
+audit took it apart:
+
+| Attack | Effect |
+|---|---|
+| Clustered levels merged | On 09-04, pdHIGH sat at 29,584.25 and pdVAH at 29,583.75 — half a point apart, the same trade counted twice. 198 touches → **131**. |
+| One trade at a time | A 40-point target takes long enough that most touches overlap. 131 → **32** independent trades, t **+3.13 → +0.45**. |
+| Per session | 09-02 +9.41, 09-04 −6.59. They disagree. |
+| Six cells tried | No cell clears the |t| ≥ 2.9 that six attempts require. |
+| Flow filters | Aggression into the level, volume, tape speed: every bucket n=10–11, |t| < 1.3. **Order flow at the touch does not separate holds from breaks on this sample.** |
+
+**Base rate worth keeping: levels held 49% of the time** across 198 touches.
+A coin flip. Every level read that claims better than that is claiming to beat
+this number, and now there is a number to beat.
+
+### This one is underpowered, not disproven — and that distinction matters
+
+The best-behaved cell is a **15-point stop with a 30-point target: +8.52 points
+net, t=+2.51 on 43 de-overlapped trades, 14.3 trades a session.** All six cells
+in the grid have a positive mean.
+
+Per-trade dispersion is 22.3 points ($446). At the six-cell bar:
+
+| True edge/trade | Trades | Sessions |
+|---|---|---|
+| 8 pts | 65 | 5 |
+| 5 pts | 167 | 12 |
+| **3 pts** | **465** | **32** |
+
+Three sessions can only resolve an edge of **9.9 points per trade**. The
+measured +8.52 sits *below* that threshold, so this sample cannot distinguish
+it from zero either way. That is the opposite situation to imbalance and
+absorption, which produced +0.25 points gross against a 2-point cost and are
+dead regardless of sample size.
+
+**Twelve sessions resolves 5 points per trade; twenty resolves 3.8.** This is
+the one live hypothesis left, and it is the reason to do the twenty-session run.
