@@ -43,7 +43,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-13.d";
+        private const string BuildTag = "2026-09-13.e";
 
         private readonly object _sync = new object();
 
@@ -60,6 +60,17 @@ namespace Claude1.Recorders
 
         private string _resolved;
         private string _folderNotes = "";
+
+        // Last written resting size per "side|price", so an unchanged level can
+        // be skipped. _seen and _gone are reused across snapshots rather than
+        // reallocated: this runs on every book update, thousands of times a
+        // minute, and the garbage would be the dominant cost.
+        private readonly Dictionary<string, decimal> _book =
+            new Dictionary<string, decimal>();
+        private readonly HashSet<string> _seen = new HashSet<string>();
+        private readonly List<string> _gone = new List<string>();
+        private DateTime _lastKeyframe = DateTime.MinValue;
+        private long _skippedOutOfSession;
 
         private int _depthLevels = 10;
         private int _snapshotMs = 250;
@@ -97,6 +108,52 @@ namespace Claude1.Recorders
 
         [DisplayName("Record depth")]
         public bool RecordDepth { get; set; } = true;
+
+        /// <summary>
+        /// Record only the cash session. The recorder writes the ATAS platform
+        /// clock, which on this install is UTC, so RTH is 13:30-20:00 there
+        /// rather than 09:30-16:00. Overnight was two thirds of the first
+        /// recording and none of it is analysed.
+        /// </summary>
+        [DisplayName("RTH only")]
+        public bool RthOnly { get; set; } = true;
+
+        [DisplayName("RTH start hour (platform clock)")]
+        public int RthStartHour { get; set; } = 13;
+
+        [DisplayName("RTH start minute")]
+        public int RthStartMinute { get; set; } = 30;
+
+        [DisplayName("RTH end hour (platform clock)")]
+        public int RthEndHour { get; set; } = 20;
+
+        [DisplayName("RTH end minute")]
+        public int RthEndMinute { get; set; } = 0;
+
+        /// <summary>
+        /// Write a depth row only when that price's resting size actually
+        /// changed. In the first recording, consecutive snapshots were
+        /// byte-identical: twenty rows per snapshot, most of them repeating the
+        /// previous twenty. A full ladder is still written every
+        /// KeyframeSeconds so the book can be rebuilt from any point without
+        /// replaying the file from the start.
+        /// </summary>
+        [DisplayName("Only write changed levels")]
+        public bool ChangesOnly { get; set; } = true;
+
+        [DisplayName("Full ladder every N seconds")]
+        public int KeyframeSeconds { get; set; } = 60;
+
+        private bool InSession(DateTime t)
+        {
+            if (!RthOnly)
+                return true;
+            var mins = t.Hour * 60 + t.Minute;
+            var from = RthStartHour * 60 + RthStartMinute;
+            var to = RthEndHour * 60 + RthEndMinute;
+            return from <= to ? (mins >= from && mins < to)
+                              : (mins >= from || mins < to);
+        }
 
         public L2Recorder()
         {
@@ -190,8 +247,17 @@ namespace Claude1.Recorders
                 sb.AppendLine("depth updates:      " + _depthEvents);
                 sb.AppendLine("rows written:       " + _rows);
                 sb.AppendLine();
+                sb.AppendLine("skipped, off-session " + _skippedOutOfSession);
+                sb.AppendLine();
                 sb.AppendLine("record tape:        " + RecordTape);
                 sb.AppendLine("record depth:       " + RecordDepth);
+                sb.AppendLine("RTH only:           " + RthOnly + "  ("
+                    + RthStartHour.ToString("00") + ":"
+                    + RthStartMinute.ToString("00") + " to "
+                    + RthEndHour.ToString("00") + ":"
+                    + RthEndMinute.ToString("00") + " platform clock)");
+                sb.AppendLine("changed levels only:" + ChangesOnly
+                    + "  (full ladder every " + KeyframeSeconds + "s)");
                 sb.AppendLine("requested folder:   " + OutputFolder);
                 sb.AppendLine("WRITING HERE:       " + dir);
                 sb.AppendLine("folder choice:      " + _folderNotes);
@@ -284,6 +350,37 @@ namespace Claude1.Recorders
             _pending = 0;
         }
 
+        /// <summary>
+        /// Writes one side of the ladder, skipping prices whose resting size is
+        /// unchanged. Caller must hold _sync and must have cleared _seen.
+        /// </summary>
+        private void EmitSide(string stamp, string side,
+                              List<MarketDataArg> levels, bool keyframe)
+        {
+            var n = Math.Min(DepthLevels, levels.Count);
+            for (var i = 0; i < n; i++)
+            {
+                var price = levels[i].Price;
+                var vol = levels[i].Volume;
+                var key = side + "|" + Num(price);
+                _seen.Add(key);
+
+                if (ChangesOnly && !keyframe)
+                {
+                    decimal prev;
+                    if (_book.TryGetValue(key, out prev) && prev == vol)
+                        continue;
+                }
+                _book[key] = vol;
+
+                _depthWriter.WriteLine(
+                    stamp + "," + side + "," + i + "," + Num(price) + "," +
+                    Num(vol));
+                _rows++;
+                _pending++;
+            }
+        }
+
         private static string Ts(DateTime t)
         {
             return t.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
@@ -317,6 +414,11 @@ namespace Claude1.Recorders
             _trades++;
             if (!RecordTape)
                 return;
+            if (!InSession(arg.Time))
+            {
+                _skippedOutOfSession++;
+                return;
+            }
 
             // Direction is the aggressor: Buy lifted the offer, Sell hit the bid.
             var side = arg.Direction == TradeDirection.Buy ? "B"
@@ -351,6 +453,11 @@ namespace Claude1.Recorders
                 return;
 
             var now = arg.Time;
+            if (!InSession(now))
+            {
+                _skippedOutOfSession++;
+                return;
+            }
             lock (_sync)
             {
                 if ((now - _lastSnapshot).TotalMilliseconds < SnapshotMs)
@@ -386,25 +493,35 @@ namespace Claude1.Recorders
                     asks.Sort((a, b) => a.Price.CompareTo(b.Price));   // best ask first
 
                     var stamp = Ts(now);
-                    var n = Math.Min(DepthLevels, bids.Count);
-                    for (var i = 0; i < n; i++)
+                    var keyframe = !ChangesOnly ||
+                        (now - _lastKeyframe).TotalSeconds >= KeyframeSeconds;
+                    if (keyframe)
+                        _lastKeyframe = now;
+
+                    _seen.Clear();
+                    EmitSide(stamp, "B", bids, keyframe);
+                    EmitSide(stamp, "A", asks, keyframe);
+
+                    // A price that has left the top of the book must be written
+                    // as zero, or a reconstruction keeps resting size that is no
+                    // longer there -- the exact error the recording exists to
+                    // avoid making by eye. This runs on keyframes too: a
+                    // keyframe rewrites the ladder but says nothing about what
+                    // has left it.
+                    _gone.Clear();
+                    foreach (var kv in _book)
+                        if (!_seen.Contains(kv.Key))
+                            _gone.Add(kv.Key);
+                    foreach (var key in _gone)
                     {
                         _depthWriter.WriteLine(
-                            stamp + ",B," + i + "," + Num(bids[i].Price) + "," +
-                            Num(bids[i].Volume));
+                            stamp + "," + key.Substring(0, 1) + ",-1," +
+                            key.Substring(2) + ",0");
+                        _book.Remove(key);
                         _rows++;
+                        _pending++;
                     }
 
-                    n = Math.Min(DepthLevels, asks.Count);
-                    for (var i = 0; i < n; i++)
-                    {
-                        _depthWriter.WriteLine(
-                            stamp + ",A," + i + "," + Num(asks[i].Price) + "," +
-                            Num(asks[i].Volume));
-                        _rows++;
-                    }
-
-                    _pending += DepthLevels * 2;
                     FlushIfDue(false);
                 }
                 catch (Exception ex)
