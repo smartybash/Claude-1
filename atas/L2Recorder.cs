@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
+using ATAS.DataFeedsCore;
 using ATAS.Indicators;
 
 namespace Claude1.Recorders
@@ -24,6 +25,9 @@ namespace Claude1.Recorders
     ///
     /// Trades are never throttled: the aggressor tag is the whole point and
     /// dropping trades would bias delta.
+    ///
+    /// Only [DisplayName] is used for the settings labels, so the build needs
+    /// no attribute package beyond System.ComponentModel.
     /// </summary>
     [DisplayName("L2 Recorder (CSV)")]
     public class L2Recorder : Indicator
@@ -39,36 +43,35 @@ namespace Claude1.Recorders
         private int _depthLevels = 10;
         private int _snapshotMs = 250;
 
-        [Display(Name = "Output folder", Order = 10)]
+        [DisplayName("Output folder")]
         public string OutputFolder { get; set; } =
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "ATAS_Export");
 
-        [Display(Name = "Depth levels per side", Order = 20)]
+        [DisplayName("Depth levels per side")]
         public int DepthLevels
         {
-            get => _depthLevels;
-            set => _depthLevels = value < 1 ? 1 : (value > 50 ? 50 : value);
+            get { return _depthLevels; }
+            set { _depthLevels = value < 1 ? 1 : (value > 50 ? 50 : value); }
         }
 
-        [Display(Name = "Snapshot interval (ms)", Order = 30)]
+        [DisplayName("Snapshot interval (ms)")]
         public int SnapshotMs
         {
-            get => _snapshotMs;
-            set => _snapshotMs = value < 50 ? 50 : value;
+            get { return _snapshotMs; }
+            set { _snapshotMs = value < 50 ? 50 : value; }
         }
 
-        [Display(Name = "Record tape", Order = 40)]
+        [DisplayName("Record tape")]
         public bool RecordTape { get; set; } = true;
 
-        [Display(Name = "Record depth", Order = 50)]
+        [DisplayName("Record depth")]
         public bool RecordDepth { get; set; } = true;
 
-        public L2Recorder() : base(true)
+        public L2Recorder()
         {
-            DenyToChangePanel = true;
-            DataSeries[0].IsHidden = true;
+            try { DataSeries[0].IsHidden = true; } catch { }
         }
 
         // ------------------------------------------------------------------
@@ -83,6 +86,18 @@ namespace Claude1.Recorders
             return s;
         }
 
+        private string SymbolName()
+        {
+            try
+            {
+                var info = InstrumentInfo;
+                if (info != null && !string.IsNullOrEmpty(info.Instrument))
+                    return info.Instrument;
+            }
+            catch { }
+            return "UNKNOWN";
+        }
+
         /// <summary>Opens (or rolls) the day's files. Caller must hold _sync.</summary>
         private void EnsureOpen(DateTime stamp)
         {
@@ -93,15 +108,17 @@ namespace Claude1.Recorders
             CloseFiles();
             Directory.CreateDirectory(OutputFolder);
 
-            var sym = Clean(InstrumentInfo?.Instrument ?? "UNKNOWN");
-            var dPath = Path.Combine(OutputFolder, $"L2_{sym}_{date}.csv");
-            var tPath = Path.Combine(OutputFolder, $"TAPE_{sym}_{date}.csv");
+            var sym = Clean(SymbolName());
+            var dPath = Path.Combine(OutputFolder, "L2_" + sym + "_" + date + ".csv");
+            var tPath = Path.Combine(OutputFolder, "TAPE_" + sym + "_" + date + ".csv");
 
             var dNew = !File.Exists(dPath);
             var tNew = !File.Exists(tPath);
 
-            _depthWriter = new StreamWriter(dPath, true, Encoding.UTF8) { AutoFlush = false };
-            _tapeWriter = new StreamWriter(tPath, true, Encoding.UTF8) { AutoFlush = false };
+            _depthWriter = new StreamWriter(dPath, true, Encoding.UTF8);
+            _tapeWriter = new StreamWriter(tPath, true, Encoding.UTF8);
+            _depthWriter.AutoFlush = false;
+            _tapeWriter.AutoFlush = false;
 
             if (dNew)
                 _depthWriter.WriteLine("time,side,level,price,volume");
@@ -113,8 +130,8 @@ namespace Claude1.Recorders
 
         private void CloseFiles()
         {
-            try { _depthWriter?.Flush(); _depthWriter?.Dispose(); } catch { }
-            try { _tapeWriter?.Flush(); _tapeWriter?.Dispose(); } catch { }
+            try { if (_depthWriter != null) { _depthWriter.Flush(); _depthWriter.Dispose(); } } catch { }
+            try { if (_tapeWriter != null) { _tapeWriter.Flush(); _tapeWriter.Dispose(); } } catch { }
             _depthWriter = null;
             _tapeWriter = null;
             _openDate = "";
@@ -124,16 +141,20 @@ namespace Claude1.Recorders
         {
             if (!force && _pending < 2000)
                 return;
-            try { _depthWriter?.Flush(); } catch { }
-            try { _tapeWriter?.Flush(); } catch { }
+            try { if (_depthWriter != null) _depthWriter.Flush(); } catch { }
+            try { if (_tapeWriter != null) _tapeWriter.Flush(); } catch { }
             _pending = 0;
         }
 
-        private static string Ts(DateTime t) =>
-            t.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+        private static string Ts(DateTime t)
+        {
+            return t.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+        }
 
-        private static string Num(decimal d) =>
-            d.ToString(CultureInfo.InvariantCulture);
+        private static string Num(decimal d)
+        {
+            return d.ToString(CultureInfo.InvariantCulture);
+        }
 
         // ------------------------------------------------------------------
         // ATAS hooks
@@ -155,7 +176,7 @@ namespace Claude1.Recorders
             if (!RecordTape || arg == null)
                 return;
 
-            // Direction is the aggressor: Buy = lifted the offer, Sell = hit the bid.
+            // Direction is the aggressor: Buy lifted the offer, Sell hit the bid.
             var side = arg.Direction == TradeDirection.Buy ? "B"
                      : arg.Direction == TradeDirection.Sell ? "S"
                      : "?";
@@ -166,7 +187,8 @@ namespace Claude1.Recorders
                 {
                     EnsureOpen(arg.Time);
                     _tapeWriter.WriteLine(
-                        $"{Ts(arg.Time)},{Num(arg.Price)},{Num(arg.Volume)},{side}");
+                        Ts(arg.Time) + "," + Num(arg.Price) + "," +
+                        Num(arg.Volume) + "," + side);
                     _pending++;
                     FlushIfDue(false);
                 }
@@ -194,7 +216,7 @@ namespace Claude1.Recorders
                     if (snap == null)
                         return;
 
-                    // Snapshot arrives unordered; walk it once and keep the
+                    // The snapshot arrives unordered; walk it once and keep the
                     // DepthLevels nearest the touch on each side.
                     var bids = new List<MarketDataArg>();
                     var asks = new List<MarketDataArg>();
@@ -215,12 +237,14 @@ namespace Claude1.Recorders
                     var n = Math.Min(DepthLevels, bids.Count);
                     for (var i = 0; i < n; i++)
                         _depthWriter.WriteLine(
-                            $"{stamp},B,{i},{Num(bids[i].Price)},{Num(bids[i].Volume)}");
+                            stamp + ",B," + i + "," + Num(bids[i].Price) + "," +
+                            Num(bids[i].Volume));
 
                     n = Math.Min(DepthLevels, asks.Count);
                     for (var i = 0; i < n; i++)
                         _depthWriter.WriteLine(
-                            $"{stamp},A,{i},{Num(asks[i].Price)},{Num(asks[i].Volume)}");
+                            stamp + ",A," + i + "," + Num(asks[i].Price) + "," +
+                            Num(asks[i].Volume));
 
                     _pending += DepthLevels * 2;
                     FlushIfDue(false);
