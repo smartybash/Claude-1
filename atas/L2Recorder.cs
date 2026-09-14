@@ -44,7 +44,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-13.g";
+        private const string BuildTag = "2026-09-14.h";
 
         private readonly object _sync = new object();
 
@@ -71,6 +71,9 @@ namespace Claude1.Recorders
         private readonly HashSet<string> _seen = new HashSet<string>();
         private readonly List<string> _gone = new List<string>();
         private DateTime _lastKeyframe = DateTime.MinValue;
+        private DateTime _lastData = DateTime.MinValue;
+        private string _pathDate = "";
+        private string _dPath, _tPath;
         private long _skippedOutOfSession;
 
         private int _depthLevels = 10;
@@ -155,6 +158,17 @@ namespace Claude1.Recorders
         /// </summary>
         [DisplayName("Compress output (.csv.gz)")]
         public bool Gzip { get; set; } = true;
+
+        /// <summary>
+        /// Close the output files after this many seconds without data. When a
+        /// replay finishes, the indicator stays on the chart and the handles
+        /// stay open, so Windows refuses to move or delete the recordings until
+        /// ATAS is shut down entirely. Releasing them when idle makes the
+        /// folder tidyable straight after a run. The files reopen by themselves
+        /// as soon as data resumes, appending to the same recording.
+        /// </summary>
+        [DisplayName("Release files after N idle seconds")]
+        public int IdleCloseSeconds { get; set; } = 15;
 
         private bool InSession(DateTime t)
         {
@@ -269,6 +283,11 @@ namespace Claude1.Recorders
                     + RthEndHour.ToString("00") + ":"
                     + RthEndMinute.ToString("00") + " platform clock)");
                 sb.AppendLine("compressed:         " + Gzip);
+                sb.AppendLine("files:              "
+                    + (_depthWriter == null
+                       ? "CLOSED, safe to move or delete"
+                       : "open, writing"));
+                sb.AppendLine("release when idle:  " + IdleCloseSeconds + "s");
                 sb.AppendLine("changed levels only:" + ChangesOnly
                     + "  (full ladder every " + KeyframeSeconds + "s)");
                 sb.AppendLine("requested folder:   " + OutputFolder);
@@ -324,11 +343,20 @@ namespace Claude1.Recorders
             if (dir == null)
                 throw new IOException("no writable output folder: " + _folderNotes);
 
-            var sym = Clean(SymbolName());
-            var ext = Gzip ? ".csv.gz" : ".csv";
-            var run = NextRun(dir, sym, date, ext);
-            var dPath = RunPath(dir, "L2_" + sym + "_" + date, run, ext);
-            var tPath = RunPath(dir, "TAPE_" + sym + "_" + date, run, ext);
+            // Only choose a run number the first time this date is opened. A
+            // reopen after an idle close must resume the same files, or every
+            // idle gap would start a new run and split one recording.
+            if (date != _pathDate || _dPath == null)
+            {
+                var sym = Clean(SymbolName());
+                var ext = Gzip ? ".csv.gz" : ".csv";
+                var run = NextRun(dir, sym, date, ext);
+                _dPath = RunPath(dir, "L2_" + sym + "_" + date, run, ext);
+                _tPath = RunPath(dir, "TAPE_" + sym + "_" + date, run, ext);
+                _pathDate = date;
+            }
+            var dPath = _dPath;
+            var tPath = _tPath;
 
             var dNew = !File.Exists(dPath);
             var tNew = !File.Exists(tPath);
@@ -384,12 +412,34 @@ namespace Claude1.Recorders
         private StreamWriter OpenWriter(string path)
         {
             if (!Gzip)
-                return new StreamWriter(path, true, Encoding.UTF8);
+            {
+                var plain = new FileStream(path, FileMode.Append,
+                                           FileAccess.Write,
+                                           FileShare.ReadWrite |
+                                           FileShare.Delete);
+                return new StreamWriter(plain, Encoding.UTF8);
+            }
 
             var fs = new FileStream(path, FileMode.Append, FileAccess.Write,
-                                    FileShare.Read);
+                                    FileShare.ReadWrite | FileShare.Delete);
             var gz = new GZipStream(fs, CompressionLevel.Optimal, false);
             return new StreamWriter(gz, new UTF8Encoding(false));
+        }
+
+        /// <summary>
+        /// Release the handles once data has stopped arriving. Caller holds
+        /// _sync. Deliberately does not reset _openDate to a sentinel: the next
+        /// datum reopens the same day's file in append mode and carries on.
+        /// </summary>
+        private void CloseIfIdle()
+        {
+            if (IdleCloseSeconds <= 0 || _depthWriter == null)
+                return;
+            if (_lastData == DateTime.MinValue)
+                return;
+            if ((DateTime.Now - _lastData).TotalSeconds < IdleCloseSeconds)
+                return;
+            CloseFiles();
         }
 
         private void CloseFiles()
@@ -463,6 +513,7 @@ namespace Claude1.Recorders
             lock (_sync)
             {
                 FlushIfDue(true);
+                CloseIfIdle();
                 WriteStatus(false);
             }
         }
@@ -490,6 +541,7 @@ namespace Claude1.Recorders
                 try
                 {
                     EnsureOpen(arg.Time);
+                    _lastData = DateTime.Now;
                     _tapeWriter.WriteLine(
                         Ts(arg.Time) + "," + Num(arg.Price) + "," +
                         Num(arg.Volume) + "," + side);
@@ -527,6 +579,7 @@ namespace Claude1.Recorders
                 try
                 {
                     EnsureOpen(now);
+                    _lastData = DateTime.Now;
 
                     var snap = MarketDepthInfo.GetMarketDepthSnapshot();
                     if (snap == null)
