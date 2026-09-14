@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import gzip
 import io
+import re
 from pathlib import Path
 
 import numpy as np
@@ -84,7 +85,14 @@ def load_all() -> dict[str, pd.DataFrame]:
         if len(df) < 1000:
             print(f"  skipping {p.name}: only {len(df)} rows")
             continue
-        out[p.name.split("_")[-1].split(".")[0]] = df
+        # Take the eight-digit date wherever it sits in the name. Splitting on
+        # the last underscore turned TAPE_NQ_20260901_run2.csv.gz into a
+        # session called "run2", which then sorted before every real date.
+        m = re.search(r"(\d{8})", p.name)
+        if not m:
+            print(f"  skipping {p.name}: no date in the filename")
+            continue
+        out[m.group(1)] = df
     return out
 
 

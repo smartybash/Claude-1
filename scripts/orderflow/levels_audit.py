@@ -40,6 +40,7 @@ from levels import (COST_PTS, POINT_USD, REARM_PTS, TOUCH_TOL, features,
 from tape import load_all, rth                                          # noqa
 
 MERGE_PTS = 5.0        # levels closer than this are one level
+TOUCH_TOL = 0.25
 
 
 def merge_levels(lv: dict) -> dict:
@@ -94,13 +95,27 @@ def main():
     days = {d: s for d, s in days.items() if len(s) > 5000}
     keys = sorted(days)
 
+    # Only pair sessions that are consecutive TRADING days. 08-17 was recorded
+    # without a tape, so 08-14 is not the prior session for 08-18 -- using it
+    # would trade levels that are a day stale, which is a different and untested
+    # claim from the one being made here.
+    pairs = []
+    for a, b in zip(keys, keys[1:]):
+        ta = pd.Timestamp(a)
+        tb = pd.Timestamp(b)
+        if len(pd.bdate_range(ta, tb)) == 2:
+            pairs.append((a, b))
+        else:
+            print(f"   skipping {a} -> {b}: not consecutive trading days")
+
     print("=" * 92)
     print("LEVEL AUDIT")
     print("=" * 92)
 
     print(f"\n1  MERGING LEVELS WITHIN {MERGE_PTS} POINTS")
+    print(f"   {len(pairs)} usable session pairs of {len(keys)} sessions\n")
     allrows = []
-    for prev_d, d in zip(keys, keys[1:]):
+    for prev_d, d in pairs:
         cur = days[d]
         lv = session_levels(days[prev_d])
         ibl, ib_end = ib_levels(cur)
@@ -110,9 +125,6 @@ def main():
         inr = {k: v for k, v in merged.items() if p.min() <= v <= p.max()}
         print(f"   {d}: {len(lv)} raw -> {len(merged)} merged, "
               f"{len(inr)} in range")
-        for n, v in merged.items():
-            if "+" in n:
-                print(f"       {v:>10,.2f}  {n}")
         for tch in touches_merged(cur, inr, ib_end):
             f = features(cur, tch["idx"], tch["price"])
             if f is None:
@@ -128,7 +140,7 @@ def main():
     for _, r in T.iterrows():
         p = days[r.day].price.to_numpy()
         direction = +1 if r.from_above else -1
-        v, j = resolve(p, int(r.idx), r.price, direction, STOP, TARGET)
+        v, j = resolve(p, int(r.idx), p[int(r.idx)], direction, STOP, TARGET)
         pnl.append(v)
         exit_i.append(j)
         at_close.append(j >= len(p) - 1)
@@ -173,7 +185,7 @@ def main():
                 continue
             p = days[r.day].price.to_numpy()
             direction = +1 if r.from_above else -1
-            v, j = resolve(p, int(r.idx), r.price, direction, stop, target)
+            v, j = resolve(p, int(r.idx), p[int(r.idx)], direction, stop, target)
             vals.append(v)
             busy = j
         show(f"stop {stop} / target {target}", stat(vals, COST_PTS), bar=2.9)

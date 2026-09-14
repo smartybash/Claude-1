@@ -41,7 +41,15 @@ from tape import load_all, rth, volume_profile          # noqa: E402
 TICK = 0.25
 POINT_USD = 20.0
 COST_PTS = 2.0
-TOUCH_TOL = 1.0        # a touch is price trading within this of the level
+TOUCH_TOL = 0.25       # a touch is price trading within this of the level
+
+# Entry is the price that ACTUALLY PRINTED on the touch, never the level.
+# A touch is registered within TOUCH_TOL of the level, so entering "at the
+# level" assumes a fill up to TOUCH_TOL better than anything that traded. At a
+# 1-point tolerance that free slippage was worth more than the entire measured
+# edge: the hold rate fell from 58% to 53.7% and every net result turned
+# negative once the traded price was used instead. Same family of mistake as
+# the lookahead bias that invalidated the first level study.
 REARM_PTS = 8.0        # price must leave by this before the level re-arms
 IB_END = "14:30"
 
@@ -207,7 +215,7 @@ def main():
         for _, r in T.iterrows():
             p = days[r.day].price.to_numpy()
             direction = +1 if r.from_above else -1
-            v, _ = resolve(p, int(r.idx), r.price, direction, stop, target)
+            v, _ = resolve(p, int(r.idx), p[int(r.idx)], direction, stop, target)
             pnl.append(v)
         T[f"pnl_{stop}_{target}"] = pnl
         s = stat(pnl, COST_PTS)

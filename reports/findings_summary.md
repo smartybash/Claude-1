@@ -426,3 +426,75 @@ distinguishable from accumulation at one.
 
 That file is compiled optionally, and `build.bat` retries without it
 automatically, so this cannot cost the recorder if the API guess is wrong.
+
+---
+
+# Round four: twelve sessions, and the level edge dies
+
+Ten recorded sessions arrived over five batches plus the four from September,
+giving **twelve sessions with both tape and depth**, nine of them usable as
+consecutive trading-day pairs. Depth quality is uniform: 50 levels, ~12 points
+of ladder reach, 270ms snapshots, **zero gaps over five seconds and zero
+crossed books in 16.8 million rows**. The recorder is finished.
+
+## The level fade does not survive the larger sample
+
+| | 3 sessions | 12 sessions |
+|---|---|---|
+| best cell (15/30) | +8.52 pt, t=+2.51, n=43 | **+2.63 pt, t=+1.81, n=232** |
+| de-overlapped 20/40 | +2.32 pt | +1.25 pt |
+
+The effect shrank by two thirds as the sample quadrupled. That is the signature
+of a small-sample artifact, not an edge.
+
+## And most of what was left was an assumed fill
+
+A touch was registered when price came within **1 point** of the level, and the
+trade was then entered **at the level** — a fill up to a point better than
+anything that traded. On a gross edge of about 1.6 points, that free slippage
+is not a detail, it is the result:
+
+| stop | entry at level | entry at the traded price |
+|---|---|---|
+| 15 | 56.5% win, +0.03 pt | **53.7% win, −0.91 pt** |
+| 20 | 59.0% win, +1.64 pt | **53.6% win, −0.54 pt** |
+| 30 | 57.6% win, +2.19 pt | **53.8% win, −0.16 pt** |
+
+Tightening the tolerance to a quarter point makes the two conventions converge,
+as they must, and the surviving numbers are 53.4–56.2% win rates worth −0.75 to
++1.30 points net. This is the same family of mistake as the lookahead bias that
+invalidated the first level study: an entry price that was never available.
+
+**Both scripts now enter at the price that actually printed.**
+
+## What is actually true about levels
+
+Levels hold **53–56% of touches** — a real tilt, but a small one. The economics
+follow directly. At a symmetric stop and target the break-even win rate is
+`50% + cost/(2R)`, so with a 2-point round trip:
+
+| stop | break-even | observed |
+|---|---|---|
+| 10 pt | 60.0% | ~54% |
+| 20 pt | 55.0% | ~54% |
+| 30 pt | 53.3% | ~56% |
+
+The hold rate barely reaches break-even, and only at wide stops where the fixed
+cost is diluted. A 30-point stop on NQ is $600 of risk to harvest a tilt of
+about three percentage points. Flow at the touch — aggression into the level,
+volume, tape speed — does not separate the holds from the breaks at any stop
+size, with every bucket under |t| = 1.7.
+
+## Where that leaves it
+
+Every hypothesis this project has tested is now either rejected or, in the case
+of levels, reduced to a tilt too small to trade against a 2-point round trip.
+The honest summary after four rounds and roughly thirty hypotheses: **there is
+no intraday edge in this data large enough to survive costs.** The one real
+edge found anywhere in the project remains the 27-year daily oversold bounce,
+which is not a day trade.
+
+That is a finding, not a failure. It is also the reason to stop adding
+hypotheses of the same shape and to change something structural — the
+instrument, the holding period, or the cost base — rather than keep testing
+variations that all die the same way.
