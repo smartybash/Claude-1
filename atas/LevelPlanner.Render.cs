@@ -26,11 +26,13 @@
 //                  countdown to a heavy level would invite exactly the trade
 //                  the rule forbids.
 //
-//   touch prompt   what to do at the touch, and it is short because the honest
-//                  answer is short. Aggression into the level, volume and tape
-//                  speed were all tested as filters and none separated the
-//                  holds from the breaks at any stop size. There is nothing to
-//                  read. Take it, or skip the session.
+//   touch prompt   what to do at the touch, plus the two flow reads that
+//                  actually separated anything when tested on light levels:
+//                  session CVD, and delta over five minutes. Sixty-second
+//                  aggression, volume, tape speed and book imbalance were all
+//                  tested too and all were flat, so they are deliberately not
+//                  shown -- a read that carries no information is only a way to
+//                  talk yourself out of the winners.
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -82,8 +84,11 @@ namespace Claude1.Recorders
             Shot near, touch;
             decimal nearDist, price;
             DateTime touchedAt;
+            long cvd, d5;
             lock (_sync)
             {
+                cvd = _cvd;
+                d5 = _delta5;
                 levels = new List<Shot>(_levels.Count);
                 foreach (var l in _levels)
                     levels.Add(Shot.Of(l));
@@ -111,7 +116,7 @@ namespace Claude1.Recorders
                     DrawNoTradeBand(context, l, y, w);
             }
 
-            DrawPanel(context, price, near, nearDist, touch, touchedAt);
+            DrawPanel(context, price, near, nearDist, touch, touchedAt, cvd, d5);
         }
 
         private void DrawNoTradeBand(RenderContext context, Shot l, int y, int w)
@@ -158,8 +163,27 @@ namespace Claude1.Recorders
             return p.ToString("N2");
         }
 
+        /// <summary>
+        /// The two flow reads, with their meaning for THIS trade already
+        /// resolved. Sign is the whole content: a day running against the fade
+        /// is the losing case, and aggression into the level is the winning
+        /// one. No threshold, because any cut-off would come from the same 88
+        /// trades and would be a fitted number dressed as a rule.
+        /// </summary>
+        private static string FlowLine(bool buy, long cvd, long d5)
+        {
+            var sign = buy ? 1L : -1L;
+            var cvdAgainst = -cvd * sign > 0;
+            var intoLevel = -d5 * sign > 0;
+            return "CVD " + cvd.ToString("N0") +
+                   (cvdAgainst ? "  AGAINST this trade" : "  with this trade") +
+                   "      5m delta " + d5.ToString("N0") +
+                   (intoLevel ? "  into the level" : "  away from it");
+        }
+
         private void DrawPanel(RenderContext context, decimal price, Shot near,
-                               decimal nearDist, Shot touch, DateTime touchedAt)
+                               decimal nearDist, Shot touch, DateTime touchedAt,
+                               long cvd, long d5)
         {
             string head, line2, line3;
             Color ink;
@@ -174,8 +198,7 @@ namespace Claude1.Recorders
                        "   TOUCHED   " + age + "s ago";
                 line2 = "stop " + Fmt(touch.Stop) + "    target " + Fmt(touch.Target) +
                         "    risking $600 to make $600";
-                line3 = "One position only — cancel the others. Nothing to read: " +
-                        "no flow filter separated holds from breaks.";
+                line3 = FlowLine(touch.Buy, cvd, d5) + "      one position only";
             }
             else if (near != null && nearDist <= WatchPts)
             {
@@ -184,7 +207,7 @@ namespace Claude1.Recorders
                        Fmt(near.Price) + "   " +
                        ((double)nearDist).ToString("N1") + " pts away";
                 line2 = "stop " + Fmt(near.Stop) + "    target " + Fmt(near.Target);
-                line3 = "The limit should already be resting there. Do not chase it.";
+                line3 = FlowLine(near.Buy, cvd, d5);
             }
             else if (near != null)
             {
@@ -193,7 +216,8 @@ namespace Claude1.Recorders
                 line2 = "nearest " + (near.Buy ? "BUY " : "SELL ") + Fmt(near.Price) +
                         "   " + ((double)nearDist).ToString("N0") + " pts away";
                 line3 = "Watch begins inside " +
-                        ((double)WatchPts).ToString("N0") + " points.";
+                        ((double)WatchPts).ToString("N0") + " points.      CVD " +
+                        cvd.ToString("N0");
             }
             else
             {

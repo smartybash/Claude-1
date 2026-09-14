@@ -45,7 +45,7 @@ namespace Claude1.Recorders
     [DisplayName("Level Plan (weight rule)")]
     public partial class LevelPlanner : Indicator
     {
-        private const string BuildTag = "2026-09-14.plan.e";
+        private const string BuildTag = "2026-09-14.plan.f";
 
         private readonly object _sync = new object();
 
@@ -61,6 +61,18 @@ namespace Claude1.Recorders
             new Dictionary<string, bool>();
         private readonly Dictionary<string, bool> _above =
             new Dictionary<string, bool>();
+
+        // Session cumulative delta, and a five-minute rolling window of it.
+        // These are the only two of ATAS's reads that separated anything when
+        // tested on the light-level trades: a day running hard against the fade
+        // is the losing case, and aggression INTO the level is the winning one.
+        private long _cvd;
+        private readonly List<KeyValuePair<DateTime, long>> _recent =
+            new List<KeyValuePair<DateTime, long>>();
+        private long _delta5;
+
+        internal long SessionCvd { get { return _cvd; } }
+        internal long Delta5Min { get { return _delta5; } }
 
         private StreamWriter _signals;
         private string _lastError = "(none)";
@@ -494,6 +506,26 @@ namespace Claude1.Recorders
             l.Target = l.Buy ? l.Price + StopPts : l.Price - StopPts;
         }
 
+        /// <summary>
+        /// Drop anything older than five minutes and recompute the window sum.
+        /// The list is walked from the front rather than rebuilt, because this
+        /// runs on every trade and the session carries a third of a million.
+        /// </summary>
+        private void TrimRecent(DateTime now)
+        {
+            var cut = now.AddMinutes(-5);
+            var drop = 0;
+            while (drop < _recent.Count && _recent[drop].Key < cut)
+                drop++;
+            if (drop > 0)
+                _recent.RemoveRange(0, drop);
+
+            long sum = 0;
+            for (var i = 0; i < _recent.Count; i++)
+                sum += _recent[i].Value;
+            _delta5 = sum;
+        }
+
         private void UpdateWatch(decimal price, DateTime when)
         {
             Level best = null;
@@ -536,7 +568,8 @@ namespace Claude1.Recorders
                     _signals.AutoFlush = true;
                     if (isNew)
                         _signals.WriteLine(
-                            "time,level,level_price,weight,verdict,side,touch_price,stop,target");
+                            "time,level,level_price,weight,verdict,side,touch_price,"
+                            + "stop,target,session_cvd,delta_5min");
                 }
                 var side = fromAbove ? "BUY" : "SELL";
                 var stop = fromAbove ? l.Price - StopPts : l.Price + StopPts;
@@ -550,7 +583,9 @@ namespace Claude1.Recorders
                     "," + side +
                     "," + price.ToString(CultureInfo.InvariantCulture) +
                     "," + stop.ToString(CultureInfo.InvariantCulture) +
-                    "," + tgt.ToString(CultureInfo.InvariantCulture));
+                    "," + tgt.ToString(CultureInfo.InvariantCulture) +
+                    "," + _cvd.ToString(CultureInfo.InvariantCulture) +
+                    "," + _delta5.ToString(CultureInfo.InvariantCulture));
             }
             catch (Exception ex)
             {
@@ -687,6 +722,8 @@ namespace Claude1.Recorders
                 sb.AppendLine("prices in profile:" + _vol.Count);
                 sb.AppendLine("levels planned:   " + _levels.Count);
                 sb.AppendLine("touches today:    " + _touches);
+                sb.AppendLine("session CVD:      " + _cvd.ToString("N0", CultureInfo.InvariantCulture));
+                sb.AppendLine("delta, last 5min: " + _delta5.ToString("N0", CultureInfo.InvariantCulture));
                 sb.AppendLine("last error:       " + _lastError);
                 sb.AppendLine("drawing:          " + (RenderAvailable
                     ? "on" : "OFF (built without the render half)"));
@@ -740,10 +777,22 @@ namespace Claude1.Recorders
                             _signals = null;
                         }
                         _vol.Clear();
+                        _recent.Clear();
+                        _cvd = 0;
+                        _delta5 = 0;
                         _any = false;
                         _sessionDate = date;
                         BuildPlan(date);
                     }
+
+                    var signed = arg.Direction == TradeDirection.Buy
+                        ? (long)arg.Volume
+                        : arg.Direction == TradeDirection.Sell
+                            ? -(long)arg.Volume
+                            : 0L;
+                    _cvd += signed;
+                    _recent.Add(new KeyValuePair<DateTime, long>(arg.Time, signed));
+                    TrimRecent(arg.Time);
 
                     var t = Ticks(arg.Price);
                     long cur;
