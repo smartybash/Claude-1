@@ -52,16 +52,40 @@ def load_clean(path: Path) -> pd.DataFrame:
 
 
 def touch_series(df: pd.DataFrame) -> pd.DataFrame:
-    """Best bid and best ask at every snapshot, from the level==0 rows.
+    """Best bid and best ask at every snapshot, by rebuilding the ladder.
 
-    Using the recorded level index rather than recomputing from the ladder is
-    deliberate: if the index and the prices disagree, that is itself a defect
-    worth catching, and section 2 checks exactly that.
+    The obvious shortcut -- take the rows where level == 0 -- is wrong for the
+    change-only format, and wrong in a way that looks like a data defect. A row
+    is written only when that PRICE's resting size changes, so a price that was
+    level 0 stays marked level 0 in the file while price moves away from it and
+    it becomes level 3. Reading those rows and forward-filling pairs a stale bid
+    against a fresh ask and reports crossed books that never happened: 2.4% of
+    one session, against 0.0000% once rebuilt properly.
     """
-    b = df[(df.side == "B") & (df.level == 0)].set_index("time").price
-    a = df[(df.side == "A") & (df.level == 0)].set_index("time").price
-    t = pd.concat([b.rename("bid"), a.rename("ask")], axis=1).sort_index()
-    return t.ffill().dropna()
+    t = df.time.to_numpy()
+    side = df.side.to_numpy()
+    price = df.price.to_numpy(dtype=np.float64)
+    vol = df.volume.to_numpy(dtype=np.float64)
+
+    bids, asks = {}, {}
+    stamps, bb, aa = [], [], []
+    i, n = 0, len(df)
+    while i < n:
+        j = i
+        while j < n and t[j] == t[i]:
+            j += 1
+        for k in range(i, j):
+            book = bids if side[k] == "B" else asks
+            if vol[k] <= 0:
+                book.pop(price[k], None)
+            else:
+                book[price[k]] = vol[k]
+        if bids and asks:
+            stamps.append(t[i])
+            bb.append(max(bids))
+            aa.append(min(asks))
+        i = j
+    return pd.DataFrame({"bid": bb, "ask": aa}, index=pd.DatetimeIndex(stamps))
 
 
 def main():
@@ -115,14 +139,9 @@ def main():
         # ---- visibility window ---------------------------------------------
         # How far from the touch does the ladder reach? That distance is how
         # much warning we get before price arrives at a level.
-        depth_pts = []
-        g = df[df.level >= 0].groupby("time")
-        for _, blk in list(g)[:4000]:
-            bb = blk[blk.side == "B"].price
-            aa = blk[blk.side == "A"].price
-            if len(bb) and len(aa):
-                depth_pts.append(max(aa.max() - aa.min(), bb.max() - bb.min()))
-        depth_pts = np.array(depth_pts)
+        g = lv.groupby(["time", "side"]).price.agg(["min", "max"])
+        spans = (g["max"] - g["min"])
+        depth_pts = spans.to_numpy()
         if len(depth_pts):
             print(f"     ladder reach from touch  median "
                   f"{np.median(depth_pts):.2f} pts   "
