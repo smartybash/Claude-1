@@ -45,7 +45,7 @@ namespace Claude1.Recorders
     [DisplayName("Level Plan (weight rule)")]
     public partial class LevelPlanner : Indicator
     {
-        private const string BuildTag = "2026-09-14.plan.f";
+        private const string BuildTag = "2026-09-14.plan.g";
 
         private readonly object _sync = new object();
 
@@ -73,6 +73,12 @@ namespace Claude1.Recorders
 
         internal long SessionCvd { get { return _cvd; } }
         internal long Delta5Min { get { return _delta5; } }
+        internal long SessionVol { get { return _sessionVol; } }
+        internal bool CvdComplete { get { return _cvdComplete; } }
+
+        private long _sessionVol;
+        private bool _cvdComplete;
+        private bool _backfilled;
 
         private StreamWriter _signals;
         private string _lastError = "(none)";
@@ -526,6 +532,72 @@ namespace Claude1.Recorders
             _delta5 = sum;
         }
 
+        /// <summary>
+        /// Seed CVD and session volume from the bars already on the chart.
+        ///
+        /// Without this, attaching the indicator at 16:00 starts the count at
+        /// zero and it disagrees with the platform's own CVD by everything that
+        /// traded before. Read once, on the first in-session trade.
+        ///
+        /// Candle members are reached by reflection deliberately: a wrong
+        /// property name then costs a "partial" label in the panel instead of
+        /// the whole build, and this runs once rather than per trade so the
+        /// cost does not matter.
+        /// </summary>
+        private void BackfillSession(DateTime now)
+        {
+            if (_backfilled)
+                return;
+            _backfilled = true;
+            try
+            {
+                var open = now.Date
+                    .AddHours(RthStartHour).AddMinutes(RthStartMinute);
+                long cvd = 0, vol = 0;
+                var seen = 0;
+
+                for (var b = 0; b <= CurrentBar; b++)
+                {
+                    var c = GetCandle(b);
+                    if (c == null)
+                        continue;
+                    var ct = c.GetType();
+
+                    var tp = ct.GetProperty("Time");
+                    if (tp == null)
+                        return;                       // cannot place it in time
+                    var t = (DateTime)tp.GetValue(c);
+                    if (t < open || t > now)
+                        continue;
+
+                    var dp = ct.GetProperty("Delta");
+                    var vp = ct.GetProperty("Volume");
+                    if (dp == null || vp == null)
+                        return;
+
+                    cvd += Convert.ToInt64(dp.GetValue(c));
+                    vol += Convert.ToInt64(vp.GetValue(c));
+                    seen++;
+                }
+
+                if (seen == 0)
+                {
+                    // Attached before the open, so there is nothing to seed and
+                    // the running count is already the whole session.
+                    _cvdComplete = true;
+                    return;
+                }
+                _cvd += cvd;
+                _sessionVol += vol;
+                _cvdComplete = true;
+            }
+            catch (Exception ex)
+            {
+                _lastError = "cvd backfill: " + ex.Message;
+                _cvdComplete = false;
+            }
+        }
+
         private void UpdateWatch(decimal price, DateTime when)
         {
             Level best = null;
@@ -722,7 +794,12 @@ namespace Claude1.Recorders
                 sb.AppendLine("prices in profile:" + _vol.Count);
                 sb.AppendLine("levels planned:   " + _levels.Count);
                 sb.AppendLine("touches today:    " + _touches);
-                sb.AppendLine("session CVD:      " + _cvd.ToString("N0", CultureInfo.InvariantCulture));
+                sb.AppendLine("session CVD:      " + _cvd.ToString("N0", CultureInfo.InvariantCulture)
+                    + (_cvdComplete ? "  (full session)"
+                                    : "  PARTIAL - counted from attach only"));
+                sb.AppendLine("session volume:   " + _sessionVol.ToString("N0", CultureInfo.InvariantCulture));
+                sb.AppendLine("CVD share:        " + (_sessionVol > 0
+                    ? (100.0 * _cvd / _sessionVol).ToString("N2") + "%" : "n/a"));
                 sb.AppendLine("delta, last 5min: " + _delta5.ToString("N0", CultureInfo.InvariantCulture));
                 sb.AppendLine("last error:       " + _lastError);
                 sb.AppendLine("drawing:          " + (RenderAvailable
@@ -780,6 +857,9 @@ namespace Claude1.Recorders
                         _recent.Clear();
                         _cvd = 0;
                         _delta5 = 0;
+                        _sessionVol = 0;
+                        _backfilled = false;
+                        _cvdComplete = false;
                         _any = false;
                         _sessionDate = date;
                         BuildPlan(date);
@@ -790,7 +870,9 @@ namespace Claude1.Recorders
                         : arg.Direction == TradeDirection.Sell
                             ? -(long)arg.Volume
                             : 0L;
+                    BackfillSession(arg.Time);
                     _cvd += signed;
+                    _sessionVol += (long)arg.Volume;
                     _recent.Add(new KeyValuePair<DateTime, long>(arg.Time, signed));
                     TrimRecent(arg.Time);
 

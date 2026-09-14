@@ -56,6 +56,17 @@ namespace Claude1.Recorders
         private static readonly Color DimInk = Color.FromArgb(150, 160, 172);
         private static readonly Color WatchInk = Color.FromArgb(238, 186, 88);
 
+        /// <summary>
+        /// Skip the trade when net delta against the fade exceeds this share of
+        /// the session's volume so far. Swept over the recorded sessions: at
+        /// 1.5% the rule returns +11.00 points at 72.8% against +7.58 at 67.0%
+        /// unfiltered. Every neighbouring cut from 1.0% to 5.0% also improves
+        /// it, so this is a plateau rather than a single lucky value -- but it
+        /// is still a number taken from the same data and is the next thing
+        /// out-of-sample sessions have to confirm.
+        /// </summary>
+        private const double SKIP_SHARE_PCT = 1.5;
+
         private readonly RenderFont _fSmall = new RenderFont("Segoe UI", 11);
         private readonly RenderFont _fMid = new RenderFont("Segoe UI", 12);
         private readonly RenderFont _fBig = new RenderFont("Segoe UI", 16);
@@ -84,11 +95,14 @@ namespace Claude1.Recorders
             Shot near, touch;
             decimal nearDist, price;
             DateTime touchedAt;
-            long cvd, d5;
+            long cvd, d5, svol;
+            bool cvdFull;
             lock (_sync)
             {
                 cvd = _cvd;
                 d5 = _delta5;
+                svol = _sessionVol;
+                cvdFull = _cvdComplete;
                 levels = new List<Shot>(_levels.Count);
                 foreach (var l in _levels)
                     levels.Add(Shot.Of(l));
@@ -116,7 +130,8 @@ namespace Claude1.Recorders
                     DrawNoTradeBand(context, l, y, w);
             }
 
-            DrawPanel(context, price, near, nearDist, touch, touchedAt, cvd, d5);
+            DrawPanel(context, price, near, nearDist, touch, touchedAt,
+                      cvd, d5, svol, cvdFull);
         }
 
         private void DrawNoTradeBand(RenderContext context, Shot l, int y, int w)
@@ -170,20 +185,32 @@ namespace Claude1.Recorders
         /// one. No threshold, because any cut-off would come from the same 88
         /// trades and would be a fitted number dressed as a rule.
         /// </summary>
-        private static string FlowLine(bool buy, long cvd, long d5)
+        private static string FlowLine(bool buy, long cvd, long d5, long svol,
+                                       bool full)
         {
+            // Measured as a SHARE of the session's volume, not in contracts.
+            // Raw CVD was swept across seven cut-offs and separated nothing,
+            // because the same figure means different things at 13:45 and at
+            // 19:30. As a share it does separate: above 1.5% against the fade,
+            // the trade stops working.
             var sign = buy ? 1L : -1L;
-            var cvdAgainst = -cvd * sign > 0;
+            var against = -cvd * sign;
+            var share = svol > 0 ? 100.0 * against / svol : 0.0;
+            var blocked = share > SKIP_SHARE_PCT;
             var intoLevel = -d5 * sign > 0;
-            return "CVD " + cvd.ToString("N0") +
-                   (cvdAgainst ? "  AGAINST this trade" : "  with this trade") +
+
+            return "CVD " + (share >= 0 ? "+" : "") + share.ToString("N2") +
+                   "% of session " +
+                   (blocked ? "— SKIP, over " + SKIP_SHARE_PCT.ToString("N1") + "%"
+                            : "— ok, under " + SKIP_SHARE_PCT.ToString("N1") + "%") +
+                   (full ? "" : "  (PARTIAL)") +
                    "      5m delta " + d5.ToString("N0") +
-                   (intoLevel ? "  into the level" : "  away from it");
+                   (intoLevel ? " into the level" : " away from it");
         }
 
         private void DrawPanel(RenderContext context, decimal price, Shot near,
                                decimal nearDist, Shot touch, DateTime touchedAt,
-                               long cvd, long d5)
+                               long cvd, long d5, long svol, bool cvdFull)
         {
             string head, line2, line3;
             Color ink;
@@ -198,7 +225,7 @@ namespace Claude1.Recorders
                        "   TOUCHED   " + age + "s ago";
                 line2 = "stop " + Fmt(touch.Stop) + "    target " + Fmt(touch.Target) +
                         "    risking $600 to make $600";
-                line3 = FlowLine(touch.Buy, cvd, d5) + "      one position only";
+                line3 = FlowLine(touch.Buy, cvd, d5, svol, cvdFull);
             }
             else if (near != null && nearDist <= WatchPts)
             {
@@ -207,7 +234,7 @@ namespace Claude1.Recorders
                        Fmt(near.Price) + "   " +
                        ((double)nearDist).ToString("N1") + " pts away";
                 line2 = "stop " + Fmt(near.Stop) + "    target " + Fmt(near.Target);
-                line3 = FlowLine(near.Buy, cvd, d5);
+                line3 = FlowLine(near.Buy, cvd, d5, svol, cvdFull);
             }
             else if (near != null)
             {
@@ -217,7 +244,7 @@ namespace Claude1.Recorders
                         "   " + ((double)nearDist).ToString("N0") + " pts away";
                 line3 = "Watch begins inside " +
                         ((double)WatchPts).ToString("N0") + " points.      CVD " +
-                        cvd.ToString("N0");
+                        cvd.ToString("N0") + (cvdFull ? "" : " (PARTIAL)");
             }
             else
             {

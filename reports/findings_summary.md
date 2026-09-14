@@ -685,3 +685,48 @@ drop the heavy ones, place resting limits with brackets at the light ones before
 the open, and let them work. It is an order-placement routine, not a screen-
 watching one — which is fortunate, because at a 2.6-minute median hold, screen
 watching would not be fast enough.
+
+## The CVD filter, with the number
+
+Saying "CVD is against this trade" is not a rule. The cut-off is the only part
+that can be acted on, and the first version of the panel left it out.
+
+**Raw CVD in contracts does not work.** Swept across seven cut-offs from 1,000
+to 12,000 contracts, it separates nothing — 1,000 gives +7.04, 4,000 gives
++6.90, 6,000 and above give the unfiltered +7.58. The reason is mechanical: a
+touch at 13:45 has twenty minutes of delta behind it and one at 19:30 has six
+hours, so the same figure means different things. **The number the platform
+displays is the wrong unit to threshold on.**
+
+**As a share of the session's volume, it does work:**
+
+| skip when CVD against the fade exceeds | keeps | per trade | win | t |
+|---|---|---|---|---|
+| 0.5% | 243/367 | +5.86 | 63.5% | +1.76 |
+| 1.0% | 282/367 | +8.56 | 68.8% | +2.71 |
+| **1.5%** | **319/367** | **+11.00** | **72.8%** | **+3.71** |
+| 2.0% | 336/367 | +9.74 | 70.7% | +3.24 |
+| 3.0% | 347/367 | +7.32 | 66.7% | +2.38 |
+| 5.0% | 356/367 | +8.27 | 68.2% | +2.74 |
+| no filter | 367/367 | +7.58 | 67.0% | +2.53 |
+
+Equivalently, CVD per minute works too — skip above 30 contracts/minute against
+the fade gives +11.33 at 73.4%.
+
+**Per session at the 1.5% cut: 7 of 7 positive**, +0.73 to +28.00 points, and
+the pooled result is **+11.00 pts at 72.8% on 81 trades, t=+3.71** against
++7.58 at 67.0% unfiltered. Every neighbouring cut from 1.0% to 5.0% also beats
+no filter, so this is a plateau rather than one lucky value.
+
+It is still a number taken from the same data the effect was measured on, and
+it is the next thing out-of-sample sessions have to confirm.
+
+### And the count has to start at the open
+
+The first build counted CVD from the moment the indicator was attached, so
+attaching mid-session disagreed with the platform's own CVD by everything that
+had already traded — caught on a live chart showing ATAS at roughly +4,000 and
+this at −292. The session's completed candles are now read once to seed it.
+Candle members are reached by reflection so an unexpected property name costs a
+"PARTIAL" label in the panel rather than the build, and the panel says plainly
+when the count is not the full session.
