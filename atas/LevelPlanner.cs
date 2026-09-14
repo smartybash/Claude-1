@@ -45,7 +45,7 @@ namespace Claude1.Recorders
     [DisplayName("Level Plan (weight rule)")]
     public partial class LevelPlanner : Indicator
     {
-        private const string BuildTag = "2026-09-14.plan.c";
+        private const string BuildTag = "2026-09-14.plan.d";
 
         private readonly object _sync = new object();
 
@@ -90,7 +90,9 @@ namespace Claude1.Recorders
         internal DateTime TouchedAt = DateTime.MinValue;
 
         /// <summary>Set true by the optional render half if it is compiled in.</summary>
+#pragma warning disable 0649   // assigned only in LevelPlanner.Render.cs
         internal static bool RenderAvailable;
+#pragma warning restore 0649
 
         // ---- settings -------------------------------------------------------
         [DisplayName("Output folder")]
@@ -99,8 +101,8 @@ namespace Claude1.Recorders
                 Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
                 "ATAS_Export");
 
-        [DisplayName("Tick size")]
-        public decimal TickSize { get; set; } = 0.25m;
+        [DisplayName("Price step")]
+        public decimal PriceStep { get; set; } = 0.25m;
 
         [DisplayName("RTH start hour (platform clock)")]
         public int RthStartHour { get; set; } = 13;
@@ -162,12 +164,12 @@ namespace Claude1.Recorders
         // ---- helpers --------------------------------------------------------
         private long Ticks(decimal price)
         {
-            return (long)Math.Round(price / TickSize, MidpointRounding.AwayFromZero);
+            return (long)Math.Round(price / PriceStep, MidpointRounding.AwayFromZero);
         }
 
         private decimal Price(long ticks)
         {
-            return ticks * TickSize;
+            return ticks * PriceStep;
         }
 
         private bool InSession(DateTime t)
@@ -248,7 +250,7 @@ namespace Claude1.Recorders
 
         private long WeightAt(Dictionary<long, long> vol, decimal level)
         {
-            var band = (long)Math.Round(BandPts / TickSize);
+            var band = (long)Math.Round(BandPts / PriceStep);
             var c = Ticks(level);
             long sum = 0;
             for (var t = c - band; t <= c + band; t++)
@@ -552,7 +554,7 @@ namespace Claude1.Recorders
         /// compiles against whatever the API turns out to be, so this cannot
         /// itself break the build, and one run answers what a guess cannot.
         /// </summary>
-        private static string DescribeRenderApi()
+        private string DescribeRenderApi()
         {
             try
             {

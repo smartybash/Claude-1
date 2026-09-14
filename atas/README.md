@@ -235,3 +235,34 @@ It needs one previous session's profile before it can plan anything. Day one it
 writes `PROFILE_...` and reports "no previous session profile yet" in the status
 file; from day two the plan appears. To skip that wait, run Market Replay over
 yesterday once and the profile is written from that.
+
+---
+
+## Before shipping any change: `python3 atas/precheck.py`
+
+There is no .NET SDK where these files are written, so the C# cannot be built
+before it is sent. Most of the errors that have actually cost a rebuild here
+needed no compiler to find:
+
+| | |
+|---|---|
+| `MSB4025` | a double hyphen inside an XML comment in the csproj — twice |
+| `CS0108` | a property named `TickSize`, colliding with `Indicator.TickSize` |
+| `CS0120` | a `static` probe method reading the instance property `ChartInfo` |
+| `CS0649` | a field only ever assigned in an optional file |
+
+`precheck.py` finds all of these, and is itself verified against a file
+containing every one of them. It also checks the structural invariants the
+optional-file scheme depends on: that each optional source has a
+`<Compile Remove>` guarded by its property, that `build.bat` has a fallback
+pass for each, and that every declared `partial void` hook is implemented
+somewhere.
+
+It is not a type checker and will never catch a wrong method signature. That is
+what the fallback build passes are for.
+
+**One lesson worth keeping:** the `CS0120` and `CS0108` errors sat in
+`LevelPlanner.cs`, which is always compiled, so all three build passes failed
+identically. The fallback scheme can only rescue mistakes that live in the
+optional half — which is exactly why the always-compiled files get the
+strictest check.

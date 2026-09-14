@@ -44,6 +44,17 @@
     <Compile Remove="LevelPlanner.Render.cs" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <SysDrawingDll>$(AtasDir)\System.Drawing.Common.dll</SysDrawingDll>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(SysDrawingDll)')">
+    <Reference Include="$(SysDrawingDll)" Private="false" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('$(SysDrawingDll)')">
+    <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(AtasDir)' != ''">
     <Reference Include="$(AtasDir)\ATAS.*.dll" Private="false" />
     <Reference Include="$(AtasDir)\OFT.*.dll" Private="false" />
