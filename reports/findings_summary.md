@@ -981,3 +981,90 @@ on 2,680 sessions rather than 5. **Reading structure beats not reading it. It
 does not beat not trading.** The remaining honest question is not whether the
 sequence is real — it is — but whether there is an entry that collects the
 information without paying the leg for it. Nothing tested so far does.
+
+---
+
+## Re-opening every rejected rule on 1,421 sessions — and two corrections
+
+The rejections in this file were made on 198 touches and 51 out-of-sample
+trades. That was the data that existed; it was not the data that was
+obtainable. Re-run on **1,421 sessions of QQQ 1-minute bars (2021-01 to
+2026-08)**, 3,682 level touches. `scripts/orderflow/levels_long.py`.
+
+1-minute bars matter here specifically: a 30-point NQ stop is 0.73 QQQ points,
+narrower than a 5-minute bar. Testing it on 5-minute data would repeat the
+daily-bar error. At 1-minute resolution the both-touched ambiguity is 1–2%.
+
+### Correction 1 — levels do not hold 53–56%
+
+| | n | mean | win | t |
+|---|---|---|---|---|
+| fade every level | **3,682** | −2.34 NQ pts | **49.1%** | −4.57 |
+
+The 53–56% hold rate was 198 touches of sampling noise. On twenty times the
+data the fade is a coin that loses to costs. **This claim is withdrawn.**
+
+### Correction 2 — the heavy/light split was backwards
+
+The rule said light levels hold and are the ones to fade; heavy levels break.
+
+| | n | mean | win | t |
+|---|---|---|---|---|
+| fade the **lightest** third | 760 | **−4.45** | 45.8% | −4.12 |
+| fade the middle third | 1,237 | −2.14 | 49.3% | −2.39 |
+| fade the **heaviest** third | 1,685 | −1.52 | 50.4% | −2.01 |
+
+Light levels are the **worst** to fade, not the best. The rule was inverted,
+and the live indicator's grey "NO TRADE" bands are drawn on the wrong third.
+
+### What is real: prior-day extremes break
+
+Fading PDH loses at t = −3.65; fading PDL at t = −3.92, on 1,044 touches.
+That is the strongest signal in the project and it clears the |t| ≥ 3 bar. But
+traded the right way round it still does not pay:
+
+| | n | mean | win | t |
+|---|---|---|---|---|
+| go with the PDH/PDL break | 1,044 | −0.22 NQ pts | **52.8%** | −0.24 |
+| de-overlapped, one a session | 947 | +0.43 NQ pts | 54.1% | +0.44 |
+
+52.8% is a real tilt, stable at 51–55% in every one of six years. At 1:1 with
+2 points of cost, break-even is 53.4%. **The edge exists and is slightly
+smaller than the cost of trading it.** Lower cost or better reward-to-risk is
+the only route; fading it is the one thing definitively ruled out.
+
+### CVD cannot be tested on bars — proven, not assumed
+
+`scripts/orderflow/cvd_proxy.py` builds 1-minute bars from the recorded tape,
+computes three standard CVD reconstructions from those bars alone, and scores
+them against the true signed volume from the same trades:
+
+| proxy | path corr | sign agreement | end error |
+|---|---|---|---|
+| tick rule | 0.33 | 62% | 374% |
+| close location | 0.19 | 50% | 276% |
+| open-close | 0.33 | 68% | 259% |
+
+The best one **points the wrong way on 4 of 18 sessions**. So the CVD filter,
+CVD divergence, absorption and book imbalance cannot be re-opened at scale by
+any amount of bar data. They stay where they are. More recorded tape is the
+only thing that moves them.
+
+### Gap + CVD, on the 18 tape sessions
+
+`scripts/orderflow/gap_cvd.py`. Flow measured over the first 30 minutes — the
+earliest read a live rule could act on — on 15 gap sessions:
+
+| | n | mean | win |
+|---|---|---|---|
+| gap trade, no filter | 15 | +4.00 pt | 60.0% |
+| early CVD **agrees** with the trade | 6 | **+28.00 pt** | **100%** |
+| early CVD **against** | 9 | −12.00 pt | 33.3% |
+
+Permutation test on the split (the t-test is useless — an all-winners group
+has zero variance): **p = 0.028**.
+
+It survives at 5%, and it is six sessions with a perfect record, which is the
+exact shape of the four findings that already died here. Recorded as a
+direction, not sized as a rule. About 40 gap sessions would settle it, and
+recording them is the cheapest useful thing left to do.

@@ -46,35 +46,56 @@ def payloads(results: Path):
         yield f.name, raw
 
 
+def spacing_minutes(d: pd.DataFrame) -> int:
+    """Bar interval, read off the data rather than trusted from the filename.
+
+    The payloads carry no symbol and no interval, and the directory mixes
+    every pull made in the session. The timestamps settle it: the modal gap
+    between consecutive bars within a day IS the interval, so a 1-minute pull
+    can never be folded into a 5-minute file by accident.
+    """
+    t = d.timestamp.sort_values()
+    gaps = t.diff().dt.total_seconds().div(60).dropna()
+    gaps = gaps[(gaps > 0) & (gaps <= 60)]
+    return int(gaps.mode().iloc[0]) if len(gaps) else 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="data/intraday_long")
+    ap.add_argument("--interval", type=int, default=5,
+                    help="bar size in minutes; payloads at any other spacing "
+                         "are left alone, so 1min and 5min pulls can share "
+                         "the tool-results directory")
     ap.add_argument("--symbol", default="QQQ",
                     help="label for the output file; the payloads carry no "
                          "symbol of their own, so pulls for different symbols "
                          "must be harvested before the next symbol is pulled")
     a = ap.parse_args()
 
-    frames, seen = [], 0
+    frames, seen, skipped = [], 0, 0
     for name, raw in payloads(RESULTS):
         d = pd.read_csv(io.StringIO(raw))
         if d.empty:
             continue
+        d["timestamp"] = pd.to_datetime(d.timestamp)
+        if spacing_minutes(d) != a.interval:
+            skipped += 1
+            continue
         frames.append(d)
         seen += 1
     if not frames:
-        print("nothing to harvest")
+        print(f"nothing at {a.interval}min to harvest ({skipped} other pulls)")
         return
 
     d = pd.concat(frames, ignore_index=True)
-    d["timestamp"] = pd.to_datetime(d.timestamp)
     d = (d.drop_duplicates(subset="timestamp")
            .sort_values("timestamp")
            .reset_index(drop=True))
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    f = out / f"{a.symbol}_5m.parquet"
+    f = out / f"{a.symbol}_{a.interval}m.parquet"
     if f.exists():
         old = pd.read_parquet(f)
         d = (pd.concat([old, d], ignore_index=True)
@@ -84,7 +105,7 @@ def main():
     d.to_parquet(f, index=False)
 
     days = d.timestamp.dt.date.nunique()
-    print(f"{seen} payloads -> {len(d):,} bars, {days:,} sessions, "
+    print(f"{seen} payloads at {a.interval}min ({skipped} skipped) -> {len(d):,} bars, {days:,} sessions, "
           f"{d.timestamp.min():%Y-%m-%d} to {d.timestamp.max():%Y-%m-%d}")
     print(f"written to {f}")
 
