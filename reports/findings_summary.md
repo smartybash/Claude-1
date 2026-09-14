@@ -562,3 +562,65 @@ never mixed.
 **What would confirm it:** ten more sessions holding a positive mean with the
 same split between light and heavy. What would kill it: the light/heavy
 separation collapsing, or out-of-sample sessions landing near zero.
+
+## The weight rule survives its two hardest tests
+
+**Threshold sensitivity.** The 10,000 cutoff came from a tercile of the data it
+was measured on, so the question is whether it is a fitted spike or part of a
+plateau:
+
+| cutoff | n | mean | win | t |
+|---|---|---|---|---|
+| 2,000 | 50 | +4.06 | 62.0% | 0.99 |
+| 4,000 | 63 | +4.24 | 61.9% | 1.16 |
+| 6,000 | 72 | +6.38 | 65.3% | 1.90 |
+| 8,000 | 81 | +6.56 | 65.4% | 2.08 |
+| **10,000** | 88 | **+7.58** | **67.0%** | **2.53** |
+| 12,000 | 91 | +4.30 | 61.5% | 1.41 |
+| 15,000 | 97 | +4.53 | 61.9% | 1.54 |
+| 20,000 | 111 | +1.00 | 55.9% | 0.36 |
+| **no filter** | 111 | **+1.00** | **55.9%** | **0.36** |
+
+Not a spike. Every cutoff from 2,000 to 15,000 is positive, and the whole
+6,000–10,000 band sits between +6.4 and +7.6. Past 20,000 the filter stops
+excluding anything and the result collapses to the unfiltered +1.00 — which is
+the fade tilt already known to be too small to trade. **The filter is the entire
+edge.** 10,000 is still the maximum of the curve and therefore still flattered;
+the defensible number is the +6.4 to +7.6 of the plateau, before any
+out-of-sample discount.
+
+**Leave one session out.** Nine sessions is few enough that one good day could
+carry everything:
+
+| dropped | n | mean | win | t |
+|---|---|---|---|---|
+| none | 88 | +7.58 | 67.0% | 2.53 |
+| 08-11 | 73 | +8.32 | 68.5% | 2.56 |
+| 08-12 | 84 | +6.84 | 65.5% | 2.20 |
+| 08-13 | 86 | +7.80 | 67.4% | 2.58 |
+| 08-14 | 81 | +6.56 | 65.4% | 2.08 |
+| 08-19 | 67 | +6.89 | 65.7% | 1.98 |
+| 08-20 | 65 | +9.58 | 70.8% | 2.84 |
+| 09-02 | 79 | +8.29 | 68.4% | 2.65 |
+| 09-03 | 87 | +7.34 | 66.7% | 2.43 |
+| 09-04 | 82 | +6.99 | 65.9% | 2.23 |
+
+**No session carries it.** The range across all nine deletions is +6.56 to
++9.58, and every one keeps t between 1.98 and 2.84. Compare the CVD divergence
+finding, where removing the overlap alone took t from +5.12 to +1.00.
+
+**Permutation test.** Shuffling the light/heavy labels 300 times returns
++0.96 pts on average (sd 1.84) against the real +7.58 — 3.6 standard deviations
+out, p < 0.001. The classification is doing the work, not the trade.
+
+### What is still wrong with it
+
+The implied economics remain absurd: 9.8 trades a session at +$152 is $1,482 a
+day on one contract, roughly $370,000 a year. No edge of that size survives in a
+market this liquid. Nine sessions and 88 trades is simply not enough to estimate
+a mean, whatever the t-statistic says, and the win-rate interval is
+[57.2%, 76.9%] against a break-even of 53.3%. **At the pessimistic end of that
+interval the edge is +2.33 points, about $47 a trade** — which is the number to
+plan against, not the headline.
+
+Out-of-sample sessions are the only thing that resolves it.
