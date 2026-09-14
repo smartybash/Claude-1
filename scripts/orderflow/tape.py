@@ -76,12 +76,44 @@ def load_day(path: Path) -> pd.DataFrame:
     return df
 
 
+CACHE = ROOT / "data" / "cache"
+
+
+def _cached(path: Path) -> pd.DataFrame:
+    """Parsed frame for one session, from parquet when it is still valid.
+
+    Parsing sixteen gzipped tapes costs about thirteen seconds cold and under
+    two warm. That was never the bottleneck -- see prefix_sums below for what
+    actually was -- but it is free to keep. The cache key is the source file's
+    size and modification time, so a re-recorded session invalidates itself
+    rather than being served stale.
+    """
+    CACHE.mkdir(parents=True, exist_ok=True)
+    stamp = path.stat()
+    key = f"{path.stem}_{stamp.st_size}_{int(stamp.st_mtime)}.parquet"
+    cache = CACHE / key
+    if cache.exists():
+        try:
+            return pd.read_parquet(cache)
+        except Exception:
+            cache.unlink(missing_ok=True)
+
+    df = load_day(path)
+    try:
+        for old in CACHE.glob(f"{path.stem}_*.parquet"):
+            old.unlink(missing_ok=True)
+        df.to_parquet(cache, index=False)
+    except Exception as e:
+        print(f"  cache write failed for {path.name}: {e}")
+    return df
+
+
 def load_all() -> dict[str, pd.DataFrame]:
     out = {}
     # pandas decompresses .gz by extension, so both forms just work.
     paths = sorted(list(TAPE.glob("TAPE_*.csv")) + list(TAPE.glob("TAPE_*.csv.gz")))
     for p in paths:
-        df = load_day(p)
+        df = _cached(p)
         if len(df) < 1000:
             print(f"  skipping {p.name}: only {len(df)} rows")
             continue
@@ -151,6 +183,40 @@ def volume_profile(df: pd.DataFrame, value_area: float = 0.70):
                 val=float(prices[lo]),
                 vah=float(prices[hi]),
                 at_price=at_price)
+
+
+_PREFIX: dict[int, tuple] = {}
+
+
+def prefix_sums(s: pd.DataFrame):
+    """Running delta and volume for a session, as arrays indexed by trade.
+
+    This is where the time actually went. Every study asked, for each of
+    hundreds of touches, "what is the cumulative delta and volume up to this
+    trade", and answered it with s.iloc[:i].sum() -- an O(n) pass over a
+    300,000-row session, repeated per touch. That is tens of billions of row
+    operations for a quantity that one cumulative sum answers in O(1).
+
+    Cached by the frame's identity, so a session is scanned once per process
+    however many studies ask for it.
+
+    Returns (cumulative signed volume, cumulative volume, minutes since open),
+    each aligned so index i is the state BEFORE trade i.
+    """
+    key = id(s)
+    hit = _PREFIX.get(key)
+    if hit is not None:
+        return hit
+
+    signed = np.concatenate([[0.0], s.signed.to_numpy(dtype=np.float64).cumsum()])
+    vol = np.concatenate([[0.0], s.volume.to_numpy(dtype=np.float64).cumsum()])
+    t = s.time.to_numpy()
+    open_ = np.datetime64(_at(s.time.iloc[0], RTH_OPEN))
+    mins = (t - open_) / np.timedelta64(1, "m")
+
+    out = (signed, vol, mins)
+    _PREFIX[key] = out
+    return out
 
 
 def audit(days: dict[str, pd.DataFrame]) -> None:

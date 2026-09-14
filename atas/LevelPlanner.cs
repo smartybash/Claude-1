@@ -45,7 +45,7 @@ namespace Claude1.Recorders
     [DisplayName("Level Plan (weight rule)")]
     public partial class LevelPlanner : Indicator
     {
-        private const string BuildTag = "2026-09-14.plan.g";
+        private const string BuildTag = "2026-09-14.plan.h";
 
         private readonly object _sync = new object();
 
@@ -70,6 +70,7 @@ namespace Claude1.Recorders
         private readonly List<KeyValuePair<DateTime, long>> _recent =
             new List<KeyValuePair<DateTime, long>>();
         private long _delta5;
+        private int _head;          // index of the oldest live entry in _recent
 
         internal long SessionCvd { get { return _cvd; } }
         internal long Delta5Min { get { return _delta5; } }
@@ -480,13 +481,14 @@ namespace Claude1.Recorders
                 {
                     _armed[l.Name] = false;
                     _touches++;
-                    var fromAbove = _above[l.Name];
                     if (l.Light)
                     {
                         Touching = l;
                         TouchedAt = when;
                     }
-                    LogSignal(when, l, fromAbove, price);
+                    // One source of truth for the side. l.Buy is what the chart
+                    // draws and what the brackets were built from.
+                    LogSignal(when, l, l.Buy, price);
                 }
                 else if (!armed && ad >= RearmPts)
                 {
@@ -521,15 +523,20 @@ namespace Claude1.Recorders
         {
             var cut = now.AddMinutes(-5);
             var drop = 0;
-            while (drop < _recent.Count && _recent[drop].Key < cut)
+            while (drop + _head < _recent.Count && _recent[drop + _head].Key < cut)
+            {
+                _delta5 -= _recent[drop + _head].Value;
                 drop++;
-            if (drop > 0)
-                _recent.RemoveRange(0, drop);
+            }
+            _head += drop;
 
-            long sum = 0;
-            for (var i = 0; i < _recent.Count; i++)
-                sum += _recent[i].Value;
-            _delta5 = sum;
+            // Compact only when the dead prefix is most of the list, so the
+            // O(n) copy happens rarely instead of on every trade.
+            if (_head > 4096 && _head * 2 > _recent.Count)
+            {
+                _recent.RemoveRange(0, _head);
+                _head = 0;
+            }
         }
 
         /// <summary>
@@ -676,8 +683,12 @@ namespace Claude1.Recorders
         /// compiles against whatever the API turns out to be, so this cannot
         /// itself break the build, and one run answers what a guess cannot.
         /// </summary>
+        private string _apiCache;
+
         private string DescribeRenderApi()
         {
+            if (_apiCache != null)
+                return _apiCache;
             try
             {
                 var sb = new StringBuilder();
@@ -765,11 +776,13 @@ namespace Claude1.Recorders
                 }
                 catch { }
 
-                return sb.ToString();
+                _apiCache = sb.ToString();
+                return _apiCache;
             }
             catch (Exception ex)
             {
-                return "render api reflection failed: " + ex.Message;
+                _apiCache = "render api reflection failed: " + ex.Message;
+                return _apiCache;
             }
         }
 
@@ -855,6 +868,7 @@ namespace Claude1.Recorders
                         }
                         _vol.Clear();
                         _recent.Clear();
+                        _head = 0;
                         _cvd = 0;
                         _delta5 = 0;
                         _sessionVol = 0;
@@ -874,6 +888,7 @@ namespace Claude1.Recorders
                     _cvd += signed;
                     _sessionVol += (long)arg.Volume;
                     _recent.Add(new KeyValuePair<DateTime, long>(arg.Time, signed));
+                    _delta5 += signed;
                     TrimRecent(arg.Time);
 
                     var t = Ticks(arg.Price);

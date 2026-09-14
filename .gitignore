@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 data/*.jsonl.bak
+
+# parsed-tape cache: derived from data/tape, rebuilt in seconds
+data/cache/

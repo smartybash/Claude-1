@@ -115,6 +115,7 @@ namespace Claude1.Recorders
 
             var w = ChartArea.Width;
             var h = ChartArea.Height;
+            _pxPerPoint = MeasurePxPerPoint();
 
             foreach (var l in levels)
             {
@@ -136,7 +137,7 @@ namespace Claude1.Recorders
 
         private void DrawNoTradeBand(RenderContext context, Shot l, int y, int w)
         {
-            var half = (int)Math.Max(3, PxPerPoint() * (double)NoTradeBandPts / 2.0);
+            var half = (int)Math.Max(3, _pxPerPoint * (double)NoTradeBandPts / 2.0);
             var rect = new Rectangle(0, y - half, w, half * 2);
             context.FillRectangle(BandFill, rect);
             context.DrawRectangle(new RenderPen(BandEdge, 1), rect);
@@ -160,8 +161,12 @@ namespace Claude1.Recorders
             context.DrawString(text, _fMid, ink, 14, y - (int)size.Height - 1);
         }
 
-        /// <summary>Pixels per index point, from two prices ten points apart.</summary>
-        private double PxPerPoint()
+        private double _pxPerPoint = 1.0;
+
+        /// <summary>Pixels per index point, from two prices ten points apart.
+        /// Measured once per render pass rather than per level: LatestBar
+        /// renders on every tick.</summary>
+        private double MeasurePxPerPoint()
         {
             try
             {
