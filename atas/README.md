@@ -180,3 +180,58 @@ Which turns "does resting size predict a hold" from a month of manual logging
 into a measurement over thousands of touches, with no room to talk yourself into
 a read. If it predicts, the trade gets built around it. If it does not, levels
 are finished and the search moves on.
+
+---
+
+# Level Plan — the second indicator
+
+`LevelPlanner.cs` builds in the same DLL and appears separately in `Ctrl+I` as
+**"Level Plan (weight rule)"**. It computes the weight rule live and writes the
+plan; it draws nothing.
+
+That is deliberate. The execution study measured a **median hold of 2.6 minutes
+and a first quartile of 48 seconds**, so reacting to a chart is hopeless — but
+the levels come from the *previous* session and are known before the open. The
+trade is a resting limit with a bracket, placed in advance, so the useful output
+is a list of prices, not a picture.
+
+## What it writes
+
+| File | Contents |
+|---|---|
+| `PLAN_{sym}_{date}.txt` | **The morning job.** Each level, its weight, LIGHT or heavy, and which to place orders at. |
+| `PROFILE_{sym}_{date}.csv` | Volume at every price in the cash session — the raw material for tomorrow's levels. Survives a restart. |
+| `SIGNALS_{sym}_{date}.csv` | One row per touch of a light level, with side, stop and target, so live behaviour can be checked against the study. |
+| `_plan_status.txt` | Counters, the current plan, and the last error. |
+
+## The rule it implements
+
+```
+levels      previous cash session high, low, close, VAH, POC, VAL
+merge       levels within 5 points become one, at their mean
+weight      volume traded within +/- 2 points of the level, previous session
+LIGHT       under 10,000 contracts  -> place a bracketed limit
+HEAVY       10,000 or more          -> leave it alone
+side        approached from above -> buy limit; from below -> sell limit
+stop/target 30 points each
+```
+
+Fading a heavy level lost 12 points a trade at a 33% win rate in the study, so
+the heavy ones are not a weaker version of the trade — they are the wrong side
+of it.
+
+## It agrees with the backtest
+
+`scripts/orderflow/verify_planner.py` re-implements this indicator's algorithm
+in Python, line for line, and runs it against every recorded session alongside
+the study's own code. **All twelve sessions agree to the tick.** If those two
+ever diverge, the live rule and the tested rule are different rules and the
+study describes something the trader is not doing — a failure that would
+otherwise be invisible, since both sides would produce plausible-looking levels.
+
+## First run
+
+It needs one previous session's profile before it can plan anything. Day one it
+writes `PROFILE_...` and reports "no previous session profile yet" in the status
+file; from day two the plan appears. To skip that wait, run Market Replay over
+yesterday once and the profile is written from that.
