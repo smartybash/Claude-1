@@ -498,3 +498,67 @@ That is a finding, not a failure. It is also the reason to stop adding
 hypotheses of the same shape and to change something structural — the
 instrument, the holding period, or the cost base — rather than keep testing
 variations that all die the same way.
+
+---
+
+# The weight rule — the first thing that has survived
+
+Fading levels does not work. Fading the *right* levels might.
+
+A level is not one kind of object. The volume that traded at it in the previous
+cash session says which kind it is, and tick data gives that number exactly
+where bar data never could:
+
+- **heavy level** — price was *accepted* there. It trades back through.
+- **light level** — price was *rejected* there. It holds.
+
+This is market profile's own distinction between a high-volume node and a low
+one. It is not a story invented after seeing the result.
+
+Fading only levels with **fewer than 10,000 contracts traded within 2 points of
+them yesterday**, 30-point stop and target, entry at the printed price:
+
+| | n | per trade | win | t |
+|---|---|---|---|---|
+| **fade light levels** | 88 | **+7.58 pt (+$152)** | **67.0%** | **+2.53** |
+| fade heavy levels | 33 | −12.00 pt (−$240) | 33.3% | −2.40 |
+
+**7 of 7 sessions positive. t across sessions +3.23.** That per-session
+statistic is the honest one — it treats each session as one observation rather
+than pretending 88 overlapping trades are independent — and it is the test that
+killed the CVD divergence finding and the first level result.
+
+The two halves point opposite ways, which is what a mechanism looks like and
+what noise does not.
+
+## Why this is not yet a result
+
+- The 10,000 threshold is a tercile boundary **of the data it was measured on**.
+- Roughly ten cells were examined before this one stood out.
+- 88 trades across 7 usable sessions.
+- Four earlier findings in this project looked at least this good and died: the
+  value-area fade (lookahead), CVD divergence (overlap), the level fade
+  (assumed fill), and the September level result (sample size).
+
+## The parameters are frozen
+
+`scripts/orderflow/level_weight.py` holds them as absolute constants rather
+than quantiles of whatever is loaded, so they cannot silently refit as data
+arrives:
+
+```
+HEAVY_THRESHOLD  10,000 contracts within +/- 2.0 pts of the level, previous RTH
+STOP = TARGET    30 points
+ENTRY            the price that actually printed on the touch
+TOUCH / RE-ARM   0.25 pt / 8 pt
+LEVELS           prior high, low, close, VAH, POC, VAL, merged within 5 pts
+COST             2.0 pts round trip
+```
+
+Every session recorded from here is out-of-sample. `--oos YYYYMMDD` splits the
+report so the frozen in-sample number and the genuine out-of-sample one are
+never mixed.
+
+**What would confirm it:** ten more sessions holding a positive mean with the
+same split between light and heavy. What would kill it: the light/heavy
+separation collapsing, or out-of-sample sessions landing near zero.
