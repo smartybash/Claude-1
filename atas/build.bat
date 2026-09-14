@@ -45,6 +45,22 @@ dotnet build -c Release -v minimal -p:AtasDir="!ATASDIR!"
 
 if errorlevel 1 (
     echo.
+    echo  ------------------------------------------------------------
+    echo   Retrying without cumulative-trade support. That part uses a
+    echo   newer ATAS API; everything else is unaffected and the
+    echo   recorder works fully without it.
+    echo  ------------------------------------------------------------
+    rd /s /q obj 2>nul
+    rd /s /q bin 2>nul
+    dotnet build -c Release -v minimal -p:AtasDir="!ATASDIR!" -p:NoCumulative=true
+    if not errorlevel 1 (
+        echo.
+        echo   Built WITHOUT cumulative trades. Tell Claude: "no cum trades".
+    )
+)
+
+if errorlevel 1 (
+    echo.
     echo  ============================================================
     echo   BUILD FAILED
     echo   Send back only the lines containing "error CS" - they name

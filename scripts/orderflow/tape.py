@@ -19,6 +19,8 @@ Usage: python3 scripts/tape.py
 """
 from __future__ import annotations
 
+import gzip
+import io
 from pathlib import Path
 
 import numpy as np
@@ -31,8 +33,35 @@ TICK = 0.25          # NQ minimum price increment
 POINT_USD = 20.0     # NQ dollars per index point
 
 
+def read_maybe_truncated(path: Path) -> io.BytesIO:
+    """Read a .gz whose tail may be missing.
+
+    A recording copied while the recorder still had the file open loses the
+    gzip end-of-stream marker, and pandas then refuses the whole file. One such
+    recording still held 97% of its session, so the salvageable part is worth
+    having: everything decoded before the error is kept, and the final partial
+    line is dropped.
+    """
+    if path.suffix != ".gz":
+        return path
+    buf = io.BytesIO()
+    try:
+        with gzip.open(path, "rb") as f:
+            while True:
+                chunk = f.read(1 << 22)
+                if not chunk:
+                    break
+                buf.write(chunk)
+    except (EOFError, OSError, gzip.BadGzipFile) as e:
+        print(f"  {path.name}: truncated ({type(e).__name__}), "
+              f"keeping the {buf.tell()/1e6:.0f} MB that decoded")
+    data = buf.getvalue()
+    cut = data.rfind(b"\n")
+    return io.BytesIO(data[:cut + 1] if cut > 0 else data)
+
+
 def load_day(path: Path) -> pd.DataFrame:
-    df = pd.read_csv(path, encoding="utf-8-sig",
+    df = pd.read_csv(read_maybe_truncated(path), encoding="utf-8-sig",
                      dtype={"price": np.float64, "volume": np.int64,
                             "aggressor": "string"})
     df["time"] = pd.to_datetime(df["time"], format="%Y-%m-%d %H:%M:%S.%f")

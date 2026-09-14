@@ -20,6 +20,7 @@ Usage: python3 scripts/depth_audit.py
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -31,8 +32,12 @@ DEPTH = ROOT / "data" / "depth"
 TICK = 0.25
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tape import read_maybe_truncated                      # noqa: E402
+
+
 def load(path: Path) -> pd.DataFrame:
-    df = pd.read_csv(path, encoding="utf-8-sig",
+    df = pd.read_csv(read_maybe_truncated(path), encoding="utf-8-sig",
                      dtype={"side": "string", "level": np.int32,
                             "price": np.float64, "volume": np.float64})
     df["time"] = pd.to_datetime(df["time"], format="%Y-%m-%d %H:%M:%S.%f")

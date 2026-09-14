@@ -383,3 +383,46 @@ dead regardless of sample size.
 
 **Twelve sessions resolves 5 points per trade; twenty resolves 3.8.** This is
 the one live hypothesis left, and it is the reason to do the twenty-session run.
+
+## Depth beyond the touch: measured, and it is worse than useless
+
+The 50-level recording answered the open question: **the feed supplies far more
+than ten levels.** Ladder reach went from 2.25 points to a **median of 12**,
+5.3× further, so a level is now visible well before price arrives. Delivered
+depth is variable — median 10 populated levels per side, p90 of 20, max 50 —
+because the book thins with distance rather than being dense every tick.
+
+Whether the extra depth carries information is a separate question, and it has
+a clean answer. Imbalance recomputed over nested subsets of the same session,
+gross and de-overlapped:
+
+| Levels used | hold 30s | hold 60s | hold 300s |
+|---|---|---|---|
+| **top 1 (the touch)** | **+0.59 pt, t=+1.93** | +0.79, t=+1.52 | +1.52, t=+0.77 |
+| top 5 | +0.18, t=+0.57 | +0.32 | +1.06 |
+| top 10 | −0.03, t=−0.09 | −0.52 | +0.45 |
+| top 25 | −0.12, t=−0.32 | −0.36 | −0.84 |
+| top 50 | −0.56, t=−1.52 | −0.74 | −1.33 |
+
+**Monotonic degradation.** Whatever information the book holds is at the touch
+and nowhere else; every level added past it dilutes the signal. That is one
+session and even the top-1 cell does not clear the bar, but a clean ordering
+across five nested measures on the same data is a structural result, not noise.
+
+The practical consequence: **deep book is worth recording for level-approach
+work — watching size at a specific price before it is reached — and worthless
+as an aggregate imbalance measure.** Those are different uses of the same file.
+
+## What was still not being captured
+
+**Aggressive order size.** The tape is 96.5% single-lot prints because a market
+order for 50 contracts matches fifty resting one-lots and the exchange reports
+each fill separately. A patient one-at-a-time buyer and a single 50-lot sweep
+are identical on this tape, which is exactly why the earlier block-print study
+failed with a top 0.1% of size 9. ATAS reassembles fills into a
+`CumulativeTrade`; the recorder now writes them to `CUM_*.csv.gz` with first
+price, last price, volume and fill count, so a sweep through several levels is
+distinguishable from accumulation at one.
+
+That file is compiled optionally, and `build.bat` retries without it
+automatically, so this cannot cost the recorder if the API guess is wrong.

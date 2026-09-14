@@ -35,6 +35,10 @@
     <Message Importance="high" Text="ATAS assemblies: $(AtasDir)" />
   </Target>
 
+  <ItemGroup Condition="'$(NoCumulative)' == 'true'">
+    <Compile Remove="L2Recorder.Cumulative.cs" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(AtasDir)' != ''">
     <Reference Include="$(AtasDir)\ATAS.*.dll" Private="false" />
     <Reference Include="$(AtasDir)\OFT.*.dll" Private="false" />

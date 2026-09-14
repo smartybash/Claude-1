@@ -37,19 +37,21 @@ namespace Claude1.Recorders
     ///                               cannot create the output folder at all
     /// </summary>
     [DisplayName("L2 Recorder (CSV)")]
-    public class L2Recorder : Indicator
+    public partial class L2Recorder : Indicator
     {
         /// <summary>
         /// Bumped on every change. It is printed into _status.txt so a stale DLL
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-14.h";
+        private const string BuildTag = "2026-09-14.i";
 
         private readonly object _sync = new object();
 
         private StreamWriter _depthWriter;
         private StreamWriter _tapeWriter;
+        private StreamWriter _cumWriter;
+        private long _cumTrades;
         private string _openDate = "";
         private DateTime _lastSnapshot = DateTime.MinValue;
         private DateTime _lastStatus = DateTime.MinValue;
@@ -76,7 +78,7 @@ namespace Claude1.Recorders
         private string _dPath, _tPath;
         private long _skippedOutOfSession;
 
-        private int _depthLevels = 10;
+        private int _depthLevels = 50;
         private int _snapshotMs = 250;
 
         /// <summary>
@@ -97,7 +99,7 @@ namespace Claude1.Recorders
         public int DepthLevels
         {
             get { return _depthLevels; }
-            set { _depthLevels = value < 1 ? 1 : (value > 50 ? 50 : value); }
+            set { _depthLevels = value < 1 ? 1 : (value > 200 ? 200 : value); }
         }
 
         [DisplayName("Snapshot interval (ms)")]
@@ -270,6 +272,9 @@ namespace Claude1.Recorders
                 sb.AppendLine();
                 sb.AppendLine("OnCalculate calls:  " + _calcs);
                 sb.AppendLine("trades received:    " + _trades);
+                sb.AppendLine("aggressive orders:  " + _cumTrades
+                    + (_cumTrades == 0
+                       ? "  (cumulative trades not supplied)" : ""));
                 sb.AppendLine("depth updates:      " + _depthEvents);
                 sb.AppendLine("rows written:       " + _rows);
                 sb.AppendLine();
@@ -446,8 +451,10 @@ namespace Claude1.Recorders
         {
             try { if (_depthWriter != null) { _depthWriter.Flush(); _depthWriter.Dispose(); } } catch { }
             try { if (_tapeWriter != null) { _tapeWriter.Flush(); _tapeWriter.Dispose(); } } catch { }
+            try { if (_cumWriter != null) { _cumWriter.Flush(); _cumWriter.Dispose(); } } catch { }
             _depthWriter = null;
             _tapeWriter = null;
+            _cumWriter = null;
             _openDate = "";
         }
 
@@ -457,6 +464,7 @@ namespace Claude1.Recorders
                 return;
             try { if (_depthWriter != null) _depthWriter.Flush(); } catch { }
             try { if (_tapeWriter != null) _tapeWriter.Flush(); } catch { }
+            try { if (_cumWriter != null) _cumWriter.Flush(); } catch { }
             _pending = 0;
         }
 
