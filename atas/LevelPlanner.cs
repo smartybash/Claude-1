@@ -11,25 +11,33 @@
 //   PROFILE_{sym}_{date}.csv   volume at every price in the cash session, which
 //                              is the raw material for tomorrow's levels and
 //                              survives a restart
-//   PLAN_{sym}_{date}.txt      the levels to trade, each marked LIGHT (place an
-//                              order) or HEAVY (do not), with the side
-//   SIGNALS_{sym}_{date}.csv   a row each time price touches a light level, so
-//                              live behaviour can be checked against the study
+//   PLAN_{sym}_{date}.txt      the reference levels for the session, each
+//                              named and with the volume that traded there
+//   SIGNALS_{sym}_{date}.csv   a row each time price touches a level, so live
+//                              behaviour can be checked against the study
 //
 // Everything here uses only API that the recorder has already compiled against:
 // OnNewTrade, InstrumentInfo, and file I/O. Nothing is drawn on the chart and
 // no rendering API is touched, because a wrong guess there costs a build and
 // the plan file is what the trade actually needs.
 //
-// The rule, frozen, from reports/findings_summary.md:
+// What the levels are, and what they are NOT:
 //
-//   levels      previous cash session high, low, close, VAH, POC, VAL
+//   levels      previous cash session high, low, close, VAH, POC, VAL, plus
+//               the Asia and London overnight ranges
 //   merge       levels within 5 points become one, at their mean
-//   weight      volume traded within +/- 2 points of the level, previous session
-//   LIGHT       under 10,000 contracts  -> fade it
-//   HEAVY       10,000 or more          -> leave it alone
-//   side        approached from above -> buy limit; from below -> sell limit
-//   stop/target 30 points each
+//   weight      volume traded within +/- 2 points of the level, previous
+//               session. Reported because it is real data; it decides nothing.
+//
+// There is no side, no stop and no target here any more. An earlier version
+// placed a bracketed limit at every "light" level. That rule was fitted to 198
+// touches. Re-run on 3,682 touches across 1,421 sessions it fell apart twice
+// over: fading a level wins 49.1%, a coin that loses to cost, and the
+// light/heavy split ran BACKWARDS -- the lightest third was the worst thing to
+// fade, not the best. See reports/findings_summary.md.
+//
+// So these are reference prices. Knowing where price is when something happens
+// is worth having; being told to buy something that tested at 49.1% is not.
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -86,15 +94,20 @@ namespace Claude1.Recorders
         private long _trades, _touches;
         private DateTime _lastStatus = DateTime.MinValue;
 
+        /// <summary>
+        /// A level is a reference price and nothing more. No side, no bracket:
+        /// over 3,682 touches fading a level won 49.1%, so there is no trade
+        /// here to print on the chart. What the levels are good for is knowing
+        /// where price is when something happens.
+        /// </summary>
+        internal enum Kind { PriorDay, ValueArea, Asia, London }
+
         internal sealed class Level
         {
             public string Name;
             public decimal Price;
             public long Weight;
-            public bool Light;
-            public bool Buy;          // approached from above -> fade with a buy
-            public decimal Stop;
-            public decimal Target;
+            public Kind Group;
         }
 
         /// <summary>Levels for the render half. Empty until a plan exists.</summary>
@@ -383,6 +396,16 @@ namespace Claude1.Recorders
                 new KeyValuePair<string, decimal>("pdPOC", poc),
                 new KeyValuePair<string, decimal>("pdVAL", val),
             };
+            if (_asiaAny)
+            {
+                raw.Add(new KeyValuePair<string, decimal>("asiaHIGH", _asiaHi));
+                raw.Add(new KeyValuePair<string, decimal>("asiaLOW", _asiaLo));
+            }
+            if (_ldnAny)
+            {
+                raw.Add(new KeyValuePair<string, decimal>("ldnHIGH", _ldnHi));
+                raw.Add(new KeyValuePair<string, decimal>("ldnLOW", _ldnLo));
+            }
             raw.Sort((a, b) => a.Value.CompareTo(b.Value));
 
             // Merge anything within MergePts, exactly as the study did: two
@@ -397,12 +420,16 @@ namespace Claude1.Recorders
                     return;
                 var price = sum / count;
                 var w = WeightAt(pv, price);
+                var nm = string.Join("+", names.ToArray());
                 _levels.Add(new Level
                 {
-                    Name = string.Join("+", names.ToArray()),
+                    Name = nm,
                     Price = price,
                     Weight = w,
-                    Light = w < HeavyThreshold,
+                    Group = nm.StartsWith("asia") ? Kind.Asia
+                          : nm.StartsWith("ldn") ? Kind.London
+                          : (nm.Contains("VA") || nm.Contains("POC"))
+                                ? Kind.ValueArea : Kind.PriorDay,
                 });
                 names.Clear();
                 sum = 0m;
@@ -425,7 +452,6 @@ namespace Claude1.Recorders
             {
                 _armed[l.Name] = true;
                 _above[l.Name] = close > l.Price;
-                SetSide(l, close > l.Price);
             }
 
             WritePlan(today, from);
@@ -438,28 +464,33 @@ namespace Claude1.Recorders
             sb.AppendLine("levels computed from the cash session of " + from);
             sb.AppendLine("recorder " + BuildTag);
             sb.AppendLine();
-            sb.AppendLine("Place a bracketed limit at each LIGHT level. Buy limits");
-            sb.AppendLine("below price, sell limits above. Stop and target " +
-                          StopPts.ToString(CultureInfo.InvariantCulture) +
-                          " points.");
-            sb.AppendLine("Leave HEAVY levels alone: fading those lost 12 points a");
-            sb.AppendLine("trade at 33% in the study.");
+            sb.AppendLine("These levels are INFORMATION, not orders. Measured on");
+            sb.AppendLine("3,682 touches over 1,421 sessions:");
             sb.AppendLine();
-            sb.AppendLine("   price        weight   verdict   level");
-            sb.AppendLine("   ----------   -------  --------  -----------------");
+            sb.AppendLine("  fading any level wins 49.1% -- a coin that loses to cost");
+            sb.AppendLine("  prior-day HIGH and LOW break rather than hold (t = -3.65,");
+            sb.AppendLine("  -3.92 against fading them over 1,044 touches)");
+            sb.AppendLine("  going WITH that break wins 52.8%, and break-even at 1:1");
+            sb.AppendLine("  with 2 points of cost is 53.4% -- so it is a bias to");
+            sb.AppendLine("  respect, not yet a trade that pays for itself");
+            sb.AppendLine();
+            sb.AppendLine("No level here carries a bracket. The earlier plan placed");
+            sb.AppendLine("limits at LIGHT levels; that split was fitted to 198 touches");
+            sb.AppendLine("and ran backwards -- the lightest third is the WORST to fade.");
+            sb.AppendLine();
+            sb.AppendLine("   price        weight   verdict        level");
+            sb.AppendLine("   ----------   -------  -------------  -----------------");
             _levels.Sort((a, b) => b.Price.CompareTo(a.Price));
             foreach (var l in _levels)
                 sb.AppendLine("   " +
                     l.Price.ToString("N2", CultureInfo.InvariantCulture).PadLeft(10) +
                     "   " + l.Weight.ToString("N0", CultureInfo.InvariantCulture).PadLeft(7) +
-                    "  " + (l.Light ? "LIGHT   " : "heavy   ") +
+                    "  " + l.Group.ToString().PadRight(9) +
                     "  " + l.Name);
             sb.AppendLine();
-            sb.AppendLine("LIGHT levels are the tradeable ones. Heavy threshold is " +
-                          HeavyThreshold.ToString("N0", CultureInfo.InvariantCulture) +
-                          " contracts");
-            sb.AppendLine("within " + BandPts.ToString(CultureInfo.InvariantCulture) +
-                          " points of the level during the previous cash session.");
+            sb.AppendLine("Weight is shown because it is real data, but it no longer");
+            sb.AppendLine("decides anything: over 3,682 touches it did not separate in");
+            sb.AppendLine("the direction the old rule assumed.");
 
             File.WriteAllText(Path.Combine(Folder(),
                 "PLAN_" + Sym() + "_" + today + ".txt"), sb.ToString(),
@@ -467,6 +498,38 @@ namespace Claude1.Recorders
         }
 
         // ---- live -----------------------------------------------------------
+        // Overnight ranges. OnNewTrade returns early outside the cash session,
+        // so these are collected BEFORE that gate or they would never be seen.
+        // Platform clock is UTC (the cash open is configured as 13:30), so
+        // Tokyo is 00:00-07:00 and London is 07:00 to the cash open.
+        private decimal _asiaHi, _asiaLo, _ldnHi, _ldnLo;
+        private bool _asiaAny, _ldnAny;
+        private string _onDate = "";
+
+        private void TrackOvernight(DateTime t, decimal price)
+        {
+            var date = t.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            if (date != _onDate)
+            {
+                _onDate = date;
+                _asiaAny = _ldnAny = false;
+            }
+            var mins = t.Hour * 60 + t.Minute;
+            var open = RthStartHour * 60 + RthStartMinute;
+            if (mins < 7 * 60)
+            {
+                if (!_asiaAny) { _asiaHi = _asiaLo = price; _asiaAny = true; }
+                else if (price > _asiaHi) _asiaHi = price;
+                else if (price < _asiaLo) _asiaLo = price;
+            }
+            else if (mins < open)
+            {
+                if (!_ldnAny) { _ldnHi = _ldnLo = price; _ldnAny = true; }
+                else if (price > _ldnHi) _ldnHi = price;
+                else if (price < _ldnLo) _ldnLo = price;
+            }
+        }
+
         private void CheckTouch(decimal price, DateTime when)
         {
             foreach (var l in _levels)
@@ -481,14 +544,9 @@ namespace Claude1.Recorders
                 {
                     _armed[l.Name] = false;
                     _touches++;
-                    if (l.Light)
-                    {
-                        Touching = l;
-                        TouchedAt = when;
-                    }
-                    // One source of truth for the side. l.Buy is what the chart
-                    // draws and what the brackets were built from.
-                    LogSignal(when, l, l.Buy, price);
+                    Touching = l;
+                    TouchedAt = when;
+                    LogSignal(when, l, d > 0, price);
                 }
                 else if (!armed && ad >= RearmPts)
                 {
@@ -499,21 +557,10 @@ namespace Claude1.Recorders
         }
 
         /// <summary>
-        /// Nearest light level, and whether a touch prompt is still current.
-        /// Heavy levels are deliberately ignored here: they are not trades, so
-        /// counting down to one would invite exactly the thing the rule forbids.
+        /// Nearest level, and whether a touch prompt is still current. Every
+        /// level counts now: none of them is an order, so there is no trade to
+        /// be talked into by watching one approach.
         /// </summary>
-        /// <summary>
-        /// Price is above the level, so it will be approached from above and
-        /// faded with a buy. Brackets follow the side.
-        /// </summary>
-        private void SetSide(Level l, bool priceAbove)
-        {
-            l.Buy = priceAbove;
-            l.Stop = l.Buy ? l.Price - StopPts : l.Price + StopPts;
-            l.Target = l.Buy ? l.Price + StopPts : l.Price - StopPts;
-        }
-
         /// <summary>
         /// Drop anything older than five minutes and recompute the window sum.
         /// The list is walked from the front rather than rebuilt, because this
@@ -611,14 +658,6 @@ namespace Claude1.Recorders
             var bestD = 9999m;
             foreach (var l in _levels)
             {
-                // A level price is sitting below is approached from below and
-                // sold; one above it is bought. Refreshed here so a level that
-                // price has crossed during the session shows the right side.
-                if (Touching != l)
-                    SetSide(l, price > l.Price);
-
-                if (!l.Light)
-                    continue;
                 var d = price - l.Price;
                 if (d < 0) d = -d;
                 if (d < bestD) { bestD = d; best = l; }
@@ -650,19 +689,14 @@ namespace Claude1.Recorders
                             "time,level,level_price,weight,verdict,side,touch_price,"
                             + "stop,target,session_cvd,delta_5min");
                 }
-                var side = fromAbove ? "BUY" : "SELL";
-                var stop = fromAbove ? l.Price - StopPts : l.Price + StopPts;
-                var tgt = fromAbove ? l.Price + StopPts : l.Price - StopPts;
                 _signals.WriteLine(
                     when.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture) +
                     "," + l.Name +
                     "," + l.Price.ToString(CultureInfo.InvariantCulture) +
                     "," + l.Weight +
-                    "," + (l.Light ? "LIGHT" : "heavy") +
-                    "," + side +
+                    "," + l.Group +
+                    "," + (fromAbove ? "from-above" : "from-below") +
                     "," + price.ToString(CultureInfo.InvariantCulture) +
-                    "," + stop.ToString(CultureInfo.InvariantCulture) +
-                    "," + tgt.ToString(CultureInfo.InvariantCulture) +
                     "," + _cvd.ToString(CultureInfo.InvariantCulture) +
                     "," + _delta5.ToString(CultureInfo.InvariantCulture));
             }
@@ -825,7 +859,7 @@ namespace Claude1.Recorders
                 foreach (var l in _levels)
                     sb.AppendLine("   " +
                         l.Price.ToString("N2", CultureInfo.InvariantCulture).PadLeft(10) +
-                        "  " + (l.Light ? "LIGHT" : "heavy") +
+                        "  " + l.Group.ToString().PadRight(9) +
                         "  weight " + l.Weight.ToString("N0", CultureInfo.InvariantCulture) +
                         "  " + l.Name);
                 File.WriteAllText(Path.Combine(Folder(), "_plan_status.txt"),
@@ -846,6 +880,7 @@ namespace Claude1.Recorders
             if (arg == null)
                 return;
             _trades++;
+            TrackOvernight(arg.Time, arg.Price);
             if (!InSession(arg.Time))
                 return;
 

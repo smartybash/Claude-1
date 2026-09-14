@@ -1,38 +1,23 @@
-// On-chart drawing for the Level Plan. OPTIONAL FILE.
+// On-chart drawing for the levels. OPTIONAL FILE.
 //
 // Compiled out with -p:NoRender=true, and build.bat retries that way
 // automatically, so if a rendering type resolves to a different namespace on
-// this ATAS build the cost is one rebuild and the indicator still works from
-// its plan file. Every method signature below is from the ATAS drawing
-// documentation rather than guessed: DrawString(text, font, colour, x, y),
-// FillRectangle(colour, rect), DrawRectangle(pen, rect), DrawLine(pen, x1, y1,
-// x2, y2), MeasureString(text, font), and ChartInfo.GetYByPrice(price, atLevel).
+// this ATAS build the cost is one rebuild and the plan file still gets written.
+// Every signature below is from the ATAS drawing documentation rather than
+// guessed: DrawString(text, font, colour, x, y), FillRectangle(colour, rect),
+// DrawRectangle(pen, rect), DrawLine(pen, x1, y1, x2, y2), MeasureString(text,
+// font), and ChartInfo.GetYByPrice(price, atLevel).
 //
-// What it draws, and why each thing is there rather than the alternative:
+// What it draws: a labelled line at each reference price, and a small panel
+// naming the nearest one.
 //
-//   grey bands     the HEAVY levels. Fading those lost 12 points a trade at a
-//                  33% win rate, so they are not a weaker signal, they are the
-//                  wrong side of the trade. Drawn as a band rather than a line
-//                  because the instruction is "do not trade in here", and a
-//                  region states that where a line does not.
-//
-//   coloured lines the LIGHT levels, each labelled with the order itself, ready
-//                  to place. Green buys, red sells. The side is decided when
-//                  the plan is built from where price sat, so there is nothing
-//                  to work out at the touch.
-//
-//   watch panel    the nearest light level and the distance to it, once inside
-//                  the watch range. Deliberately the only countdown drawn: a
-//                  countdown to a heavy level would invite exactly the trade
-//                  the rule forbids.
-//
-//   touch prompt   what to do at the touch, plus the two flow reads that
-//                  actually separated anything when tested on light levels:
-//                  session CVD, and delta over five minutes. Sixty-second
-//                  aggression, volume, tape speed and book imbalance were all
-//                  tested too and all were flat, so they are deliberately not
-//                  shown -- a read that carries no information is only a way to
-//                  talk yourself out of the winners.
+// What it deliberately does NOT draw any more: buy and sell brackets. An
+// earlier version printed an order at every "light" level. That rule came from
+// 198 touches and did not survive 3,682 -- fading a level wins 49.1%, and the
+// light/heavy split ran backwards, so the lightest third was the worst thing
+// to fade rather than the best. Drawing an order the data does not support is
+// worse than drawing nothing, so the levels are now reference prices and the
+// decision is left where it belongs.
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -45,31 +30,20 @@ namespace Claude1.Recorders
 {
     public partial class LevelPlanner
     {
-        private static readonly Color BuyInk = Color.FromArgb(56, 190, 130);
-        private static readonly Color SellInk = Color.FromArgb(228, 106, 82);
-        private static readonly Color BandFill = Color.FromArgb(52, 132, 138, 150);
-        private static readonly Color BandEdge = Color.FromArgb(130, 140, 146, 158);
-        private static readonly Color BandInk = Color.FromArgb(200, 176, 182, 192);
+        // One colour per family, so the chart reads at a glance: prior day in
+        // amber, value area in blue, overnight sessions in grey-green.
+        private static readonly Color PriorInk = Color.FromArgb(238, 186, 88);
+        private static readonly Color ValueInk = Color.FromArgb(110, 168, 232);
+        private static readonly Color AsiaInk = Color.FromArgb(146, 186, 160);
+        private static readonly Color LdnInk = Color.FromArgb(178, 160, 200);
         private static readonly Color PanelFill = Color.FromArgb(226, 16, 18, 22);
         private static readonly Color PanelEdge = Color.FromArgb(160, 110, 120, 136);
         private static readonly Color PanelInk = Color.FromArgb(232, 236, 241);
         private static readonly Color DimInk = Color.FromArgb(150, 160, 172);
-        private static readonly Color WatchInk = Color.FromArgb(238, 186, 88);
-
-        /// <summary>
-        /// Skip the trade when net delta against the fade exceeds this share of
-        /// the session's volume so far. Swept over the recorded sessions: at
-        /// 1.5% the rule returns +11.00 points at 72.8% against +7.58 at 67.0%
-        /// unfiltered. Every neighbouring cut from 1.0% to 5.0% also improves
-        /// it, so this is a plateau rather than a single lucky value -- but it
-        /// is still a number taken from the same data and is the next thing
-        /// out-of-sample sessions have to confirm.
-        /// </summary>
-        private const double SKIP_SHARE_PCT = 1.5;
 
         private readonly RenderFont _fSmall = new RenderFont("Segoe UI", 11);
         private readonly RenderFont _fMid = new RenderFont("Segoe UI", 12);
-        private readonly RenderFont _fBig = new RenderFont("Segoe UI", 16);
+        private readonly RenderFont _fBig = new RenderFont("Segoe UI", 15);
 
         /// <summary>
         /// Called from the constructor in the main file. Both the call and this
@@ -82,6 +56,17 @@ namespace Claude1.Recorders
             SubscribeToDrawingEvents(DrawingLayouts.Final | DrawingLayouts.LatestBar);
         }
 
+        private static Color InkFor(Kind k)
+        {
+            switch (k)
+            {
+                case Kind.Asia: return AsiaInk;
+                case Kind.London: return LdnInk;
+                case Kind.ValueArea: return ValueInk;
+                default: return PriorInk;
+            }
+        }
+
         protected override void OnRender(RenderContext context, DrawingLayouts layout)
         {
             if (ChartInfo == null)
@@ -92,9 +77,8 @@ namespace Claude1.Recorders
             // the live list while it is being rebuilt at a session roll is a
             // race whose symptom is a crash inside the platform's paint loop.
             List<Shot> levels;
-            Shot near, touch;
+            Shot near;
             decimal nearDist, price;
-            DateTime touchedAt;
             long cvd, d5, svol;
             bool cvdFull;
             lock (_sync)
@@ -107,75 +91,37 @@ namespace Claude1.Recorders
                 foreach (var l in _levels)
                     levels.Add(Shot.Of(l));
                 near = Shot.Of(Nearest);
-                touch = Shot.Of(Touching);
                 nearDist = NearestDist;
                 price = _close;
-                touchedAt = TouchedAt;
             }
 
             var w = ChartArea.Width;
             var h = ChartArea.Height;
-            _pxPerPoint = MeasurePxPerPoint();
 
             foreach (var l in levels)
             {
                 int y;
                 try { y = ChartInfo.GetYByPrice(l.Price, false); }
                 catch { continue; }
-                if (y < -60 || y > h + 60)
+                if (y < -40 || y > h + 40)
                     continue;
-
-                if (l.Light)
-                    DrawTradeLevel(context, l, y, w);
-                else
-                    DrawNoTradeBand(context, l, y, w);
+                DrawLevel(context, l, y, w);
             }
 
-            DrawPanel(context, price, near, nearDist, touch, touchedAt,
-                      cvd, d5, svol, cvdFull);
+            DrawPanel(context, price, near, nearDist, cvd, d5, svol, cvdFull);
         }
 
-        private void DrawNoTradeBand(RenderContext context, Shot l, int y, int w)
+        private void DrawLevel(RenderContext context, Shot l, int y, int w)
         {
-            var half = (int)Math.Max(3, _pxPerPoint * (double)NoTradeBandPts / 2.0);
-            var rect = new Rectangle(0, y - half, w, half * 2);
-            context.FillRectangle(BandFill, rect);
-            context.DrawRectangle(new RenderPen(BandEdge, 1), rect);
-            context.DrawString(
-                "NO TRADE   " + Fmt(l.Price) + "   " + l.Weight.ToString("N0") +
-                " contracts traded here",
-                _fSmall, BandInk, 8, y - half + 3);
-        }
+            var ink = InkFor(l.Group);
+            context.DrawLine(new RenderPen(ink, 1), 0, y, w, y);
 
-        private void DrawTradeLevel(RenderContext context, Shot l, int y, int w)
-        {
-            var ink = l.Buy ? BuyInk : SellInk;
-            context.DrawLine(new RenderPen(ink, 2), 0, y, w, y);
-
-            var text = (l.Buy ? "BUY  " : "SELL  ") + Fmt(l.Price) +
-                       "      stop " + Fmt(l.Stop) + "      target " + Fmt(l.Target);
-            var size = context.MeasureString(text, _fMid);
-            var box = new Rectangle(8, y - (int)size.Height - 3,
-                                    (int)size.Width + 12, (int)size.Height + 4);
+            var text = l.Name + "   " + Fmt(l.Price);
+            var size = context.MeasureString(text, _fSmall);
+            var box = new Rectangle(6, y - (int)size.Height - 2,
+                                    (int)size.Width + 10, (int)size.Height + 3);
             context.FillRectangle(PanelFill, box);
-            context.DrawString(text, _fMid, ink, 14, y - (int)size.Height - 1);
-        }
-
-        private double _pxPerPoint = 1.0;
-
-        /// <summary>Pixels per index point, from two prices ten points apart.
-        /// Measured once per render pass rather than per level: LatestBar
-        /// renders on every tick.</summary>
-        private double MeasurePxPerPoint()
-        {
-            try
-            {
-                var a = ChartInfo.GetYByPrice(10000m, false);
-                var b = ChartInfo.GetYByPrice(10010m, false);
-                var d = Math.Abs(a - b) / 10.0;
-                return d > 0.02 ? d : 1.0;
-            }
-            catch { return 1.0; }
+            context.DrawString(text, _fSmall, ink, 11, y - (int)size.Height - 1);
         }
 
         private static string Fmt(decimal p)
@@ -183,102 +129,52 @@ namespace Claude1.Recorders
             return p.ToString("N2");
         }
 
-        /// <summary>
-        /// The two flow reads, with their meaning for THIS trade already
-        /// resolved. Sign is the whole content: a day running against the fade
-        /// is the losing case, and aggression into the level is the winning
-        /// one. No threshold, because any cut-off would come from the same 88
-        /// trades and would be a fitted number dressed as a rule.
-        /// </summary>
-        private static string FlowLine(bool buy, long cvd, long d5, long svol,
-                                       bool full)
-        {
-            // Measured as a SHARE of the session's volume, not in contracts.
-            // Raw CVD was swept across seven cut-offs and separated nothing,
-            // because the same figure means different things at 13:45 and at
-            // 19:30. As a share it does separate: above 1.5% against the fade,
-            // the trade stops working.
-            var sign = buy ? 1L : -1L;
-            var against = -cvd * sign;
-            var share = svol > 0 ? 100.0 * against / svol : 0.0;
-            var blocked = share > SKIP_SHARE_PCT;
-            var intoLevel = -d5 * sign > 0;
-
-            return "CVD " + (share >= 0 ? "+" : "") + share.ToString("N2") +
-                   "% of session " +
-                   (blocked ? "— SKIP, over " + SKIP_SHARE_PCT.ToString("N1") + "%"
-                            : "— ok, under " + SKIP_SHARE_PCT.ToString("N1") + "%") +
-                   (full ? "" : "  (PARTIAL)") +
-                   "      5m delta " + d5.ToString("N0") +
-                   (intoLevel ? " into the level" : " away from it");
-        }
-
         private void DrawPanel(RenderContext context, decimal price, Shot near,
-                               decimal nearDist, Shot touch, DateTime touchedAt,
-                               long cvd, long d5, long svol, bool cvdFull)
+                               decimal nearDist, long cvd, long d5, long svol,
+                               bool cvdFull)
         {
-            string head, line2, line3;
-            Color ink;
-
-            if (touch != null)
+            string head, line2;
+            if (near != null)
             {
-                var age = (int)(DateTime.Now - touchedAt).TotalSeconds;
-                if (age < 0 || age > 3600)
-                    age = 0;
-                ink = touch.Buy ? BuyInk : SellInk;
-                head = (touch.Buy ? "BUY " : "SELL ") + Fmt(touch.Price) +
-                       "   TOUCHED   " + age + "s ago";
-                line2 = "stop " + Fmt(touch.Stop) + "    target " + Fmt(touch.Target) +
-                        "    risking $600 to make $600";
-                line3 = FlowLine(touch.Buy, cvd, d5, svol, cvdFull);
-            }
-            else if (near != null && nearDist <= WatchPts)
-            {
-                ink = WatchInk;
-                head = "WATCHING   " + (near.Buy ? "BUY " : "SELL ") +
-                       Fmt(near.Price) + "   " +
-                       ((double)nearDist).ToString("N1") + " pts away";
-                line2 = "stop " + Fmt(near.Stop) + "    target " + Fmt(near.Target);
-                line3 = FlowLine(near.Buy, cvd, d5, svol, cvdFull);
-            }
-            else if (near != null)
-            {
-                ink = DimInk;
-                head = "Nothing in range";
-                line2 = "nearest " + (near.Buy ? "BUY " : "SELL ") + Fmt(near.Price) +
-                        "   " + ((double)nearDist).ToString("N0") + " pts away";
-                line3 = "Watch begins inside " +
-                        ((double)WatchPts).ToString("N0") + " points.      CVD " +
-                        cvd.ToString("N0") + (cvdFull ? "" : " (PARTIAL)");
+                head = "Nearest: " + near.Name + "  " + Fmt(near.Price) +
+                       "   " + ((double)nearDist).ToString("N1") + " pts away";
+                line2 = "last " + Fmt(price);
             }
             else
             {
-                ink = DimInk;
-                head = "No plan yet";
+                head = "No levels yet";
                 line2 = "needs one complete previous cash session";
-                line3 = "Replay yesterday once and it appears.";
             }
+
+            // Session CVD as a share of the day's volume. Raw contracts are not
+            // comparable across the session -- the same figure means different
+            // things at 13:45 and at 19:30 -- and the share is the form that
+            // separated anything when it was tested.
+            var share = svol > 0 ? 100.0 * cvd / svol : 0.0;
+            var line3 = "CVD " + (cvd >= 0 ? "+" : "") + cvd.ToString("N0") +
+                        "  (" + (share >= 0 ? "+" : "") + share.ToString("N2") +
+                        "% of session)" + (cvdFull ? "" : "  PARTIAL") +
+                        "      5m delta " + (d5 >= 0 ? "+" : "") + d5.ToString("N0");
 
             var wide = Math.Max(context.MeasureString(head, _fBig).Width,
                        Math.Max(context.MeasureString(line2, _fSmall).Width,
                                 context.MeasureString(line3, _fSmall).Width));
-            var boxW = (int)wide + 28;
-            var boxH = 82;
-            var box = new Rectangle(10, 10, boxW, boxH);
+            var box = new Rectangle(10, 10, (int)wide + 28, 78);
 
             context.FillRectangle(PanelFill, box);
             context.DrawRectangle(new RenderPen(PanelEdge, 1), box);
-            context.DrawString(head, _fBig, ink, 24, 18);
-            context.DrawString(line2, _fSmall, PanelInk, 24, 44);
-            context.DrawString(line3, _fSmall, DimInk, 24, 62);
+            context.DrawString(head, _fBig, PanelInk, 24, 18);
+            context.DrawString(line2, _fSmall, DimInk, 24, 42);
+            context.DrawString(line3, _fSmall, DimInk, 24, 60);
         }
 
         /// <summary>An immutable copy of a level, taken under the lock.</summary>
         private sealed class Shot
         {
-            public decimal Price, Stop, Target;
+            public string Name;
+            public decimal Price;
             public long Weight;
-            public bool Light, Buy;
+            public Kind Group;
 
             public static Shot Of(Level l)
             {
@@ -286,12 +182,10 @@ namespace Claude1.Recorders
                     return null;
                 return new Shot
                 {
+                    Name = l.Name,
                     Price = l.Price,
-                    Stop = l.Stop,
-                    Target = l.Target,
                     Weight = l.Weight,
-                    Light = l.Light,
-                    Buy = l.Buy,
+                    Group = l.Group,
                 };
             }
         }

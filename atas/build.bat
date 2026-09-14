@@ -46,8 +46,9 @@ dotnet build -c Release -v minimal -p:AtasDir="!ATASDIR!"
 if errorlevel 1 (
     echo.
     echo  ------------------------------------------------------------
-    echo   Retrying without the on-chart drawing. Everything else is
-    echo   unaffected and the plan still goes to PLAN_*.txt.
+    echo   Retrying without the on-chart drawing. The recorder and the
+    echo   plan file are unaffected; Structure Map needs drawing, so it
+    echo   is dropped too on this pass.
     echo  ------------------------------------------------------------
     rd /s /q obj 2>nul
     rd /s /q bin 2>nul
@@ -97,11 +98,19 @@ echo.
 echo     1. Restart ATAS
 echo     2. Open the NQ chart
 echo     3. Ctrl+I, add "Level Plan (weight rule)"  -- draws the levels
-echo        and optionally "L2 Recorder (CSV)" to keep recording
+echo        plus "Structure Map (gaps, FVG, BOS)"  -- the structure read
+echo        plus "L2 Recorder (CSV)" to keep recording tape
 echo.
-echo   Level Plan draws grey NO TRADE bands, green buy and red sell
-echo   lines, and a panel that says what to do. A folder named
-echo   ATAS_Export appears ON YOUR DESKTOP with PLAN_*.txt in it.
+echo   Level Plan draws labelled reference lines: prior day high/low/
+echo   close, value area, and the Asia and London ranges. It prints NO
+echo   buy or sell orders - fading a level tested at 49.1%% over 3,682
+echo   touches, so there is no trade there to draw.
+echo.
+echo   Structure Map draws the opening gap, fair value gaps, confirmed
+echo   HH/HL/LH/LL swings and breaks of structure. Nothing repaints:
+echo   a swing is labelled only once it is confirmed.
+echo.
+echo   A folder named ATAS_Export appears ON YOUR DESKTOP.
 echo  ============================================================
 pause
 exit /b 0

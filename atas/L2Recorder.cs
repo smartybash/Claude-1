@@ -117,8 +117,26 @@ namespace Claude1.Recorders
         [DisplayName("Record tape")]
         public bool RecordTape { get; set; } = true;
 
+        /// <summary>
+        /// Order book depth. DEFAULT CHANGED TO OFF, and this is a judgement
+        /// call rather than a bug fix -- depth recording works.
+        ///
+        /// The reason is what the two streams have returned. Depth is 223 MB of
+        /// the captured data against the tape's 45 MB, five times the disk for
+        /// the smaller half of the archive, and nothing tested on it has
+        /// produced a finding: book imbalance was flat, and so was every
+        /// pull-versus-fill measure. Meanwhile every question still open needs
+        /// MORE SESSIONS of tape -- the gap-plus-flow split rests on six of
+        /// them and wants roughly forty.
+        ///
+        /// Off, a session is small enough to record indefinitely without
+        /// thinking about disk. Turn it back on for a specific depth question;
+        /// do not leave it on by default to keep options open, because the cost
+        /// is paid every session and the option has not been worth anything
+        /// yet.
+        /// </summary>
         [DisplayName("Record depth")]
-        public bool RecordDepth { get; set; } = true;
+        public bool RecordDepth { get; set; } = false;
 
         /// <summary>
         /// Record only the cash session. The recorder writes the ATAS platform
