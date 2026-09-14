@@ -911,3 +911,73 @@ dramatic on a chart, it is a measured loser across 27 years.
 gaps under 0.5%, where the daily bar cannot order the touches and there are 15
 intraday sessions to work with — which is not enough, and is the same sample
 size that produced four dead findings already.
+
+---
+
+## The structure trade, tested properly — 2,680 sessions of 5-minute bars
+
+The previous entry tested the gap **base rate** on 13,500 daily bars and the
+**structure** on 5 recorded sessions, and never joined them. That was a real
+flaw and the objection to it was right: a daily bar holds four numbers and
+cannot express a higher low, so the open-entry result describes a trader who
+does not read structure. It is not evidence about one who does.
+
+Fixed by pulling **2,680 sessions of QQQ 5-minute RTH bars, 2016-01 to 2026-08**
+(`scripts/orderflow/harvest_av.py`), and running the pattern exactly as drawn:
+pivot-confirmed higher low, second higher low, break of structure, enter toward
+the gap level, stop under the swing. Every term is causal — a pivot at bar *i*
+is not known until *i+k*, and nothing looks at a bar before it existed.
+`scripts/orderflow/gapstructure.py`.
+
+### Reading structure is worth something — that part was right
+
+Same 778 sessions, same target, matched controls:
+
+| | n | mean | win | t |
+|---|---|---|---|---|
+| 2 higher lows + BOS | 778 | −0.074R | 43.2% | −1.71 |
+| control: enter at the open, fixed stop | 778 | −0.249R | 24.3% | −4.29 |
+| **difference** | | **+0.176R** | | **+2.43** |
+
+Waiting for the sequence is **+16.5 NQ points a trade better** than entering
+blind on the same days. That is a genuine effect at t = +2.43. The structure is
+seeing something.
+
+### But every complete version still loses
+
+| variant | n | mean | win | t |
+|---|---|---|---|---|
+| 1 HL + BOS | 1,322 | −0.138R | 40.1% | −4.07 |
+| 2 HLs + BOS (as drawn) | 778 | −0.074R | 43.2% | −1.71 |
+| 3 HLs + BOS | 310 | −0.043R | 43.5% | −0.60 |
+| + an FVG that held | 593 | −0.098R | 42.8% | −2.03 |
+| target ½ the gap | 778 | −0.077R | 51.3% | −2.11 |
+| target 1R / 2R / 3R | 1,228 | −0.098 / −0.102 / −0.084R | | −3.65 / −3.00 / −2.23 |
+| only when the gap is ≥2R away | 419 | −0.124R | 32.9% | −1.81 |
+| enter on the retest, not the break | 738 | −0.115R | 38.1% | −2.33 |
+| retest halfway back to the HL | 630 | −0.125R | 27.0% | −1.50 |
+
+Negative in both directions, in all four eras (2016–18, 2019–21, 2022–24,
+2025–26), at every target, and in every gap-size bucket. Bar-level ambiguity is
+0% — 5-minute bars order the touches, so none of this rests on an assumption.
+
+### Why both things are true at once
+
+The control is *terrible*: 24% win rate. Beating it is not the same as making
+money, and the gap between those two is the whole result. The sequence
+correctly identifies that a turn has happened — but it confirms at the **top of
+the leg**, which is simultaneously the worst price in the move and the widest
+stop. The information is real and the entry it dictates gives it all back.
+
+The retest was the obvious repair and it does not work either: resting the
+order back at the broken level gets a better price but only fills on 738 of 778
+setups, and the ones that come back to fill are disproportionately the ones
+that keep going the wrong way.
+
+### Verdict
+
+The pattern is simple, it is automatable, and it is now automated and measured
+on 2,680 sessions rather than 5. **Reading structure beats not reading it. It
+does not beat not trading.** The remaining honest question is not whether the
+sequence is real — it is — but whether there is an entry that collects the
+information without paying the leg for it. Nothing tested so far does.
