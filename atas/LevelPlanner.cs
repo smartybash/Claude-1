@@ -45,7 +45,7 @@ namespace Claude1.Recorders
     [DisplayName("Level Plan (weight rule)")]
     public partial class LevelPlanner : Indicator
     {
-        private const string BuildTag = "2026-09-14.plan.d";
+        private const string BuildTag = "2026-09-14.plan.e";
 
         private readonly object _sync = new object();
 
@@ -405,10 +405,8 @@ namespace Claude1.Recorders
             foreach (var l in _levels)
             {
                 _armed[l.Name] = true;
-                _above[l.Name] = true;
-                l.Buy = close > l.Price;     // price sits above it, so it is bought
-                l.Stop = l.Buy ? l.Price - StopPts : l.Price + StopPts;
-                l.Target = l.Buy ? l.Price + StopPts : l.Price - StopPts;
+                _above[l.Name] = close > l.Price;
+                SetSide(l, close > l.Price);
             }
 
             WritePlan(today, from);
@@ -485,12 +483,29 @@ namespace Claude1.Recorders
         /// Heavy levels are deliberately ignored here: they are not trades, so
         /// counting down to one would invite exactly the thing the rule forbids.
         /// </summary>
+        /// <summary>
+        /// Price is above the level, so it will be approached from above and
+        /// faded with a buy. Brackets follow the side.
+        /// </summary>
+        private void SetSide(Level l, bool priceAbove)
+        {
+            l.Buy = priceAbove;
+            l.Stop = l.Buy ? l.Price - StopPts : l.Price + StopPts;
+            l.Target = l.Buy ? l.Price + StopPts : l.Price - StopPts;
+        }
+
         private void UpdateWatch(decimal price, DateTime when)
         {
             Level best = null;
             var bestD = 9999m;
             foreach (var l in _levels)
             {
+                // A level price is sitting below is approached from below and
+                // sold; one above it is bought. Refreshed here so a level that
+                // price has crossed during the session shows the right side.
+                if (Touching != l)
+                    SetSide(l, price > l.Price);
+
                 if (!l.Light)
                     continue;
                 var d = price - l.Price;
