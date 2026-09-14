@@ -56,14 +56,29 @@ namespace Claude1.Recorders
                     var side = trade.Direction == TradeDirection.Buy ? "B"
                              : trade.Direction == TradeDirection.Sell ? "S"
                              : "?";
-                    var fills = trade.Ticks != null ? trade.Ticks.Count : 0;
+
+                    // The last price is taken from the fills rather than from a
+                    // property. CumulativeTrade exposes FirstPrice, which the
+                    // compiler confirmed, but not LastPrice; walking the ticks
+                    // needs no further guess about the API and gives the same
+                    // answer by definition.
+                    var fills = 0;
+                    var lastPrice = trade.FirstPrice;
+                    if (trade.Ticks != null)
+                    {
+                        foreach (var tick in trade.Ticks)
+                        {
+                            lastPrice = tick.Price;
+                            fills++;
+                        }
+                    }
 
                     _cumWriter.WriteLine(
                         when.ToString("yyyy-MM-dd HH:mm:ss.fff",
                                       CultureInfo.InvariantCulture) + "," +
                         side + "," +
                         trade.FirstPrice.ToString(CultureInfo.InvariantCulture) + "," +
-                        trade.LastPrice.ToString(CultureInfo.InvariantCulture) + "," +
+                        lastPrice.ToString(CultureInfo.InvariantCulture) + "," +
                         trade.Volume.ToString(CultureInfo.InvariantCulture) + "," +
                         fills);
                     _rows++;

@@ -44,14 +44,16 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-14.i";
+        private const string BuildTag = "2026-09-14.j";
 
         private readonly object _sync = new object();
 
         private StreamWriter _depthWriter;
         private StreamWriter _tapeWriter;
         private StreamWriter _cumWriter;
+#pragma warning disable 0649   // assigned only in the optional Cumulative part
         private long _cumTrades;
+#pragma warning restore 0649
         private string _openDate = "";
         private DateTime _lastSnapshot = DateTime.MinValue;
         private DateTime _lastStatus = DateTime.MinValue;
