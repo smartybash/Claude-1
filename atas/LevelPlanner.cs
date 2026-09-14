@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 using ATAS.Indicators;
@@ -42,9 +43,9 @@ using ATAS.Indicators;
 namespace Claude1.Recorders
 {
     [DisplayName("Level Plan (weight rule)")]
-    public class LevelPlanner : Indicator
+    public partial class LevelPlanner : Indicator
     {
-        private const string BuildTag = "2026-09-14.plan.a";
+        private const string BuildTag = "2026-09-14.plan.c";
 
         private readonly object _sync = new object();
 
@@ -66,13 +67,30 @@ namespace Claude1.Recorders
         private long _trades, _touches;
         private DateTime _lastStatus = DateTime.MinValue;
 
-        private sealed class Level
+        internal sealed class Level
         {
             public string Name;
             public decimal Price;
             public long Weight;
             public bool Light;
+            public bool Buy;          // approached from above -> fade with a buy
+            public decimal Stop;
+            public decimal Target;
         }
+
+        /// <summary>Levels for the render half. Empty until a plan exists.</summary>
+        internal List<Level> PlanLevels { get { return _levels; } }
+
+        internal decimal LastPrice { get { return _close; } }
+
+        /// <summary>The light level price is nearest to, and how far away.</summary>
+        internal Level Nearest;
+        internal decimal NearestDist = 9999m;
+        internal Level Touching;
+        internal DateTime TouchedAt = DateTime.MinValue;
+
+        /// <summary>Set true by the optional render half if it is compiled in.</summary>
+        internal static bool RenderAvailable;
 
         // ---- settings -------------------------------------------------------
         [DisplayName("Output folder")]
@@ -117,9 +135,27 @@ namespace Claude1.Recorders
         [DisplayName("Stop and target (points)")]
         public decimal StopPts { get; set; } = 30.0m;
 
+        [DisplayName("Watch when within (points)")]
+        public decimal WatchPts { get; set; } = 50.0m;
+
+        [DisplayName("Keep touch prompt up for (seconds)")]
+        public int PromptSeconds { get; set; } = 120;
+
+        [DisplayName("No-trade band height (points)")]
+        public decimal NoTradeBandPts { get; set; } = 6.0m;
+
+        /// <summary>
+        /// Implemented in the optional LevelPlanner.Render.cs. When that file is
+        /// compiled out the compiler erases both this declaration and the call
+        /// below, so the indicator builds and runs with no drawing and no
+        /// reference to any rendering type.
+        /// </summary>
+        partial void ConfigureRendering();
+
         public LevelPlanner()
         {
             try { DataSeries[0].IsHidden = true; } catch { }
+            ConfigureRendering();
             WriteStatus(true);
         }
 
@@ -368,6 +404,9 @@ namespace Claude1.Recorders
             {
                 _armed[l.Name] = true;
                 _above[l.Name] = true;
+                l.Buy = close > l.Price;     // price sits above it, so it is bought
+                l.Stop = l.Buy ? l.Price - StopPts : l.Price + StopPts;
+                l.Target = l.Buy ? l.Price + StopPts : l.Price - StopPts;
             }
 
             WritePlan(today, from);
@@ -424,6 +463,11 @@ namespace Claude1.Recorders
                     _armed[l.Name] = false;
                     _touches++;
                     var fromAbove = _above[l.Name];
+                    if (l.Light)
+                    {
+                        Touching = l;
+                        TouchedAt = when;
+                    }
                     LogSignal(when, l, fromAbove, price);
                 }
                 else if (!armed && ad >= RearmPts)
@@ -432,6 +476,31 @@ namespace Claude1.Recorders
                     _above[l.Name] = d > 0;
                 }
             }
+        }
+
+        /// <summary>
+        /// Nearest light level, and whether a touch prompt is still current.
+        /// Heavy levels are deliberately ignored here: they are not trades, so
+        /// counting down to one would invite exactly the thing the rule forbids.
+        /// </summary>
+        private void UpdateWatch(decimal price, DateTime when)
+        {
+            Level best = null;
+            var bestD = 9999m;
+            foreach (var l in _levels)
+            {
+                if (!l.Light)
+                    continue;
+                var d = price - l.Price;
+                if (d < 0) d = -d;
+                if (d < bestD) { bestD = d; best = l; }
+            }
+            Nearest = best;
+            NearestDist = bestD;
+
+            if (Touching != null &&
+                (when - TouchedAt).TotalSeconds > PromptSeconds)
+                Touching = null;
         }
 
         private void LogSignal(DateTime when, Level l, bool fromAbove, decimal price)
@@ -472,6 +541,114 @@ namespace Claude1.Recorders
             }
         }
 
+        /// <summary>
+        /// Report the real drawing API rather than guessing it a third time.
+        ///
+        /// Two builds have already been lost to assumed names in the cumulative
+        /// trade API. The rendering surface is larger and the documentation is
+        /// unreachable from here, so the installed assembly is asked directly:
+        /// the signature of OnRender, every drawing method on whatever type it
+        /// takes, and the price-to-pixel helpers on ChartInfo. Reflection
+        /// compiles against whatever the API turns out to be, so this cannot
+        /// itself break the build, and one run answers what a guess cannot.
+        /// </summary>
+        private static string DescribeRenderApi()
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                Type ctxType = null;
+
+                var t = typeof(LevelPlanner).BaseType;
+                while (t != null && ctxType == null)
+                {
+                    foreach (var m in t.GetMethods(BindingFlags.Instance |
+                                                   BindingFlags.Public |
+                                                   BindingFlags.NonPublic |
+                                                   BindingFlags.DeclaredOnly))
+                    {
+                        if (m.Name != "OnRender")
+                            continue;
+                        var ps = m.GetParameters();
+                        sb.Append("OnRender(");
+                        for (var i = 0; i < ps.Length; i++)
+                        {
+                            if (i > 0) sb.Append(", ");
+                            sb.Append(ps[i].ParameterType.Name).Append(" ")
+                              .Append(ps[i].Name);
+                            if (ctxType == null && ps[i].ParameterType.Name
+                                    .IndexOf("Context", StringComparison.Ordinal) >= 0)
+                                ctxType = ps[i].ParameterType;
+                        }
+                        sb.AppendLine(")");
+                        break;
+                    }
+                    t = t.BaseType;
+                }
+
+                if (ctxType != null)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine(ctxType.Name + " drawing methods:");
+                    foreach (var m in ctxType.GetMethods(BindingFlags.Instance |
+                                                         BindingFlags.Public))
+                    {
+                        var n = m.Name;
+                        if (n.IndexOf("Draw", StringComparison.Ordinal) < 0 &&
+                            n.IndexOf("Fill", StringComparison.Ordinal) < 0 &&
+                            n.IndexOf("Measure", StringComparison.Ordinal) < 0)
+                            continue;
+                        var ps = m.GetParameters();
+                        sb.Append("  ").Append(n).Append("(");
+                        for (var i = 0; i < ps.Length; i++)
+                        {
+                            if (i > 0) sb.Append(", ");
+                            sb.Append(ps[i].ParameterType.Name);
+                        }
+                        sb.AppendLine(")");
+                    }
+                }
+
+                try
+                {
+                    var ci = ChartInfo;
+                    if (ci != null)
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine(ci.GetType().Name + " members:");
+                        foreach (var m in ci.GetType().GetMethods(
+                                     BindingFlags.Instance | BindingFlags.Public))
+                        {
+                            var n = m.Name;
+                            if (n.IndexOf("Price", StringComparison.Ordinal) < 0 &&
+                                n.IndexOf("Y", StringComparison.Ordinal) != 0 &&
+                                n.IndexOf("GetX", StringComparison.Ordinal) < 0)
+                                continue;
+                            var ps = m.GetParameters();
+                            sb.Append("  ").Append(n).Append("(");
+                            for (var i = 0; i < ps.Length; i++)
+                            {
+                                if (i > 0) sb.Append(", ");
+                                sb.Append(ps[i].ParameterType.Name);
+                            }
+                            sb.AppendLine(")");
+                        }
+                        foreach (var pr in ci.GetType().GetProperties(
+                                     BindingFlags.Instance | BindingFlags.Public))
+                            sb.AppendLine("  ." + pr.Name + " : " +
+                                          pr.PropertyType.Name);
+                    }
+                }
+                catch { }
+
+                return sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "render api reflection failed: " + ex.Message;
+            }
+        }
+
         // ---- status ---------------------------------------------------------
         private void WriteStatus(bool force)
         {
@@ -494,6 +671,12 @@ namespace Claude1.Recorders
                 sb.AppendLine("levels planned:   " + _levels.Count);
                 sb.AppendLine("touches today:    " + _touches);
                 sb.AppendLine("last error:       " + _lastError);
+                sb.AppendLine("drawing:          " + (RenderAvailable
+                    ? "on" : "OFF (built without the render half)"));
+                sb.AppendLine();
+                sb.AppendLine("---- drawing API, for Claude ----");
+                sb.Append(DescribeRenderApi());
+                sb.AppendLine("--------------------------------");
                 sb.AppendLine();
                 foreach (var l in _levels)
                     sb.AppendLine("   " +
@@ -563,6 +746,7 @@ namespace Claude1.Recorders
                     _close = arg.Price;
 
                     CheckTouch(arg.Price, arg.Time);
+                    UpdateWatch(arg.Price, arg.Time);
                 }
                 catch (Exception ex)
                 {

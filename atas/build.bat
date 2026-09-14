@@ -46,16 +46,31 @@ dotnet build -c Release -v minimal -p:AtasDir="!ATASDIR!"
 if errorlevel 1 (
     echo.
     echo  ------------------------------------------------------------
-    echo   Retrying without cumulative-trade support. That part uses a
-    echo   newer ATAS API; everything else is unaffected and the
-    echo   recorder works fully without it.
+    echo   Retrying without the on-chart drawing. Everything else is
+    echo   unaffected and the plan still goes to PLAN_*.txt.
     echo  ------------------------------------------------------------
     rd /s /q obj 2>nul
     rd /s /q bin 2>nul
-    dotnet build -c Release -v minimal -p:AtasDir="!ATASDIR!" -p:NoCumulative=true
+    dotnet build -c Release -v minimal -p:AtasDir="!ATASDIR!" -p:NoRender=true
     if not errorlevel 1 (
         echo.
-        echo   Built WITHOUT cumulative trades. Tell Claude: "no cum trades".
+        echo   Built WITHOUT chart drawing. Tell Claude: "no drawing",
+        echo   and send _plan_status.txt - it names the real API.
+    )
+)
+
+if errorlevel 1 (
+    echo.
+    echo  ------------------------------------------------------------
+    echo   Retrying without drawing OR cumulative trades.
+    echo  ------------------------------------------------------------
+    rd /s /q obj 2>nul
+    rd /s /q bin 2>nul
+    dotnet build -c Release -v minimal -p:AtasDir="!ATASDIR!" -p:NoRender=true -p:NoCumulative=true
+    if not errorlevel 1 (
+        echo.
+        echo   Built WITHOUT drawing or cum trades. Tell Claude both,
+        echo   and send _plan_status.txt.
     )
 )
 
@@ -81,11 +96,12 @@ echo   is holding the old file open - close ATAS and run this again.
 echo.
 echo     1. Restart ATAS
 echo     2. Open the NQ chart
-echo     3. Ctrl+I, add "L2 Recorder (CSV)"
+echo     3. Ctrl+I, add "Level Plan (weight rule)"  -- draws the levels
+echo        and optionally "L2 Recorder (CSV)" to keep recording
 echo.
-echo   It draws nothing on the chart. Instead a folder named
-echo   ATAS_Export appears ON YOUR DESKTOP the moment you add it.
-echo   Open _status.txt inside it.
+echo   Level Plan draws grey NO TRADE bands, green buy and red sell
+echo   lines, and a panel that says what to do. A folder named
+echo   ATAS_Export appears ON YOUR DESKTOP with PLAN_*.txt in it.
 echo  ============================================================
 pause
 exit /b 0
