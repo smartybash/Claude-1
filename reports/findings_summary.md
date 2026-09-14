@@ -624,3 +624,64 @@ interval the edge is +2.33 points, about $47 a trade** — which is the number t
 plan against, not the headline.
 
 Out-of-sample sessions are the only thing that resolves it.
+
+## Can it actually be executed?
+
+Every number above assumed a fill at the printed price on the touch, a target
+that fills the moment price kisses it, and a stop that fills exactly where it
+sits. None of those are free, and an edge of seven points can be entirely
+consumed by execution while still looking perfect in a backtest.
+
+**Hold time is the uncomfortable number.** Median **2.6 minutes**, p25 **48
+seconds**, median gap between trades 3.1 minutes, 9.7 trades a session. This is
+not a swing trade someone watches develop over half an hour. Roughly 25 minutes
+of a 390-minute session is spent in a position, arriving in bursts.
+
+That rules out eyeballing a chart and clicking. It does **not** rule out the
+trade, because the levels are computed from the previous session and are known
+before the open: the entry is a **resting limit with an OCO bracket**, placed in
+advance, and nothing about it needs reaction speed. Buy limits go below price,
+sell limits above, which is also the direction the rule wants.
+
+**What the assumptions are worth:**
+
+| assumption | result |
+|---|---|
+| fill on any touch (as previously reported) | +7.35 pt, 66.7%, t=2.43 |
+| entry needs 1 tick **through** the level | +7.11 pt, 66.3%, t=2.33 |
+| entry needs 2 ticks through | +6.09 pt, 64.6%, t=1.93 |
+| entry needs 4 ticks through | +5.82 pt, 64.2%, t=1.83 |
+| + target 1 tick through, stop slips 1.0 pt | **+6.78 pt, 66.3%, t=2.19** |
+| + target 2 ticks through, stop slips 2.0 pt | +6.44 pt, 66.3%, t=2.04 |
+
+Queue position was the assumption most likely to be flattering the result —
+touches that reverse *without* trading through are precisely the good outcomes,
+so assuming a fill on every touch keeps winners that were never entered. It
+costs about a point and a quarter, not the whole edge.
+
+**Chasing destroys it.** Entering at market some seconds after the touch instead
+of resting a limit:
+
+| delay | result |
+|---|---|
+| 0s (resting limit) | +7.35 pt |
+| 5s | +3.08 pt |
+| 15s | +7.26 pt |
+| 30s | +3.26 pt |
+| 60s | +5.31 pt |
+
+Erratic, because the sample is small enough that each cell moves on a handful of
+trades, but every delayed variant is worse or unstable. The edge is in being
+*there already*, not in reacting.
+
+**Cost tolerance**, on realistic fills: +6.78 at 2 points, +4.78 at 4, +2.78 at
+6, +0.78 at 8. It dies somewhere around 7 to 8 points of total round-trip cost
+against a real NQ cost of one to two. That is a reasonable margin.
+
+### What this means operationally
+
+The workflow is: compute the previous session's levels and the volume at each,
+drop the heavy ones, place resting limits with brackets at the light ones before
+the open, and let them work. It is an order-placement routine, not a screen-
+watching one — which is fortunate, because at a 2.6-minute median hold, screen
+watching would not be fast enough.
