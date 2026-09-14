@@ -28,11 +28,31 @@ namespace Claude1.Recorders
         private string _cPath;
 
         /// <summary>
-        /// One row per aggressive order, with the fill count it was assembled
-        /// from. A sweep through several price levels shows as first and last
-        /// price differing, which is itself the signature worth having.
+        /// ATAS builds a cumulative trade incrementally: OnCumulativeTrade
+        /// fires when the aggressive order starts filling, and updates arrive
+        /// as further fills join it. Recording only the first event captured
+        /// every order at one fill -- 171,193 orders with exactly 171,193 fills
+        /// between them, no sweeps at all, and an order-size distribution
+        /// identical to the raw tape. In other words it added nothing.
+        ///
+        /// Both events are now written, so a trade appears several times with a
+        /// growing fill count. Analysis keeps the row with the most fills for
+        /// each (time, first_price, aggressor); the earlier rows are that same
+        /// order part-filled. This is deliberate: a stateful merge inside the
+        /// recorder could lose the final update if a replay ends mid-order,
+        /// whereas append-and-reduce cannot lose anything.
         /// </summary>
+        protected override void OnCumulativeTradesUpdate(CumulativeTrade trade)
+        {
+            Record(trade);
+        }
+
         protected override void OnCumulativeTrade(CumulativeTrade trade)
+        {
+            Record(trade);
+        }
+
+        private void Record(CumulativeTrade trade)
         {
             if (trade == null)
                 return;

@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Threading;
 
 using ATAS.Indicators;
 
@@ -44,7 +45,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-14.j";
+        private const string BuildTag = "2026-09-14.k";
 
         private readonly object _sync = new object();
 
@@ -76,6 +77,7 @@ namespace Claude1.Recorders
         private readonly List<string> _gone = new List<string>();
         private DateTime _lastKeyframe = DateTime.MinValue;
         private DateTime _lastData = DateTime.MinValue;
+        private Timer _idleTimer;
         private string _pathDate = "";
         private string _dPath, _tPath;
         private long _skippedOutOfSession;
@@ -125,6 +127,17 @@ namespace Claude1.Recorders
         /// </summary>
         [DisplayName("RTH only")]
         public bool RthOnly { get; set; } = true;
+
+        /// <summary>
+        /// Record the tape around the clock even when depth is restricted to
+        /// the cash session. The overnight session sets levels that are traded
+        /// during RTH -- the overnight high and low above all -- and those have
+        /// never been testable here because only RTH was ever recorded. The
+        /// tape is small enough that keeping all of it is nearly free, while
+        /// overnight depth is bulky and will not be traded.
+        /// </summary>
+        [DisplayName("Record tape around the clock")]
+        public bool TapeAllHours { get; set; } = true;
 
         [DisplayName("RTH start hour (platform clock)")]
         public int RthStartHour { get; set; } = 13;
@@ -193,6 +206,12 @@ namespace Claude1.Recorders
             // appears the moment the indicator is added to a chart. That makes
             // "no status file" mean one thing only: it is not on the chart.
             WriteStatus(true);
+
+            // Independent of the platform. OnCalculate stops being called when a
+            // replay finishes, which is exactly the moment the files need to be
+            // closed and their gzip tails written; three recordings arrived
+            // truncated because nothing ran at that point.
+            _idleTimer = new Timer(OnIdleTick, null, 5000, 5000);
         }
 
         // ------------------------------------------------------------------
@@ -284,7 +303,8 @@ namespace Claude1.Recorders
                 sb.AppendLine();
                 sb.AppendLine("record tape:        " + RecordTape);
                 sb.AppendLine("record depth:       " + RecordDepth);
-                sb.AppendLine("RTH only:           " + RthOnly + "  ("
+                sb.AppendLine("tape all hours:     " + TapeAllHours);
+                sb.AppendLine("depth RTH only:     " + RthOnly + "  ("
                     + RthStartHour.ToString("00") + ":"
                     + RthStartMinute.ToString("00") + " to "
                     + RthEndHour.ToString("00") + ":"
@@ -514,6 +534,23 @@ namespace Claude1.Recorders
         // ------------------------------------------------------------------
         // ATAS hooks
         // ------------------------------------------------------------------
+        private void OnIdleTick(object state)
+        {
+            try
+            {
+                lock (_sync)
+                {
+                    FlushIfDue(true);
+                    CloseIfIdle();
+                    WriteStatus(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastError = "idle timer: " + ex.Message;
+            }
+        }
+
         protected override void OnCalculate(int bar, decimal value)
         {
             // Nothing is drawn. This always runs, so it carries the status file
@@ -535,7 +572,7 @@ namespace Claude1.Recorders
             _trades++;
             if (!RecordTape)
                 return;
-            if (!InSession(arg.Time))
+            if (!TapeAllHours && !InSession(arg.Time))
             {
                 _skippedOutOfSession++;
                 return;
@@ -656,6 +693,16 @@ namespace Claude1.Recorders
 
         protected override void OnDispose()
         {
+            try
+            {
+                if (_idleTimer != null)
+                {
+                    _idleTimer.Dispose();
+                    _idleTimer = null;
+                }
+            }
+            catch { }
+
             lock (_sync)
             {
                 FlushIfDue(true);
