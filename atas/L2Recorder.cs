@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -45,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-14.k";
+        private const string BuildTag = "2026-09-14.l";
 
         private readonly object _sync = new object();
 
@@ -267,6 +268,73 @@ namespace Claude1.Recorders
             return null;
         }
 
+        /// <summary>
+        /// Report what this ATAS build actually exposes, rather than guessing.
+        ///
+        /// Two compile failures came from assuming names in the cumulative
+        /// trade API: OnCumulativeTradesUpdate does not exist, and
+        /// CumulativeTrade has no LastPrice. Both were avoidable. The installed
+        /// assembly knows the answers, so it is asked once and the result goes
+        /// into the status file. Reflection compiles whatever the API turns out
+        /// to be, so this cannot itself break the build.
+        /// </summary>
+        private static string DescribeApi()
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("overridable methods mentioning trade or depth:");
+
+                Type cumType = null;
+                var t = typeof(L2Recorder).BaseType;
+                while (t != null)
+                {
+                    foreach (var m in t.GetMethods(BindingFlags.Instance |
+                                                   BindingFlags.Public |
+                                                   BindingFlags.NonPublic |
+                                                   BindingFlags.DeclaredOnly))
+                    {
+                        if (!m.IsVirtual || m.IsFinal)
+                            continue;
+                        var n = m.Name;
+                        if (n.IndexOf("Trade", StringComparison.OrdinalIgnoreCase) < 0 &&
+                            n.IndexOf("Depth", StringComparison.OrdinalIgnoreCase) < 0 &&
+                            n.IndexOf("Cumulative", StringComparison.OrdinalIgnoreCase) < 0)
+                            continue;
+
+                        var ps = m.GetParameters();
+                        sb.Append("    ").Append(n).Append("(");
+                        for (var i = 0; i < ps.Length; i++)
+                        {
+                            if (i > 0)
+                                sb.Append(", ");
+                            sb.Append(ps[i].ParameterType.Name);
+                            if (cumType == null &&
+                                ps[i].ParameterType.Name.IndexOf(
+                                    "Cumulative", StringComparison.Ordinal) >= 0)
+                                cumType = ps[i].ParameterType;
+                        }
+                        sb.AppendLine(")");
+                    }
+                    t = t.BaseType;
+                }
+
+                if (cumType != null)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine(cumType.Name + " properties:");
+                    foreach (var pr in cumType.GetProperties(
+                                 BindingFlags.Instance | BindingFlags.Public))
+                        sb.AppendLine("    " + pr.PropertyType.Name + " " + pr.Name);
+                }
+                return sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "api reflection failed: " + ex.Message;
+            }
+        }
+
         // ------------------------------------------------------------------
         // status
         // ------------------------------------------------------------------
@@ -322,6 +390,10 @@ namespace Claude1.Recorders
                 sb.AppendLine("folder choice:      " + _folderNotes);
                 sb.AppendLine("data files:         " + _files);
                 sb.AppendLine("last error:         " + _lastError);
+                sb.AppendLine();
+                sb.AppendLine("---- platform API, for Claude ----");
+                sb.Append(DescribeApi());
+                sb.AppendLine("---------------------------------");
                 sb.AppendLine();
                 sb.AppendLine("If trades and depth updates are both 0, the platform is");
                 sb.AppendLine("sending neither. In Market Replay, switch the replay mode");

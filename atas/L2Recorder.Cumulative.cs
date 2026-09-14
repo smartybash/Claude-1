@@ -35,18 +35,11 @@ namespace Claude1.Recorders
         /// between them, no sweeps at all, and an order-size distribution
         /// identical to the raw tape. In other words it added nothing.
         ///
-        /// Both events are now written, so a trade appears several times with a
-        /// growing fill count. Analysis keeps the row with the most fills for
-        /// each (time, first_price, aggressor); the earlier rows are that same
-        /// order part-filled. This is deliberate: a stateful merge inside the
-        /// recorder could lose the final update if a replay ends mid-order,
-        /// whereas append-and-reduce cannot lose anything.
+        /// The update event is the missing half, and two guesses at its name
+        /// have now failed to compile. Rather than guess a third time, the
+        /// recorder reports the real API into _status.txt via reflection, so
+        /// the next version can use the name the assembly actually has.
         /// </summary>
-        protected override void OnCumulativeTradesUpdate(CumulativeTrade trade)
-        {
-            Record(trade);
-        }
-
         protected override void OnCumulativeTrade(CumulativeTrade trade)
         {
             Record(trade);
