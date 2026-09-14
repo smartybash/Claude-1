@@ -730,3 +730,42 @@ this at −292. The session's completed candles are now read once to seed it.
 Candle members are reached by reflection so an unexpected property name costs a
 "PARTIAL" label in the panel rather than the build, and the panel says plainly
 when the count is not the full session.
+
+## Out of sample, four test days
+
+08-17 arrived after the rule was frozen and unlocked two pairs, because 08-18
+had previously had no prior session to work from.
+
+| session | trades | per trade | total |
+|---|---|---|---|
+| 08-17 | 5 | **+16.00 pt** | +$1,600 |
+| 08-18 | **0** | — | gap day, see below |
+| 08-25 | 17 | −0.24 pt | −$80 |
+| 08-26 | 12 | −8.79 pt | −$2,110 |
+| **pooled, with the CVD filter** | **34** | **−0.87 pt** | **−$590** |
+
+`t = −0.17`. That is not a losing result, it is **no result**: thirty-four trades
+cannot distinguish a small edge from nothing in either direction, and the
+earlier reading of "both days lost" was drawn from half this sample.
+
+**08-18 traded nothing on purpose.** 08-17 closed near 30,100 and 08-18 traded
+29,514–29,770, so not one of the previous session's levels was reachable. The
+rule stands aside on gap days rather than reaching for something, which is the
+correct behaviour and the same situation that made 09-09 and 09-10 untestable.
+
+Pooled across everything, the filter still earns its place and the cut is still
+in the right region:
+
+| cut | n | per trade | win | t |
+|---|---|---|---|---|
+| no filter | 123 | +4.92 | 62.6% | +1.89 |
+| 1.0% | 108 | +5.61 | 63.9% | +2.03 |
+| **1.5%** | **115** | **+7.49** | **67.0%** | **+2.86** |
+| 2.0% | 116 | +6.63 | 65.5% | +2.52 |
+| 3.0% | 118 | +4.96 | 62.7% | +1.87 |
+
+**The verdict has changed shape but not direction.** It is no longer "the rule
+lost out of sample"; it is "out of sample is too small to say anything". Four
+test days, one strongly positive, one flat, one negative, one correctly absent.
+The honest position is that this still cannot be funded, and the reason is
+sample size rather than evidence of failure.
