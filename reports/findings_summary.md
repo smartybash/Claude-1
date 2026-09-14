@@ -769,3 +769,65 @@ lost out of sample"; it is "out of sample is too small to say anything". Four
 test days, one strongly positive, one flat, one negative, one correctly absent.
 The honest position is that this still cannot be funded, and the reason is
 sample size rather than evidence of failure.
+
+## Six out-of-sample days: the in-sample figure was fitted
+
+| session | trades | per trade | total |
+|---|---|---|---|
+| 08-17 | 5 | +16.00 pt | +$1,600 |
+| 08-18 | 0 | — | gap day |
+| 08-21 | 15 | −2.40 pt | −$720 |
+| 08-24 | 2 | −2.00 pt | −$80 |
+| 08-25 | 17 | −0.24 pt | −$80 |
+| 08-26 | 12 | −8.79 pt | −$2,110 |
+
+**The comparison that settles it:**
+
+| | n | per trade | win | t |
+|---|---|---|---|---|
+| in sample (9 days) | 81 | **+11.00 pt** ±5.81 | 72.8% | +3.71 |
+| out of sample (6 days) | 51 | **−1.36 pt** ±8.16 | 51.0% | −0.33 |
+
+Difference **+12.36 points, SE 5.11, t = +2.42.** The gap between the two is
+itself larger than chance. That is the definition of a fitted result: the
+in-sample number was not an estimate of an edge, it was a description of the
+data it was found in.
+
+**Best honest estimate of the edge is the out-of-sample mean: −1.36 points a
+trade, 95% interval −9.52 to +6.80.** Zero sits inside that interval, so the
+rule cannot be distinguished from no edge at all. The win rate tells the same
+story more plainly: **72.8% in sample, 51.0% out.** A coin.
+
+And the pooled figure has decayed monotonically as honest data arrived:
+
+| sessions | 1.5% cut | t |
+|---|---|---|
+| 14 | +11.00 | 3.71 |
+| 16 | +7.10 | 2.64 |
+| 17 | +7.49 | 2.86 |
+| **18** | **+6.22** | **2.52** |
+
+That decay is not noise; it is the in-sample portion being diluted.
+
+### The verdict
+
+**Do not trade this.** Not "not yet", and not "needs more data to confirm" —
+the out-of-sample evidence is now sufficient to say the measured edge does not
+reproduce. Fifty-one trades at 51% is not a small sample failing to detect a
+real effect; it is what a rule with no edge looks like.
+
+What remains genuinely true and worth keeping:
+
+- **Levels hold 53–56% of touches.** A real, small tilt, measured on 198 touches
+  and stable across stop sizes.
+- **Heavy levels break.** Fading a level carrying 10,000+ contracts lost 12
+  points a trade at 33% in sample. That half of the split had a mechanism behind
+  it and is worth respecting even without the trade.
+- **The infrastructure.** A verified recorder, sixteen clean sessions, an
+  indicator that computes the levels live and agrees with the backtest to the
+  tick, and a test harness that caught this rather than letting it reach live
+  money.
+
+The last of those is the point. Four findings in this project looked good and
+died — lookahead, overlap, an impossible fill, and now an overfit threshold.
+Each one was caught before it cost anything.
