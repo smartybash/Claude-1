@@ -831,3 +831,83 @@ What remains genuinely true and worth keeping:
 The last of those is the point. Four findings in this project looked good and
 died — lookahead, overlap, an impossible fill, and now an overfit threshold.
 Each one was caught before it cost anything.
+
+---
+
+## The gap trade — gap at the open, structure turns, price travels back
+
+Tested after it was annotated on a live chart: gap down at the open, a 5‑minute
+fair value gap that holds as a higher low, a second higher low, a break of
+structure, then enter toward the gap level. `scripts/orderflow/gapfill.py`.
+
+Every element of it is definable, so it was measured rather than admired. But
+the order of the questions decides the answer, and the first one is not about
+the entry. It is: **is the destination reachable?** If price only returns to
+the previous close half the time, no amount of structure reading turns that
+into a trade.
+
+### The base rate, on 13,500 sessions rather than 15
+
+Fifteen recorded sessions cannot answer this — every gap bucket would hold two
+or three days. A gap is fully defined by four numbers a daily bar already
+carries, so the question was asked on 27 years of QQQ and SPY instead.
+
+| gap size | sessions | fills | median share of gap closed |
+|---|---|---|---|
+| under 0.15% | 3,427 | 92% | over 200% |
+| 0.15–0.3% | 2,841 | 76% | ~195% |
+| 0.3–0.5% | 2,606 | 64% | ~140% |
+| 0.5–1% | 2,894 | 51% | ~103% |
+| 1–2% | 1,352 | 39% | 78% |
+| over 2% | 390 | 33% | 70% |
+
+The fill rate falls monotonically with gap size in both symbols. For NQ at
+29,400: 1% is 294 points, 0.3% is 88 points.
+
+**Small gaps fill; large gaps do not.** The trade is being asked for on exactly
+the gaps where the target is least reachable.
+
+### With a stop on it
+
+Reach statistics are best‑case excursions and flatter the trade. Entering at
+the open toward the gap, targeting the gap level, stopping the same distance
+away (1:1, so the win rate *is* the edge). Days that touched both target and
+stop cannot be ordered by a daily bar, so both bounds are reported.
+
+| gap size | clean win | clean loss | unknown | worst | best |
+|---|---|---|---|---|---|
+| 0.3–0.5% | 35% | 36% | 29% | −0.31R | +0.27R |
+| 0.5–1% | 35% | 49% | 16% | −0.30R | **+0.01R** |
+| 1–2% | 31% | 61% | 8% | −0.38R | **−0.22R** |
+| over 2% | 30% | 67% | 3% | −0.39R | **−0.34R** |
+
+On gaps above 1%, **both bounds are negative** — the trade loses even if every
+ambiguous day is generously counted a win. That is 1,742 sessions saying the
+same thing, and it is the bucket the chart in question sat in. Below 0.5% the
+bounds straddle zero and the daily bar genuinely cannot resolve it.
+
+Shortening the target to half the gap lifts the large‑gap buckets to roughly
+break‑even at the optimistic bound and still negative at the pessimistic one.
+
+### The structured entry on recorded sessions
+
+The full pattern — pivot‑confirmed higher low, break of the prior swing, stop
+beyond the swing, target the previous close, pivots confirmed two bars late so
+nothing is known before it could have been:
+
+**5 qualifying setups, −16.20 points a trade, 20% win, −0.17R, −$1,620.** One
+winner (08/17, +97.8), four losers. Far too few to judge on its own — but it
+points the same way as the 13,500‑session base rate, which is not.
+
+### Verdict
+
+The setup is simple, it is fully automatable, and it is already automated —
+that was never the obstacle. The obstacle is that on the gap sizes NQ actually
+produces (median around 100 points, ~0.35%), the gap closes 64% of the time at
+best and the 1:1 trade against it is a coin; on the large gaps that look most
+dramatic on a chart, it is a measured loser across 27 years.
+
+**Do not trade the large‑gap fill.** The only region left unresolved is small
+gaps under 0.5%, where the daily bar cannot order the touches and there are 15
+intraday sessions to work with — which is not enough, and is the same sample
+size that produced four dead findings already.
