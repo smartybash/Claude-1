@@ -1554,3 +1554,50 @@ still **not an edge** — a 95% interval touching zero and a selected-trade t of
 It fires about **1.5 times a session**, so accumulating evidence on it is slow.
 Roughly 40 more sessions with a working cumulative stream would halve the
 interval; a different month matters more than more of the same one.
+
+---
+
+## A different month kills the order-size gate — finding number six
+
+46 sessions. Aug 10 and 11 were **re-recorded** on the fixed build, so their
+degenerate cumulative files were replaced (existing maxfills 1, incoming 461
+and 427). Aug 5–11 is the first block from a genuinely different month with a
+working stream — the test asked for last round.
+
+| 3-min gate | A: Jul 1–20 | B: Jul 21–28 | C: Jul 29–Aug 4 | **D: Aug 5–11** |
+|---|---|---|---|---|
+| 25+ lot net delta | +0.240R | −0.059R | −0.235R | **−0.434R** |
+| 25+ lot ≥2% vol | −0.003R | +0.146R | +0.078R | +0.239R |
+| 50+ lot net delta | +0.228R | +0.225R | +0.031R | −0.055R |
+| **50+ lot ≥2% vol** | **+0.311R** | **+0.271R** | **+0.264R** | **−0.098R** |
+| sweep ≥2% vol | +0.112R | +0.063R | +0.420R | +1.007R |
+
+**The gate that reproduced three times fails on the different month.**
+
+Pooled over 182 breaks and 27 sessions: difference +0.229R, 95% CI
+**[−0.077, +0.516]** — includes zero. Selected trades run a per-session t of
+**+0.82** over 20 sessions. Not an edge.
+
+### The lesson is sharper than last time
+
+After CVD change died I concluded that only new sessions test a claim. That was
+not precise enough. This gate *was* tested on new sessions — twice — and held
+to within 0.05R both times. Then it broke the moment the calendar moved.
+
+Blocks B and C were **adjacent weeks inside the fitting month**. Adjacent weeks
+share the regime that produced the pattern, so reproducing across them measures
+persistence within a regime, not the existence of an effect.
+
+**Out-of-sample means a different period, not merely later rows.** Three
+consecutive reproductions inside one month were worth less than one test
+against a different month.
+
+### What is left standing
+
+`25+ lot net delta` decays monotonically across all four blocks (+0.240 →
+−0.059 → −0.235 → −0.434) and is definitively dead. `sweep ≥2% vol` reads
++0.112, +0.063, +0.420, +1.007 — the last value is large and the series is
+erratic, which is the signature of noise rather than an effect strengthening.
+
+No order-flow gate tested here separates the structure trade. Six findings have
+now died in this project; five of them looked strong first.
