@@ -1176,3 +1176,67 @@ sessions.
 
 **Status: the most promising lead in the project, and explicitly not yet a
 rule.** It is decidable with more recorded tape and by nothing else.
+
+---
+
+## Filter survey: what else in the recording shows direction and strength?
+
+`scripts/orderflow/filter_survey.py`. Same methodology as the CVD gates —
+each candidate judged against **the trades it refuses, inside the same
+sessions**, 95% intervals from resampling sessions.
+
+### The headline is a recorder bug, not a filter
+
+**The CUM stream was recording nothing usable.** Every row: `fills = 1`,
+`first_price = last_price`, median volume 1 — 177,133 "aggressive orders"
+sharing 177,133 fills between them. A duplicate of the tape with three
+constant columns.
+
+`OnCumulativeTrade` fires when an order *starts* filling; the fills join the
+same object afterwards. Writing inside that callback always caught it at one
+fill. **Fixed** by holding the trade and writing it when the next one arrives —
+no API guess needed (two previous guesses cost builds).
+
+This matters because CUM is the only stream that separates **one 100-lot from a
+hundred 1-lots**. CVD counts them identically. That is the most obvious
+order-flow filter there is, and it was *missing data*, not a null result.
+
+### What was testable, and what it showed
+
+| family | 3-min tally | 5-min tally |
+|---|---|---|
+| BOOK (ladder imbalance) | 1/3 positive, median −0.207R | 1/2 positive, median +0.129R |
+| SURGE (volume vs last 20 bars) | 0/2, median −0.210R | 1/1, median +0.049R |
+| SPEED (prints vs last 20 bars) | 0/2, median −0.198R | 1/1, median +0.049R |
+| RUN (consecutive agreeing bars) | 2/2, median +0.095R | 0/2, median −0.213R |
+| BIGPRINT (prints ≥10 lots) | 1/2, median +0.018R | 0/1, median −0.242R |
+
+**Nothing is consistent between timeframes.** Every family flips sign. Two
+cells exclude zero and they **contradict each other** — book imbalance ≥ +0.10
+is −0.507R on 3-minute, while book imbalance ≥ 0 is +0.483R on 5-minute, same
+family, opposite directions. Eighteen tests were run; two clearing 5% is
+almost exactly what chance produces.
+
+### Why this null is worth having
+
+Compare with the CVD-change result: **10/10 positive across both timeframes,
+median +0.181R**. Here, five families and not one holds its sign.
+
+That contrast is the useful part. The same harness that produced a consistent
+pattern for CVD change produces scatter for everything else — so the method is
+not a machine for manufacturing positives, and the CVD-change signal is not an
+artefact of how these tests are built.
+
+### Three analysis bugs found and fixed
+
+Worth recording because two of them would have produced confident false
+findings:
+
+1. **Depth writes `A` for the ask, not `S`.** Filtering for `S` gave an empty
+   book. This silently made depth look unusable in *earlier* work too.
+2. **Expanding session median as a "busy" baseline** is dominated by the
+   opening surge — 87% of bars scored below their own median, arithmetically
+   impossible. It was about to report that breaks on volume do worse.
+3. **A `>= 0` cut on a net-delta column** lumps "no large orders at all" with
+   "large orders agreeing", which is why signal counts *rose* as the size
+   threshold rose.
