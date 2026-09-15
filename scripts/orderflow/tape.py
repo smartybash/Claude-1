@@ -21,6 +21,8 @@ from __future__ import annotations
 
 import gzip
 import io
+import shutil
+import zipfile
 import re
 from pathlib import Path
 
@@ -108,8 +110,49 @@ def _cached(path: Path) -> pd.DataFrame:
     return df
 
 
+def unpack_bundles(folder: Path = None) -> int:
+    """Expand any NQ_<date>.zip the recorder produced into loose files.
+
+    The recorder now folds a session's three outputs into one zip, because a
+    five-file upload limit against three files a day means a day and a half per
+    upload. Nothing downstream needs to know: the parts inside are the same
+    gzipped CSVs as before, so they are extracted once into the same folders
+    the loaders already read and everything after this point is unchanged.
+
+    Extraction is skipped when the part is already present, so this is cheap to
+    call on every load and safe to call twice.
+    """
+    folder = folder or TAPE.parent
+    n = 0
+    for z in sorted(folder.rglob("*.zip")):
+        try:
+            with zipfile.ZipFile(z) as zf:
+                for name in zf.namelist():
+                    base = Path(name).name
+                    if base.startswith("TAPE_"):
+                        dest = TAPE / base
+                    elif base.startswith("L2_"):
+                        dest = folder / "depth" / base
+                    elif base.startswith("CUM_"):
+                        dest = folder / "cum" / base
+                    else:
+                        continue
+                    if dest.exists():
+                        continue
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    with zf.open(name) as src, open(dest, "wb") as out:
+                        shutil.copyfileobj(src, out)
+                    n += 1
+        except (zipfile.BadZipFile, OSError) as e:
+            print(f"  could not read {z.name}: {e}")
+    if n:
+        print(f"  unpacked {n} file(s) from session bundles")
+    return n
+
+
 def load_all() -> dict[str, pd.DataFrame]:
     out = {}
+    unpack_bundles()
     # pandas decompresses .gz by extension, so both forms just work.
     paths = sorted(list(TAPE.glob("TAPE_*.csv")) + list(TAPE.glob("TAPE_*.csv.gz")))
     for p in paths:

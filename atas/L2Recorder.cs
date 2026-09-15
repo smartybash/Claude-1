@@ -203,6 +203,21 @@ namespace Claude1.Recorders
         /// folder tidyable straight after a run. The files reopen by themselves
         /// as soon as data resumes, appending to the same recording.
         /// </summary>
+        /// <summary>
+        /// Minutes of silence after which the day's files are folded into one
+        /// zip and the originals deleted. Three files a day means a five-file
+        /// upload carries a day and a half; one file a day carries five.
+        ///
+        /// This waits far longer than IdleCloseSeconds on purpose. Closing the
+        /// writers happens on every quiet gap and they reopen on the next
+        /// tick, so bundling on close would zip a half-recorded session. Ten
+        /// minutes of nothing means the session is actually over.
+        ///
+        /// Set to 0 to keep the three separate files.
+        /// </summary>
+        [DisplayName("Bundle the day into one zip after (idle minutes)")]
+        public int BundleMinutes { get; set; } = 10;
+
         [DisplayName("Release files after N idle seconds")]
         public int IdleCloseSeconds { get; set; } = 15;
 
@@ -567,6 +582,14 @@ namespace Claude1.Recorders
         /// </summary>
         partial void FlushPendingCumulative();
 
+        /// <summary>
+        /// Implemented in L2Recorder.Cumulative.cs. Adds the cumulative file to
+        /// the bundle list. A partial method because _cPath lives in that file,
+        /// and naming it directly here would break the -p:NoCumulative=true
+        /// fallback build.
+        /// </summary>
+        partial void AddCumFile(List<string> paths);
+
         private void CloseFiles()
         {
             FlushPendingCumulative();
@@ -579,6 +602,93 @@ namespace Claude1.Recorders
             _cumWriter = null;
             _openDate = "";
         }
+
+        private string _bundledDate = "";
+
+        /// <summary>
+        /// Fold the day's outputs into one zip once recording has stopped.
+        ///
+        /// Entries are stored rather than deflated: the parts are already
+        /// gzipped, so a second pass costs CPU and saves nothing. If anything
+        /// here throws, the originals are left exactly where they are and the
+        /// day is still complete -- the bundle is a convenience, never a step
+        /// that data has to survive.
+        /// </summary>
+        private void BundleIfDone()
+        {
+            if (BundleMinutes <= 0 || _pathDate.Length == 0)
+                return;
+            if (_depthWriter != null || _tapeWriter != null || _cumWriter != null)
+                return;
+            if (_lastData == DateTime.MinValue)
+                return;
+            if ((DateTime.Now - _lastData).TotalMinutes < BundleMinutes)
+                return;
+            if (_bundledDate == _pathDate)
+                return;
+
+            try
+            {
+                var dir = ResolveFolder();
+                if (dir == null)
+                    return;
+
+                var parts = new List<string>();
+                if (_dPath != null) parts.Add(_dPath);
+                if (_tPath != null) parts.Add(_tPath);
+                AddCumFile(parts);
+
+                var zipPath = Path.Combine(
+                    dir, Clean(SymbolName()) + "_" + _pathDate + ".zip");
+                var packed = new List<string>();
+
+                using (var zip = ZipFile.Open(zipPath,
+                           File.Exists(zipPath) ? ZipArchiveMode.Update
+                                                : ZipArchiveMode.Create))
+                {
+                    foreach (var src in parts)
+                    {
+                        if (src == null || !File.Exists(src))
+                            continue;
+                        var name = Path.GetFileName(src);
+                        var entry = name;
+                        // A session that resumes after a bundle writes a fresh
+                        // run file; never overwrite an entry already holding
+                        // earlier data for the same day.
+                        var n = 2;
+                        while (zip.GetEntry(entry) != null)
+                        {
+                            entry = Path.GetFileNameWithoutExtension(
+                                        Path.GetFileNameWithoutExtension(name)) +
+                                    "_part" + n + ".csv.gz";
+                            n++;
+                        }
+                        zip.CreateEntryFromFile(src, entry,
+                                                CompressionLevel.NoCompression);
+                        packed.Add(src);
+                    }
+                }
+
+                foreach (var src in packed)
+                {
+                    try { File.Delete(src); } catch { }
+                }
+
+                _bundledDate = _pathDate;
+                _pathDate = "";
+                _dPath = null;
+                _tPath = null;
+                ClearCumPath();
+                _files = "bundled " + packed.Count + " file(s) into " +
+                         Path.GetFileName(zipPath);
+            }
+            catch (Exception ex)
+            {
+                _lastError = "bundle: " + ex.Message;
+            }
+        }
+
+        partial void ClearCumPath();
 
         private void FlushIfDue(bool force)
         {
@@ -642,6 +752,7 @@ namespace Claude1.Recorders
                 {
                     FlushIfDue(true);
                     CloseIfIdle();
+                    BundleIfDone();
                     WriteStatus(false);
                 }
             }

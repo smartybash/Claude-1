@@ -111,6 +111,9 @@ echo   HH/HL/LH/LL swings and breaks of structure. Nothing repaints:
 echo   a swing is labelled only once it is confirmed.
 echo.
 echo   A folder named ATAS_Export appears ON YOUR DESKTOP.
+echo.
+echo   Ten minutes after a session stops, the day's three files are
+echo   folded into ONE zip:  NQ_20260915.zip  - upload that.
 echo  ============================================================
 pause
 exit /b 0

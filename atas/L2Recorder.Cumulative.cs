@@ -15,6 +15,7 @@
 // build.bat retries that way automatically if it fails to compile, so a wrong
 // guess about this part of the API costs a rebuild rather than the recorder.
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -26,6 +27,17 @@ namespace Claude1.Recorders
     public partial class L2Recorder
     {
         private string _cPath;
+
+        partial void AddCumFile(List<string> paths)
+        {
+            if (_cPath != null)
+                paths.Add(_cPath);
+        }
+
+        partial void ClearCumPath()
+        {
+            _cPath = null;
+        }
 
         /// <summary>
         /// ATAS builds a cumulative trade incrementally: OnCumulativeTrade
