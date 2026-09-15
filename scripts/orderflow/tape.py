@@ -195,6 +195,31 @@ def rth(df: pd.DataFrame) -> pd.DataFrame:
     return df.loc[m].reset_index(drop=True)
 
 
+def price_step(df: pd.DataFrame) -> float:
+    """The price increment this recording actually uses.
+
+    NQ trades in 0.25 and the constant TICK says so, but the recordings do not:
+    every print, every cumulative trade and every depth level sits on a whole
+    multiple of 5.00, with level 0 and level 1 of the book five points apart.
+    The feed is delivering a grid twenty steps coarser than the instrument.
+
+    Most of the work does not care -- bars, CVD, VWAP and levels are unaffected,
+    and anything that divides one tick count by another has the error cancel.
+    Anything that walks a price ladder one step at a time does care, and using
+    0.25 there does not merely lose resolution, it invents structure: nineteen
+    of every twenty rungs are empty, so every traded price sits next to a zero
+    and compares favourably with it.
+
+    So the step is measured rather than assumed.
+    """
+    p = np.unique(df.price.to_numpy(np.float64))
+    if len(p) < 3:
+        return TICK
+    gaps = np.diff(p)
+    gaps = gaps[gaps > 0]
+    return float(np.min(gaps)) if len(gaps) else TICK
+
+
 def is_full_session(df: pd.DataFrame) -> bool:
     """Does this recording cover a whole cash day?
 

@@ -1953,3 +1953,112 @@ now:
    written down before the holdout is opened.
 
 Nothing in this entry looked at a holdout session.
+
+---
+
+## Second June block, and the replay window is spent
+
+24, 25, 26, 29, 30 June ingested. All full cash sessions, all with a working
+cumulative stream. **63 dates on disk; holdout 12.**
+
+June is exhausted. Replay does not reach 15 and 16 June after all, so the only
+recordable dates left in history are **23 July and 14 September** — a ceiling
+of **14**, not the 16 estimated last entry. Everything past that arrives one
+session per trading day, so the test runs as an open loop: each batch is
+ingested, the roster updated, and nothing is evaluated until the holdout is
+complete.
+
+## The feed is on a 5-point grid, and NQ trades in 0.25
+
+Building the footprint turned this up, and it is the more important of the two
+results.
+
+Every recorded price is a whole multiple of **5.00**. Not the tape only — all
+three streams:
+
+```
+TAPE  2026-09-08 00:01:00.082,29585,1,B
+CUM   2026-09-08 13:30:00.000,S,29645,29645,1,1
+L2    2026-09-08 13:30:00.003,B,0,29640.00,60
+      2026-09-08 13:30:00.003,B,1,29635.00,94
+```
+
+Level 0 and level 1 of the order book are **five points apart**. In a real NQ
+book they are 0.25 apart. A whole session touches 54–114 distinct prices where
+it should touch two thousand.
+
+This is upstream of the recorder — depth level prices come straight off the
+feed object — so it is the instrument, the chart type, or the data source. A
+diagnostic is now in the recorder (`2026-09-16.n`): it tracks the smallest gap
+between consecutive prints and prints it beside whatever the platform says its
+step is, with an explicit warning when the two disagree. **Run it once and the
+status file will name the cause.**
+
+What it costs, and what it does not:
+
+- **Unaffected:** bars, VWAP, CVD, levels, structure, the day-trade test.
+  Anything that divides one tick count by another has the error cancel.
+- **Degraded:** sweep depth in `bigorder.py` is overstated twentyfold. The
+  ranking is monotone so the gate's verdict — dead — stands.
+- **Blocked:** the footprint proper. One rung of that ladder holds twenty real
+  prices, and separating prices is the only thing a footprint does.
+
+## Footprint: the eighth finding to die
+
+Built the real thing from the tape at 5-minute bars — bid and ask volume at
+every price, then the five shapes a footprint trader actually reads: diagonal
+imbalance at 3:1, stacked imbalance at 3+, unfinished auction at the extremes,
+bar POC position, and absorption at the extremes. Discovery set only. **The
+holdout is sealed against every study, not just the VWAP one** — spending it on
+a second family of features would spend it just as surely, and it cannot be
+refilled.
+
+**The first pass was wrong and it is worth recording how.** I indexed the
+ladder in 0.25 steps on a 5-point grid, so nineteen of every twenty rungs were
+empty and every traded price was compared against a guaranteed zero. Result:
+every bar "imbalanced", stacks impossible (0.00% of bars), and buy and sell
+imbalance counts correlating **+0.99 with each other and +0.996 with the bar's
+range**. They were not imbalances. They were the bar's width, counted twice —
+and they scored t = +2.46 while being nothing at all.
+
+Rebuilt on the grid the data actually uses, the whole imbalance family
+collapses: b_imb at 5 minutes goes from **+2.46 to −1.04**.
+
+One shape survived to a real test. `absorb_lo` — buy volume at the bar's lowest
+price as a share of the bar:
+
+| horizon | IC | t | after residualising on the bar's own body |
+|---|---|---|---|
+| 5m | −0.0545 | **−3.56** | −0.0548, t −3.55 |
+| 15m | −0.0539 | −2.90 | −0.0534, t −2.82 |
+| 30m | −0.0436 | −2.15 | −0.0444, t −2.14 |
+
+It is not "the bar closed on its low" in disguise — controlling for the body
+leaves it untouched. Two things killed it anyway.
+
+**The null produced one just as strong.** Circularly shifted returns threw up
+`b_imb` at 30 minutes with t = −3.39 against the best real t of −3.56. One
+survivor and one null survivor out of 36 tests is the calibration saying, in
+numbers, that this is what chance looks like here.
+
+**And it does not price.** Short the top quintile, exits by clock, 2 points of
+cost:
+
+| hold | quintile means (points) | short top quintile |
+|---|---|---|
+| 5m | +1.34 +1.14 −2.35 −0.47 −1.25 | **−0.75 pts**, t +0.63 |
+| 15m | +1.99 +0.04 −4.54 +0.04 −0.13 | **−1.87 pts**, t −0.39 |
+| 30m | +0.59 −0.44 −5.78 +2.02 −1.24 | **−0.76 pts**, t +0.32 |
+
+The quintiles do not order, and the worst cell is the **middle** one at every
+horizon. That is not a weak edge, it is a wiggle a rank correlation is happy to
+score and a trader cannot hold. The mirror shape at the high never showed the
+opposite sign either, and a real effect at the extremes should be roughly
+symmetric.
+
+**Footprint is dead on this data.** Eighth finding to die, and the first to
+fail the null calibration and the points test in the same run.
+
+Whether it would be alive on a true 0.25 tape is genuinely unknown — that is
+what the recorder diagnostic is for, and it is worth re-running this study if
+the grid turns out to be a settings problem rather than the feed.

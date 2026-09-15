@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-15.m";
+        private const string BuildTag = "2026-09-16.n";
 
         private readonly object _sync = new object();
 
@@ -101,6 +101,74 @@ namespace Claude1.Recorders
                 _inWindow++;
             else
                 _outWindow++;
+        }
+
+        // The price grid the data actually uses.
+        //
+        // Every recording so far prints on whole multiples of 5.00 -- tape,
+        // cumulative trades and the depth ladder alike, with level 0 and level
+        // 1 of the book five points apart. NQ trades in 0.25, so the feed is
+        // delivering prices twenty steps coarser than the instrument, and a
+        // footprint drawn on it is not a footprint: one row of the ladder
+        // holds twenty real prices, which is the whole quantity a cluster
+        // chart exists to separate.
+        //
+        // That was found in the data months after it started being recorded,
+        // because nothing ever checked. This checks: the smallest non-zero gap
+        // between consecutive distinct prices is tracked as the data arrives
+        // and reported beside whatever the platform SAYS the step is. If the
+        // two disagree, the status file says so in as many words.
+        private decimal _lastSeenPrice;
+        private decimal _minGap;
+        private long _priceSamples;
+
+        private void NotePrice(decimal p)
+        {
+            if (p <= 0m)
+                return;
+            _priceSamples++;
+            if (_lastSeenPrice > 0m)
+            {
+                var gap = Math.Abs(p - _lastSeenPrice);
+                if (gap > 0m && (_minGap == 0m || gap < _minGap))
+                    _minGap = gap;
+            }
+            _lastSeenPrice = p;
+        }
+
+        /// <summary>What the platform says the price step is, by any name it
+        /// might use. Reflected rather than named directly because the
+        /// property differs between ATAS versions and a wrong guess would not
+        /// compile.</summary>
+        private string DescribeTickSize()
+        {
+            var sb = new StringBuilder();
+            try
+            {
+                var info = (object)InstrumentInfo;
+                if (info == null)
+                    return "  InstrumentInfo is null; no step reported\n";
+                foreach (var p in info.GetType().GetProperties(
+                             BindingFlags.Instance | BindingFlags.Public))
+                {
+                    var n = p.Name;
+                    if (n.IndexOf("Tick", StringComparison.OrdinalIgnoreCase) < 0 &&
+                        n.IndexOf("Step", StringComparison.OrdinalIgnoreCase) < 0 &&
+                        n.IndexOf("Precision", StringComparison.OrdinalIgnoreCase) < 0 &&
+                        n.IndexOf("Decimal", StringComparison.OrdinalIgnoreCase) < 0)
+                        continue;
+                    object v;
+                    try { v = p.GetValue(info); }
+                    catch { continue; }
+                    sb.AppendLine("  " + n + " = " +
+                        Convert.ToString(v, CultureInfo.InvariantCulture));
+                }
+            }
+            catch (Exception e)
+            {
+                sb.AppendLine("  could not read InstrumentInfo: " + e.Message);
+            }
+            return sb.Length == 0 ? "  no step-like property found\n" : sb.ToString();
         }
 
         private int _depthLevels = 50;
@@ -464,6 +532,35 @@ namespace Claude1.Recorders
                     sb.AppendLine("most of what the analysis needs.");
                 }
                 sb.AppendLine("----------------------------------------");
+                sb.AppendLine();
+                sb.AppendLine("---- the price grid ----");
+                sb.AppendLine("platform says the step is:");
+                sb.Append(DescribeTickSize());
+                sb.AppendLine("smallest gap actually seen: " +
+                    (_priceSamples == 0
+                     ? "no prices yet"
+                     : _minGap.ToString(CultureInfo.InvariantCulture) +
+                       "   over " + _priceSamples + " prints"));
+                if (_minGap >= 1m && _priceSamples > 5000)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("*** THE FEED IS COARSER THAN THE INSTRUMENT ***");
+                    sb.AppendLine("NQ trades in 0.25. Every price here is a whole");
+                    sb.AppendLine("multiple of " + _minGap.ToString(CultureInfo.InvariantCulture)
+                        + ", so roughly " + Math.Round(_minGap / 0.25m)
+                        + " real prices are being");
+                    sb.AppendLine("collapsed into one. Bars, CVD and levels survive");
+                    sb.AppendLine("that; a footprint does not, because separating");
+                    sb.AppendLine("prices is the only thing it does.");
+                    sb.AppendLine("Check, in this order:");
+                    sb.AppendLine("  - the chart's instrument settings, for a Step,");
+                    sb.AppendLine("    Tick size or Price scale override");
+                    sb.AppendLine("  - whether the chart is a cluster/range type");
+                    sb.AppendLine("    built on an aggregated step rather than ticks");
+                    sb.AppendLine("  - the data source: a delayed or aggregated feed");
+                    sb.AppendLine("    publishes a coarse grid and no setting fixes it");
+                }
+                sb.AppendLine("------------------------");
                 sb.AppendLine();
                 sb.AppendLine("record tape:        " + RecordTape);
                 sb.AppendLine("record depth:       " + RecordDepth);
@@ -844,6 +941,7 @@ namespace Claude1.Recorders
             if (arg == null)
                 return;
             _trades++;
+            NotePrice(arg.Price);
             if (!RecordTape)
                 return;
             NoteDataTime(arg.Time);
