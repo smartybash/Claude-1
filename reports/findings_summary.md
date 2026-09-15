@@ -1601,3 +1601,66 @@ erratic, which is the signature of noise rather than an effect strengthening.
 
 No order-flow gate tested here separates the structure trade. Six findings have
 now died in this project; five of them looked strong first.
+
+---
+
+## Reset: the edge grows with holding time
+
+46 sessions (Aug 12–18 re-recorded; 34 now carry a working cumulative stream).
+
+### Two hypotheses tested and rejected
+
+**Magnitude is not more predictable than direction here.** Strongest |t| on the
+signed move is **12.05**; on the absolute move it is **6.24**. The prior that
+volatility is easier to forecast than direction does not hold in this data, so
+that reframe is dead.
+
+**A range filter does not rescue the structure trade.** High-range half
+vs low: difference +3.95 pts, 95% CI **[−10.67, +18.94]**. Both halves have
+*negative* per-session means (−4.44, −5.40) while the pooled numbers look
+positive — the pooled figure is a few busy sessions carrying it. By month:
+July −4.32, August +19.91. Unstable.
+
+### What the evidence actually says
+
+Every test in this project has used an intraday stop-and-target held for
+minutes. Nobody checked what happens over longer holds:
+
+| horizon | IC (vwap_disp) | t | quintile trade, net of cost |
+|---|---|---|---|
+| 15 min | −0.1206 | −4.08 | −2.78 pts (t −0.80) |
+| 30 min | −0.2021 | −5.71 | +0.83 pts |
+| 60 min | −0.2835 | −6.49 | +2.19 pts |
+| 120 min | −0.4518 | −10.05 | +7.52 pts (t +1.24) |
+| **to close** | **−0.5668** | **−10.98** | **+21.70 pts (t +2.14)** |
+
+**The edge grows monotonically with holding time**, and only becomes larger
+than costs somewhere past 30 minutes. At 15 minutes — where every previous
+test lived — it is negative.
+
+That is consistent with a real effect rather than noise: a spurious pattern has
+no reason to strengthen smoothly across five horizons. It is also the obvious
+explanation for six dead filters. **The trade was never given time to work.**
+Two points of cost against a 30-point stop needs roughly a 7% edge; the same
+two points against a multi-hour move needs about 1%.
+
+### The structural point about sample size
+
+Every intraday test here had an inflated sample: 300 "independent" breaks that
+were really 40 sessions. **A one-trade-per-day design has 46 genuinely
+independent observations** — statistically cleaner than anything attempted so
+far, despite the smaller number.
+
+### Status and the pre-registered next test
+
+t = +2.14 over 45 sessions is **marginal** (p ≈ 0.04), and six findings have
+already died here. This is not a green light.
+
+Frozen before looking at anything further:
+
+- **Trade**: at a fixed time each session, if vwap displacement is in the top
+  quintile of the session so far, go short; bottom quintile, go long. Exit at
+  the close. One decision a day.
+- **Test**: July sessions fit, August/September held back entirely.
+- **Bar to clear**: positive per-session mean after 2 points, t ≥ 2 on the
+  held-back month, and the sign must not flip between months.
