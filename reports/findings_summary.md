@@ -1401,3 +1401,62 @@ real information and does not pay for the spread, so an indicator that prints a
 direction would be selling a t of +0.54 as a signal. What it can honestly show
 is **where the session currently sits**, with the up-rate attached, and say
 plainly that the extremes are a lean rather than a call.
+
+---
+
+## The CVD-change gate does not reproduce — finding number five dies
+
+34 sessions now (July batches added). The July sessions are genuinely new data
+for a claim that was made on August and September, so the first thing they were
+used for was testing it.
+
+| gate | Aug/Sep (original) | July (new) |
+|---|---|---|
+| breaking bar 5%+ of volume | +0.229R | **−0.169R** |
+| breaking bar 10%+ | +0.160R | **−0.153R** |
+| **last 2 bars 10%+** | **+0.339R** | **−0.100R** |
+| last 3 bars 5%+ | +0.170R | −0.053R |
+| 5-min, breaking bar 5%+ | +0.144R | −0.180R |
+| 5-min, last 2 bars 10%+ | +0.348R | −0.093R |
+
+**Six of eight negative on the new data**, and the two positives are +0.007R
+and +0.042R — indistinguishable from zero. This was reported as "the most
+promising lead in the project". It was a 15-session artefact.
+
+### What that costs the reasoning, not just the result
+
+The evidence for it was **sign consistency**: 10/10 gates positive across two
+timeframes, which I argued was hard to get by chance even though single cells
+were not significant. That argument was wrong, and the reason is now obvious:
+the gates overlap heavily, so they are close to *one* observation wearing ten
+hats, not ten. Ten correlated views of the same 15 sessions agreeing tells you
+those 15 sessions leaned one way — nothing more.
+
+**Sign consistency across correlated gates is not evidence of reproducibility.**
+Only new sessions are.
+
+## Order size and sweep — promising, and explicitly unconfirmed
+
+`scripts/orderflow/bigorder.py`. The first test possible on a working
+cumulative stream, 13 July pairs.
+
+| gate | 3-min | 5-min |
+|---|---|---|
+| 25+ lot net delta with trade | +0.240R | +0.132R |
+| 25+ lot net ≥2% of volume | −0.003R | **+0.302R** [+0.03, +0.61] |
+| 50+ lot net delta with trade | +0.228R | +0.281R |
+| 50+ lot net ≥2% of volume | +0.311R | +0.197R |
+| sweep delta with trade | +0.004R | +0.095R |
+| sweep net ≥2% of volume | +0.112R | +0.217R |
+
+**11 of 12 positive, median +0.17R and +0.21R.**
+
+That is *exactly* the evidence shape that just failed above — sign consistency
+on a single block of sessions, one cell clearing zero out of twelve. So it is
+recorded as a candidate and nothing more. It cannot be confirmed on existing
+data: every August and September session has a degenerate cumulative stream,
+so the only possible out-of-sample test is **sessions not yet recorded**.
+
+The incremental test — does size add anything on top of CVD change — came back
+underpowered (n=13, n=9). Correlation between the two gates is +0.53, so they
+are neither the same thing nor independent.
