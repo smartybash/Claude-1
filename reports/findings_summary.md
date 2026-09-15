@@ -1834,3 +1834,122 @@ watching it, a smaller size that makes the overnight-adjacent risk tolerable,
 or accepting that the edge exists and is not reachable under the current
 constraints. Which of those is right is the trader's call, not a research
 question — but it only becomes a live question if the test passes.
+
+---
+
+## June backfill, and two things the bookkeeping was hiding
+
+Five June sessions ingested: **17, 18, 19, 22, 23 June**. All new dates, all
+with a working cumulative stream (fills per order max 80–224, so none of them
+predate the `OnUpdateCumulativeTrade` fix). Totals: 58 dates on disk.
+
+Ingesting them prompted the first proper audit of session *coverage*, and it
+turned up two problems that had nothing to do with June.
+
+### Four recordings are not full cash days
+
+| date | RTH ticks | last print | coverage |
+|---|---|---|---|
+| 19 June | 27,188 | 16:59 | 54% |
+| 3 July | 21,679 | 16:59 | 54% |
+| 7 September | 23,259 | 16:59 | 54% |
+| 12 July | 0 | — | 0% |
+
+Median on a normal session is **346,000** RTH ticks. The three at 16:59 are CME
+early closes at 13:00 New York — Juneteenth, the day before Independence Day,
+and Labor Day. 12 July is a Sunday.
+
+Every study in this project guards with `len(s) > 5000`. A half day clears that
+by a factor of five, so **3 July has been counted as an ordinary session in the
+discovery numbers all along**, and 19 June would have walked straight into the
+holdout. Only 7 September was ever caught, and only because its file was
+conspicuously small.
+
+They are now excluded by `tape.is_full_session`, on coverage and tick count
+alone. The reason is not that they perform differently — that has not been
+looked at — it is that **the tested rule is undefined on them**: the 19:00 UTC
+exit has no data, and "the close" means 13:00 New York on those days and 16:00
+on every other, which is a different trade.
+
+### The discovery/holdout split was a count, not a roster
+
+"46 sessions" was a tally kept by hand across batches. Nothing in the code
+could answer whether a given date was discovery or holdout, which is precisely
+how a holdout stops being one. It is now pinned by date in
+`scripts/orderflow/roster.py`:
+
+```
+DISCOVERY   2026-07-01 .. 2026-09-08          47 sessions
+HOLDOUT     everything outside, plus 23 July   7 sessions
+```
+
+Two corrections fall out, and **both cost sessions rather than adding them**:
+
+- The hand tally said 46; the window holds 47 usable. The window governs from
+  here because it can be checked.
+- **2, 3, 4 and 8 September were previously called holdout.** They were on disk
+  when the discovery table was last restated, so they cannot be called unseen.
+  They move to discovery. The holdout drops from 7 to 3, and the June backfill
+  puts it back to 7.
+- 23 July is inside the window by date but was never recorded, so no fit has
+  seen it. It is holdout. Recording that **now**, before any holdout number
+  exists, is the whole point of writing it down.
+
+**Holdout: 7 of ~30.** Unchanged in size, different in membership, and for the
+first time it is a list rather than a number.
+
+## The replay window is nearly empty
+
+ATAS replay reaches back three months — to about **15 June**. Within 15 June
+to 14 September there are 66 business days and **57 are already recorded**.
+
+**Nine remain: 15, 16, 24, 25, 26, 29, 30 June; 23 July; 14 September.**
+
+All nine are holdout-eligible. Recording every one of them takes the holdout to
+**16**, and that is the ceiling from history. The rest can only come forward in
+calendar time, one session a trading day.
+
+## The test as pre-registered cannot be won at 30 sessions
+
+This should have been computed before the target was set rather than after. It
+uses only the discovery-set figures already published; no holdout session is
+read.
+
+The per-session effect size implied by each discovery t is `t / √47`. Carrying
+that forward against the pre-registered bar of **t ≥ 2.4**:
+
+| exit | discovery t | effect/sd | n=16 | n=30 | n=47 | n=108 |
+|---|---|---|---|---|---|---|
+| 17:00 UTC | +1.55 | 0.226 | 7% | **12%** | 20% | 48% |
+| 19:00 UTC | +1.49 | 0.217 | 6% | 11% | 18% | 44% |
+| close | +2.14 | 0.312 | 12% | **25%** | 40% | 80% |
+
+Those are powers: the chance the test passes **if the discovery effect is
+exactly real**.
+
+At the 30 sessions the plan called for, the 17:00 exit — the only one that can
+actually be traded — fails **88% of the time when it is right**. Sessions
+needed for an even chance: **113** for the 17:00 exit, **60** for the close.
+For 80%: **206** and **108**.
+
+So a null result at 30 sessions would mean almost nothing, and the plan as
+written was set up to produce one and call it an answer.
+
+**The bar does not move.** Lowering t ≥ 2.4 after seeing this would be the same
+error as peeking, wearing a lab coat. Three things follow instead, all fixed
+now:
+
+1. **The outcome set gains a third value.** Confirmed / refuted / **inconclusive
+   for want of power** — and at n < 60 the honest verdict for a near-miss is
+   the third, stated as such rather than dressed as a refutation.
+2. **Record all nine remaining replay dates**, then forward from 16 September.
+   Sixteen by the weekend, thirty by roughly 5 October, sixty by late November.
+3. **The statistic is worth improving before the test, not the threshold.** The
+   session-level mean in raw points is noisy largely because a session's P&L
+   scales with its range; normalising by session range, or taking one trade per
+   session instead of every qualifying bar, may raise t materially without
+   touching the rule being tested. That work belongs on the **discovery set**,
+   which is what a discovery set is for, and whatever it produces must be
+   written down before the holdout is opened.
+
+Nothing in this entry looked at a holdout session.

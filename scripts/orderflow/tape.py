@@ -195,6 +195,32 @@ def rth(df: pd.DataFrame) -> pd.DataFrame:
     return df.loc[m].reset_index(drop=True)
 
 
+def is_full_session(df: pd.DataFrame) -> bool:
+    """Does this recording cover a whole cash day?
+
+    Four recordings in the pool do not, and until this was checked they were
+    being counted as ordinary sessions by every study, because the usual guard
+    is `len(s) > 5000` and a half day clears that easily.
+
+    Three are CME early closes at 17:00 UTC (13:00 New York) -- 19 June, 3 July
+    and 7 September -- which carry about 54% of a session and 27,000 ticks
+    against a median of 346,000. The fourth, 12 July, is a Sunday with no cash
+    session at all.
+
+    They are excluded rather than shortened because a clock exit is undefined
+    on them: the 19:00 UTC variant has no data, and the "close" variant means
+    13:00 New York on those days and 16:00 on every other, which is not the
+    same trade. The cut is on coverage and tick count, not on anything the
+    session did, so it cannot be tuned by a result.
+    """
+    s = rth(df)
+    if len(s) < 40_000:
+        return False
+    open_t = _at(s.time.iloc[0], RTH_OPEN)
+    minutes = (s.time.iloc[-1] - open_t).total_seconds() / 60.0
+    return minutes >= 0.97 * 390.0
+
+
 def volume_profile(df: pd.DataFrame, value_area: float = 0.70):
     """POC and value area from actual traded volume at price.
 
