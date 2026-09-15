@@ -43,6 +43,7 @@
   <ItemGroup Condition="'$(NoRender)' == 'true'">
     <Compile Remove="LevelPlanner.Render.cs" />
     <Compile Remove="StructureMap.cs" />
+    <Compile Remove="VwapStretch.cs" />
   </ItemGroup>
 
   <PropertyGroup>
