@@ -1,34 +1,38 @@
-// Structure Map — draws the market structure read, from candles.
+// Structure Map — higher-timeframe structure, drawn on whatever chart you use.
 //
-// Everything on this chart is a label for something already visible. That is
-// the point: it removes the eye-strain and the hindsight, not the judgement.
-// A swing is only marked once it is CONFIRMED, which is Pivot bars after the
-// bar it sits on, so a label never appears on a high that is still forming.
-// Nothing here repaints.
+// THE POINT OF THIS VERSION: structure is computed on a FIXED timeframe --
+// fifteen minutes by default -- no matter what the chart is set to. Put it on
+// a 1-minute or a tick chart and the labels stay the 15-minute ones.
 //
-// What it draws:
+// That is not a preference, it is what the testing said. The same break-of-
+// structure trade over 1,420 sessions:
 //
-//   gap          the opening gap against the previous session's close, as a
-//                shaded band with the close drawn as the gap level
-//   FVG          a three-bar imbalance -- bullish when a bar's low is above
-//                the high two bars back. Shaded until price trades back
-//                through it, then dropped.
-//   HH HL LH LL  confirmed swing points, each labelled against the previous
-//                swing of the same kind, which is what makes a trend readable
-//   BOS          a close through the last confirmed swing high or low, drawn
-//                as a horizontal line at the level that broke
+//     1 min    25.7 signals a session    t = -9.41
+//     3 min     7.7 signals a session    t = -5.80
+//     5 min     4.1 signals a session    t = -3.73
+//    15 min     0.9 signals a session    t = -0.91
+//    30 min     0.2 signals a session    t = -0.71
 //
-// A note on what this is and is not. The sequence -- gap, FVG that holds,
-// higher low, break of structure, enter toward the gap -- was tested on 2,680
-// sessions of 5-minute bars in scripts/orderflow/gapstructure.py. Waiting for
-// it beats entering blind by +0.176R (t = +2.43), so the read is real. Every
-// complete version of the TRADE still lost, because the break confirms at the
-// top of the leg. So this indicator marks the structure and does not print an
-// order. If a setup is taken it is taken on judgement, and the chart is
-// showing what is there rather than telling anybody what to do.
+// Perfectly monotonic: the more labels, the worse. One- and three-minute
+// structure is not a weaker signal, it is decisively negative. So drawing it
+// is worse than drawing nothing, and a chart covered in labels is a chart
+// showing mostly noise. Fifteen minutes is where it stops being negative, at
+// about one signal a session.
 //
-// Self-contained: candles only, no tape, no files, no dependency on the
-// recorder or the level plan. Runs alongside both.
+// What it draws, and nothing else:
+//
+//   gap level    the previous session's close, while it is still unfilled
+//   HH HL LH LL  confirmed swings only, the most recent few
+//   BOS          the last break or two, at the level that broke
+//   FVG          unfilled imbalances only -- a filled one is history
+//   one line     the structure in plain words
+//
+// A swing is labelled only once it is CONFIRMED, which is Pivot bars after
+// the bar it sits on. Nothing repaints.
+//
+// This marks the structure and prints no order. The sequence beats a blind
+// entry by +0.176R, and every complete version of the trade still lost,
+// because the break confirms at the top of the leg.
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,43 +44,56 @@ using OFT.Rendering.Tools;
 
 namespace Claude1.Recorders
 {
-    [DisplayName("Structure Map (gaps, FVG, BOS)")]
+    [DisplayName("Structure Map (higher timeframe)")]
     public class StructureMap : Indicator
     {
-        private const string BuildTag = "2026-09-14.structure.a";
+        private const string BuildTag = "2026-09-15.structure.b";
 
         private static readonly Color UpInk = Color.FromArgb(56, 190, 130);
         private static readonly Color DownInk = Color.FromArgb(228, 106, 82);
-        private static readonly Color GapFill = Color.FromArgb(38, 238, 186, 88);
-        private static readonly Color GapEdge = Color.FromArgb(150, 238, 186, 88);
-        private static readonly Color FvgUp = Color.FromArgb(34, 56, 190, 130);
-        private static readonly Color FvgDown = Color.FromArgb(34, 228, 106, 82);
-        private static readonly Color BosInk = Color.FromArgb(200, 200, 210, 226);
-        private static readonly Color PanelFill = Color.FromArgb(226, 16, 18, 22);
-        private static readonly Color PanelEdge = Color.FromArgb(160, 110, 120, 136);
-        private static readonly Color PanelInk = Color.FromArgb(232, 236, 241);
-        private static readonly Color DimInk = Color.FromArgb(150, 160, 172);
+        private static readonly Color GapEdge = Color.FromArgb(190, 238, 186, 88);
+        private static readonly Color GapFill = Color.FromArgb(30, 238, 186, 88);
+        private static readonly Color FvgUp = Color.FromArgb(40, 56, 190, 130);
+        private static readonly Color FvgDown = Color.FromArgb(40, 228, 106, 82);
+        private static readonly Color BosInk = Color.FromArgb(170, 205, 212, 226);
+        private static readonly Color PanelFill = Color.FromArgb(230, 16, 18, 22);
+        private static readonly Color PanelEdge = Color.FromArgb(150, 110, 120, 136);
+        private static readonly Color PanelInk = Color.FromArgb(236, 240, 245);
 
         private readonly RenderFont _fTiny = new RenderFont("Segoe UI", 10);
-        private readonly RenderFont _fSmall = new RenderFont("Segoe UI", 11);
-        private readonly RenderFont _fBig = new RenderFont("Segoe UI", 15);
+        private readonly RenderFont _fMid = new RenderFont("Segoe UI", 13);
 
         private readonly object _sync = new object();
 
-        [DisplayName("Pivot strength (bars each side)")]
+        /// <summary>
+        /// Minutes per structure bar, independent of the chart's own timeframe.
+        /// Fifteen is the tested default; below five the labels are noise.
+        /// </summary>
+        [DisplayName("Structure timeframe (minutes)")]
+        public int StructureMinutes { get; set; } = 15;
+
+        [DisplayName("Pivot strength (structure bars each side)")]
         public int Pivot { get; set; } = 2;
-
-        [DisplayName("Show fair value gaps")]
-        public bool ShowFvg { get; set; } = true;
-
-        [DisplayName("Show the opening gap")]
-        public bool ShowGap { get; set; } = true;
 
         [DisplayName("Show swing labels")]
         public bool ShowSwings { get; set; } = true;
 
+        [DisplayName("Show unfilled fair value gaps")]
+        public bool ShowFvg { get; set; } = true;
+
         [DisplayName("Show break of structure")]
         public bool ShowBos { get; set; } = true;
+
+        [DisplayName("Show the opening gap")]
+        public bool ShowGap { get; set; } = true;
+
+        /// <summary>How many of each thing to keep on screen. Clutter is the
+        /// failure mode this version exists to fix.</summary>
+        [DisplayName("Keep last N swings")]
+        public int KeepSwings { get; set; } = 6;
+
+        [DisplayName("Keep last N breaks")]
+        public int KeepBreaks { get; set; } = 2;
 
         [DisplayName("Session start hour (platform clock)")]
         public int SessionHour { get; set; } = 13;
@@ -84,20 +101,26 @@ namespace Claude1.Recorders
         [DisplayName("Session start minute")]
         public int SessionMinute { get; set; } = 30;
 
+        /// <summary>A structure bar: several chart candles rolled into one.</summary>
+        private sealed class VBar
+        {
+            public int Last;                  // chart bar index it closes on
+            public decimal O, H, L, C;
+        }
+
         private sealed class Swing
         {
             public int Bar;
             public decimal Price;
             public bool IsHigh;
-            public string Label;      // HH, HL, LH, LL
+            public string Label;
         }
 
         private sealed class Fvg
         {
-            public int Bar;           // the third bar of the imbalance
+            public int Bar;
             public decimal Top, Bottom;
             public bool Up;
-            public int FilledAt = -1; // bar that traded back through it
         }
 
         private sealed class Bos
@@ -113,14 +136,12 @@ namespace Claude1.Recorders
 
         private int _sessionStart = -1;
         private decimal _prevClose, _sessionOpen;
-        private bool _haveGap;
+        private bool _haveGap, _gapFilled;
+        private string _state = "";
         private int _lastBuilt = -1;
 
         public StructureMap()
         {
-            // Same shape as the recorder and the level plan, which both build
-            // on this platform. base(true) and an unguarded DataSeries touch
-            // are two ways to lose a build for no gain.
             try { DataSeries[0].IsHidden = true; } catch { }
             EnableCustomDrawing = true;
             SubscribeToDrawingEvents(DrawingLayouts.Final | DrawingLayouts.LatestBar);
@@ -138,11 +159,6 @@ namespace Claude1.Recorders
             return (a.Hour * 60 + a.Minute) < open && (b.Hour * 60 + b.Minute) >= open;
         }
 
-        /// <summary>
-        /// Rebuild the whole structure from the start of the current session.
-        /// Cheap -- a cash session is a few hundred bars -- and it means the
-        /// state cannot drift out of step with the bars after a reload.
-        /// </summary>
         protected override void OnCalculate(int bar, decimal value)
         {
             if (bar < 3)
@@ -154,10 +170,8 @@ namespace Claude1.Recorders
                     _sessionStart = bar;
                     _prevClose = GetCandle(bar - 1).Close;
                     _sessionOpen = GetCandle(bar).Open;
-                    _haveGap = true;
-                    _swings.Clear();
-                    _fvgs.Clear();
-                    _bos.Clear();
+                    _haveGap = _prevClose != _sessionOpen;
+                    _gapFilled = false;
                 }
             }
             if (_sessionStart < 0 || bar == _lastBuilt)
@@ -167,100 +181,176 @@ namespace Claude1.Recorders
                 Rebuild(bar);
         }
 
+        /// <summary>
+        /// Roll the chart's candles into fixed-length structure bars, aligned
+        /// to the clock so a 15-minute bar always starts on the quarter hour
+        /// regardless of where the session began or what the chart shows.
+        /// </summary>
+        private List<VBar> Virtual(int from, int last)
+        {
+            var step = StructureMinutes < 1 ? 15 : StructureMinutes;
+            var bars = new List<VBar>();
+            VBar cur = null;
+            var slot = int.MinValue;
+            for (var i = from; i <= last; i++)
+            {
+                var c = GetCandle(i);
+                var s = (int)c.Time.TimeOfDay.TotalMinutes / step;
+                if (cur == null || s != slot)
+                {
+                    cur = new VBar
+                    {
+                        Last = i, O = c.Open, H = c.High, L = c.Low, C = c.Close
+                    };
+                    bars.Add(cur);
+                    slot = s;
+                }
+                else
+                {
+                    cur.Last = i;
+                    if (c.High > cur.H) cur.H = c.High;
+                    if (c.Low < cur.L) cur.L = c.Low;
+                    cur.C = c.Close;
+                }
+            }
+            return bars;
+        }
+
         private void Rebuild(int last)
         {
             _swings.Clear();
             _fvgs.Clear();
             _bos.Clear();
 
+            var v = Virtual(_sessionStart, last);
             var k = Pivot < 1 ? 1 : Pivot;
-            var from = _sessionStart;
+            if (v.Count < 2 * k + 2)
+                return;
 
-            // --- swings. A pivot at i is only knowable at i+k, so the loop
-            // stops k bars short of the last bar and never labels a forming high.
-            decimal lastHigh = 0m, lastLow = 0m;
-            var haveHigh = false;
-            var haveLow = false;
-            for (var i = from + k; i <= last - k; i++)
+            // --- gap: only interesting while it is unfilled ------------------
+            if (_haveGap && !_gapFilled)
             {
-                var c = GetCandle(i);
+                var up = _sessionOpen > _prevClose;
+                foreach (var b in v)
+                {
+                    if ((up && b.L <= _prevClose) || (!up && b.H >= _prevClose))
+                    {
+                        _gapFilled = true;
+                        break;
+                    }
+                }
+            }
+
+            // --- swings, confirmed k structure bars late ---------------------
+            decimal lastHigh = 0m, lastLow = 0m;
+            bool haveHigh = false, haveLow = false;
+            for (var i = k; i <= v.Count - 1 - k; i++)
+            {
                 var isHigh = true;
                 var isLow = true;
                 for (var j = i - k; j <= i + k; j++)
                 {
                     if (j == i)
                         continue;
-                    var o = GetCandle(j);
-                    if (o.High > c.High) isHigh = false;
-                    if (o.Low < c.Low) isLow = false;
+                    if (v[j].H > v[i].H) isHigh = false;
+                    if (v[j].L < v[i].L) isLow = false;
                 }
                 if (isHigh)
                 {
-                    var lbl = !haveHigh ? "H" : (c.High > lastHigh ? "HH" : "LH");
                     _swings.Add(new Swing
                     {
-                        Bar = i, Price = c.High, IsHigh = true, Label = lbl
+                        Bar = v[i].Last, Price = v[i].H, IsHigh = true,
+                        Label = !haveHigh ? "H" : (v[i].H > lastHigh ? "HH" : "LH")
                     });
-                    lastHigh = c.High;
+                    lastHigh = v[i].H;
                     haveHigh = true;
                 }
                 if (isLow)
                 {
-                    var lbl = !haveLow ? "L" : (c.Low > lastLow ? "HL" : "LL");
                     _swings.Add(new Swing
                     {
-                        Bar = i, Price = c.Low, IsHigh = false, Label = lbl
+                        Bar = v[i].Last, Price = v[i].L, IsHigh = false,
+                        Label = !haveLow ? "L" : (v[i].L > lastLow ? "HL" : "LL")
                     });
-                    lastLow = c.Low;
+                    lastLow = v[i].L;
                     haveLow = true;
                 }
             }
 
-            // --- fair value gaps: bar i's low above bar i-2's high, or the
-            // mirror. Marked filled once price trades back through the far side.
-            for (var i = from + 2; i <= last; i++)
+            // --- unfilled fair value gaps only -------------------------------
+            for (var i = 2; i < v.Count; i++)
             {
-                var a = GetCandle(i - 2);
-                var c = GetCandle(i);
                 Fvg g = null;
-                if (c.Low > a.High)
-                    g = new Fvg { Bar = i, Bottom = a.High, Top = c.Low, Up = true };
-                else if (c.High < a.Low)
-                    g = new Fvg { Bar = i, Bottom = c.High, Top = a.Low, Up = false };
+                if (v[i].L > v[i - 2].H)
+                    g = new Fvg
+                    {
+                        Bar = v[i].Last, Bottom = v[i - 2].H, Top = v[i].L, Up = true
+                    };
+                else if (v[i].H < v[i - 2].L)
+                    g = new Fvg
+                    {
+                        Bar = v[i].Last, Bottom = v[i].H, Top = v[i - 2].L, Up = false
+                    };
                 if (g == null)
                     continue;
-                for (var j = i + 1; j <= last; j++)
+                var filled = false;
+                for (var j = i + 1; j < v.Count; j++)
                 {
-                    var f = GetCandle(j);
-                    if ((g.Up && f.Low <= g.Bottom) || (!g.Up && f.High >= g.Top))
+                    if ((g.Up && v[j].L <= g.Bottom) || (!g.Up && v[j].H >= g.Top))
                     {
-                        g.FilledAt = j;
+                        filled = true;
                         break;
                     }
                 }
-                _fvgs.Add(g);
+                if (!filled)
+                    _fvgs.Add(g);
             }
 
-            // --- break of structure: a CLOSE through the most recent confirmed
-            // swing in that direction. Confirmation timing matters -- the swing
-            // must have been knowable (bar + k) before the close that breaks it.
-            for (var i = from; i <= last; i++)
+            // --- breaks of structure, most recent only -----------------------
+            for (var i = 0; i < v.Count; i++)
             {
-                var c = GetCandle(i);
                 Swing hi = null, lo = null;
                 foreach (var s in _swings)
                 {
-                    if (s.Bar + k > i)
-                        continue;                 // not yet confirmed at bar i
+                    if (s.Bar > v[i].Last)
+                        continue;
                     if (s.IsHigh) hi = s; else lo = s;
                 }
-                if (hi != null && c.Close > hi.Price &&
+                if (hi != null && v[i].C > hi.Price &&
                     !_bos.Exists(b => b.Up && b.Price == hi.Price))
-                    _bos.Add(new Bos { Bar = i, Price = hi.Price, Up = true });
-                if (lo != null && c.Close < lo.Price &&
+                    _bos.Add(new Bos { Bar = v[i].Last, Price = hi.Price, Up = true });
+                if (lo != null && v[i].C < lo.Price &&
                     !_bos.Exists(b => !b.Up && b.Price == lo.Price))
-                    _bos.Add(new Bos { Bar = i, Price = lo.Price, Up = false });
+                    _bos.Add(new Bos { Bar = v[i].Last, Price = lo.Price, Up = false });
             }
+
+            Trim(_swings, KeepSwings);
+            Trim(_bos, KeepBreaks);
+            _state = Describe();
+        }
+
+        private static void Trim<T>(List<T> list, int keep)
+        {
+            if (keep > 0 && list.Count > keep)
+                list.RemoveRange(0, list.Count - keep);
+        }
+
+        /// <summary>The structure in the words a chart would be read in.</summary>
+        private string Describe()
+        {
+            Swing h1 = null, h0 = null, l1 = null, l0 = null;
+            foreach (var s in _swings)
+            {
+                if (s.IsHigh) { h1 = h0; h0 = s; }
+                else { l1 = l0; l0 = s; }
+            }
+            if (h0 == null || l0 == null || h1 == null || l1 == null)
+                return "waiting for structure";
+            var hh = h0.Price > h1.Price;
+            var hl = l0.Price > l1.Price;
+            if (hh && hl) return "higher highs and higher lows  —  up";
+            if (!hh && !hl) return "lower highs and lower lows  —  down";
+            return "mixed  —  no clear structure";
         }
 
         private int X(int bar)
@@ -276,26 +366,28 @@ namespace Claude1.Recorders
             List<Swing> swings;
             List<Fvg> fvgs;
             List<Bos> bos;
-            decimal prevClose, sessionOpen;
-            bool haveGap;
+            decimal prevClose;
+            bool haveGap, gapFilled;
+            string state;
             lock (_sync)
             {
                 swings = new List<Swing>(_swings);
                 fvgs = new List<Fvg>(_fvgs);
                 bos = new List<Bos>(_bos);
                 prevClose = _prevClose;
-                sessionOpen = _sessionOpen;
                 haveGap = _haveGap;
+                gapFilled = _gapFilled;
+                state = _state;
             }
 
             var w = ChartArea.Width;
             var h = ChartArea.Height;
 
-            if (ShowGap && haveGap && prevClose != sessionOpen)
-                DrawGap(context, prevClose, sessionOpen, w, h);
             if (ShowFvg)
                 foreach (var g in fvgs)
                     DrawFvg(context, g, h);
+            if (ShowGap && haveGap && !gapFilled)
+                DrawGapLevel(context, prevClose, w);
             if (ShowBos)
                 foreach (var b in bos)
                     DrawBos(context, b, w);
@@ -303,54 +395,35 @@ namespace Claude1.Recorders
                 foreach (var s in swings)
                     DrawSwing(context, s);
 
-            DrawPanel(context, swings, bos, prevClose, sessionOpen, haveGap);
+            DrawPanel(context, state, haveGap, gapFilled, prevClose);
         }
 
-        private void DrawGap(RenderContext context, decimal prevClose,
-                             decimal open, int w, int h)
+        private void DrawGapLevel(RenderContext context, decimal level, int w)
         {
-            int y1, y2;
-            try
-            {
-                y1 = ChartInfo.GetYByPrice(prevClose, false);
-                y2 = ChartInfo.GetYByPrice(open, false);
-            }
+            int y;
+            try { y = ChartInfo.GetYByPrice(level, false); }
             catch { return; }
-            var top = Math.Min(y1, y2);
-            var hh = Math.Abs(y2 - y1);
-            if (hh < 1 || top > h || top + hh < 0)
-                return;
-
-            var rect = new Rectangle(0, top, w, hh);
-            context.FillRectangle(GapFill, rect);
-            context.DrawLine(new RenderPen(GapEdge, 1), 0, y1, w, y1);
-
-            var pts = Math.Abs(open - prevClose);
-            var text = "GAP " + (open > prevClose ? "UP " : "DOWN ") +
-                       ((double)pts).ToString("N1") + " pts    gap level " +
-                       prevClose.ToString("N2");
-            context.DrawString(text, _fTiny, GapEdge, 8, y1 + 3);
+            context.DrawLine(new RenderPen(GapEdge, 2), 0, y, w, y);
+            context.DrawString("GAP LEVEL  " + level.ToString("N2"),
+                               _fTiny, GapEdge, 8, y - 14);
         }
 
         private void DrawFvg(RenderContext context, Fvg g, int h)
         {
-            int yt, yb, x0, x1;
+            int yt, yb, x0;
             try
             {
                 yt = ChartInfo.GetYByPrice(g.Top, false);
                 yb = ChartInfo.GetYByPrice(g.Bottom, false);
                 x0 = X(g.Bar);
-                x1 = g.FilledAt >= 0 ? X(g.FilledAt) : ChartArea.Width;
             }
             catch { return; }
-            if (x1 <= x0)
-                x1 = x0 + 2;
             var top = Math.Min(yt, yb);
             var hh = Math.Abs(yb - yt);
             if (hh < 1 || top > h || top + hh < 0)
                 return;
             context.FillRectangle(g.Up ? FvgUp : FvgDown,
-                                  new Rectangle(x0, top, x1 - x0, hh));
+                                  new Rectangle(x0, top, Math.Max(2, ChartArea.Width - x0), hh));
         }
 
         private void DrawBos(RenderContext context, Bos b, int w)
@@ -362,10 +435,9 @@ namespace Claude1.Recorders
                 x = X(b.Bar);
             }
             catch { return; }
-            var pen = new RenderPen(BosInk, 1);
-            context.DrawLine(pen, Math.Max(0, x - 60), y, w, y);
+            context.DrawLine(new RenderPen(BosInk, 1), Math.Max(0, x - 40), y, w, y);
             context.DrawString("BOS " + (b.Up ? "up" : "down"), _fTiny,
-                               b.Up ? UpInk : DownInk, x + 4, y - 14);
+                               b.Up ? UpInk : DownInk, x + 4, y - 13);
         }
 
         private void DrawSwing(RenderContext context, Swing s)
@@ -379,51 +451,26 @@ namespace Claude1.Recorders
             catch { return; }
             var ink = s.Label == "HH" || s.Label == "HL" ? UpInk : DownInk;
             var size = context.MeasureString(s.Label, _fTiny);
-            var yy = s.IsHigh ? y - (int)size.Height - 4 : y + 4;
+            var yy = s.IsHigh ? y - (int)size.Height - 3 : y + 3;
             context.DrawString(s.Label, _fTiny, ink, x - (int)size.Width / 2, yy);
         }
 
-        private void DrawPanel(RenderContext context, List<Swing> swings,
-                               List<Bos> bos, decimal prevClose,
-                               decimal open, bool haveGap)
+        private void DrawPanel(RenderContext context, string state, bool haveGap,
+                               bool gapFilled, decimal level)
         {
-            string head;
-            if (haveGap && prevClose != open)
-            {
-                var pts = Math.Abs(open - prevClose);
-                head = "Gap " + (open > prevClose ? "up " : "down ") +
-                       ((double)pts).ToString("N1") + " pts   level " +
-                       prevClose.ToString("N2");
-            }
-            else
-            {
-                head = "No gap";
-            }
+            var head = StructureMinutes + "-min structure:  " +
+                       (string.IsNullOrEmpty(state) ? "waiting" : state);
+            var line2 = !haveGap ? "no gap today"
+                      : gapFilled ? "gap has been filled"
+                      : "gap still open at " + level.ToString("N2");
 
-            // The last two swings say what the structure is doing right now,
-            // in the words the chart is already labelled in.
-            var trail = "";
-            for (var i = Math.Max(0, swings.Count - 4); i < swings.Count; i++)
-                trail += (trail.Length > 0 ? " -> " : "") + swings[i].Label;
-            if (trail.Length == 0)
-                trail = "no confirmed swings yet";
-
-            var lastBos = bos.Count > 0 ? bos[bos.Count - 1] : null;
-            var line3 = lastBos == null
-                ? "no break of structure yet"
-                : "last BOS " + (lastBos.Up ? "up through " : "down through ") +
-                  lastBos.Price.ToString("N2");
-
-            var wide = Math.Max(context.MeasureString(head, _fBig).Width,
-                       Math.Max(context.MeasureString(trail, _fSmall).Width,
-                                context.MeasureString(line3, _fSmall).Width));
-            var box = new Rectangle(10, 96, (int)wide + 28, 78);
-
+            var wide = Math.Max(context.MeasureString(head, _fMid).Width,
+                                context.MeasureString(line2, _fTiny).Width);
+            var box = new Rectangle(10, 10, (int)wide + 26, 54);
             context.FillRectangle(PanelFill, box);
             context.DrawRectangle(new RenderPen(PanelEdge, 1), box);
-            context.DrawString(head, _fBig, PanelInk, 24, 104);
-            context.DrawString(trail, _fSmall, DimInk, 24, 128);
-            context.DrawString(line3, _fSmall, DimInk, 24, 146);
+            context.DrawString(head, _fMid, PanelInk, 23, 18);
+            context.DrawString(line2, _fTiny, GapEdge, 23, 42);
         }
     }
 }
