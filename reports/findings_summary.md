@@ -1068,3 +1068,75 @@ It survives at 5%, and it is six sessions with a perfect record, which is the
 exact shape of the four findings that already died here. Recorded as a
 direction, not sized as a rule. About 40 gap sessions would settle it, and
 recording them is the cheapest useful thing left to do.
+
+---
+
+## Go with the break, target the next level — and which timeframe
+
+The proposal: once one side of the auction has won, take a break of structure
+or change of character in that direction and target the next confluence level.
+A different animal from everything above — every losing rule in this file was a
+**fade**. `scripts/orderflow/structure_trade.py`, 1,420 sessions.
+
+Signals computed on the stated timeframe; outcomes always simulated on
+**1-minute** bars, so a stop and target inside one 15-minute bar are ordered
+rather than guessed. Ambiguity 0%.
+
+### The timeframe question has a clean answer
+
+| timeframe | signals/session | n | mean | win | t |
+|---|---|---|---|---|---|
+| 1 min | 25.7 | 36,546 | −0.074R | 44.1% | **−9.41** |
+| 3 min | 7.7 | 10,923 | −0.059R | 53.8% | −5.80 |
+| 5 min | 4.1 | 5,815 | −0.044R | 57.7% | −3.73 |
+| 15 min | 0.9 | 1,219 | −0.015R | 60.5% | −0.91 |
+| 30 min | 0.2 | 271 | −0.017R | 56.8% | −0.71 |
+
+**Monotonic: the more labels, the worse.** The "too many labels on 5-minute"
+instinct is correct and then some — 1- and 3-minute structure is decisively
+negative. 15 minutes is where it stops being noise, at about one signal a
+session. BOS and CHoCH behave the same; neither is the better half.
+
+### The real lever is reward-to-risk, not the signal
+
+Splitting 15-minute signals by how far the next level sits:
+
+| next level | n | mean | win |
+|---|---|---|---|
+| **under 1R away** | 971 | −0.029R | **64.5%** |
+| 1 to 2R | 162 | +0.029R | 48.8% |
+| 2 to 4R | 63 | +0.220R | 42.9% |
+| over 4R | 23 | −0.387R | 21.7% |
+
+Setups whose target is nearer than their stop **win 64.5% and lose money.**
+That is where the damage is, it is known at the entry bar, and refusing them is
+implementable.
+
+But swept as a threshold rather than read as a bucket, the improvement is a
+plateau at **zero**, not an edge — pooled across 5/15/30-minute signals at
+R:R ≥ 2: n=1,181, −0.003R, t = −0.06. Years scatter (2022 −0.181R, 2023
++0.214R). De-overlapped to one trade a session: n=611, −0.021R.
+
+**Verdict: the structure trade is flat once the bad-R:R setups are refused, and
+negative if they are not. The +0.220R bucket was an artefact.**
+
+### The CVD gate — not shown to help
+
+`scripts/orderflow/structure_cvd.py`, 15 pairs of recorded tape (the only
+source of real signed flow). R:R ≥ 2 leaves 14 signals, too few to split, so
+this is every break:
+
+| 5-minute signals | n | mean | win |
+|---|---|---|---|
+| no flow gate | 58 | +0.026R | 56.9% |
+| delta ≥ +1,000 with the trade | 25 | **−0.112R** | 52.0% |
+| delta under +1,000 (refused) | 33 | **+0.131R** | 60.6% |
+
+The gate points the **wrong way** at 5 minutes, and the other way at 3 minutes
+— inconsistency between adjacent timeframes is itself the signature of noise.
+Difference −0.243R, 95% interval by **session-level bootstrap** (signals inside
+a day share that day's move) **−0.711R to +0.336R: includes zero.**
+
+Not shown to do anything. With 15 sessions that is a statement about the
+sample, not about the idea — and it cannot be improved without more tape,
+because CVD is unrecoverable from bars.
