@@ -1346,3 +1346,58 @@ tests — roughly **250 would clear |t| ≥ 2 by chance alone** on 19 sessions.
 
 The feature count is not the bottleneck. The sample is, and so is the gap
 between a correlation and a cost-covering edge.
+
+---
+
+## Forecasting the next 15 minutes — and a lookahead bug worth 8.75 points
+
+`scripts/orderflow/forecast.py`, 24 sessions (July batch added), 7,404 bars.
+
+### The bug first
+
+The first version standardised each feature against its session's **full-day**
+mean and standard deviation. At 10:00 those have not happened yet. Result:
+
+| | IC | trade, net of cost |
+|---|---|---|
+| full-session z-score (**lookahead**) | +0.2551, t +8.93 | **+8.95 pts**, t +6.49 |
+| expanding z-score (**honest**) | +0.1351, t +3.68 | **+0.20 pts**, t +0.54 |
+
+**The lookahead was worth 8.75 points a trade.** Everything that looked like an
+edge was knowing the day's own statistics in advance. Kept in the script behind
+a flag so the size of the bias stays visible.
+
+### What survives
+
+| | IC | t | trade after 2 pts | t |
+|---|---|---|---|---|
+| fixed blend (no fitting) | +0.1351 | **+3.68** | +0.20 pts | +0.54 |
+| fitted, in sample | +0.1030 | +3.60 | +1.17 pts | +0.68 |
+| fitted, **out of sample** | +0.0308 | +0.99 | **−3.69 pts** | −0.61 |
+| vwap_disp alone | +0.1404 | +3.27 | −2.24 pts | −0.62 |
+
+Two things at once: **the information is real** (blend IC t = +3.68, and the
+null harness showed 11 of 60 features clearing |t| ≥ 3 against 0 by chance),
+and **it does not cover costs**. Fitting makes it worse — the least-squares
+combination collapses from +3.60 in sample to +0.99 out of sample, which is
+what 24 sessions does to a five-parameter fit.
+
+### The one asymmetry worth recording
+
+| quintile | median move | up rate | bars |
+|---|---|---|---|
+| 0 (most bearish score) | **−6.0 pts** | **40%** | 1,342 |
+| 2 | 0.0 pts | 49% | 1,342 |
+| 4 (most bullish score) | +0.3 pts | 50% | 1,342 |
+
+The bearish extreme leans (60% down, median −6 points). The bullish extreme is
+a coin. Recorded as an observation, not a finding — it was seen after the fact
+and has not been tested as a rule.
+
+### What this means for the indicator
+
+A forecast display cannot honestly be built from this yet. The score carries
+real information and does not pay for the spread, so an indicator that prints a
+direction would be selling a t of +0.54 as a signal. What it can honestly show
+is **where the session currently sits**, with the up-rate attached, and say
+plainly that the extremes are a lean rather than a call.
