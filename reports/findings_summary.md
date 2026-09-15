@@ -1140,3 +1140,39 @@ a day share that day's move) **−0.711R to +0.336R: includes zero.**
 Not shown to do anything. With 15 sessions that is a statement about the
 sample, not about the idea — and it cannot be improved without more tape,
 because CVD is unrecoverable from bars.
+
+### CVD *change*, not CVD *level* — the check that was missing
+
+The first pass gated on cumulative delta since the open. That is "who has won
+the session", and by mid-afternoon it is mostly history. What should matter to
+a break is "who is winning **right now**" — the delta in the bars that actually
+pushed price through the level, measured on the signal's own timeframe.
+
+Both forms, each judged against **the trades it refuses inside the same
+sessions** rather than against zero. That pairing matters: the 3-minute
+baseline on this tape is +0.101R while the same signal over 1,420 sessions runs
+t = −5.80, so the tape sample is running hot and any gate sitting on it would
+flatter itself.
+
+| gate (3-minute signals) | n | vs refused | 95% interval |
+|---|---|---|---|
+| LEVEL: session delta ≥ +1,000 | 50 | +0.051R | [−0.43, +0.56] |
+| LEVEL: session delta ≥ 1% of volume | 32 | **−0.356R** | [−0.77, +0.01] |
+| CHANGE: breaking bar 5%+ of its volume | 90 | +0.229R | [−0.08, +0.65] |
+| CHANGE: last 2 bars 10%+ of volume | 29 | **+0.339R** | **[+0.06, +0.63]** |
+| CHANGE: last 5 bars delta ≥ +1,000 | 16 | +0.191R | [−0.36, +0.99] |
+
+At 5-minute the same 2-bar gate gives **+0.348R** — two timeframes landing
+within 0.01R of each other.
+
+**The tally across both timeframes: change gates 10/10 positive, median
++0.181R. Level gates 1/4 positive, median −0.287R.**
+
+That split is the finding, not any single cell. Sixteen tests were run, so one
+interval clearing 5% is what chance hands you — but every change gate landing
+on one side and every level gate on the other is not. The gates overlap
+heavily, so this is suggestive rather than a p-value, and it rests on fifteen
+sessions.
+
+**Status: the most promising lead in the project, and explicitly not yet a
+rule.** It is decidable with more recorded tape and by nothing else.

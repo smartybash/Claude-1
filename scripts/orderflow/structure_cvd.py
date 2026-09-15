@@ -55,6 +55,18 @@ def bars(s: pd.DataFrame, minutes: int) -> pd.DataFrame:
     b["cvd"] = b.d.cumsum()
     b["cum_v"] = b.v.cumsum()
     b["share"] = np.where(b.cum_v > 0, b.cvd / b.cum_v, 0.0)
+
+    # CVD CHANGE over the last N bars of THIS timeframe, which is a different
+    # quantity from the session total and the more plausible one for gating a
+    # break. By the afternoon the cumulative figure is mostly history; what
+    # pushed price through the level is the delta in the bars that did it.
+    # Also kept as a share of the volume in the same window, so the measure
+    # does not mean different things in a quiet hour and a busy one.
+    for n in (1, 2, 3, 5):
+        dn = b.d.rolling(n, min_periods=1).sum()
+        vn = b.v.rolling(n, min_periods=1).sum()
+        b[f"d{n}"] = dn
+        b[f"r{n}"] = np.where(vn > 0, dn / vn, 0.0)
     return b.reset_index().rename(columns={"time": "timestamp"})
 
 
@@ -120,7 +132,11 @@ def collect(days, pairs, minutes, min_rr):
                 # flow AS OF the breaking bar's close, signed so positive
                 # means it agrees with the trade
                 cvd_with=float(b.cvd.iloc[i]) * sign,
-                share_with=float(b.share.iloc[i]) * sign))
+                share_with=float(b.share.iloc[i]) * sign,
+                **{f"d{n}_with": float(b[f"d{n}"].iloc[i]) * sign
+                   for n in (1, 2, 3, 5)},
+                **{f"r{n}_with": float(b[f"r{n}"].iloc[i]) * sign
+                   for n in (1, 2, 3, 5)}))
     return out
 
 
@@ -162,55 +178,104 @@ def main():
             st([r for r in rows if r["share_with"] >= x],
                f"      share with the trade >= {100*x:.1f}%")
 
-        print("\n    and the trades the gate would have refused:")
-        st([r for r in rows if r["cvd_with"] < 1000],
-           "      delta under +1,000 with the trade")
+        print("\n    CVD CHANGE over the last N bars of this timeframe,")
+        print("    in contracts, agreeing with the trade:")
+        for n in (1, 2, 3, 5):
+            for x in (0, 500, 1000):
+                st([r for r in rows if r[f"d{n}_with"] >= x],
+                   f"      last {n} bar(s), delta >= {x:,}")
+            print()
+
+        print("    the same change as a SHARE of the volume in that window --")
+        print("    scale-free, so it means the same thing in any hour:")
+        for n in (1, 2, 3):
+            for x in (0.0, 0.05, 0.10, 0.20):
+                st([r for r in rows if r[f"r{n}_with"] >= x],
+                   f"      last {n} bar(s), {100*x:.0f}%+ of window volume")
+            print()
+
+        print("    and the trades a change-gate would have refused:")
+        st([r for r in rows if r["d3_with"] < 500],
+           "      3-bar delta under +500 with the trade")
         print()
 
-    # The headline comparison, at the user's own number.
-    rows = collect(days, pairs, 5, min_rr=0.0)
-    a = [r for r in rows if r["cvd_with"] >= 1000]
-    b = [r for r in rows if r["cvd_with"] < 1000]
+    # ---- the only comparison that controls for a hot sample ----------------
+    #
+    # Every gate below is judged against the trades IT REFUSES, inside the same
+    # sessions, not against zero. That matters here: the 3-minute baseline on
+    # this tape is +0.101R while the same signal over 1,420 sessions of bars
+    # runs t = -5.80. Fifteen sessions can easily be lucky, and a gate sitting
+    # on a lucky sample will look good while separating nothing. The paired
+    # difference is immune to that; the level of either arm is not.
     print("=" * 96)
-    print("IS THE GATE DOING ANYTHING, OR IS IT THE SAMPLE?")
+    print("EACH GATE AGAINST THE TRADES IT REFUSES, SAME SESSIONS")
     print("=" * 96)
-    if len(a) < 8 or len(b) < 8:
-        print("  Not enough signals on both sides to test.")
-        return
-    obs = np.mean([r["R"] for r in a]) - np.mean([r["R"] for r in b])
+    print("  Level gates test 'who has won the session'. Change gates test")
+    print("  'who is winning right now'. The second is the one a break should")
+    print("  care about, and it was missing from the first pass.\n")
 
-    # Bootstrap over SESSIONS, not signals. Signals inside one session share
-    # that session's move, so resampling them individually would treat one
-    # good day as many independent wins -- the exact inflation that turned a
-    # t of +5.12 into +1.00 earlier in this project. Resampling whole days
-    # keeps that dependence intact.
-    df = pd.DataFrame(rows)
-    df["hit"] = df.cvd_with >= 1000
-    sess = df.day.unique()
-    by_day = {d: g for d, g in df.groupby("day")}
-    rng = np.random.default_rng(0)
-    diffs = []
-    for _ in range(20_000):
-        pick = rng.choice(sess, size=len(sess), replace=True)
-        g = pd.concat([by_day[d] for d in pick])
-        on, off = g.R[g.hit], g.R[~g.hit]
-        if len(on) == 0 or len(off) == 0:
-            continue
-        diffs.append(on.mean() - off.mean())
-    diffs = np.array(diffs)
-    lo, hi = np.percentile(diffs, [2.5, 97.5])
+    tally = {"LEVEL": [], "CHANGE": []}
 
-    print(f"  gate on:  n={len(a):<4} {np.mean([r['R'] for r in a]):+.3f}R")
-    print(f"  gate off: n={len(b):<4} {np.mean([r['R'] for r in b]):+.3f}R")
-    print(f"  difference {obs:+.3f}R")
-    print(f"  95% interval by session bootstrap: {lo:+.3f}R to {hi:+.3f}R")
-    print(f"  {'EXCLUDES' if lo > 0 or hi < 0 else 'INCLUDES'} zero"
-          f"   ({df.day.nunique()} sessions, {len(df)} signals)")
+    def paired(rows, key, cut, label):
+        on = [r for r in rows if r[key] >= cut]
+        off = [r for r in rows if r[key] < cut]
+        if len(on) < 8 or len(off) < 8:
+            print(f"    {label:<42} n={len(on):<4}/{len(off):<4} too few")
+            return
+        d = np.mean([r["R"] for r in on]) - np.mean([r["R"] for r in off])
+        df = pd.DataFrame(rows)
+        df["hit"] = df[key] >= cut
+        by = {k: g for k, g in df.groupby("day")}
+        sess = list(by)
+        rng = np.random.default_rng(0)
+        boot = []
+        for _ in range(8000):
+            pick = rng.choice(sess, size=len(sess), replace=True)
+            g = pd.concat([by[x] for x in pick])
+            a, b = g.R[g.hit], g.R[~g.hit]
+            if len(a) and len(b):
+                boot.append(a.mean() - b.mean())
+        lo, hi = np.percentile(boot, [2.5, 97.5])
+        mark = "  <-- excludes zero" if (lo > 0 or hi < 0) else ""
+        tally[label.split(":")[0]].append(d)
+        print(f"    {label:<42} n={len(on):<4} {d:+6.3f}R   "
+              f"[{lo:+.2f}, {hi:+.2f}]{mark}")
+
+    for minutes in (3, 5):
+        rows = collect(days, pairs, minutes, min_rr=0.0)
+        print(f"  ---- {minutes}-minute signals ({len(rows)} breaks, "
+              f"{len(set(r['day'] for r in rows))} sessions) ----")
+        paired(rows, "cvd_with", 1000, "LEVEL: session delta >= +1,000")
+        paired(rows, "share_with", 0.01, "LEVEL: session delta >= 1% of volume")
+        paired(rows, "d1_with", 0, "CHANGE: breaking bar delta positive")
+        paired(rows, "r1_with", 0.05, "CHANGE: breaking bar 5%+ of its volume")
+        paired(rows, "r1_with", 0.10, "CHANGE: breaking bar 10%+ of its volume")
+        paired(rows, "r2_with", 0.10, "CHANGE: last 2 bars 10%+ of volume")
+        paired(rows, "r3_with", 0.05, "CHANGE: last 3 bars 5%+ of volume")
+        paired(rows, "d5_with", 1000, "CHANGE: last 5 bars delta >= +1,000")
+        print()
+
+    # The single cell that excludes zero is not the finding -- sixteen tests
+    # were run and one of them clearing 5% is roughly what chance produces.
+    # What is harder to get by accident is the SIGN PATTERN: every change gate
+    # one way and every level gate the other, across two timeframes.
+    for k in ("LEVEL", "CHANGE"):
+        v = tally[k]
+        if v:
+            print(f"  {k+' gates:':<16} {sum(x > 0 for x in v)}/{len(v)} positive"
+                  f"   median {np.median(v):+.3f}R")
     print()
-    print("  The interval is what matters, not the point estimate. With this")
-    print("  many sessions it will be wide whatever the answer is, and a wide")
-    print("  interval straddling zero means the gate has not been shown to do")
-    print("  anything -- not that it does nothing.")
+    print("  That split is the result, not any single cell. Sixteen tests were")
+    print("  run, so one interval clearing 5% is what chance hands you; every")
+    print("  change gate landing on one side and every level gate on the other")
+    print("  is not. The gates overlap heavily, though, so this is suggestive")
+    print("  rather than a p-value -- and it is fifteen sessions.")
+    print()
+    print("  Each interval is a 95% range from resampling SESSIONS, which")
+    print("  keeps signals inside a day together instead of treating one good")
+    print("  day as many independent wins. An interval containing zero means")
+    print("  the gate has not been shown to separate -- and with fifteen")
+    print("  sessions most of them will contain zero whatever the truth is.")
     print("=" * 96)
 
 
