@@ -1778,3 +1778,59 @@ rather than over six weeks of calendar time.
 Labor Day. 84,777 tape rows against a normal ~450,000. It is a holiday
 session, not a short one, and must be excluded from the day-trade test rather
 than counted as an observation.
+
+---
+
+## Pre-registration: three exit variants, one holdout, evaluated once
+
+Hold-to-close is **not** withdrawn. It is the strongest result here and a
+trader's constraint decides what is tradeable, not what is true. If it confirms
+while the bounded versions do not, that is itself the answer: the signal is
+real and the constraint is what blocks it — which is an argument about position
+size, automation or risk appetite, not about the research.
+
+Fixed now, before any holdout session is looked at.
+
+### The signal (identical in all three)
+
+At each minute, VWAP displacement standardised against the session so far
+(expanding window — never the full day). Top quintile → short. Bottom quintile
+→ long. One position at a time.
+
+### The three exits
+
+| # | exit | discovery-set result | trader can take it |
+|---|---|---|---|
+| 1 | **17:00 UTC** (22:30 local) | +9.73 pts, t +1.55 | yes |
+| 2 | **19:00 UTC** (00:30 local) | +13.02 pts, t +1.49 | marginal |
+| 3 | **session close, 20:00 UTC** | +21.70 pts, t +2.14 | not as stated |
+
+### The bar
+
+Three tests, so a single one clearing t = 2 proves nothing — at 5% across
+three, one false positive is roughly a one-in-seven event. Bonferroni gives
+each test **p < 0.0167**, which is about **t ≥ 2.4** at this sample size.
+
+To pass, a variant needs:
+
+- per-session mean **positive after 2 points of cost**
+- **t ≥ 2.4** on holdout sessions alone
+- the **sign stable** between the discovery set and the holdout
+
+### The holdout
+
+Every session recorded after the 46-session discovery set. Currently **5**
+(7 September excluded as a holiday). Target ~30.
+
+Evaluated **once**, all three variants together, when the holdout is complete.
+No interim readings — a result peeked at repeatedly does not mean what it
+appears to mean, and that is how several of the seven dead findings here got
+their credibility in the first place.
+
+### If hold-to-close passes and the others do not
+
+The honest options are then a resting bracket left in the market rather than
+watching it, a smaller size that makes the overnight-adjacent risk tolerable,
+or accepting that the edge exists and is not reachable under the current
+constraints. Which of those is right is the trader's call, not a research
+question — but it only becomes a live question if the test passes.
