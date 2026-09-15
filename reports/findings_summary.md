@@ -1240,3 +1240,49 @@ findings:
 3. **A `>= 0` cut on a net-delta column** lumps "no large orders at all" with
    "large orders agreeing", which is why signal counts *rose* as the size
    threshold rose.
+
+---
+
+## The cumulative stream works — verified on 3 August
+
+First session recorded after the fix. The reconciliation is exact:
+
+| check | result |
+|---|---|
+| CUM volume vs RTH tape volume | 385,275 vs 385,275 — **ratio 1.000** |
+| CUM fills aggregated vs RTH tape prints | 359,224 vs 359,224 — **exact** |
+
+Every print accounted for once, nothing lost, nothing double-counted.
+
+| | old build (11 Aug) | new build (3 Aug) |
+|---|---|---|
+| max fills in one order | 1 | **171** |
+| orders with >1 fill | 0.00% | **32.07%** |
+| orders that swept price | 0.00% | **1.19%** |
+| volume from orders ≥10 lots | 0.57% | **13.78%** |
+
+The old stream was the tape with three constant columns. The new one carries
+aggressive-order size and sweep depth — the thing CVD structurally cannot see.
+
+### Which size threshold is actually new information
+
+Answerable on one session, and it decides what is worth recording days for. If
+large-order delta tracks plain delta closely it cannot add anything at any
+sample size.
+
+| threshold | corr with plain delta (5-min) | share of volume |
+|---|---|---|
+| ≥5 lots | +0.936 | 28.4% |
+| ≥10 lots | +0.875 | 13.8% |
+| **≥25 lots** | **+0.653** | 5.1% |
+| **≥50 lots** | **+0.464** | 2.2% |
+| **sweeping orders** | **+0.526** | 5.6% |
+
+**At 10 lots it is 88% the same series as CVD and cannot add much.** The
+thresholds carrying genuinely separate information are **≥25 lots**, **≥50
+lots** and **sweep delta** — and ≥25 is likely the sweet spot, since ≥50 is
+only 2.2% of volume and will be sparse in a 5-minute bar.
+
+That is the test queued for when enough paired sessions exist. 3 August alone
+cannot be used: the previous session (31 July) was not recorded, and every
+structure test needs the prior day for its levels.
