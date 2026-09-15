@@ -1286,3 +1286,63 @@ only 2.2% of volume and will be sparse in a 5-minute bar.
 That is the test queued for when enough paired sessions exist. 3 August alone
 cannot be used: the previous session (31 July) was not recorded, and every
 structure test needs the prior day for its levels.
+
+---
+
+## Information coefficient harness — and why IC is not edge
+
+`scripts/orderflow/ic_harness.py`. Adopts forward-return scoring, which is a
+genuine improvement: trade outcomes give ~60 observations from 19 sessions,
+forward returns give **6,954 one-minute bars**. Features computed from ticks;
+bars are only the evaluation grid, so the aggressor tag survives into every
+feature.
+
+IC computed **per session**, t-statistic across the 19 — bars inside a day are
+not independent. Every result calibrated against a **null**: the same features
+against returns circularly shifted within each session, which breaks the link
+and keeps the autocorrelation.
+
+| forward 15 min | IC | t | sessions agreeing | null t |
+|---|---|---|---|---|
+| **vwap_disp** | −0.2950 | **−9.21** | 95% | −0.90 |
+| cvd | −0.2279 | −5.50 | 89% | +0.64 |
+| cvd_share | −0.1823 | −4.73 | 84% | +0.72 |
+| poc_shift | −0.0932 | −2.61 | 74% | −0.88 |
+
+Null calibration across all 60 feature-horizons:
+
+| bar | real | by chance |
+|---|---|---|
+| \|t\| ≥ 2 | 18 of 60 | 5 |
+| \|t\| ≥ 3 | **11 of 60** | **0** |
+
+So the signal is real. Every strong feature is **negative** — price above VWAP,
+or high cumulative delta, predicts *lower* forward returns. Intraday mean
+reversion, and it disagrees with "go with the flow".
+
+### The number that matters
+
+Converting the strongest feature in the project into points:
+
+| | |
+|---|---|
+| IC | −0.295, t = −9.21, 95% of sessions agreeing |
+| **as a trade, net of 2 points** | **+0.08 points, t = +1.58** |
+
+**A t of −9.21 is worth eight hundredths of a point.** The deciles are not
+monotonic in points either — decile 2 pays +7.78 while decile 9 pays −1.50 —
+so the ranking is right and the payoff is noise.
+
+This is the calibration the whole project needed. **IC, t-statistic and Sharpe
+rank candidates by whether the ordering is right. They do not say the ordering
+pays.** Any workflow that shortlists on IC would have put `vwap_disp` first, and
+it is worth nothing after costs.
+
+### On generating 500–1,000 candidate features
+
+Our own null says what that would do here. 60 feature-horizons produced 5
+false positives at |t| ≥ 2. A thousand features across three horizons is 3,000
+tests — roughly **250 would clear |t| ≥ 2 by chance alone** on 19 sessions.
+
+The feature count is not the bottleneck. The sample is, and so is the gap
+between a correlation and a cost-covering edge.
