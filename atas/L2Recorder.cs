@@ -559,8 +559,18 @@ namespace Claude1.Recorders
             CloseFiles();
         }
 
+        /// <summary>
+        /// Implemented in L2Recorder.Cumulative.cs. Writes the aggressive
+        /// order still being accumulated, which is otherwise lost when the
+        /// session ends. Both the declaration and the call vanish when that
+        /// file is compiled out with -p:NoCumulative=true.
+        /// </summary>
+        partial void FlushPendingCumulative();
+
         private void CloseFiles()
         {
+            FlushPendingCumulative();
+
             try { if (_depthWriter != null) { _depthWriter.Flush(); _depthWriter.Dispose(); } } catch { }
             try { if (_tapeWriter != null) { _tapeWriter.Flush(); _tapeWriter.Dispose(); } } catch { }
             try { if (_cumWriter != null) { _cumWriter.Flush(); _cumWriter.Dispose(); } } catch { }

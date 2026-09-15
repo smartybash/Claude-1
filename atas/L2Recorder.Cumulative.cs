@@ -29,20 +29,55 @@ namespace Claude1.Recorders
 
         /// <summary>
         /// ATAS builds a cumulative trade incrementally: OnCumulativeTrade
-        /// fires when the aggressive order starts filling, and updates arrive
-        /// as further fills join it. Recording only the first event captured
-        /// every order at one fill -- 171,193 orders with exactly 171,193 fills
-        /// between them, no sweeps at all, and an order-size distribution
-        /// identical to the raw tape. In other words it added nothing.
+        /// fires when the aggressive order STARTS filling, and further fills
+        /// join the same object afterwards. Writing the row inside that
+        /// callback therefore captured every order at exactly one fill --
+        /// 177,133 orders with 177,133 fills between them, no sweeps at all,
+        /// and a size distribution identical to the raw tape. The stream was a
+        /// duplicate of the tape with three constant columns, which is why no
+        /// test in this project could use it.
         ///
-        /// The update event is the missing half, and two guesses at its name
-        /// have now failed to compile. Rather than guess a third time, the
-        /// recorder reports the real API into _status.txt via reflection, so
-        /// the next version can use the name the assembly actually has.
+        /// THE FIX NEEDS NO NEW API. Two guesses at the name of the update
+        /// event have already failed to compile, and a third would risk the
+        /// build for no reason. Instead the trade is held and written when the
+        /// NEXT one arrives, by which time ATAS has finished adding fills to
+        /// it. The last trade of a session is flushed by CloseCum, called from
+        /// the same idle path that closes the other writers.
+        ///
+        /// The object is read at write time rather than copied at arrival
+        /// time, so if this build hands out a fresh CumulativeTrade per fill
+        /// instead of mutating one, the result is no worse than before.
         /// </summary>
+        private CumulativeTrade _pendingCum;
+
         protected override void OnCumulativeTrade(CumulativeTrade trade)
         {
-            Record(trade);
+            if (trade == null)
+                return;
+            CumulativeTrade ready;
+            lock (_sync)
+            {
+                ready = _pendingCum;
+                _pendingCum = trade;
+            }
+            if (ready != null)
+                Record(ready);
+        }
+
+        /// <summary>
+        /// Write the trade still being accumulated. Called when the files are
+        /// closed so the final order of a session is not lost.
+        /// </summary>
+        partial void FlushPendingCumulative()
+        {
+            CumulativeTrade ready;
+            lock (_sync)
+            {
+                ready = _pendingCum;
+                _pendingCum = null;
+            }
+            if (ready != null)
+                Record(ready);
         }
 
         private void Record(CumulativeTrade trade)
