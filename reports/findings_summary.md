@@ -1460,3 +1460,48 @@ so the only possible out-of-sample test is **sessions not yet recorded**.
 The incremental test — does size add anything on top of CVD change — came back
 underpowered (n=13, n=9). Correlation between the two gates is +0.53, so they
 are neither the same thing nor independent.
+
+---
+
+## Order size: survives a first out-of-sample test
+
+39 sessions. July 21–28 arrived after the order-size gates were measured on
+July 1–20, so the twelve gates were re-run on the new sessions with **no
+parameter changes** — the test promised before the data existed.
+
+| gate | July 1–20 (fitted) | July 21–28 (new) |
+|---|---|---|
+| 25+ lot net delta with trade | +0.240R | −0.059R |
+| 25+ lot net ≥2% of volume | −0.003R | +0.146R |
+| **50+ lot net delta with trade** | **+0.228R** | **+0.225R** |
+| **50+ lot net ≥2% of volume** | **+0.311R** | **+0.271R** |
+| sweep delta with trade | +0.004R | +0.158R |
+| sweep net ≥2% of volume | +0.112R | +0.063R |
+| *5-min:* 25+ lot ≥2% | +0.302R | +0.169R |
+| *5-min:* sweep delta | +0.095R | +0.272R |
+
+**8 of 10 positive on the new block, median +0.15R.** The two **50+ lot** gates
+reproduce almost exactly (+0.228 → +0.225, +0.311 → +0.271).
+
+### How this differs from the finding that just died
+
+CVD change was never tested out of sample before being called promising, and
+when it finally was, six of eight measurements flipped negative. Order size has
+now been put through the same test and held. That is a real difference in
+status.
+
+It is still **not confirmed**, for reasons worth stating plainly:
+
+- **4 pairs** in the new block. At 5-minute several gates had too few trades.
+- **Adjacent weeks in the same month.** Same regime, so this is the weakest
+  useful form of out-of-sample test.
+- Sign consistency across correlated gates is exactly what misled the previous
+  finding, and 8/10 here carries the same caveat.
+
+### The test that would settle it
+
+August and September cannot help — every one of those sessions has a
+degenerate cumulative stream. The decisive test is a **different month with a
+working stream**, either freshly recorded or re-recorded from replay on the
+current build. The gates are frozen and written down above; nothing about them
+will be adjusted for the next block.
