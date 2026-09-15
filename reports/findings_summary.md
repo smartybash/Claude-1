@@ -1700,3 +1700,58 @@ concrete, finite requirement rather than an open-ended search.
 
 If the effect is real, 30 more sessions establish it. If it is not, 30 more
 sessions kill it. Either outcome is worth more than another filter.
+
+---
+
+## Order-size gate: confirmed dead on 3× the August data
+
+The August sessions were re-recorded on the fixed build, taking the August
+sample from 5 pairs and 40 breaks to **18 pairs and 130 breaks**. The gate
+declared dead last round was re-tested on it, with the prediction that it stays
+dead.
+
+| gate | July (fitted) | August (test) |
+|---|---|---|
+| 25+ lot net delta | +0.093R | −0.287R |
+| 50+ lot net delta | +0.152R | +0.021R |
+| **50+ lot ≥2% vol** | **+0.241R** | **−0.019R** |
+| sweep net delta | +0.062R | −0.270R |
+
+The gate that reproduced three times inside July: **−0.019R on 17 August
+sessions, 95% CI [−0.324, +0.283]**. Squarely zero. Closed.
+
+## The holding constraint is final, and it sets the target
+
+Holding to the close is ruled out on both counts — being awake at 01:30 and
+carrying the risk. So the only candidate is the **17:00 UTC exit (22:30 local),
+a 3.5-hour session from the cash open: +9.73 points a trade at t = +1.55.**
+
+### Discipline for this test, fixed now
+
+The +9.73 figure was measured on all 46 sessions, so it is a discovery-set
+number and cannot also be its own test. From here:
+
+- **The 46 existing sessions are the discovery set. Closed.**
+- **Every future session is holdout.**
+- **The test is evaluated ONCE, at ~30 new dates.** Not per batch.
+
+Re-running it on each delivery and stopping when t crosses 2 is the peeking
+problem, and it manufactures significance from noise as reliably as any of the
+six dead findings did. So no interim readings will be reported, including if
+asked — the number would not mean what it appears to mean.
+
+### Re-recordings do not count toward it
+
+This batch was five re-recordings: CUM maxfills 1 → 248, 247, 142, 272, 232.
+Valuable for order-flow work (39 sessions now carry a working stream) and worth
+**zero** for the day-trade test, which needs independent observations.
+
+**Session count is unchanged at 46.**
+
+Missing business days in the July–September window, all of which would count:
+
+- **August**: 27, 28, 31
+- **September**: 7, 8, 9, 10, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 28, 29, 30
+
+That is 21 dates available without going outside the window; about 30 are
+needed, so October would supply the rest.
