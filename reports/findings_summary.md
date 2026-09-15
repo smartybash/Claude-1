@@ -1505,3 +1505,52 @@ degenerate cumulative stream. The decisive test is a **different month with a
 working stream**, either freshly recorded or re-recorded from replay on the
 current build. The gates are frozen and written down above; nothing about them
 will be adjusted for the next block.
+
+---
+
+## Third block: one gate reproduces, and still cannot be called an edge
+
+43 sessions. July 29 – Aug 4 is a third block, run on the frozen gates.
+
+| 3-min gate | A: Jul 1–20 | B: Jul 21–28 | C: Jul 29–Aug 4 |
+|---|---|---|---|
+| 25+ lot net delta | +0.240R | −0.059R | −0.235R |
+| 25+ lot ≥2% vol | −0.003R | +0.146R | +0.078R |
+| 50+ lot net delta | +0.228R | +0.225R | +0.031R |
+| **50+ lot ≥2% vol** | **+0.311R** | **+0.271R** | **+0.264R** |
+| sweep ≥2% vol | +0.112R | +0.063R | +0.420R |
+
+**One gate reproduces cleanly three times.** The others scatter or decay — the
+25+ lot net delta gate goes +0.240 → −0.059 → −0.235 and is effectively dead.
+
+### Testing that one gate properly
+
+Pooled over all 22 pairs, 142 breaks:
+
+| | n | mean | win rate |
+|---|---|---|---|
+| gate ON | 34 | +0.095R | **70.6%** |
+| gate OFF | 108 | −0.197R | 50.0% |
+| difference | | **+0.292R** | 95% CI **[−0.007, +0.592]** |
+
+**The interval includes zero**, barely. And the more important number: the
+trades the gate *selects* average **+0.095R at a per-session t of +0.37** over
+16 sessions. That is not distinguishable from zero.
+
+**The gate separates bad from less bad.** It is not selecting a profitable
+trade — it is declining an unprofitable one. Those are different products, and
+only the second is worth acting on.
+
+Block C also has the gated arm slightly negative (−0.059R), so even the
+reproduction is not uniform.
+
+### Status
+
+This is the best-behaved thing in this project: pre-registered, tested on two
+blocks it was not fitted on, reproducing to within 0.05R three times. It is
+still **not an edge** — a 95% interval touching zero and a selected-trade t of
++0.37 do not support risk.
+
+It fires about **1.5 times a session**, so accumulating evidence on it is slow.
+Roughly 40 more sessions with a working cumulative stream would halve the
+interval; a different month matters more than more of the same one.
