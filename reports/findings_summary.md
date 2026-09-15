@@ -1664,3 +1664,39 @@ Frozen before looking at anything further:
 - **Test**: July sessions fit, August/September held back entirely.
 - **Bar to clear**: positive per-session mean after 2 points, t ≥ 2 on the
   held-back month, and the sign must not flip between months.
+
+### Without holding to the close, nothing clears the bar
+
+The constraint is a hard one, so it was tested directly rather than argued
+with. Same trade, exit at a fixed clock time:
+
+| exit (UTC) | IST | pts/trade | per-session t | sessions |
+|---|---|---|---|---|
+| 17:00 | 22:30 | +9.73 | +1.55 | 45 |
+| 18:00 | 23:30 | +3.61 | +0.83 | 45 |
+| 19:00 | 00:30 | +13.02 | +1.49 | 45 |
+| **20:00 (close)** | 01:30 | **+21.70** | **+2.14** | 45 |
+
+And bounded holds, all entry times: 60 minutes **+2.19 pts (t +0.95)**, 120
+minutes **+7.52 pts (t +1.24)**.
+
+**Every point estimate is positive. Not one reaches t ≥ 2 except the close.**
+The earlier exits are also non-monotonic (+9.73, +3.61, +13.02), unlike the
+clean monotonic growth across holding horizons — which is a warning sign, not
+a detail.
+
+Slicing by entry hour produces +13.74 at 15:00 and −8.59 at 14:00. That is
+twelve cells on 45 sessions and it is noise; it is recorded here so it does not
+get rediscovered and believed later.
+
+### What it would take
+
+The 17:00 exit (22:30 IST, a 3.5-hour session from the cash open) is the best
+candidate that respects the constraint: **+9.73 points a trade at t = +1.55**.
+
+t scales with the square root of the sample, so reaching t = 2 on the current
+effect size needs about **75 sessions — roughly 30 more than exist.** That is a
+concrete, finite requirement rather than an open-ended search.
+
+If the effect is real, 30 more sessions establish it. If it is not, 30 more
+sessions kill it. Either outcome is worth more than another filter.
