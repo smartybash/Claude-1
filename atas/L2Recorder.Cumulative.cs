@@ -40,25 +40,27 @@ namespace Claude1.Recorders
         }
 
         /// <summary>
-        /// ATAS builds a cumulative trade incrementally: OnCumulativeTrade
-        /// fires when the aggressive order STARTS filling, and further fills
-        /// join the same object afterwards. Writing the row inside that
-        /// callback therefore captured every order at exactly one fill --
-        /// 177,133 orders with 177,133 fills between them, no sweeps at all,
-        /// and a size distribution identical to the raw tape. The stream was a
-        /// duplicate of the tape with three constant columns, which is why no
-        /// test in this project could use it.
+        /// ATAS builds a cumulative trade incrementally, and this build's own
+        /// API dump settled how:
         ///
-        /// THE FIX NEEDS NO NEW API. Two guesses at the name of the update
-        /// event have already failed to compile, and a third would risk the
-        /// build for no reason. Instead the trade is held and written when the
-        /// NEXT one arrives, by which time ATAS has finished adding fills to
-        /// it. The last trade of a session is flushed by CloseCum, called from
-        /// the same idle path that closes the other writers.
+        ///     OnCumulativeTrade(CumulativeTrade)         a new order starts
+        ///     OnUpdateCumulativeTrade(CumulativeTrade)   more fills join it
+        ///     Decimal Lastprice                          note the lowercase p
         ///
-        /// The object is read at write time rather than copied at arrival
-        /// time, so if this build hands out a fresh CumulativeTrade per fill
-        /// instead of mutating one, the result is no worse than before.
+        /// Both were guessed wrong twice before and cost builds. They are no
+        /// longer guesses: the recorder reflects over the installed assembly
+        /// and prints this into _status.txt, and the names above are copied
+        /// from that output.
+        ///
+        /// Writing inside OnCumulativeTrade alone caught every order at
+        /// exactly one fill -- 177,133 orders sharing 177,133 fills, no
+        /// sweeps, a size distribution identical to the raw tape. The stream
+        /// was the tape again with three constant columns.
+        ///
+        /// So the order in flight is held, refreshed on every update, and
+        /// written when the NEXT one begins, by which point it is complete.
+        /// The last order of a session is flushed by FlushPendingCumulative
+        /// from CloseFiles.
         /// </summary>
         private CumulativeTrade _pendingCum;
 
@@ -77,8 +79,21 @@ namespace Claude1.Recorders
         }
 
         /// <summary>
-        /// Write the trade still being accumulated. Called when the files are
-        /// closed so the final order of a session is not lost.
+        /// Further fills joined the order already in flight. Keeping the
+        /// reference fresh means the row written later reflects the whole
+        /// aggressive order rather than its first print.
+        /// </summary>
+        protected override void OnUpdateCumulativeTrade(CumulativeTrade trade)
+        {
+            if (trade == null)
+                return;
+            lock (_sync)
+                _pendingCum = trade;
+        }
+
+        /// <summary>
+        /// Write the order still being accumulated, so the last one of a
+        /// session is not lost when the files close.
         /// </summary>
         partial void FlushPendingCumulative()
         {
@@ -117,20 +132,15 @@ namespace Claude1.Recorders
                              : trade.Direction == TradeDirection.Sell ? "S"
                              : "?";
 
-                    // The last price is taken from the fills rather than from a
-                    // property. CumulativeTrade exposes FirstPrice, which the
-                    // compiler confirmed, but not LastPrice; walking the ticks
-                    // needs no further guess about the API and gives the same
-                    // answer by definition.
+                    // Lastprice, not LastPrice -- the lowercase p is why two
+                    // earlier builds failed. Ticks is still walked, but only
+                    // for the fill count, which has no property of its own.
+                    var lastPrice = trade.Lastprice;
                     var fills = 0;
-                    var lastPrice = trade.FirstPrice;
                     if (trade.Ticks != null)
                     {
                         foreach (var tick in trade.Ticks)
-                        {
-                            lastPrice = tick.Price;
                             fills++;
-                        }
                     }
 
                     _cumWriter.WriteLine(

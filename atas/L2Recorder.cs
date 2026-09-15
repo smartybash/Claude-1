@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-14.l";
+        private const string BuildTag = "2026-09-15.m";
 
         private readonly object _sync = new object();
 
@@ -82,6 +82,26 @@ namespace Claude1.Recorders
         private string _pathDate = "";
         private string _dPath, _tPath;
         private long _skippedOutOfSession;
+
+        // The actual clock on the data, recorded before any session gate sees
+        // it. A run once discarded 969 of 969 depth updates as "off-session"
+        // and wrote nothing, and the status file could not say why because it
+        // never reported what time the data claimed to be. Now it can.
+        private DateTime _dataFirst = DateTime.MinValue;
+        private DateTime _dataLast = DateTime.MinValue;
+        private long _inWindow, _outWindow;
+
+        private void NoteDataTime(DateTime t)
+        {
+            if (_dataFirst == DateTime.MinValue || t < _dataFirst)
+                _dataFirst = t;
+            if (t > _dataLast)
+                _dataLast = t;
+            if (InSession(t))
+                _inWindow++;
+            else
+                _outWindow++;
+        }
 
         private int _depthLevels = 50;
         private int _snapshotMs = 250;
@@ -401,6 +421,49 @@ namespace Claude1.Recorders
                 sb.AppendLine("rows written:       " + _rows);
                 sb.AppendLine();
                 sb.AppendLine("skipped, off-session " + _skippedOutOfSession);
+                sb.AppendLine();
+                sb.AppendLine("---- the clock on the incoming data ----");
+                if (_dataFirst == DateTime.MinValue)
+                {
+                    sb.AppendLine("no market data has arrived at all.");
+                }
+                else
+                {
+                    sb.AppendLine("data timestamps run " +
+                        _dataFirst.ToString("yyyy-MM-dd HH:mm:ss",
+                                            CultureInfo.InvariantCulture) +
+                        "  to  " +
+                        _dataLast.ToString("yyyy-MM-dd HH:mm:ss",
+                                           CultureInfo.InvariantCulture));
+                    sb.AppendLine("session window is " +
+                        RthStartHour.ToString("00") + ":" +
+                        RthStartMinute.ToString("00") + " to " +
+                        RthEndHour.ToString("00") + ":" +
+                        RthEndMinute.ToString("00") +
+                        "   inside " + _inWindow + ", outside " + _outWindow);
+                    if (_inWindow == 0 && _outWindow > 0)
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine("*** EVERY UPDATE FELL OUTSIDE THE WINDOW ***");
+                        sb.AppendLine("Nothing will be written while that is true.");
+                        sb.AppendLine("Either the replay is positioned outside the");
+                        sb.AppendLine("cash session, or this platform's clock is not");
+                        sb.AppendLine("the one the window assumes. Fix by either:");
+                        sb.AppendLine("  - moving the replay into the cash session, or");
+                        sb.AppendLine("  - setting RTH only = False to record everything,");
+                        sb.AppendLine("    then telling Claude the times above.");
+                    }
+                }
+                if (_trades == 0 && _depthEvents > 0)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("*** DEPTH IS ARRIVING BUT NO TRADES ***");
+                    sb.AppendLine("The replay is supplying DOM only. Switch the");
+                    sb.AppendLine("replay mode to Ticks + DOM; without ticks there");
+                    sb.AppendLine("is no tape and no cumulative trades, which is");
+                    sb.AppendLine("most of what the analysis needs.");
+                }
+                sb.AppendLine("----------------------------------------");
                 sb.AppendLine();
                 sb.AppendLine("record tape:        " + RecordTape);
                 sb.AppendLine("record depth:       " + RecordDepth);
@@ -783,6 +846,7 @@ namespace Claude1.Recorders
             _trades++;
             if (!RecordTape)
                 return;
+            NoteDataTime(arg.Time);
             if (!TapeAllHours && !InSession(arg.Time))
             {
                 _skippedOutOfSession++;
@@ -823,6 +887,7 @@ namespace Claude1.Recorders
                 return;
 
             var now = arg.Time;
+            NoteDataTime(now);
             if (!InSession(now))
             {
                 _skippedOutOfSession++;
