@@ -1755,3 +1755,26 @@ Missing business days in the July–September window, all of which would count:
 
 That is 21 dates available without going outside the window; about 30 are
 needed, so October would supply the rest.
+
+## Correction: the date list was wrong
+
+The previous entry listed September 16–30 and all of October as dates to
+record. Today is 15 September — those sessions have not happened. The
+recordable pool is the PAST, and it is not where I said it was.
+
+**Recent history is nearly exhausted.** Only four business days remain
+unrecorded between July and today: **23 July, and 9, 10, 14 September.**
+
+**The pool is earlier in the year.** April–June 2026 holds **65** unrecorded
+business days, all of which exist in replay now. That is more than twice what
+the holdout needs, available without waiting a single day.
+
+That changes the recommendation from "keep recording forward" to **"record
+backwards into June, May and April"** — the target can be met immediately
+rather than over six weeks of calendar time.
+
+### Note on 7 September
+
+Labor Day. 84,777 tape rows against a normal ~450,000. It is a holiday
+session, not a short one, and must be excluded from the day-trade test rather
+than counted as an observation.
