@@ -1,0 +1,41 @@
+QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
+open drive: direction of 09:30-10:00, entry at 10:00, stop at opposing IB extreme
+
+=== target sweep ===
+  target 1R                                  n= 509  win  52%  mean +0.038R  PF 1.09  t=+0.92     4.9/wk
+  target 1.5R                                n= 509  win  48%  mean +0.077R  PF 1.16  t=+1.57     4.9/wk
+  target 2R                                  n= 509  win  46%  mean +0.099R  PF 1.20  t=+1.84     4.9/wk
+  target 3R                                  n= 509  win  44%  mean +0.111R  PF 1.22  t=+1.85     4.9/wk
+  target hold to close                       n= 509  win  42%  mean +0.088R  PF 1.17  t=+1.27     4.9/wk
+
+=== OUT OF SAMPLE (target 2R) ===
+  first half  to 2025-07-17                  n= 247  win  42%  mean +0.021R  PF 1.04  t=+0.28     4.7/wk
+  second half from 2025-07-17                n= 262  win  50%  mean +0.172R  PF 1.39  t=+2.31     5.0/wk
+
+=== by opening location vs prior value ===
+  open above value                           n= 210  win  44%  mean +0.055R  PF 1.11  t=+0.66     2.0/wk
+  open below value                           n= 134  win  48%  mean +0.123R  PF 1.27  t=+1.22     1.3/wk
+  open inside value                          n= 165  win  47%  mean +0.135R  PF 1.27  t=+1.38     1.6/wk
+
+=== by gap size (|open - value edge| / ATR) ===
+  inside value (no gap)                      n= 165  win  47%  mean +0.135R  PF 1.27  t=+1.38     1.6/wk
+  gap < 0.25 ATR                             n= 189  win  44%  mean +0.067R  PF 1.14  t=+0.77     1.8/wk
+  gap 0.25-0.50 ATR                          n=  75  win  47%  mean +0.047R  PF 1.10  t=+0.35     0.7/wk
+  gap >= 0.50 ATR                            n=  80  win  48%  mean +0.146R  PF 1.31  t=+1.08     0.8/wk
+
+=== by Initial Balance width vs ATR ===
+  narrow IB (<0.30x)                         n= 168  win  39%  mean +0.059R  PF 1.10  t=+0.57     1.6/wk
+  mid IB                                     n= 173  win  49%  mean +0.152R  PF 1.33  t=+1.67     1.7/wk
+  wide IB (>=0.44x)                          n= 168  win  49%  mean +0.084R  PF 1.20  t=+1.01     1.6/wk
+
+=== IB delta (proxy) agrees with the drive ===
+  no filter                                  n= 509  win  46%  mean +0.099R  PF 1.20  t=+1.84     4.9/wk
+  IB delta agrees >=5%                       n= 410  win  46%  mean +0.086R  PF 1.18  t=+1.48     3.9/wk
+  IB delta agrees >=10%                      n= 358  win  47%  mean +0.104R  PF 1.23  t=+1.69     3.4/wk
+  IB delta agrees >=20%                      n= 240  win  48%  mean +0.094R  PF 1.22  t=+1.31     2.3/wk
+
+=== by side ===
+  down drive                                 n= 242  win  46%  mean +0.181R  PF 1.38  t=+2.24     2.3/wk
+  up drive                                   n= 267  win  46%  mean +0.024R  PF 1.05  t=+0.34     2.6/wk
+
+risk: median -0.38R  max DD 16.8R  worst streak 8  mean stop 0.31 ATR

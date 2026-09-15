@@ -1,0 +1,248 @@
+<title>ATAS Desk Setup</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F1F3F5; --panel:#FFFFFF; --panel-2:#E9EDF1;
+    --ink:#16202B; --ink-2:#3E4C5A; --muted:#6B7A8A; --rule:#D3DAE1;
+    --brass:#A97516; --brass-soft:#F0E3C8;
+    --bid:#1A8C5F; --ask:#BE3F37; --bid-soft:#DCF0E6; --ask-soft:#F8E1DF;
+    --shadow:0 1px 2px rgba(22,32,43,.07), 0 8px 24px rgba(22,32,43,.05);
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --cond:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+    --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0E151E; --panel:#151F2B; --panel-2:#1D2937;
+      --ink:#DDE5EC; --ink-2:#AFBDCA; --muted:#7C8B9A; --rule:#2A3846;
+      --brass:#D9A441; --brass-soft:#3A2F16;
+      --bid:#35C48D; --ask:#E4635A; --bid-soft:#14372A; --ask-soft:#3A1F1D;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0E151E; --panel:#151F2B; --panel-2:#1D2937;
+    --ink:#DDE5EC; --ink-2:#AFBDCA; --muted:#7C8B9A; --rule:#2A3846;
+    --brass:#D9A441; --brass-soft:#3A2F16;
+    --bid:#35C48D; --ask:#E4635A; --bid-soft:#14372A; --ask-soft:#3A1F1D;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--ground); color:var(--ink); font-family:var(--body);
+       line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:920px; margin:0 auto; padding:40px 22px 72px;}
+
+  .mast{border-bottom:2px solid var(--ink); padding-bottom:18px;}
+  .kicker{font-family:var(--cond); text-transform:uppercase; letter-spacing:.14em;
+          font-size:12px; font-weight:600; color:var(--brass);}
+  h1{font-family:var(--cond); font-weight:700; font-size:clamp(32px,5.6vw,48px);
+     line-height:1.03; margin:.18em 0 .12em; letter-spacing:-.01em; text-wrap:balance;}
+  .dek{color:var(--ink-2); font-size:16px; max-width:62ch; margin:0;}
+
+  h2{font-family:var(--cond); font-weight:700; font-size:13px; text-transform:uppercase;
+     letter-spacing:.16em; margin:42px 0 4px; padding-bottom:7px;
+     border-bottom:1px solid var(--rule); display:flex; justify-content:space-between;
+     align-items:baseline; gap:12px;}
+  h2 span{font-family:var(--mono); letter-spacing:0; text-transform:none;
+          font-size:12px; color:var(--muted); font-weight:400;}
+  .lede{color:var(--ink-2); font-size:15px; margin:12px 0 16px; max-width:68ch;}
+
+  /* keystroke badge */
+  kbd{font-family:var(--mono); font-size:12px; font-weight:600; background:var(--ink);
+      color:var(--ground); padding:2px 7px; border-radius:3px; white-space:nowrap;
+      letter-spacing:.02em;}
+
+  /* step list */
+  ol.steps{counter-reset:s; list-style:none; padding:0; margin:16px 0 0;
+           display:grid; gap:1px; background:var(--rule); border:1px solid var(--rule);}
+  ol.steps>li{background:var(--panel); padding:15px 18px 15px 56px; position:relative;
+              counter-increment:s; font-size:14.5px;}
+  ol.steps>li::before{content:counter(s); position:absolute; left:17px; top:14px;
+    font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ground);
+    background:var(--brass); width:24px; height:24px; border-radius:3px;
+    display:grid; place-items:center;}
+  ol.steps b{font-family:var(--cond); letter-spacing:.02em;}
+  ol.steps .note{display:block; color:var(--muted); font-size:13px; margin-top:4px;}
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:14px 0;}
+  th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--rule); vertical-align:top;}
+  th{font-family:var(--cond); text-transform:uppercase; letter-spacing:.09em;
+     font-size:11px; color:var(--muted); font-weight:600; white-space:nowrap;}
+  td.k{font-family:var(--mono); font-weight:500; font-size:12.5px; white-space:nowrap;}
+  td.v{font-family:var(--mono); font-size:12.5px; color:var(--brass); font-weight:500;}
+  .num{font-variant-numeric:tabular-nums; font-family:var(--mono);}
+
+  .callout{border-left:3px solid var(--brass); background:var(--brass-soft);
+           padding:12px 16px; margin:18px 0; font-size:14px;}
+  .callout b{font-family:var(--cond); letter-spacing:.04em;}
+  .warn{border-left-color:var(--ask); background:var(--ask-soft);}
+  .warn b{color:var(--ask);}
+
+  figure{margin:20px 0 8px; overflow-x:auto;}
+  svg{max-width:100%; height:auto; display:block;}
+  figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:70ch;}
+
+  footer{margin-top:50px; border-top:2px solid var(--ink); padding-top:16px;
+         font-size:13px; color:var(--muted); display:grid; gap:9px;}
+  footer b{color:var(--ink); font-family:var(--cond); letter-spacing:.04em;}
+</style>
+
+<div class="wrap">
+
+  <div class="mast">
+    <div class="kicker">Companion to the desk card · NQ / ES</div>
+    <h1>Build the screen once.</h1>
+    <p class="dek">Two charts, nine indicators, about twenty minutes. Do it once, save it,
+    and every morning is just opening the workspace.</p>
+  </div>
+
+  <!-- LAYOUT -->
+  <h2>The layout <span>two windows, one job each</span></h2>
+  <figure>
+    <svg viewBox="0 0 700 250" role="img" aria-label="Screen layout: a 5-minute structure chart on the left carrying the levels, and a footprint chart on the right carrying the order flow">
+      <rect x="8" y="30" width="330" height="200" rx="3" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".35"/>
+      <rect x="358" y="30" width="334" height="200" rx="3" fill="var(--panel-2)" stroke="var(--brass)" stroke-width="1.6"/>
+
+      <text x="8" y="22" font-family="IBM Plex Sans Condensed" font-size="12" font-weight="700" fill="currentColor" letter-spacing="1.2">CHART 1 — STRUCTURE</text>
+      <text x="358" y="22" font-family="IBM Plex Sans Condensed" font-size="12" font-weight="700" fill="var(--brass)" letter-spacing="1.2">CHART 2 — FLOW</text>
+
+      <g font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">
+        <text x="22" y="54">5-minute candles</text>
+        <text x="22" y="76" opacity=".75">· Market Profile &amp; TPO</text>
+        <text x="22" y="94" opacity=".75">· Session Volume Profile</text>
+        <text x="22" y="112" opacity=".75">· VWAP</text>
+        <text x="22" y="130" opacity=".75">· Delta / CVD (sub-panel)</text>
+        <text x="22" y="162" fill="var(--muted)" font-size="10.5">Answers: WHERE am I?</text>
+        <text x="22" y="178" fill="var(--muted)" font-size="10.5">Levels, day type, targets.</text>
+        <text x="22" y="206" fill="var(--muted)" font-size="10.5">This is the chart you plan on.</text>
+      </g>
+      <g font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">
+        <text x="374" y="54">Footprint — Bid × Ask</text>
+        <text x="374" y="76" opacity=".75">· Stacked Imbalance</text>
+        <text x="374" y="94" opacity=".75">· Cluster Search ×2</text>
+        <text x="374" y="112" opacity=".75">· Big Trades</text>
+        <text x="374" y="130" opacity=".75">· Speed of Tape</text>
+        <text x="374" y="162" fill="var(--brass)" font-size="10.5">Answers: is anyone DEFENDING it?</text>
+        <text x="374" y="178" fill="var(--brass)" font-size="10.5">Absorption, traps, initiative.</text>
+        <text x="374" y="206" fill="var(--brass)" font-size="10.5">This is the chart you trigger on.</text>
+      </g>
+      <text x="8" y="246" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">Same instrument, same 5-min period, side by side. Plan left, pull the trigger right.</text>
+    </svg>
+    <figcaption>Don't cram everything onto one chart. The levels chart stays clean enough to read structure; the footprint stays zoomed in enough to read cells.</figcaption>
+  </figure>
+
+  <!-- PART 1 -->
+  <h2>1 · Chart 1 — the structure chart</h2>
+  <ol class="steps">
+    <li>Open a new <b>Chart</b> window. Set the instrument to <span class="num">NQ</span> or
+      <span class="num">ES</span> (front month) and the period to <span class="num">5 min</span>.
+      <span class="note">Read the full-size contract even if you execute MNQ/MES — micros print thin, misleading clusters.</span></li>
+    <li>Press <kbd>Ctrl + I</kbd> to open <b>Indicators</b>. Search the name, click
+      <b>Add to Chart</b>, set it, click <b>Apply</b>. Repeat for the four below.
+      <span class="note">That's the whole loop — you'll do it nine times total across both charts.</span></li>
+  </ol>
+
+  <table>
+    <thead><tr><th>Indicator</th><th>Set this</th><th>Gives you</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Market Profile &amp; TPO</td>
+          <td class="v">period = Daily · show previous session · enable Initial Balance</td>
+          <td>Prior <b>VAH / POC / VAL</b>, prior day H/L, and the <b>IB</b> band that draws at 10:30.</td></tr>
+      <tr><td class="k">Session Volume Profile</td>
+          <td class="v">current session</td>
+          <td>The profile <b>shape</b> — your HVN shelves and LVN gaps.</td></tr>
+      <tr><td class="k">VWAP</td>
+          <td class="v">session reset</td>
+          <td>The algo benchmark. Real size defends it.</td></tr>
+      <tr><td class="k">Delta / CVD</td>
+          <td class="v">session reset · separate sub-panel</td>
+          <td>Divergence: CVD makes a new extreme, price doesn't.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Mark the two levels ATAS won't draw for you.</b> Using the horizontal-line
+  tool, add the <b>Globex High / Low</b> (overnight range) and any <b>naked POC</b> — a POC from an
+  earlier session that price has never returned to. Both are prime trap locations. Two minutes,
+  before the open, every day.</div>
+
+  <!-- PART 2 -->
+  <h2>2 · Chart 2 — the footprint chart</h2>
+  <ol class="steps">
+    <li>Open a second <b>Chart</b> window, same instrument, same <span class="num">5 min</span>.</li>
+    <li>Press <kbd>Shift + K</kbd> to switch it into <b>footprint mode</b>.
+      <span class="note">You can also just stretch the time scale with the mouse until cells appear. A toolbar for footprint options shows up on the left.</span></li>
+    <li>Press <kbd>Ctrl + S</kbd> for chart settings → <b>Clusters</b> tab. Set
+      <b>Content</b> to <span class="num">Bid × Ask</span>.
+      <span class="note">Volume and Delta modes hide the one thing you need — which side was aggressive at each price.</span></li>
+    <li>Still in <b>Clusters</b> → find <b>Bid/Ask Imbalance</b> and set the rate to
+      <span class="num">300%</span> <span class="note">That's the 3× diagonal comparison — ask at one price against bid one tick below. This is what colours the imbalanced cells.</span></li>
+    <li>Press <kbd>Ctrl + I</kbd> and add the five flow indicators from the table below.</li>
+  </ol>
+
+  <table>
+    <thead><tr><th>Indicator</th><th>Setting</th><th>NQ</th><th>ES</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Stacked Imbalance</td><td class="v">ratio 300% · stack 3 consecutive · min volume/cell</td><td class="num">~15</td><td class="num">~10</td></tr>
+      <tr><td class="k">Cluster Search #1</td><td class="v">search by <b>Bid</b> ≥ X · colour <span style="color:var(--ask)">red</span> (sell clusters)</td><td class="num">150–300</td><td class="num">100–200</td></tr>
+      <tr><td class="k">Cluster Search #2</td><td class="v">search by <b>Ask</b> ≥ X · colour <span style="color:var(--bid)">green</span> (buy clusters)</td><td class="num">150–300</td><td class="num">100–200</td></tr>
+      <tr><td class="k">Big Trades</td><td class="v">threshold = the outlier print size you actually see</td><td class="num">~50+</td><td class="num">~40+</td></tr>
+      <tr><td class="k">Speed of Tape</td><td class="v">defaults — you want the anomaly flags, not the raw rate</td><td class="num">—</td><td class="num">—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn"><b>Do not skip this.</b> Every volume number above is a
+  <em>starting point</em>, not a setting. Watch one full session first and note what a
+  <em>typical</em> cluster looks like versus a genuinely <em>big</em> one on your feed, then set
+  the threshold at the big one. Thresholds set too low light up the whole chart and the
+  signal disappears.</div>
+
+  <!-- PART 3 -->
+  <h2>3 · Save it <span>so you never build this twice</span></h2>
+  <ol class="steps">
+    <li>Save the <b>chart template</b> on each chart — that stores the indicators and their
+      settings so you can apply the same setup to another instrument in one click.</li>
+    <li>Save the <b>workspace</b> — that stores both windows, their positions and the
+      instrument. This is what you open each morning.
+      <span class="note">Indicators are saved with chart templates or workspace settings, depending on which you use — so do both and you're covered.</span></li>
+    <li>Make a second workspace for <span class="num">ES</span> by applying the same template.
+      Same setup, different thresholds (the lower numbers in the tables above).</li>
+  </ol>
+
+  <!-- PART 4 -->
+  <h2>4 · The morning routine <span>five minutes before 09:30</span></h2>
+  <ol class="steps">
+    <li>Open the workspace. Confirm the front month hasn't rolled.</li>
+    <li>On Chart 1, read off and mark: prior <b>VAH / POC / VAL</b>, prior <b>day H/L</b>,
+      <b>Globex H/L</b>, any <b>naked POC</b>. Note where the fat <b>HVN</b> shelves and thin
+      <b>LVN</b> gaps sit.</li>
+    <li>Note where price is opening <b>relative to prior value</b> — inside, outside, or
+      outside-then-back-in. That decides which setups are legal today.</li>
+    <li>Check the calendar. <b>Flat over FOMC / CPI.</b></li>
+    <li>At <b>10:30</b>, the Initial Balance completes. Add IB High / Low to your levels.
+      Prime window runs <span class="num">10:00–11:30</span>.</li>
+  </ol>
+
+  <!-- PART 5 -->
+  <h2>5 · Practise before you size up <span>Market Replay</span></h2>
+  <ol class="steps">
+    <li>Open <b>Market Replay</b> and pick a past session.</li>
+    <li>Choose <b>Ticks + DOM</b> mode.
+      <span class="note">The generated-tick modes are faster but they will not show you true absorption — which is the whole reason you're here. Accuracy over speed for this.</span></li>
+    <li>Trade it in a <b>replay account</b>. Run <span class="num">20–30</span> sessions,
+      <b>one setup at a time</b>, and check the Trading Journal for profit factor and drawdown.</li>
+    <li>Keep only the setups you can execute cleanly in real time.
+      <span class="note">A setup you can't trigger under speed is not an edge you own.</span></li>
+  </ol>
+
+  <footer>
+    <div><b>Feed check.</b> None of the flow indicators mean anything without aggressor-tagged
+    tick data — <span class="num">Rithmic, CQG or dxFeed</span>. On a delayed or eval feed the
+    imbalances are noise. Confirm this before you spend a morning tuning thresholds.</div>
+    <div><b>Version drift.</b> Field names move slightly between ATAS releases. If a setting
+    isn't labelled exactly as above, it's in the same panel — Clusters tab for anything
+    footprint-related, the indicator's own settings window for everything else.</div>
+    <div><b>Next.</b> The setups, triggers and exits this screen is built to serve are on the
+    desk card — keep that one open on the phone.</div>
+  </footer>
+
+</div>

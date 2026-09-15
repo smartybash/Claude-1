@@ -1,0 +1,25 @@
+QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
+spec: both sides · all 8 fixed levels · no open condition · no IB filter
+stop translated to NQ points at 29400
+
+--- no flow filter ---
+   stop  NQ pts                                                        meanRR  freq
+  0.10%      29  n= 400  win  44%  mean +0.860R  PF 2.53  t=+4.63        6.68  4.0/wk
+  0.15%      44  n= 400  win  50%  mean +0.628R  PF 2.26  t=+4.68        4.45  4.0/wk
+  0.20%      59  n= 400  win  54%  mean +0.501R  PF 2.12  t=+4.70        3.34  4.0/wk
+  0.25%      74  n= 400  win  58%  mean +0.412R  PF 2.02  t=+4.63        2.67  4.0/wk
+  0.35%     103  n= 400  win  62%  mean +0.289R  PF 1.85  t=+4.28        1.91  4.0/wk
+  0.50%     147  n= 400  win  66%  mean +0.208R  PF 1.77  t=+4.10        1.34  4.0/wk
+
+--- trigger-bar delta >=10% vs poke ---
+   stop  NQ pts                                                        meanRR  freq
+  0.10%      29  n= 351  win  51%  mean +1.215R  PF 3.50  t=+5.82        6.62  3.5/wk
+  0.15%      44  n= 351  win  57%  mean +0.875R  PF 3.06  t=+5.91        4.41  3.5/wk
+  0.20%      59  n= 351  win  60%  mean +0.682R  PF 2.79  t=+5.86        3.31  3.5/wk
+  0.25%      74  n= 351  win  62%  mean +0.521R  PF 2.44  t=+5.39        2.65  3.5/wk
+  0.35%     103  n= 351  win  66%  mean +0.376R  PF 2.24  t=+5.14        1.89  3.5/wk
+  0.50%     147  n= 351  win  70%  mean +0.270R  PF 2.13  t=+4.96        1.32  3.5/wk
+
+--- risk profile at candidate stops (bar-delta filter on) ---
+  stop 0.15% (44 NQ pts)  median +0.60R  max DD 5.0R  worst streak 5  best +37.4R
+  stop 0.25% (74 NQ pts)  median +0.44R  max DD 6.1R  worst streak 5  best +22.4R

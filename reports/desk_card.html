@@ -1,0 +1,647 @@
+<title>NQ/ES Desk Card</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F1F3F5; --panel:#FFFFFF; --panel-2:#E9EDF1;
+    --ink:#16202B; --ink-2:#3E4C5A; --muted:#6B7A8A; --rule:#D3DAE1;
+    --brass:#A97516; --brass-soft:#F0E3C8;
+    --bid:#1A8C5F; --ask:#BE3F37; --bid-soft:#DCF0E6; --ask-soft:#F8E1DF;
+    --shadow:0 1px 2px rgba(22,32,43,.07), 0 8px 24px rgba(22,32,43,.05);
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --cond:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+    --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0E151E; --panel:#151F2B; --panel-2:#1D2937;
+      --ink:#DDE5EC; --ink-2:#AFBDCA; --muted:#7C8B9A; --rule:#2A3846;
+      --brass:#D9A441; --brass-soft:#3A2F16;
+      --bid:#35C48D; --ask:#E4635A; --bid-soft:#14372A; --ask-soft:#3A1F1D;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0E151E; --panel:#151F2B; --panel-2:#1D2937;
+    --ink:#DDE5EC; --ink-2:#AFBDCA; --muted:#7C8B9A; --rule:#2A3846;
+    --brass:#D9A441; --brass-soft:#3A2F16;
+    --bid:#35C48D; --ask:#E4635A; --bid-soft:#14372A; --ask-soft:#3A1F1D;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--ground); color:var(--ink); font-family:var(--body);
+       line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px; margin:0 auto; padding:40px 22px 72px;}
+
+  /* ---- masthead ---- */
+  .mast{border-bottom:2px solid var(--ink); padding-bottom:18px; margin-bottom:6px;}
+  .kicker{font-family:var(--cond); text-transform:uppercase; letter-spacing:.14em;
+          font-size:12px; font-weight:600; color:var(--brass);}
+  h1{font-family:var(--cond); font-weight:700; font-size:clamp(34px,6vw,52px);
+     line-height:1.02; margin:.18em 0 .12em; letter-spacing:-.01em; text-wrap:balance;}
+  .dek{color:var(--ink-2); font-size:16px; max-width:62ch; margin:0;}
+
+  /* ---- spine: the 3 questions ---- */
+  .spine{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--rule);
+         border:1px solid var(--rule); margin:26px 0 10px;}
+  .spine>div{background:var(--panel); padding:14px 16px;}
+  .spine .q{font-family:var(--cond); text-transform:uppercase; letter-spacing:.1em;
+            font-size:11px; font-weight:700; color:var(--brass); margin-bottom:3px;}
+  .spine .a{font-size:14px; color:var(--ink); font-weight:500;}
+  .spine .s{font-size:12.5px; color:var(--muted); font-family:var(--mono);}
+
+  h2{font-family:var(--cond); font-weight:700; font-size:13px; text-transform:uppercase;
+     letter-spacing:.16em; color:var(--ink); margin:44px 0 4px;
+     padding-bottom:7px; border-bottom:1px solid var(--rule); display:flex;
+     justify-content:space-between; align-items:baseline; gap:12px;}
+  h2 span{font-family:var(--mono); letter-spacing:0; text-transform:none;
+          font-size:12px; color:var(--muted); font-weight:400;}
+  .lede{color:var(--ink-2); font-size:15px; margin:12px 0 18px; max-width:68ch;}
+
+  figure{margin:18px 0 8px; overflow-x:auto;}
+  svg{max-width:100%; height:auto; display:block;}
+  figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:70ch;}
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:12px 0;}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--rule); vertical-align:top;}
+  th{font-family:var(--cond); text-transform:uppercase; letter-spacing:.09em;
+     font-size:11px; color:var(--muted); font-weight:600; white-space:nowrap;}
+  td.k{font-family:var(--mono); font-weight:500; white-space:nowrap; font-size:12.5px;}
+  .num{font-variant-numeric:tabular-nums; font-family:var(--mono);}
+
+  /* ---- setup blocks ---- */
+  .setup{border:1px solid var(--rule); background:var(--panel); margin:22px 0;
+         box-shadow:var(--shadow);}
+  .setup>header{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+    padding:14px 18px; border-bottom:1px solid var(--rule); background:var(--panel-2);}
+  .tag{font-family:var(--mono); font-size:11px; font-weight:600; padding:3px 8px;
+       border-radius:2px; letter-spacing:.04em; white-space:nowrap;}
+  .tag.rev{background:var(--ask-soft); color:var(--ask);}
+  .tag.cont{background:var(--bid-soft); color:var(--bid);}
+  .setup h3{font-family:var(--cond); font-size:21px; font-weight:700; margin:0; letter-spacing:.005em;}
+  .mech{font-size:13.5px; color:var(--ink-2); margin:0; flex:1 1 320px;}
+  .setup .inner{padding:16px 18px 20px;}
+  .cols{display:grid; grid-template-columns:1.05fr .95fr; gap:28px;}
+  @media(max-width:820px){.cols{grid-template-columns:1fr; gap:14px} .spine{grid-template-columns:1fr}}
+
+  .ladder{list-style:none; padding:0; margin:0; font-size:13.5px;}
+  .ladder li{display:grid; grid-template-columns:64px 1fr; gap:10px; padding:6px 0;
+             border-bottom:1px dotted var(--rule);}
+  .ladder li:last-child{border-bottom:0;}
+  .ladder b{font-family:var(--cond); text-transform:uppercase; letter-spacing:.08em;
+            font-size:10.5px; color:var(--muted); font-weight:700; padding-top:2px;}
+  .ladder .go{color:var(--bid);} .ladder .stop{color:var(--ask);}
+
+  .must{margin:0; padding:0; list-style:none; font-size:13.5px;}
+  .must li{padding:7px 0 7px 22px; border-bottom:1px dotted var(--rule); position:relative;}
+  .must li:last-child{border-bottom:0;}
+  .must li::before{content:"☐"; position:absolute; left:0; top:6px; color:var(--brass);
+                   font-size:13px;}
+  .must .ind{font-family:var(--mono); font-size:12.5px; color:var(--brass); font-weight:500;}
+
+  .callout{border-left:3px solid var(--brass); background:var(--brass-soft);
+           padding:12px 16px; margin:20px 0; font-size:14px; color:var(--ink);}
+  .callout b{font-family:var(--cond); letter-spacing:.04em;}
+
+  .checklist{counter-reset:c; list-style:none; padding:0; margin:14px 0 0;
+             display:grid; gap:1px; background:var(--rule); border:1px solid var(--rule);}
+  .checklist li{background:var(--panel); padding:13px 16px 13px 52px; position:relative;
+                font-size:14.5px; counter-increment:c;}
+  .checklist li::before{content:counter(c); position:absolute; left:16px; top:12px;
+    font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ground);
+    background:var(--ink); width:21px; height:21px; border-radius:50%;
+    display:grid; place-items:center;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:26px;}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr; gap:8px}}
+
+  footer{margin-top:52px; border-top:2px solid var(--ink); padding-top:16px;
+         font-size:13px; color:var(--muted); display:grid; gap:9px;}
+  footer b{color:var(--ink); font-family:var(--cond); letter-spacing:.04em;}
+  .warn{color:var(--ask); font-weight:500;}
+</style>
+
+<div class="wrap">
+
+  <div class="mast">
+    <div class="kicker">Order-flow desk card · NQ / ES · ATAS</div>
+    <h1>Trade where someone is trapped.</h1>
+    <p class="dek">Odds don't come from a better pattern. They come from taking trades where the
+    invalidation is small and specific, and the payoff has a mechanism behind it — traders who
+    must cover, or an auction that is unfinished and must travel.</p>
+  </div>
+
+  <div class="spine">
+    <div><div class="q">1 · Location</div><div class="a">Is price at a level where risk changed hands?</div><div class="s">→ your pre-market map</div></div>
+    <div><div class="q">2 · Context</div><div class="a">Is the market accepting or rejecting price here?</div><div class="s">→ open vs prior value</div></div>
+    <div><div class="q">3 · Flow</div><div class="a">Is aggression being absorbed, or meeting nothing?</div><div class="s">→ ATAS footprint</div></div>
+  </div>
+  <p class="lede">All three must agree or there is no trade. Everyone has 1 and sometimes 2.
+  <b>ATAS is the only part of your stack that answers 3</b> — that is the entire reason to pay for it.
+  It turns "a level" into "a level someone is defending with size."</p>
+
+  <!-- ============ THE MAP ============ -->
+  <h2>A · The map <span>drawn before 09:30 — never during</span></h2>
+  <p class="lede">Only these prices. Adding more is how you talk yourself into a mid-range trade.</p>
+
+  <figure>
+    <svg viewBox="0 0 700 430" role="img" aria-label="Volume profile shape on the left with high and low volume nodes, and the stack of reference levels on the right from Globex High down to Globex Low">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <text x="14" y="18" font-family="IBM Plex Sans Condensed" font-size="11" font-weight="700" fill="currentColor" opacity=".55" letter-spacing="1.4">VOLUME PROFILE</text>
+      <text x="392" y="18" font-family="IBM Plex Sans Condensed" font-size="11" font-weight="700" fill="currentColor" opacity=".55" letter-spacing="1.4">REFERENCE LEVELS</text>
+
+      <!-- profile bars: x from 14 rightwards, width = volume -->
+      <g fill="currentColor" opacity=".28">
+        <rect x="14" y="34"  width="42"  height="15" rx="1"/>
+        <rect x="14" y="52"  width="66"  height="15" rx="1"/>
+        <rect x="14" y="70"  width="34"  height="15" rx="1"/>
+        <rect x="14" y="88"  width="22"  height="15" rx="1"/>
+      </g>
+      <!-- LVN band -->
+      <rect x="14" y="106" width="18" height="15" rx="1" fill="var(--ask)" opacity=".75"/>
+      <rect x="14" y="124" width="15" height="15" rx="1" fill="var(--ask)" opacity=".75"/>
+      <g fill="currentColor" opacity=".28">
+        <rect x="14" y="142" width="78"  height="15" rx="1"/>
+        <rect x="14" y="160" width="120" height="15" rx="1"/>
+      </g>
+      <!-- HVN / POC band -->
+      <rect x="14" y="178" width="188" height="15" rx="1" fill="var(--brass)" opacity=".85"/>
+      <rect x="14" y="196" width="164" height="15" rx="1" fill="var(--brass)" opacity=".55"/>
+      <g fill="currentColor" opacity=".28">
+        <rect x="14" y="214" width="126" height="15" rx="1"/>
+        <rect x="14" y="232" width="88"  height="15" rx="1"/>
+        <rect x="14" y="250" width="60"  height="15" rx="1"/>
+      </g>
+      <rect x="14" y="268" width="17" height="15" rx="1" fill="var(--ask)" opacity=".75"/>
+      <rect x="14" y="286" width="20" height="15" rx="1" fill="var(--ask)" opacity=".75"/>
+      <g fill="currentColor" opacity=".28">
+        <rect x="14" y="304" width="54" height="15" rx="1"/>
+        <rect x="14" y="322" width="40" height="15" rx="1"/>
+        <rect x="14" y="340" width="30" height="15" rx="1"/>
+        <rect x="14" y="358" width="24" height="15" rx="1"/>
+      </g>
+
+      <!-- HVN / LVN callouts -->
+      <line x1="206" y1="186" x2="250" y2="186" stroke="var(--brass)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <text x="212" y="180" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="var(--brass)">HVN — price sticks</text>
+      <line x1="36" y1="114" x2="250" y2="114" stroke="var(--ask)" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+      <text x="212" y="108" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="var(--ask)">LVN — edge = S/R, inside = fast</text>
+
+      <!-- level lines -->
+      <g font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">
+        <line x1="392" y1="42"  x2="686" y2="42"  stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity=".7"/>
+        <text x="392" y="37">Globex High</text>
+        <line x1="392" y1="78"  x2="686" y2="78"  stroke="currentColor" stroke-width="1.6"/>
+        <text x="392" y="73">Prior Day High</text>
+        <line x1="392" y1="122" x2="686" y2="122" stroke="var(--ask)" stroke-width="1.6"/>
+        <text x="392" y="117" fill="var(--ask)">VAH — fade zone</text>
+        <line x1="392" y1="158" x2="686" y2="158" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3" opacity=".7"/>
+        <text x="392" y="153">IB High (10:30)</text>
+        <line x1="392" y1="186" x2="686" y2="186" stroke="var(--brass)" stroke-width="2.4"/>
+        <text x="392" y="181" fill="var(--brass)">POC — magnet / T1</text>
+        <line x1="392" y1="214" x2="686" y2="214" stroke="currentColor" stroke-width="1" stroke-dasharray="6 2" opacity=".7"/>
+        <text x="392" y="209">VWAP — algo benchmark</text>
+        <line x1="392" y1="250" x2="686" y2="250" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3" opacity=".7"/>
+        <text x="392" y="245">IB Low (10:30)</text>
+        <line x1="392" y1="286" x2="686" y2="286" stroke="var(--bid)" stroke-width="1.6"/>
+        <text x="392" y="281" fill="var(--bid)">VAL — fade zone</text>
+        <line x1="392" y1="330" x2="686" y2="330" stroke="currentColor" stroke-width="1.6"/>
+        <text x="392" y="325">Prior Day Low</text>
+        <line x1="392" y1="366" x2="686" y2="366" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity=".7"/>
+        <text x="392" y="361">Globex Low</text>
+      </g>
+      <text x="392" y="398" font-family="IBM Plex Mono" font-size="11.5" fill="var(--brass)">◆ naked POC — unfinished business, price is drawn to it</text>
+      <text x="14" y="398" font-family="IBM Plex Mono" font-size="11" fill="currentColor" opacity=".55">volume at price →</text>
+      <text x="14" y="418" font-family="IBM Plex Mono" font-size="11" fill="currentColor" opacity=".55">Globex H/L hold the most-run stops of the morning.</text>
+    </svg>
+    <figcaption>The profile's <em>shape</em> is half the map: fat shelves (HVN) are where rotations die — take profit there. Thin gaps (LVN) reject price at their EDGES (trade them as S/R) and travel fast once a close is accepted through — never put a target inside one.</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th>Level</th><th>ATAS source</th><th>What it tells you</th></tr></thead>
+    <tbody>
+      <tr><td class="k">VAH / POC / VAL</td><td class="k">Market Profile &amp; TPO — period Daily, prior session</td><td>The fair-value envelope. Edges are fade zones; POC is the magnet and your first target.</td></tr>
+      <tr><td class="k">HVN / LVN</td><td class="k">Session Volume Profile — read the shape</td><td>HVN = acceptance, price sticks. LVN edge = rejection, trade it as S/R; the interior travels fast only after a close through the edge.</td></tr>
+      <tr><td class="k">Naked POC</td><td class="k">Market Profile — prior sessions, untouched</td><td>Unfinished auction. A high-probability draw; use as T2.</td></tr>
+      <tr><td class="k">Prior Day H / L</td><td class="k">Market Profile / daily H-L</td><td>Obvious stop pools. Prime trap locations.</td></tr>
+      <tr><td class="k">Globex H / L</td><td class="k">overnight session range</td><td>Where the morning's stop-run happens. Best Setup 1 location before 10:00.</td></tr>
+      <tr><td class="k">IB High / Low</td><td class="k">Market Profile &amp; TPO → Initial Balance</td><td>Drawn at 10:30. The day's first accepted range.</td></tr>
+      <tr><td class="k">VWAP</td><td class="k">VWAP indicator, session reset</td><td>Real because execution algos are benchmarked to it — size genuinely defends it.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============ FOOTPRINT ============ -->
+  <h2>B · Reading the footprint <span>bid × ask at every price</span></h2>
+  <p class="lede">This is the part nobody else has. Each cell shows contracts traded
+  <span class="num">at the bid</span> (sellers hitting) × <span class="num">at the ask</span> (buyers lifting).
+  An <b>imbalance</b> is a <em>diagonal</em> comparison — ask at one price vs bid one tick below —
+  flagged when one side is ≥3× the other. Three stacked in a row is the signal.</p>
+
+  <figure>
+    <svg viewBox="0 0 700 300" role="img" aria-label="Two footprint panels: a stacked buy imbalance showing continuation, and absorption at the high showing reversal">
+      <!-- PANEL A -->
+      <text x="10" y="16" font-family="IBM Plex Sans Condensed" font-size="12" font-weight="700" fill="var(--bid)" letter-spacing="1.2">STACKED BUY IMBALANCE → CONTINUATION</text>
+      <g font-family="IBM Plex Mono" font-size="12.5">
+        <!-- header -->
+        <text x="14"  y="40" font-size="10" fill="currentColor" opacity=".55">PRICE</text>
+        <text x="82"  y="40" font-size="10" fill="currentColor" opacity=".55">BID</text>
+        <text x="140" y="40" font-size="10" fill="currentColor" opacity=".55">ASK</text>
+        <!-- rows -->
+        <g fill="currentColor">
+          <text x="14" y="60">20315</text><text x="82" y="60">18</text><text x="140" y="60">41</text>
+          <text x="14" y="84">20314</text><text x="82" y="84">12</text>
+          <text x="14" y="108">20313</text><text x="82" y="108">15</text>
+          <text x="14" y="132">20312</text><text x="82" y="132">11</text>
+          <text x="14" y="156">20311</text><text x="82" y="156">44</text><text x="140" y="156">21</text>
+          <text x="14" y="180">20310</text><text x="82" y="180">38</text><text x="140" y="180">19</text>
+        </g>
+        <!-- imbalanced ask cells -->
+        <rect x="132" y="72"  width="52" height="18" fill="var(--bid-soft)" stroke="var(--bid)" stroke-width="1"/>
+        <text x="140" y="86" fill="var(--bid)" font-weight="600">96</text>
+        <rect x="132" y="96"  width="52" height="18" fill="var(--bid-soft)" stroke="var(--bid)" stroke-width="1"/>
+        <text x="140" y="110" fill="var(--bid)" font-weight="600">88</text>
+        <rect x="132" y="120" width="52" height="18" fill="var(--bid-soft)" stroke="var(--bid)" stroke-width="1"/>
+        <text x="140" y="134" fill="var(--bid)" font-weight="600">74</text>
+        <!-- stack bracket -->
+        <path d="M192,74 L200,74 L200,136 L192,136" fill="none" stroke="var(--bid)" stroke-width="1.6"/>
+        <text x="206" y="98" font-size="11" fill="var(--bid)" font-weight="600">3 stacked</text>
+        <text x="206" y="114" font-size="11" fill="var(--bid)" font-weight="600">imbalances</text>
+        <!-- diagonal arrow -->
+        <line x1="106" y1="128" x2="130" y2="110" stroke="var(--bid)" stroke-width="1.4" marker-end="url(#ar2)"/>
+        <text x="60" y="212" font-size="10.5" fill="currentColor" opacity=".7">ask 88 vs bid 11 one tick below</text>
+        <text x="60" y="228" font-size="10.5" fill="currentColor" opacity=".7">= 8× → buy imbalance</text>
+        <text x="14" y="256" font-size="11" fill="var(--bid)" font-weight="600">Buyers lifting with nothing in the way.</text>
+        <text x="14" y="272" font-size="11" fill="currentColor" opacity=".75">Thin bid column = no defence. Join pullbacks.</text>
+      </g>
+      <defs>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--bid)"/>
+        </marker>
+        <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--ask)"/>
+        </marker>
+      </defs>
+
+      <line x1="350" y1="8" x2="350" y2="292" stroke="currentColor" opacity=".18" stroke-width="1"/>
+
+      <!-- PANEL B -->
+      <text x="372" y="16" font-family="IBM Plex Sans Condensed" font-size="12" font-weight="700" fill="var(--ask)" letter-spacing="1.2">ABSORPTION AT THE HIGH → REVERSAL</text>
+      <g font-family="IBM Plex Mono" font-size="12.5">
+        <text x="376" y="40" font-size="10" fill="currentColor" opacity=".55">PRICE</text>
+        <text x="444" y="40" font-size="10" fill="currentColor" opacity=".55">BID</text>
+        <text x="502" y="40" font-size="10" fill="currentColor" opacity=".55">ASK</text>
+        <g fill="currentColor">
+          <text x="376" y="60">20328</text><text x="444" y="60">9</text><text x="502" y="60">14</text>
+          <text x="376" y="84">20327</text><text x="444" y="84">22</text>
+          <text x="376" y="108">20326</text><text x="444" y="108">31</text>
+          <text x="376" y="132">20325</text><text x="444" y="132">27</text>
+          <text x="376" y="156">20324</text><text x="444" y="156">40</text><text x="502" y="156">62</text>
+          <text x="376" y="180">20323</text><text x="444" y="180">35</text><text x="502" y="180">58</text>
+        </g>
+        <!-- huge ask cells absorbed -->
+        <rect x="494" y="72"  width="66" height="18" fill="var(--ask-soft)" stroke="var(--ask)" stroke-width="1"/>
+        <text x="502" y="86" fill="var(--ask)" font-weight="600">412</text>
+        <rect x="494" y="96"  width="66" height="18" fill="var(--ask-soft)" stroke="var(--ask)" stroke-width="1"/>
+        <text x="502" y="110" fill="var(--ask)" font-weight="600">388</text>
+        <rect x="494" y="120" width="66" height="18" fill="var(--ask-soft)" stroke="var(--ask)" stroke-width="1"/>
+        <text x="502" y="134" fill="var(--ask)" font-weight="600">356</text>
+        <path d="M568,74 L576,74 L576,136 L568,136" fill="none" stroke="var(--ask)" stroke-width="1.6"/>
+        <text x="582" y="98" font-size="11" fill="var(--ask)" font-weight="600">huge buying</text>
+        <text x="582" y="114" font-size="11" fill="var(--ask)" font-weight="600">— price flat</text>
+        <line x1="640" y1="66" x2="640" y2="142" stroke="var(--ask)" stroke-width="1.4" stroke-dasharray="3 2"/>
+        <text x="608" y="160" font-size="10.5" fill="var(--ask)">high stops extending</text>
+        <text x="376" y="212" font-size="10.5" fill="currentColor" opacity=".7">CVD makes a new high — price does not.</text>
+        <text x="376" y="228" font-size="10.5" fill="currentColor" opacity=".7">Passive sellers eating every lift.</text>
+        <text x="376" y="256" font-size="11" fill="var(--ask)" font-weight="600">Those buyers are now trapped.</text>
+        <text x="376" y="272" font-size="11" fill="currentColor" opacity=".75">Short the first close back down.</text>
+      </g>
+    </svg>
+    <figcaption>Left: aggression meeting <em>nothing</em> — thin opposing column, three stacked imbalances, price travels. Right: aggression meeting <em>everything</em> — enormous volume at the ask but the high refuses to extend. Same delta sign, opposite trade.</figcaption>
+  </figure>
+
+  <div class="callout"><b>The one distinction that matters:</b> big delta with price
+  <em>moving</em> is initiative — go with it. Big delta with price <em>stalling</em> is
+  absorption — fade it. Delta alone tells you nothing; delta versus price progress tells you everything.</div>
+
+  <!-- ============ DAY TYPE ============ -->
+  <h2>C · Day type <span>decided in the first 30 minutes</span></h2>
+
+  <figure>
+    <svg viewBox="0 0 700 210" role="img" aria-label="Decision fork: where price opens relative to prior day value area determines which of the three setups may be traded">
+      <rect x="8" y="80" width="150" height="46" rx="2" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".35"/>
+      <text x="83" y="100" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-size="12.5" font-weight="700" fill="currentColor">OPEN vs</text>
+      <text x="83" y="116" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-size="12.5" font-weight="700" fill="currentColor">PRIOR VALUE</text>
+
+      <g stroke="currentColor" stroke-width="1.4" fill="none" opacity=".55">
+        <path d="M158,95 C200,95 200,38 240,38" marker-end="url(#ar)"/>
+        <path d="M158,103 L240,103" marker-end="url(#ar)"/>
+        <path d="M158,111 C200,111 200,168 240,168" marker-end="url(#ar)"/>
+      </g>
+
+      <g font-family="IBM Plex Mono" font-size="12">
+        <rect x="246" y="18" width="196" height="40" rx="2" fill="var(--panel-2)" stroke="var(--bid)" stroke-width="1.2"/>
+        <text x="256" y="34" fill="currentColor">Inside value, stays</text>
+        <text x="256" y="50" fill="var(--muted)" font-size="11">balance / rotation</text>
+        <text x="456" y="42" fill="var(--bid)" font-weight="600">Setups 1 &amp; 2 — fade edges</text>
+
+        <rect x="246" y="83" width="196" height="40" rx="2" fill="var(--panel-2)" stroke="var(--ask)" stroke-width="1.2"/>
+        <text x="256" y="99" fill="currentColor">Outside, holds outside</text>
+        <text x="256" y="115" fill="var(--muted)" font-size="11">initiative / trend</text>
+        <text x="456" y="107" fill="var(--ask)" font-weight="600">Setup 3 only — never fade</text>
+
+        <rect x="246" y="148" width="196" height="40" rx="2" fill="var(--brass-soft)" stroke="var(--brass)" stroke-width="1.6"/>
+        <text x="256" y="164" fill="currentColor">Outside → back inside</text>
+        <text x="256" y="180" fill="var(--brass)" font-size="11" font-weight="600">FAILED AUCTION</text>
+        <text x="456" y="166" fill="var(--brass)" font-weight="600">Setup 1 — target the</text>
+        <text x="456" y="182" fill="var(--brass)" font-weight="600">far side of value</text>
+      </g>
+    </svg>
+    <figcaption>The third branch is the highest-quality day-type in auction trading: price tried to leave, was rejected, and re-entered. The rotation across the whole value area is the trade.</figcaption>
+  </figure>
+
+  <!-- ============ SETUPS ============ -->
+  <h2>D · The three setups <span>each one is a mechanism, not a pattern</span></h2>
+
+  <!-- SETUP 1 -->
+  <div class="setup">
+    <header>
+      <span class="tag rev">REVERSAL · PRIMARY</span>
+      <h3>1 · Failed Auction / Trap</h3>
+      <p class="mech">Traders entered on a breakout that failed. They are offside and must cover. Their stops are your fuel.</p>
+    </header>
+    <div class="inner">
+      <div class="cols">
+        <div>
+          <figure style="margin-top:0">
+            <svg viewBox="0 0 340 190" role="img" aria-label="Price pokes above a reference level, fails to find acceptance, and closes back inside; entry on the reclaim with stop above the failed high">
+              <line x1="14" y1="70" x2="326" y2="70" stroke="currentColor" stroke-width="1.6"/>
+              <text x="14" y="63" font-family="IBM Plex Mono" font-size="10.5" fill="currentColor">Globex High / PDH / VAH</text>
+              <polyline points="20,150 50,132 78,110 104,86 124,58 140,44 152,50 164,66 176,80 200,96 232,118 268,140 310,158"
+                        fill="none" stroke="currentColor" stroke-width="2" opacity=".8"/>
+              <circle cx="140" cy="44" r="4" fill="var(--ask)"/>
+              <text x="118" y="34" font-family="IBM Plex Mono" font-size="10" fill="var(--ask)">no acceptance</text>
+              <line x1="140" y1="30" x2="140" y2="40" stroke="var(--ask)" stroke-width="1.2"/>
+              <text x="196" y="28" font-family="IBM Plex Mono" font-size="10" fill="var(--ask)">STOP — above the</text>
+              <text x="196" y="40" font-family="IBM Plex Mono" font-size="10" fill="var(--ask)">failed extreme</text>
+              <line x1="160" y1="30" x2="192" y2="34" stroke="var(--ask)" stroke-width="1" stroke-dasharray="2 2"/>
+              <circle cx="176" cy="80" r="4.5" fill="var(--brass)"/>
+              <text x="184" y="78" font-family="IBM Plex Mono" font-size="10.5" fill="var(--brass)" font-weight="600">ENTRY — close back inside</text>
+              <line x1="14" y1="120" x2="326" y2="120" stroke="var(--brass)" stroke-width="1.2" stroke-dasharray="5 3"/>
+              <text x="14" y="133" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)">T1 · POC</text>
+              <line x1="14" y1="160" x2="326" y2="160" stroke="var(--bid)" stroke-width="1.2" stroke-dasharray="5 3"/>
+              <text x="14" y="173" font-family="IBM Plex Mono" font-size="10" fill="var(--bid)">T2 · far side of value / naked POC</text>
+            </svg>
+          </figure>
+          <ul class="ladder">
+            <li><b>Where</b><span>Globex H/L, prior day H/L, IB H/L, VAH/VAL</span></li>
+            <li><b>Trigger</b><span>the 1- or 5-min candle that <b>closes back inside</b> the level</span></li>
+            <li><b>Entry</b><span>limit at / just inside the reclaimed level on the retest</span></li>
+            <li><b>Stop</b><span class="stop">beyond the failed extreme + 2–3 ticks</span></li>
+            <li><b>T1</b><span class="go">opposite side of the immediate range, or POC</span></li>
+            <li><b>T2</b><span class="go">far side of value · next naked POC</span></li>
+          </ul>
+        </div>
+        <div>
+          <p style="font-family:var(--cond);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 6px">What must show — need 2 of 4</p>
+          <ul class="must">
+            <li><span class="ind">Cluster Search</span> — an outsized cluster right at the extreme. Someone big took the other side.</li>
+            <li><span class="ind">Delta / CVD</span> — divergence: CVD makes a new extreme, price does not.</li>
+            <li><span class="ind">Stacked Imbalance</span> — now printing in the <b>reverse</b> direction as price comes back.</li>
+            <li><span class="ind">Speed of Tape</span> — spikes on the break, then dies. Aggression spent.</li>
+          </ul>
+          <div class="callout" style="margin:16px 0 0"><b>Why the odds tilt.</b> You are positioned against
+          a group with a known, clustered stop location — and your own risk is defined by
+          that same extreme. If price trades back out, the auction was never failed: you're
+          wrong immediately and cheaply.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP 2 -->
+  <div class="setup">
+    <header>
+      <span class="tag rev">REVERSAL</span>
+      <h3>2 · Absorption at a Level</h3>
+      <p class="mech">Aggressive orders are hitting a wall of passive size. The passive side is usually the informed one.</p>
+    </header>
+    <div class="inner">
+      <div class="cols">
+        <div>
+          <figure style="margin-top:0">
+            <svg viewBox="0 0 340 190" role="img" aria-label="Price grinds into a level, makes no new ground while volume swells, then closes away from the level">
+              <line x1="14" y1="56" x2="326" y2="56" stroke="var(--ask)" stroke-width="1.6"/>
+              <text x="14" y="49" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ask)">HVN / POC / VAH — the wall</text>
+              <polyline points="20,150 54,126 86,104 110,72 126,60 142,66 158,60 174,68 190,58 206,72 232,100 266,128 308,152"
+                        fill="none" stroke="currentColor" stroke-width="2" opacity=".8"/>
+              <g fill="var(--ask)" opacity=".85">
+                <rect x="120" y="80" width="8" height="34" rx="1"/>
+                <rect x="136" y="80" width="8" height="34" rx="1"/>
+                <rect x="152" y="80" width="8" height="34" rx="1"/>
+                <rect x="168" y="80" width="8" height="34" rx="1"/>
+                <rect x="184" y="80" width="8" height="34" rx="1"/>
+              </g>
+              <text x="118" y="128" font-family="IBM Plex Mono" font-size="10" fill="var(--ask)">volume swells,</text>
+              <text x="118" y="140" font-family="IBM Plex Mono" font-size="10" fill="var(--ask)">price goes nowhere</text>
+              <circle cx="206" cy="72" r="4.5" fill="var(--brass)"/>
+              <text x="214" y="70" font-family="IBM Plex Mono" font-size="10.5" fill="var(--brass)" font-weight="600">ENTRY</text>
+              <text x="214" y="82" font-family="IBM Plex Mono" font-size="9.5" fill="var(--brass)">first close against</text>
+              <line x1="14" y1="42" x2="326" y2="42" stroke="var(--ask)" stroke-width="1" stroke-dasharray="3 2"/>
+              <text x="238" y="36" font-family="IBM Plex Mono" font-size="10" fill="var(--ask)">STOP — beyond cluster</text>
+              <line x1="14" y1="128" x2="326" y2="128" stroke="var(--brass)" stroke-width="1.2" stroke-dasharray="5 3"/>
+              <text x="14" y="141" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)">T1 · POC / opposite VA edge</text>
+              <line x1="14" y1="166" x2="326" y2="166" stroke="var(--bid)" stroke-width="1.2" stroke-dasharray="5 3"/>
+              <text x="14" y="179" font-family="IBM Plex Mono" font-size="10" fill="var(--bid)">T2 · through the next LVN</text>
+            </svg>
+          </figure>
+          <ul class="ladder">
+            <li><b>Where</b><span>HVN, POC, VAH/VAL, or a level the Absorption indicator marks</span></li>
+            <li><b>Trigger</b><span>first candle that <b>closes against</b> the aggression direction</span></li>
+            <li><b>Entry</b><span>on that close</span></li>
+            <li><b>Stop</b><span class="stop">beyond the absorption cluster's extreme — tight, that's the point</span></li>
+            <li><b>T1</b><span class="go">POC / opposite value-area edge</span></li>
+            <li><b>T2</b><span class="go">through the next LVN — vacuum, price runs</span></li>
+          </ul>
+        </div>
+        <div>
+          <p style="font-family:var(--cond);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 6px">What must show — need 2 of 4</p>
+          <ul class="must">
+            <li><span class="ind">Big Trades · Smart Tape</span> — large prints on the <b>passive</b> side. Smart Tape re-aggregates split orders so you see true size, not fragments.</li>
+            <li><span class="ind">Cluster Search</span> — one price whose cluster keeps swelling while price stays flat.</li>
+            <li><span class="ind">Delta / CVD</span> — delta strongly positive, price flat or lower.</li>
+            <li><span class="ind">Absorption</span> — the indicator marks the level directly.</li>
+          </ul>
+          <div class="callout" style="margin:16px 0 0"><b>Why the odds tilt.</b> You side with size
+          that is patient and willing to work limit orders, against size that just paid the
+          spread and got nowhere. When the aggressors give up, they exit into you.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP 3 -->
+  <div class="setup">
+    <header>
+      <span class="tag cont">CONTINUATION</span>
+      <h3>3 · Initiative Continuation</h3>
+      <p class="mech">The auction is unfinished. Price crossed an LVN with no defence and must find acceptance further out.</p>
+    </header>
+    <div class="inner">
+      <div class="cols">
+        <div>
+          <figure style="margin-top:0">
+            <svg viewBox="0 0 340 190" role="img" aria-label="An initiative drive with stacked imbalances through a thin area, a shallow pullback that holds the zone, then continuation">
+              <rect x="14" y="86" width="312" height="22" fill="var(--ask)" opacity=".13"/>
+              <text x="18" y="101" font-family="IBM Plex Mono" font-size="10" fill="var(--ask)">LVN crossed — no defence</text>
+              <line x1="14" y1="62" x2="326" y2="62" stroke="var(--bid)" stroke-width="1.4" stroke-dasharray="4 3"/>
+              <text x="14" y="55" font-family="IBM Plex Mono" font-size="10" fill="var(--bid)">last stacked-imbalance zone</text>
+              <polyline points="20,164 46,150 70,130 92,108 112,86 132,66 150,54 166,60 180,64 194,58 216,44 246,32 282,24 316,18"
+                        fill="none" stroke="currentColor" stroke-width="2" opacity=".8"/>
+              <g fill="var(--bid)" opacity=".9">
+                <rect x="106" y="70" width="6" height="18" rx="1"/>
+                <rect x="118" y="62" width="6" height="18" rx="1"/>
+                <rect x="130" y="54" width="6" height="18" rx="1"/>
+              </g>
+              <circle cx="180" cy="64" r="4.5" fill="var(--brass)"/>
+              <text x="188" y="76" font-family="IBM Plex Mono" font-size="10.5" fill="var(--brass)" font-weight="600">ENTRY — pullback holds</text>
+              <line x1="14" y1="76" x2="326" y2="76" stroke="var(--ask)" stroke-width="1" stroke-dasharray="3 2"/>
+              <text x="228" y="90" font-family="IBM Plex Mono" font-size="10" fill="var(--ask)">STOP — through the zone</text>
+              <line x1="14" y1="30" x2="326" y2="30" stroke="var(--brass)" stroke-width="1.2" stroke-dasharray="5 3"/>
+              <text x="14" y="26" font-family="IBM Plex Mono" font-size="10" fill="var(--brass)">T1 · next HVN — rotations die at shelves</text>
+              <line x1="14" y1="14" x2="326" y2="14" stroke="var(--bid)" stroke-width="1.2" stroke-dasharray="5 3"/>
+              <text x="14" y="11" font-family="IBM Plex Mono" font-size="9.5" fill="var(--bid)">T2 · measured move / naked POC</text>
+            </svg>
+          </figure>
+          <ul class="ladder">
+            <li><b>Where</b><span>after price <b>breaks and holds</b> outside a level; pullback into the last imbalance zone or the LVN just crossed</span></li>
+            <li><b>Trigger</b><span>trend-direction imbalance <b>reappears</b> while the zone holds</span></li>
+            <li><b>Entry</b><span>limit at the zone</span></li>
+            <li><b>Stop</b><span class="stop">through the zone — initiative is over, get out</span></li>
+            <li><b>T1</b><span class="go">next HVN</span></li>
+            <li><b>T2</b><span class="go">measured move / next naked POC · trail behind each new HVN</span></li>
+          </ul>
+        </div>
+        <div>
+          <p style="font-family:var(--cond);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 6px">What must show — need 2 of 4</p>
+          <ul class="must">
+            <li><span class="ind">Stacked Imbalance</span> — 3+ in the trend direction on the drive.</li>
+            <li><span class="ind">Footprint / Cluster Statistic</span> — thin clusters through the travelled area. Nobody defended it.</li>
+            <li><span class="ind">Speed of Tape</span> — slows on the pullback, re-accelerates on the resume.</li>
+            <li><span class="ind">Big Trades</span> — <b>no</b> opposing large prints at the pullback low/high.</li>
+          </ul>
+          <div class="callout" style="margin:16px 0 0"><b>Why the odds tilt.</b> You are not chasing
+          the break — you are buying the retest of a vacuum the market has already shown it
+          will not defend. If it defends now, your stop is right there.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CHECKLIST ============ -->
+  <h2>E · Before you click <span>any "no" = no trade</span></h2>
+  <ol class="checklist">
+    <li>Price is <b>at a level from my map</b> — not mid-range.</li>
+    <li><b>Context agrees</b> with the direction (day type from section C).</li>
+    <li><b>Flow confirms</b> — 2 of the setup's four ATAS signals.</li>
+    <li>I can state my <b>invalidation price in one sentence</b>.</li>
+    <li>My target is a <b>real liquidity pool</b> — HVN, POC, opposite edge — not an R multiple.</li>
+  </ol>
+  <div class="callout"><b>The checklist is the edge.</b> A desk's advantage is not a better
+  signal. It is refusing to act when the conditions are only partly there.</div>
+
+  <!-- ============ EXITS + RISK ============ -->
+  <h2>F · Managing the trade</h2>
+  <div class="grid2">
+    <div>
+      <p style="font-family:var(--cond);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 4px">Exits</p>
+      <table>
+        <tbody>
+          <tr><td class="k">Scale at T1</td><td>Half off at the first liquidity pool, stop to breakeven, let the rest run to T2.</td></tr>
+          <tr><td class="k">Invalidation</td><td>The structural price. Never an arbitrary R multiple.</td></tr>
+          <tr><td class="k">Time stop</td><td><b>15–20 min.</b> A trap or absorption trade pays quickly or not at all — if the covering hasn't shown, the mechanism isn't there. Flatten.</td></tr>
+          <tr><td class="k">Never</td><td class="warn">Move a stop away from price. Ever.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p style="font-family:var(--cond);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 4px">Risk</p>
+      <table>
+        <tbody>
+          <tr><td class="k">Per trade</td><td>Fixed <b>dollar</b> risk, 0.5–1%. Size contracts off the stop distance so a 40-pt and a 12-pt stop cost the same.</td></tr>
+          <tr><td class="k">Per day</td><td>Max 2–3 trades. <b>Two losses = done.</b></td></tr>
+          <tr><td class="k">Events</td><td class="warn">Flat over FOMC / CPI. The tape lies through releases.</td></tr>
+          <tr><td class="k">Instrument</td><td>Read the full-size <b>NQ/ES</b> footprint, execute in <b>MNQ/MES</b>. Micros print thin, misleading clusters alone.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>G · The session clock <span>times in ET</span></h2>
+  <figure>
+    <svg viewBox="0 0 700 108" role="img" aria-label="Timeline of the trading session showing which setups are permitted in each window from 9:30 to 16:00">
+      <g font-family="IBM Plex Mono" font-size="11">
+        <rect x="10"  y="30" width="118" height="34" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".3"/>
+        <rect x="128" y="30" width="196" height="34" fill="var(--brass)" opacity=".22"/>
+        <rect x="128" y="30" width="196" height="34" fill="none" stroke="var(--brass)" stroke-width="1.6"/>
+        <rect x="324" y="30" width="150" height="34" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".3"/>
+        <rect x="474" y="30" width="146" height="34" fill="var(--panel-2)" stroke="currentColor" stroke-opacity=".3"/>
+        <rect x="620" y="30" width="70"  height="34" fill="var(--ask)" opacity=".16"/>
+        <rect x="620" y="30" width="70"  height="34" fill="none" stroke="var(--ask)" stroke-opacity=".6"/>
+
+        <text x="14"  y="24" fill="currentColor" opacity=".6">09:30</text>
+        <text x="132" y="24" fill="var(--brass)" font-weight="600">10:00</text>
+        <text x="328" y="24" fill="currentColor" opacity=".6">11:30</text>
+        <text x="478" y="24" fill="currentColor" opacity=".6">14:00</text>
+        <text x="624" y="24" fill="var(--ask)">15:30</text>
+
+        <text x="16"  y="51" fill="currentColor" font-size="10.5">open drive</text>
+        <text x="16"  y="62" fill="currentColor" opacity=".65" font-size="9.5">Setup 1 only</text>
+        <text x="134" y="49" fill="var(--brass)" font-weight="600" font-size="11.5">PRIME WINDOW — all three setups</text>
+        <text x="134" y="61" fill="var(--brass)" opacity=".8" font-size="9.5">IB completes · traps resolve</text>
+        <text x="330" y="51" fill="currentColor" font-size="10.5">lunch — thin</text>
+        <text x="330" y="62" fill="currentColor" opacity=".65" font-size="9.5">stand down unless A+ at a major level</text>
+        <text x="480" y="51" fill="currentColor" font-size="10.5">trend resumption</text>
+        <text x="480" y="62" fill="currentColor" opacity=".65" font-size="9.5">Setup 3, or 1 at the day's extreme</text>
+        <text x="624" y="51" fill="var(--ask)" font-size="10.5">MOC</text>
+        <text x="624" y="62" fill="var(--ask)" opacity=".8" font-size="9.5">flat</text>
+
+        <text x="10" y="90" fill="currentColor" opacity=".6" font-size="11">Spreads are widest and stops are thinnest at 09:30 — the open is for reacting to the overnight levels, not for having an opinion.</text>
+      </g>
+    </svg>
+  </figure>
+
+  <h2>H · ATAS setup <span>starting points — calibrate on day one</span></h2>
+  <table>
+    <thead><tr><th>Indicator</th><th>Setting</th><th>NQ</th><th>ES</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Market Profile &amp; TPO</td><td>period Daily · show prior VAH/POC/VAL · enable Initial Balance</td><td class="num">—</td><td class="num">—</td></tr>
+      <tr><td class="k">Session Volume Profile</td><td>current session — read HVN/LVN shape</td><td class="num">—</td><td class="num">—</td></tr>
+      <tr><td class="k">Stacked Imbalance</td><td>imbalance ratio <b>300%</b> · stack <b>3</b> consecutive · min volume per cell</td><td class="num">~15</td><td class="num">~10</td></tr>
+      <tr><td class="k">Cluster Search ×2</td><td>#1 sell clusters (bid ≥ X, red) · #2 buy clusters (ask ≥ X, green)</td><td class="num">150–300</td><td class="num">100–200</td></tr>
+      <tr><td class="k">Delta / CVD</td><td>session reset — watch for divergence vs price</td><td class="num">—</td><td class="num">—</td></tr>
+      <tr><td class="k">Big Trades · Smart Tape</td><td>threshold at the outlier size you actually observe</td><td class="num">~50+</td><td class="num">~40+</td></tr>
+      <tr><td class="k">Speed of Tape</td><td>default — you want the anomaly flags, not the raw rate</td><td class="num">—</td><td class="num">—</td></tr>
+      <tr><td class="k">VWAP</td><td>session reset</td><td class="num">—</td><td class="num">—</td></tr>
+    </tbody>
+  </table>
+  <p class="lede" style="margin-top:10px">Chart: a 5-min for the levels plus a footprint (or a
+  Reversal / Range chart) for the flow read. <b>Calibrate the volume thresholds on day one</b> —
+  watch one session, note typical versus outlier cluster sizes, set the threshold at the outlier.
+  The numbers above are starting points, not truth.</p>
+
+  <footer>
+    <div><b>Feed.</b> Footprint imbalance and absorption need aggressor-tagged tick data —
+    <span class="num">Rithmic, CQG or dxFeed</span>. On delayed or eval data these signals are
+    noise and all three setups collapse into naked level-trading.</div>
+    <div><b>Validate before size.</b> These setups are built from auction and order-flow
+    mechanics — not from a backtest. Use <span class="num">ATAS Market Replay</span> in
+    <b>Ticks + DOM</b> mode (generated-tick modes will not show true absorption). Replay 20–30
+    sessions, one setup at a time, logged to a replay account.</div>
+    <div class="warn">A setup you cannot execute under speed is not an edge you own.</div>
+  </footer>
+
+</div>

@@ -1,0 +1,32 @@
+QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
+stop = 0.25% beyond the level · target = prior-day POC · first rejection after 10:00
+
+                                                                                                    freq
+------------------------------------------------------------------------------------------------------------
+BASELINE — the validated trade
+  pdVAH short, opens below VAH                 n= 132  win  71%  mean +0.318R  PF 2.14  t=+3.58     1.3/wk
+
+CHANGE ONE THING AT A TIME
+  A  all upper levels (still short-only)       n= 228  win  62%  mean +0.438R  PF 2.23  t=+3.38     2.3/wk
+  B  + long side at lower levels               n= 352  win  58%  mean +0.390R  PF 1.97  t=+4.11     3.5/wk
+  C  drop the open-location condition          n= 222  win  76%  mean +0.377R  PF 2.62  t=+5.95     2.2/wk
+
+LONG SIDE ALONE (the mirror of the validated trade)
+  pdVAL long, opens above VAL                  n= 131  win  70%  mean +0.553R  PF 2.92  t=+5.34     1.3/wk
+  all lower levels, long-only                  n= 209  win  59%  mean +0.462R  PF 2.17  t=+4.80     2.1/wk
+
+EACH LEVEL ON ITS OWN (open-location enforced)
+  pdVAH                                        n= 132  win  71%  mean +0.318R  PF 2.14  t=+3.58     1.3/wk
+  pdHigh                                       n= 138  win  57%  mean +0.503R  PF 2.30  t=+2.46     1.4/wk
+  cVAH                                         n=  49  win  55%  mean +0.267R  PF 1.71  t=+1.48     0.5/wk
+  nPOCup                                       n=  47  win  51%  mean +0.337R  PF 1.81  t=+1.49     0.5/wk
+  pdVAL                                        n= 131  win  70%  mean +0.553R  PF 2.92  t=+5.34     1.3/wk
+  pdLow                                        n= 109  win  55%  mean +0.542R  PF 2.26  t=+3.66     1.1/wk
+  cVAL                                         n=  29  win  45%  mean +0.374R  PF 1.71  t=+1.00     0.3/wk
+  nPOCdn                                       n=  33  win  42%  mean +0.337R  PF 1.59  t=+1.12     0.3/wk
+
+BEST LEVEL SET + FILTERS
+  short-only, all upper levels                 n= 228  win  62%  mean +0.438R  PF 2.23  t=+3.38     2.3/wk
+  + wide IB                                    n= 110  win  57%  mean +0.268R  PF 1.67  t=+2.20     1.1/wk
+  + flow agrees (proxy)                        n=  24  win  67%  mean +0.471R  PF 2.41  t=+1.80     0.2/wk
+  + bar delta >=10%                            n=  17  win  71%  mean +0.533R  PF 2.81  t=+1.95     0.2/wk
