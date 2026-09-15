@@ -194,31 +194,44 @@ def build(days, pairs, minutes):
     return pd.DataFrame(rows)
 
 
-def paired(df, key, cut, label, tally=None, fam=None):
+def paired(df, key, cut, label, tally=None, fam=None, draws=8000):
+    """Gate versus the trades it refuses, with a session-level bootstrap.
+
+    The resampling is done on per-session SUMS and COUNTS rather than by
+    rebuilding a frame each draw. A mean is a ratio of sums, so sampling
+    sessions and adding their precomputed sums gives exactly the same answer
+    as concatenating their rows -- and it turns 8,000 pandas concatenations
+    per candidate into 8,000 numpy index operations.
+    """
     if key not in df:
         print(f"    {label:<46} not available")
         return
     d = df.dropna(subset=[key])
-    on, off = d[d[key] >= cut], d[d[key] < cut]
-    if len(on) < 8 or len(off) < 8:
-        print(f"    {label:<46} n={len(on):<4}/{len(off):<4} too few")
+    hit = (d[key] >= cut).to_numpy()
+    R = d.R.to_numpy()
+    if hit.sum() < 8 or (~hit).sum() < 8:
+        print(f"    {label:<46} n={int(hit.sum()):<4}/{int((~hit).sum()):<4} too few")
         return
-    obs = on.R.mean() - off.R.mean()
-    by = {k: g for k, g in d.groupby("day")}
-    sess = list(by)
+    obs = R[hit].mean() - R[~hit].mean()
+
+    codes, _ = pd.factorize(d.day)
+    k = codes.max() + 1
+    on_s = np.bincount(codes[hit], R[hit], minlength=k)
+    on_n = np.bincount(codes[hit], minlength=k).astype(float)
+    off_s = np.bincount(codes[~hit], R[~hit], minlength=k)
+    off_n = np.bincount(codes[~hit], minlength=k).astype(float)
+
     rng = np.random.default_rng(0)
-    boot = []
-    for _ in range(6000):
-        pick = rng.choice(sess, size=len(sess), replace=True)
-        g = pd.concat([by[x] for x in pick])
-        a, c = g.R[g[key] >= cut], g.R[g[key] < cut]
-        if len(a) and len(c):
-            boot.append(a.mean() - c.mean())
+    pick = rng.integers(0, k, size=(draws, k))
+    a_s, a_n = on_s[pick].sum(1), on_n[pick].sum(1)
+    b_s, b_n = off_s[pick].sum(1), off_n[pick].sum(1)
+    ok = (a_n > 0) & (b_n > 0)
+    boot = a_s[ok] / a_n[ok] - b_s[ok] / b_n[ok]
     lo, hi = np.percentile(boot, [2.5, 97.5])
     mark = "  <-- excludes zero" if (lo > 0 or hi < 0) else ""
     if tally is not None:
         tally.setdefault(fam, []).append(obs)
-    print(f"    {label:<46} n={len(on):<4} {obs:+6.3f}R  "
+    print(f"    {label:<46} n={int(hit.sum()):<4} {obs:+6.3f}R  "
           f"[{lo:+.2f}, {hi:+.2f}]{mark}")
 
 
