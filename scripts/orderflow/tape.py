@@ -63,7 +63,31 @@ def read_maybe_truncated(path: Path) -> io.BytesIO:
     return io.BytesIO(data[:cut + 1] if cut > 0 else data)
 
 
+def _encoded(path: Path) -> bool:
+    try:
+        with gzip.open(path, "rt", encoding="utf-8", errors="replace") as f:
+            return f.readline().startswith("#fmt=")
+    except OSError:
+        return False
+
+
 def load_day(path: Path) -> pd.DataFrame:
+    # Recorder 2026-09-16.r writes a compact encoding behind a "#fmt=" header:
+    # integer tick prices and delta-encoded microsecond times. Older files have
+    # no header and are read as before.
+    if _encoded(path):
+        from codec import load_any
+        df = load_any(path)
+        df = df.dropna(subset=["time"]).sort_values("time", kind="stable")
+        df = df.reset_index(drop=True)
+        df["sign"] = np.where(df.aggressor == "B", 1,
+                              np.where(df.aggressor == "S", -1, 0))
+        df["signed"] = df["sign"] * df["volume"]
+        return df
+    return _load_day_plain(path)
+
+
+def _load_day_plain(path: Path) -> pd.DataFrame:
     # Columns are matched by name, so the recorder adding a leading `seq` or
     # trailing `datatype`/`oi`/order-id columns changes nothing here. Only the
     # four the analysis uses are typed.

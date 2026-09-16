@@ -63,6 +63,7 @@ namespace Claude1.Recorders
         /// from CloseFiles.
         /// </summary>
         private CumulativeTrade _pendingCum;
+        private bool _cumNeedHeader;
 
         protected override void OnCumulativeTrade(CumulativeTrade trade)
         {
@@ -158,13 +159,26 @@ namespace Claude1.Recorders
                             fills++;
                     }
 
-                    var seq = ++_seqCum;
+                    if (_cumNeedHeader)
+                    {
+                        _cumWriter.WriteLine(
+                            EncodingHeader(when, trade.FirstPrice));
+                        // seq and parent_seq are gone. A fill's parent is the
+                        // nearest preceding kind=="O" row, which was verified
+                        // to reproduce parent_seq exactly on the 18 June file,
+                        // and the two columns cost 2.95 MB of a 5.68 MB file.
+                        _cumWriter.WriteLine(
+                            "kind,time,abs_t,aggressor,first_price," +
+                            "last_price,volume,fills");
+                        _cumNeedHeader = false;
+                    }
+                    _seqCum++;
                     _cumWriter.WriteLine(
-                        seq + ",O," + Ts(when) + "," + side + "," +
-                        trade.FirstPrice.ToString(CultureInfo.InvariantCulture) + "," +
-                        lastPrice.ToString(CultureInfo.InvariantCulture) + "," +
-                        trade.Volume.ToString(CultureInfo.InvariantCulture) + "," +
-                        fills + ",");
+                        "O," + EncTime(when, ref _cLastUs, ref _cLastAbs) +
+                        "," + side + "," + EncPrice(trade.FirstPrice) + "," +
+                        EncPrice(lastPrice) + "," +
+                        trade.Volume.ToString(CultureInfo.InvariantCulture) +
+                        "," + fills);
                     _rows++;
                     _cumOrderRows++;
                     _pending++;
@@ -178,15 +192,14 @@ namespace Claude1.Recorders
                             var fSide = tick.Direction == TradeDirection.Buy ? "B"
                                       : tick.Direction == TradeDirection.Sell ? "S"
                                       : "?";
+                            _seqCum++;
                             _cumWriter.WriteLine(
-                                (++_seqCum) + ",F," + Ts(tick.Time) + "," +
-                                fSide + "," +
-                                tick.Price.ToString(CultureInfo.InvariantCulture) +
-                                "," +
-                                tick.Price.ToString(CultureInfo.InvariantCulture) +
-                                "," +
+                                "F," +
+                                EncTime(tick.Time, ref _cLastUs, ref _cLastAbs) +
+                                "," + fSide + "," + EncPrice(tick.Price) +
+                                "," + EncPrice(tick.Price) + "," +
                                 tick.Volume.ToString(CultureInfo.InvariantCulture) +
-                                ",1," + seq);
+                                ",1");
                             _rows++;
                             _cumFillRows++;
                             _pending++;
@@ -230,10 +243,7 @@ namespace Claude1.Recorders
             var isNew = !File.Exists(_cPath);
             _cumWriter = OpenWriter(_cPath);
             _cumWriter.AutoFlush = false;
-            if (isNew)
-                _cumWriter.WriteLine(
-                    "seq,kind,time,aggressor,first_price,last_price," +
-                    "volume,fills,parent_seq");
+            _cumNeedHeader = isNew;
         }
     }
 }

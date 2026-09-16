@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-16.q";
+        private const string BuildTag = "2026-09-16.r";
 
         private readonly object _sync = new object();
 
@@ -109,6 +109,7 @@ namespace Claude1.Recorders
         private Timer _idleTimer;
         private string _pathDate = "";
         private string _dPath, _tPath, _bPath;
+        private bool _dNeedHeader, _tNeedHeader, _bNeedHeader;
         private long _skippedOutOfSession;
 
         // The actual clock on the data, recorded before any session gate sees
@@ -162,7 +163,24 @@ namespace Claude1.Recorders
         // between consecutive distinct prices is tracked as the data arrives
         // and reported beside whatever the platform SAYS the step is. If the
         // two disagree, the status file says so in as many words.
-        private DateTime _lastBboWrite = DateTime.MinValue;
+        // The best quote is two interleaved streams on separate clocks: on
+        // 18 June 307,848 of 1.35M rows arrived with a timestamp EARLIER than
+        // the row before. A single throttle cursor across both sides therefore
+        // rejects wholesale rather than thinning, so each side keeps its own.
+        private DateTime _lastBboBid = DateTime.MinValue;
+        private DateTime _lastBboAsk = DateTime.MinValue;
+
+        // Compact encoding. Prices are integer tick offsets from a per-session
+        // base and times are microseconds from a per-session epoch, delta
+        // encoded against the previous row of the SAME stream, with an
+        // absolute value written whenever the run exceeds ResyncUs. Both bases
+        // go in the file header, so a file decodes from itself.
+        private const long ResyncUs = 60_000_000;
+        private DateTime _epoch = DateTime.MinValue;
+        private decimal _pxBase;
+        private long _dLastUs, _dLastAbs, _tLastUs, _tLastAbs;
+        private long _bLastUs, _bLastAbs;
+        private long _cLastUs, _cLastAbs;
 
         private decimal _lastSeenPrice;
         private decimal _minGap;
@@ -318,7 +336,7 @@ namespace Claude1.Recorders
         /// second but says nothing about how far. Measure it on the first
         /// session and set this if it is too large.</summary>
         [DisplayName("BBO throttle ms (0 = every change)")]
-        public int BboMs { get; set; } = 0;
+        public int BboMs { get; set; } = 25;
 
         /// <summary>
         /// Record only the cash session. The recorder writes the ATAS platform
@@ -871,15 +889,12 @@ namespace Claude1.Recorders
             // same callback, OpenInterest is free, and the two exchange order
             // ids are the only identity the feed offers -- they are what makes
             // a trade joinable to the order that caused it.
-            var sq = WriteSequence ? "seq," : "";
-            if (dNew)
-                _depthWriter.WriteLine(sq + "time,side,level,price,volume");
-            if (tNew)
-                _tapeWriter.WriteLine(
-                    sq + "time,price,volume,aggressor,datatype,oi," +
-                    "aggressor_order_id,order_id");
-            if (bNew)
-                _bboWriter.WriteLine(sq + "time,side,price,volume");
+            // Column headers only. The encoding header needs the first price
+            // to fix the base, so it is written by the first row of each
+            // stream -- see NeedHeader below.
+            _dNeedHeader = dNew;
+            _tNeedHeader = tNew;
+            _bNeedHeader = bNew;
 
             _openDate = date;
             _files = Path.GetFileName(dPath) + " + " + Path.GetFileName(tPath)
@@ -1041,9 +1056,12 @@ namespace Claude1.Recorders
                     dir, Clean(SymbolName()) + "_" + _pathDate + ".zip");
                 var packed = new List<string>();
 
-                using (var zip = ZipFile.Open(zipPath,
-                           File.Exists(zipPath) ? ZipArchiveMode.Update
-                                                : ZipArchiveMode.Create))
+                // Update, always. Create mode throws on GetEntry -- "Cannot
+                // access entries in Create mode" -- which is exactly what the
+                // 18 June run reported, so the duplicate-name check below
+                // aborted every bundle on a brand new zip. Update creates the
+                // file when it does not exist and supports lookups.
+                using (var zip = ZipFile.Open(zipPath, ZipArchiveMode.Update))
                 {
                     foreach (var src in parts)
                     {
@@ -1128,7 +1146,8 @@ namespace Claude1.Recorders
         /// Writes one side of the ladder, skipping prices whose resting size is
         /// unchanged. Caller must hold _sync and must have cleared _seen.
         /// </summary>
-        private void EmitSide(string stamp, string side,
+        private void EmitSide(string stamp, string contStamp, ref bool first,
+                              string side,
                               List<MarketDataArg> levels, bool keyframe)
         {
             var n = Math.Min(DepthLevels, levels.Count);
@@ -1149,8 +1168,9 @@ namespace Claude1.Recorders
 
                 _seqDepth++;
                 _depthWriter.WriteLine(
-                    Seq(_seqDepth) + stamp + "," + side + "," + i + "," +
-                    Num(price) + "," + Num(vol));
+                    Seq(_seqDepth) + (first ? stamp : contStamp) + "," +
+                    side + "," + i + "," + EncPrice(price) + "," + Num(vol));
+                first = false;
                 _rows++;
                 _depthWritten++;
                 _pending++;
@@ -1177,6 +1197,71 @@ namespace Claude1.Recorders
             return WriteSequence
                 ? n.ToString(CultureInfo.InvariantCulture) + ","
                 : "";
+        }
+
+        /// <summary>Microseconds since the session epoch.</summary>
+        private long Micros(DateTime t)
+        {
+            return (t - _epoch).Ticks / 10L;   // 1 tick = 100 ns
+        }
+
+        /// <summary>The encoded time field plus its abs_t flag, as
+        /// "value,flag". Caller holds _sync.</summary>
+        private string EncTime(DateTime t, ref long lastUs, ref long lastAbs)
+        {
+            var us = Micros(t);
+            string field;
+            if (lastAbs == long.MinValue || us - lastAbs >= ResyncUs)
+            {
+                field = us.ToString(CultureInfo.InvariantCulture) + ",1";
+                lastAbs = us;
+            }
+            else
+            {
+                field = (us - lastUs).ToString(CultureInfo.InvariantCulture) + ",0";
+            }
+            lastUs = us;
+            return field;
+        }
+
+        /// <summary>Price as an integer tick offset from the session base.</summary>
+        private string EncPrice(decimal p)
+        {
+            var step = TickStep();
+            return ((long)Math.Round((p - _pxBase) / step))
+                   .ToString(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>The instrument step, defaulting to the NQ tick if the
+        /// platform will not say.</summary>
+        private decimal TickStep()
+        {
+            try
+            {
+                var info = InstrumentInfo;
+                if (info != null && info.TickSize > 0m)
+                    return info.TickSize;
+            }
+            catch { }
+            return 0.25m;
+        }
+
+        /// <summary>Fix the session epoch and price base the first time a
+        /// datum arrives, and return the header line describing them.</summary>
+        private string EncodingHeader(DateTime when, decimal price)
+        {
+            if (_epoch == DateTime.MinValue)
+            {
+                _epoch = when.Date;
+                _pxBase = Math.Floor(price / 100m) * 100m;
+                _dLastAbs = long.MinValue; _tLastAbs = long.MinValue;
+                _bLastAbs = long.MinValue; _cLastAbs = long.MinValue;
+            }
+            return "#fmt=1 epoch=" +
+                   _epoch.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) +
+                   " base=" + _pxBase.ToString("F4", CultureInfo.InvariantCulture) +
+                   " tick=" + TickStep().ToString(CultureInfo.InvariantCulture) +
+                   " resync_us=" + ResyncUs;
         }
 
         private static string IdOf(long? id)
@@ -1223,10 +1308,15 @@ namespace Claude1.Recorders
             }
             lock (_sync)
             {
-                if (BboMs > 0 &&
-                    (now - _lastBboWrite).TotalMilliseconds < BboMs)
-                    return;
-                _lastBboWrite = now;
+                var isBid = depth.DataType == MarketDataType.Bid;
+                if (BboMs > 0)
+                {
+                    var prev = isBid ? _lastBboBid : _lastBboAsk;
+                    if (prev != DateTime.MinValue &&
+                        (now - prev).TotalMilliseconds < BboMs)
+                        return;
+                }
+                if (isBid) _lastBboBid = now; else _lastBboAsk = now;
                 try
                 {
                     EnsureOpen(now);
@@ -1234,10 +1324,19 @@ namespace Claude1.Recorders
                     var side = depth.DataType == MarketDataType.Bid ? "B"
                              : depth.DataType == MarketDataType.Ask ? "A"
                              : "?";
+                    if (_bNeedHeader)
+                    {
+                        _bboWriter.WriteLine(EncodingHeader(now, depth.Price));
+                        _bboWriter.WriteLine(
+                            Seq(0) + "time,abs_t,side,price,volume");
+                        _bNeedHeader = false;
+                    }
                     _seqBbo++;
                     _bboWriter.WriteLine(
-                        Seq(_seqBbo) + Ts(now) + "," + side + "," +
-                        Num(depth.Price) + "," + Num(depth.Volume));
+                        Seq(_seqBbo) +
+                        EncTime(now, ref _bLastUs, ref _bLastAbs) + "," +
+                        side + "," + EncPrice(depth.Price) + "," +
+                        Num(depth.Volume));
                     _rows++;
                     _bboWritten++;
                     _pending++;
@@ -1317,10 +1416,19 @@ namespace Claude1.Recorders
                 {
                     EnsureOpen(arg.Time);
                     _lastData = DateTime.Now;
+                    if (_tNeedHeader)
+                    {
+                        _tapeWriter.WriteLine(EncodingHeader(arg.Time, arg.Price));
+                        _tapeWriter.WriteLine(
+                            Seq(0) + "time,abs_t,price,volume,aggressor," +
+                            "datatype,oi,aggressor_order_id,order_id");
+                        _tNeedHeader = false;
+                    }
                     _seqTape++;
                     _tapeWriter.WriteLine(
-                        Seq(_seqTape) + Ts(arg.Time) + "," +
-                        Num(arg.Price) + "," + Num(arg.Volume) + "," + side +
+                        Seq(_seqTape) +
+                        EncTime(arg.Time, ref _tLastUs, ref _tLastAbs) + "," +
+                        EncPrice(arg.Price) + "," + Num(arg.Volume) + "," + side +
                         "," + (int)arg.DataType + "," + Num(arg.OpenInterest) +
                         "," + IdOf(arg.AggressorExchangeOrderId) +
                         "," + IdOf(arg.ExchangeOrderId));
@@ -1391,15 +1499,30 @@ namespace Claude1.Recorders
                     bids.Sort((a, b) => b.Price.CompareTo(a.Price));   // best bid first
                     asks.Sort((a, b) => a.Price.CompareTo(b.Price));   // best ask first
 
-                    var stamp = Ts(now);
+                    if (_dNeedHeader && bids.Count > 0)
+                    {
+                        _depthWriter.WriteLine(
+                            EncodingHeader(now, bids[0].Price));
+                        _depthWriter.WriteLine(
+                            Seq(0) + "time,abs_t,side,level,price,volume");
+                        _dNeedHeader = false;
+                    }
+                    // One encoded stamp per snapshot. Every level row after
+                    // the first in the same snapshot carries a delta of 0,
+                    // which is where most of the depth file's saving comes
+                    // from: 22 rows previously repeated one 26-character
+                    // timestamp.
+                    var stamp = EncTime(now, ref _dLastUs, ref _dLastAbs);
+                    var contStamp = "0,0";
+                    var first = true;
                     var keyframe = !ChangesOnly ||
                         (now - _lastKeyframe).TotalSeconds >= KeyframeSeconds;
                     if (keyframe)
                         _lastKeyframe = now;
 
                     _seen.Clear();
-                    EmitSide(stamp, "B", bids, keyframe);
-                    EmitSide(stamp, "A", asks, keyframe);
+                    EmitSide(stamp, contStamp, ref first, "B", bids, keyframe);
+                    EmitSide(stamp, contStamp, ref first, "A", asks, keyframe);
 
                     // A price that has left the top of the book must be written
                     // as zero, or a reconstruction keeps resting size that is no
@@ -1415,9 +1538,11 @@ namespace Claude1.Recorders
                     {
                         _seqDepth++;
                         _depthWriter.WriteLine(
-                            Seq(_seqDepth) + stamp + "," +
+                            Seq(_seqDepth) + (first ? stamp : contStamp) + "," +
                             key.Substring(0, 1) + ",-1," +
-                            key.Substring(2) + ",0");
+                            EncPrice(decimal.Parse(key.Substring(2),
+                                CultureInfo.InvariantCulture)) + ",0");
+                        first = false;
                         _book.Remove(key);
                         _rows++;
                         _depthWritten++;
