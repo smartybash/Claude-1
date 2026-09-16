@@ -118,28 +118,40 @@ def write_gz(path: Path, header: str, enc: pd.DataFrame) -> int:
     return path.stat().st_size
 
 
+def _open(path: Path):
+    """Binary stream for .csv.gz or .csv.br. See tape.open_maybe_brotli."""
+    if Path(path).suffix == ".br":
+        import pyarrow as pa
+        return pa.CompressedInputStream(pa.memory_map(str(path), "rb"), "brotli")
+    return gzip.open(path, "rb")
+
+
 def read_gz(path: Path) -> tuple[str, pd.DataFrame]:
-    with gzip.open(path, "rt", encoding="utf-8") as f:
-        header = f.readline().rstrip("\n")
-        enc = pd.read_csv(f)
+    with _open(path) as raw:
+        data = raw.read()
+    buf = io.StringIO(data.decode("utf-8"))
+    header = buf.readline().rstrip("\n")
+    enc = pd.read_csv(buf)
     return header, enc
 
 
 def is_encoded(path: Path) -> bool:
     """Does this file lead with an encoding header?"""
     try:
-        with gzip.open(path, "rt", encoding="utf-8", errors="replace") as f:
-            return f.readline().startswith("#fmt=")
-    except OSError:
+        with _open(path) as f:
+            return f.read(5) == b"#fmt="
+    except (OSError, ValueError):
         return False
 
 
 def load_any(path: Path, price_cols=("price",),
              time_col="time") -> pd.DataFrame:
-    """Read either format. The recorder changed mid-project, so every reader
-    has to cope with both and no caller should need to know which it has."""
+    """Read either format, gzip or Brotli. The recorder changed twice during
+    this project, so every reader copes with all of it and no caller needs to
+    know which it has."""
     if not is_encoded(path):
-        df = pd.read_csv(path, compression="gzip")
+        with _open(path) as raw:
+            df = pd.read_csv(io.BytesIO(raw.read()))
         df[time_col] = pd.to_datetime(df[time_col])
         return df
     header, enc = read_gz(path)

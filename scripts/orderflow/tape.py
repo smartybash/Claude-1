@@ -63,11 +63,30 @@ def read_maybe_truncated(path: Path) -> io.BytesIO:
     return io.BytesIO(data[:cut + 1] if cut > 0 else data)
 
 
+def open_maybe_brotli(path: Path):
+    """A binary stream for a .csv.gz or a .csv.br.
+
+    The recorder writes gzip while a session runs, because that happens on the
+    market-data thread and has to be cheap, then recompresses to Brotli when it
+    bundles -- at which point the session is over and the cost does not matter.
+    Brotli is 27% smaller on the same bytes, which is what keeps all four
+    streams in one zip.
+
+    Decompression goes through pyarrow rather than a `brotli` module, which is
+    not installed and need not be: pyarrow is already a dependency and carries
+    the codec.
+    """
+    if path.suffix == ".br":
+        import pyarrow as pa
+        return pa.CompressedInputStream(pa.memory_map(str(path), "rb"), "brotli")
+    return gzip.open(path, "rb")
+
+
 def _encoded(path: Path) -> bool:
     try:
-        with gzip.open(path, "rt", encoding="utf-8", errors="replace") as f:
-            return f.readline().startswith("#fmt=")
-    except OSError:
+        with open_maybe_brotli(path) as f:
+            return f.read(5) == b"#fmt="
+    except (OSError, ValueError):
         return False
 
 
@@ -75,7 +94,7 @@ def load_day(path: Path) -> pd.DataFrame:
     # Recorder 2026-09-16.r writes a compact encoding behind a "#fmt=" header:
     # integer tick prices and delta-encoded microsecond times. Older files have
     # no header and are read as before.
-    if _encoded(path):
+    if path.suffix == ".br" or _encoded(path):
         from codec import load_any
         df = load_any(path)
         df = df.dropna(subset=["time"]).sort_values("time", kind="stable")
@@ -156,6 +175,10 @@ def unpack_bundles(folder: Path = None) -> int:
             with zipfile.ZipFile(z) as zf:
                 for name in zf.namelist():
                     base = Path(name).name
+                    if not (base.endswith(".csv.gz") or
+                            base.endswith(".csv.br") or
+                            base.startswith("_status")):
+                        continue
                     if base.startswith("TAPE_"):
                         dest = TAPE / base
                     elif base.startswith("L2_"):
@@ -191,7 +214,9 @@ def load_all() -> dict[str, pd.DataFrame]:
     out = {}
     unpack_bundles()
     # pandas decompresses .gz by extension, so both forms just work.
-    paths = sorted(list(TAPE.glob("TAPE_*.csv")) + list(TAPE.glob("TAPE_*.csv.gz")))
+    paths = sorted(list(TAPE.glob("TAPE_*.csv")) +
+                   list(TAPE.glob("TAPE_*.csv.gz")) +
+                   list(TAPE.glob("TAPE_*.csv.br")))
     for p in paths:
         df = _cached(p)
         if len(df) < 1000:
