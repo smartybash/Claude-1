@@ -136,12 +136,57 @@ def check_csproj(path: Path, problems: list):
                             f"in it cannot be built around")
 
 
+def check_partials(sources):
+    """Every partial implementation needs a declaration, with matching names.
+
+    Two builds have now been lost to this. CS0759 fires when an implementing
+    partial has no declaring half -- which happens the moment an edit to the
+    main file removes a `partial void X();` line that an optional file still
+    implements. CS8826 fires when the two halves spell a parameter
+    differently, which compiles but warns and is pure noise.
+
+    Both are plain text patterns and neither needs a compiler.
+    """
+    decl, impl = {}, {}
+    for path in sources:
+        text = path.read_text(encoding="utf-8")
+        for m in re.finditer(r"partial\s+void\s+(\w+)\s*\(([^)]*)\)\s*;", text):
+            decl[m.group(1)] = (path.name, m.group(2).strip())
+        for m in re.finditer(r"partial\s+void\s+(\w+)\s*\(([^)]*)\)\s*\n?\s*\{", text):
+            impl[m.group(1)] = (path.name, m.group(2).strip())
+
+    problems = []
+    for name, (where, args) in impl.items():
+        if name not in decl:
+            problems.append(
+                f"CS0759: {where} implements partial '{name}' but no file "
+                f"declares 'partial void {name}(...);'")
+            continue
+        dwhere, dargs = decl[name]
+        if _names(dargs) != _names(args):
+            problems.append(
+                f"CS8826: '{name}' parameter names differ -- "
+                f"{dwhere} says ({dargs}), {where} says ({args})")
+    return problems
+
+
+def _names(args):
+    out = []
+    for part in args.split(","):
+        part = part.strip()
+        if part:
+            out.append(part.split()[-1])
+    return out
+
+
 def main():
     problems = []
     for p in sorted(HERE.glob("*.cs")):
         check_cs(p, problems)
     for p in sorted(HERE.glob("*.csproj")):
         check_csproj(p, problems)
+
+    problems += check_partials(sorted(HERE.glob("*.cs")))
 
     bat = HERE / "build.bat"
     if bat.exists():

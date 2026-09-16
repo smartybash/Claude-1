@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-17.w";
+        private const string BuildTag = "2026-09-17.x";
 
         private readonly object _sync = new object();
 
@@ -62,7 +62,9 @@ namespace Claude1.Recorders
         // were. Without this a truncated or partially-copied file is
         // indistinguishable from a quiet market, which is the position every
         // recording so far has been in.
+#pragma warning disable 0169   // _seqCum is used only in the Cumulative part
         private long _seqDepth, _seqTape, _seqCum, _seqBbo, _seqMbo;
+#pragma warning restore 0169
 
         // Received / written / rejected, per stream. _trades and _depthEvents
         // count what the platform handed us; these count what happened to it.
@@ -180,7 +182,9 @@ namespace Claude1.Recorders
         private decimal _pxBase;
         private long _dLastUs, _dLastAbs, _tLastUs, _tLastAbs;
         private long _bLastUs, _bLastAbs;
+#pragma warning disable 0169, 0414   // used only in the optional Cumulative part
         private long _cLastUs, _cLastAbs;
+#pragma warning restore 0169, 0414
         private long _gzipBytes, _brotliBytes;
         private bool _mboOpen;
         private volatile bool _bundling;
@@ -1069,6 +1073,12 @@ namespace Claude1.Recorders
         /// nothing, so the recorder works identically with the market-by-order
         /// stream removed.</summary>
         partial void AddByOrderFile(List<string> paths);
+
+        /// <summary>Implemented in L2Recorder.Cumulative.cs. Forgets the
+        /// cumulative file's path once it has been bundled, so the next
+        /// session opens a fresh one. Declared here because the implementing
+        /// half lives in an optional file.</summary>
+        partial void ClearCumPath();
 
         /// <summary>True while the market-by-order writer holds its file.
         /// A partial method cannot return a value, so this is a normal method

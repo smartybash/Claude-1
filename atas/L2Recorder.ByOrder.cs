@@ -49,10 +49,10 @@ namespace Claude1.Recorders
         private StreamWriter _mboWriter;
         private string _mPath;
 
-        partial void AddByOrderFile(List<string> parts)
+        partial void AddByOrderFile(List<string> paths)
         {
             if (_mPath != null && File.Exists(_mPath))
-                parts.Add(_mPath);
+                paths.Add(_mPath);
         }
 
         partial void FlushByOrder()
