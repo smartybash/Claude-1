@@ -53,6 +53,31 @@ TICK = 0.25
 SIZES = (25, 50)
 
 
+def cum_path(day: str):
+    """The best cumulative file for a date, or None.
+
+    A date re-recorded at 0.25 now sits beside its 5-point original, so "the
+    file for this day" is ambiguous and the wrong choice is silent. The rule is
+    the same one the tape loader uses: resolution first.
+
+    An encoded file -- one leading with "#fmt=" -- is by construction from the
+    0.25 era, so it wins. Picking on the extension alone would be a guess: the
+    first 0.25 recordings were written as .csv.gz, before the bundler learned
+    to recompress, and would have lost to a coarse .csv.br that never existed
+    but easily could.
+    """
+    from codec import is_encoded
+    cands = [ROOT / "cum" / f"CUM_NQ_{day}{ext}"
+             for ext in (".csv.br", ".csv.gz")]
+    cands = [f for f in cands if f.exists()]
+    if not cands:
+        return None
+    for f in cands:
+        if is_encoded(f):
+            return f
+    return cands[0]
+
+
 def cum_ok(day: str):
     """The cumulative file for a day, or None if it predates the fix.
 
@@ -60,10 +85,15 @@ def cum_ok(day: str):
     every order has exactly one fill, which is the signature of writing the
     row when the order started rather than when it finished.
     """
-    f = ROOT / "cum" / f"CUM_NQ_{day}.csv.gz"
-    if not f.exists():
+    # Prefer the FINEST recording of this date, exactly as the tape loader
+    # does. Both grids coexist on disk now -- a date re-recorded at 0.25 sits
+    # beside its 5-point original -- and a hardcoded ".csv.gz" would silently
+    # read the coarse twin while every other stream used the fine one.
+    f = cum_path(day)
+    if f is None:
         return None
-    c = pd.read_csv(f, compression="gzip")
+    from codec import load_any
+    c = load_any(f, ("first_price", "last_price"))
     # Recorder 2026-09-16.o added a sequence number, a row kind and per-fill
     # rows. Orders are kind "O"; the "F" rows are the individual fills of the
     # order above them and would be counted twice by anything summing volume.
@@ -71,7 +101,8 @@ def cum_ok(day: str):
         c = c[c.kind == "O"].drop(columns=["kind"])
     if c.empty or c.fills.max() <= 1:
         return None
-    c["time"] = pd.to_datetime(c.time)
+    if not np.issubdtype(c["time"].dtype, np.datetime64):
+        c["time"] = pd.to_datetime(c.time)
     c["sign"] = np.where(c.aggressor.astype(str).str.upper().str[0] == "B", 1, -1)
     c["signed"] = c["sign"] * c.volume
     c["sweep"] = (c.last_price - c.first_price).abs() / TICK
