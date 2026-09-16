@@ -167,7 +167,30 @@ def load_all() -> dict[str, pd.DataFrame]:
         if not m:
             print(f"  skipping {p.name}: no date in the filename")
             continue
-        out[m.group(1)] = df
+        day = m.group(1)
+
+        # When a date was recorded more than once, keep the FINER recording.
+        #
+        # This used to be a plain assignment, so the last filename in sort
+        # order won -- which meant a coarse "_run2" silently replaced a
+        # true-0.25 original. That is exactly what was happening to 12 and 20
+        # August: both were recorded at 0.25, both were re-recorded on a
+        # 5-point grid, and every study since has been reading the coarse
+        # twin while the fine one sat unused on disk.
+        #
+        # Resolution first, then row count. A re-recording is only preferred
+        # when it is at least as fine and carries more data.
+        if day in out:
+            keep, step_new, step_old = None, price_step(df), price_step(out[day])
+            if step_new < step_old:
+                keep = "new"
+            elif step_new > step_old:
+                keep = "old"
+            else:
+                keep = "new" if len(df) > len(out[day]) else "old"
+            if keep == "old":
+                continue
+        out[day] = df
     return out
 
 
