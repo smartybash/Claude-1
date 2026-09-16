@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-17.y";
+        private const string BuildTag = "2026-09-17.z";
 
         private readonly object _sync = new object();
 
@@ -922,7 +922,14 @@ namespace Claude1.Recorders
             // there is nothing left pointing at those files. Going straight
             // from one replay date to the next used to orphan the earlier
             // session's loose files permanently.
-            if (_pathDate.Length > 0 && date != _pathDate && _dPath != null)
+            // Any stream's path, not the depth one specifically. Depth is
+            // RTH-only, so overnight _dPath is null while the tape and quote
+            // streams are still writing -- and gating the hand-off on _dPath
+            // meant a date change during those hours reassigned _pathDate with
+            // nothing bundled and nothing left pointing at the old files. That
+            // is how a quote file ended up holding two days at once.
+            if (_pathDate.Length > 0 && date != _pathDate &&
+                (_dPath != null || _tPath != null || _bPath != null))
             {
                 var old = _pathDate;
                 var oldParts = CurrentParts();
