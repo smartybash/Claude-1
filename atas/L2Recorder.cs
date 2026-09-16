@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-16.u";
+        private const string BuildTag = "2026-09-17.v";
 
         private readonly object _sync = new object();
 
@@ -183,6 +183,8 @@ namespace Claude1.Recorders
         private long _cLastUs, _cLastAbs;
         private long _gzipBytes, _brotliBytes;
         private bool _mboOpen;
+        private volatile bool _bundling;
+        private volatile string _bundleNote = "";
         private int _leftBehind;
         private string _leftBehindWhy;
 
@@ -449,6 +451,7 @@ namespace Claude1.Recorders
             // replay finishes, which is exactly the moment the files need to be
             // closed and their gzip tails written; three recordings arrived
             // truncated because nothing ran at that point.
+            SweepScratch();
             _idleTimer = new Timer(OnIdleTick, null, 5000, 5000);
         }
 
@@ -815,6 +818,22 @@ namespace Claude1.Recorders
                     sb.AppendLine("disk are duplicates and can be removed by hand.");
                     sb.AppendLine();
                 }
+                if (_bundling)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("*** BUNDLING IN PROGRESS ***");
+                    sb.AppendLine(_bundleNote);
+                    sb.AppendLine("Brotli at maximum quality takes a few minutes on");
+                    sb.AppendLine("a full session. The recorder is NOT blocked -- this");
+                    sb.AppendLine("runs on its own thread. The zip appears under a");
+                    sb.AppendLine(".part name and is renamed only when it is complete,");
+                    sb.AppendLine("so any .zip you can see is finished and readable.");
+                    sb.AppendLine();
+                }
+                else if (_bundleNote.Length > 0)
+                {
+                    sb.AppendLine("last bundle:        " + _bundleNote);
+                }
                 sb.AppendLine("files:              "
                     + (_depthWriter == null
                        ? "CLOSED, safe to move or delete"
@@ -1072,8 +1091,9 @@ namespace Claude1.Recorders
         {
             if (BundleMinutes <= 0 || _pathDate.Length == 0)
                 return;
-            // Every writer, or the delete below fails on a locked file and
-            // is swallowed, which is exactly how the folder filled up.
+            if (_bundling)
+                return;
+            // Every writer, or the delete fails on a locked file.
             if (_depthWriter != null || _tapeWriter != null ||
                 _cumWriter != null || _bboWriter != null || ByOrderOpen())
                 return;
@@ -1084,50 +1104,81 @@ namespace Claude1.Recorders
             if (_bundledDate == _pathDate)
                 return;
 
+            var dir = ResolveFolder();
+            if (dir == null)
+                return;
+
+            var parts = new List<string>();
+            if (_dPath != null) parts.Add(_dPath);
+            if (_tPath != null) parts.Add(_tPath);
+            if (_bPath != null) parts.Add(_bPath);
+            AddCumFile(parts);
+            AddByOrderFile(parts);
+            if (parts.Count == 0)
+                return;
+
+            var date = _pathDate;
+            _bundledDate = date;
+            _pathDate = "";
+            _dPath = null;
+            _tPath = null;
+            _bPath = null;
+            ClearCumPath();
+            _bundling = true;
+            _bundleNote = "bundling " + date + " in the background...";
+
+            // OFF THE RECORDER'S THREAD, and outside _sync.
+            //
+            // This used to run inline, under the lock every market-data
+            // handler needs, and Brotli at maximum quality on a hundred
+            // megabytes of depth takes minutes. The recorder froze solid for
+            // the whole of it, left a zero-byte zip with a held handle, and
+            // stranded a .br.tmp beside it. The compression is worth having
+            // and there is no reason whatever for it to be on that thread.
+            var worker = new Thread(() => RunBundle(dir, date, parts));
+            worker.IsBackground = true;
+            worker.Priority = ThreadPriority.BelowNormal;
+            worker.Start();
+        }
+
+        /// <summary>
+        /// Build one session's zip. Runs on its own thread and touches no
+        /// recorder state except the three status fields at the end.
+        ///
+        /// The archive is built under a .part name and renamed only when it is
+        /// complete, so a zip that exists is always a zip that works -- the
+        /// zero-byte NQ_20260626.zip that could not be opened was this step
+        /// being visible while it was still running.
+        /// </summary>
+        private void RunBundle(string dir, string date, List<string> parts)
+        {
+            var sym = Clean(SymbolName());
+            var finalPath = Path.Combine(dir, sym + "_" + date + ".zip");
+            var partPath = finalPath + ".part";
+            var packed = new List<string>();
+            var stuck = 0;
+            string stuckName = null;
+
             try
             {
-                var dir = ResolveFolder();
-                if (dir == null)
-                    return;
+                try { if (File.Exists(partPath)) File.Delete(partPath); } catch { }
 
-                // One bundle, all four streams, nothing discarded. It fits
-                // because the files are recompressed with Brotli at maximum
-                // quality on the way in -- see Recompress. On the busiest
-                // session so far that is 16.6 MB against 22.6 for the same
-                // bytes under gzip, a 27% saving for no loss whatever.
-                var parts = new List<string>();
-                if (_dPath != null) parts.Add(_dPath);
-                if (_tPath != null) parts.Add(_tPath);
-                if (_bPath != null) parts.Add(_bPath);
-                AddCumFile(parts);
-                AddByOrderFile(parts);
-                // Provenance must travel with the data. The status file holds
-                // the settings, the resolution and the per-stream counts, and
-                // leaving it out of the bundle is why four months of
-                // recordings could not say what they were recorded at.
-                WriteStatus(true);
-                var statusPath = Path.Combine(dir, "_status.txt");
-
-                var zipPath = Path.Combine(
-                    dir, Clean(SymbolName()) + "_" + _pathDate + ".zip");
-                var packed = new List<string>();
-
-                // Update, always. Create mode throws on GetEntry -- "Cannot
-                // access entries in Create mode" -- which is exactly what the
-                // 18 June run reported, so the duplicate-name check below
-                // aborted every bundle on a brand new zip. Update creates the
-                // file when it does not exist and supports lookups.
-                using (var zip = ZipFile.Open(zipPath, ZipArchiveMode.Update))
+                using (var zip = ZipFile.Open(partPath, ZipArchiveMode.Update))
                 {
                     foreach (var src in parts)
                     {
                         if (src == null || !File.Exists(src))
                             continue;
+                        if (new FileInfo(src).Length == 0)
+                        {
+                            // An empty file is a writer that opened and never
+                            // received a row. Nothing to archive, and leaving
+                            // it is what filled the folder with 0 KB entries.
+                            try { File.Delete(src); } catch { }
+                            continue;
+                        }
                         var name = Path.GetFileName(src);
                         var entry = name;
-                        // A session that resumes after a bundle writes a fresh
-                        // run file; never overwrite an entry already holding
-                        // earlier data for the same day.
                         var n = 2;
                         while (zip.GetEntry(entry) != null)
                         {
@@ -1140,36 +1191,30 @@ namespace Claude1.Recorders
                         packed.Add(src);
                     }
 
-                    // The status file goes in by copy and is NOT added to
-                    // `packed`, because everything in that list is deleted
-                    // afterwards and this one is live -- the user reads it
-                    // while the recorder runs. It is also named per date
-                    // rather than deduplicated as a .csv.gz, which the loop
-                    // above would otherwise do to it.
+                    var statusPath = Path.Combine(dir, "_status.txt");
                     if (File.Exists(statusPath))
                     {
-                        var sName = "_status_" + _pathDate + ".txt";
-                        var m = 2;
-                        while (zip.GetEntry(sName) != null)
-                        {
-                            sName = "_status_" + _pathDate + "_part" + m + ".txt";
-                            m++;
-                        }
                         try
                         {
-                            zip.CreateEntryFromFile(statusPath, sName,
-                                                    CompressionLevel.Optimal);
+                            zip.CreateEntryFromFile(statusPath,
+                                "_status_" + date + ".txt",
+                                CompressionLevel.Optimal);
                         }
                         catch { }
                     }
                 }
 
-                // The originals go once they are safely inside the zip.
-                // Anything that will not delete is named in the status file:
-                // a file silently left behind is how the last folder ended up
-                // needing manual archiving.
-                var stuck = 0;
-                string stuckName = null;
+                if (File.Exists(finalPath))
+                {
+                    // A second run of the same date: keep both.
+                    var alt = Path.Combine(dir, sym + "_" + date + "_b.zip");
+                    var k = 2;
+                    while (File.Exists(alt))
+                        alt = Path.Combine(dir, sym + "_" + date + "_b" + (k++) + ".zip");
+                    finalPath = alt;
+                }
+                File.Move(partPath, finalPath);
+
                 foreach (var src in packed)
                 {
                     try
@@ -1183,38 +1228,63 @@ namespace Claude1.Recorders
                             stuckName = Path.GetFileName(src) + " (" + ex.Message + ")";
                     }
                 }
+
                 _leftBehind = stuck;
                 _leftBehindWhy = stuckName;
-
-                _bundledDate = _pathDate;
-                _pathDate = "";
-                _dPath = null;
-                _tPath = null;
-                ClearCumPath();
-                _files = "bundled " + packed.Count + " file(s) into " +
-                         Path.GetFileName(zipPath);
+                _bundleNote = "bundled " + packed.Count + " file(s) into " +
+                              Path.GetFileName(finalPath);
+                _files = _bundleNote;
             }
             catch (Exception ex)
             {
                 _lastError = "bundle: " + ex.Message;
+                _bundleNote = "bundle FAILED for " + date + ": " + ex.Message +
+                              "  (the loose files are intact)";
+                try { if (File.Exists(partPath)) File.Delete(partPath); } catch { }
+            }
+            finally
+            {
+                _bundling = false;
             }
         }
 
-        partial void ClearCumPath();
+        /// <summary>Remove scratch left by an interrupted bundle. A .part zip
+        /// is an archive that never finished and a .br.tmp is a half
+        /// recompressed stream; neither is data and both confuse the
+        /// folder.</summary>
+        private void SweepScratch()
+        {
+            try
+            {
+                var dir = ResolveFolder();
+                if (dir == null)
+                    return;
+                foreach (var f in Directory.GetFiles(dir, "*.part"))
+                    try { File.Delete(f); } catch { }
+                foreach (var f in Directory.GetFiles(dir, "*.br.tmp"))
+                    try { File.Delete(f); } catch { }
+                // Zero-byte outputs are writers that opened and never received
+                // a row -- a stray event arriving after a session was already
+                // bundled will do it. They are not data and they are what
+                // leaves a folder full of 0 KB entries.
+                foreach (var pat in new[] { "L2_*.csv*", "TAPE_*.csv*",
+                                            "CUM_*.csv*", "BBO_*.csv*",
+                                            "MBO_*.csv*" })
+                {
+                    foreach (var f in Directory.GetFiles(dir, pat))
+                    {
+                        try
+                        {
+                            if (new FileInfo(f).Length == 0)
+                                File.Delete(f);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+        }
 
-        /// <summary>
-        /// Flushing a GZipStream ends a deflate block, so flushing often costs
-        /// real size: at one flush per 2,000 rows the 18 June session was
-        /// 20.01 MB where the identical bytes compressed in one pass are
-        /// 18.11 MB. A tenth of the file was flush boundaries.
-        ///
-        /// The threshold is now 250,000 rows, which is roughly nine flushes on
-        /// a depth file instead of eleven hundred. The cost is that a hard
-        /// crash loses the buffered tail rather than the last two thousand
-        /// rows -- acceptable because these are replays, which can simply be
-        /// run again, and because the idle timer and OnDispose both force a
-        /// flush on any orderly finish.
-        /// </summary>
         /// <summary>
         /// Put one recorded file into the bundle, recompressed with Brotli.
         ///
@@ -1720,6 +1790,16 @@ namespace Claude1.Recorders
                 CloseFiles();
                 WriteStatus(true);
             }
+
+            // Give an in-flight bundle a moment, but never hold up the
+            // platform: the worker is a background thread, so if it is still
+            // going it simply dies. The source files are not deleted until
+            // after the archive is renamed, so an abandoned bundle loses
+            // nothing -- it leaves a .part that the next start sweeps away,
+            // and the loose files are still there to be bundled or sent.
+            for (var i = 0; i < 20 && _bundling; i++)
+                Thread.Sleep(500);
+
             base.OnDispose();
         }
     }
