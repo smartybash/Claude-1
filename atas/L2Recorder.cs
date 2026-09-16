@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-16.p";
+        private const string BuildTag = "2026-09-16.q";
 
         private readonly object _sync = new object();
 
@@ -70,11 +70,19 @@ namespace Claude1.Recorders
         // was quiet" from "we threw it away".
         private long _tapeWritten, _depthWritten, _bboEvents, _bboWritten;
         private long _depthThrottled;
+        // Snapshots that produced rows, as against the rows themselves. One
+        // depth event writes many level rows, so events and rows are different
+        // units and were previously being added together.
+        private long _depthSnapshots;
+        // Off-session rejections, per stream. A single global counter could not
+        // say which stream the losses belonged to, which is why the best
+        // bid/ask gap looked unexplained.
+        private long _offTape, _offDepth, _offBbo, _offCum;
 #pragma warning disable 0649   // assigned only in the optional ByOrder part
-        private long _mboEvents, _mboWritten;
+        private long _mboEvents, _mboWritten, _offMbo;
 #pragma warning restore 0649
 #pragma warning disable 0649   // assigned only in the optional Cumulative part
-        private long _cumTrades;
+        private long _cumTrades, _cumOrderRows, _cumFillRows;
 #pragma warning restore 0649
         private string _openDate = "";
         private DateTime _lastSnapshot = DateTime.MinValue;
@@ -111,6 +119,14 @@ namespace Claude1.Recorders
         private DateTime _dataLast = DateTime.MinValue;
         private long _inWindow, _outWindow;
 
+        // The first and last datum INSIDE the session window, tracked apart
+        // from the whole-data clock. Coverage was previously the total span
+        // over the RTH length, so an overnight recording divided 1,560 minutes
+        // by 390 and reported 400%. Every good file read 400%, which is the
+        // fastest way to teach someone to stop reading a check.
+        private DateTime _rthFirst = DateTime.MinValue;
+        private DateTime _rthLast = DateTime.MinValue;
+
         private void NoteDataTime(DateTime t)
         {
             if (_dataFirst == DateTime.MinValue || t < _dataFirst)
@@ -118,9 +134,17 @@ namespace Claude1.Recorders
             if (t > _dataLast)
                 _dataLast = t;
             if (InSession(t))
+            {
                 _inWindow++;
+                if (_rthFirst == DateTime.MinValue || t < _rthFirst)
+                    _rthFirst = t;
+                if (t > _rthLast)
+                    _rthLast = t;
+            }
             else
+            {
                 _outWindow++;
+            }
         }
 
         // The price grid the data actually uses.
@@ -529,20 +553,28 @@ namespace Claude1.Recorders
         // ------------------------------------------------------------------
         // status
         // ------------------------------------------------------------------
-        /// <summary>One reconciliation line. `seq` is the last sequence number
-        /// issued, so it must equal `written`; if it does not, rows were
-        /// written outside the counted path and the discrepancy is real.</summary>
-        private static string Line(string name, long got, long wrote,
-                                   long seq, long throttled)
+        /// <summary>One stream's event balance.
+        ///
+        /// EVENTS, not rows. One depth event writes many level rows and one
+        /// cumulative order writes an order row plus a row per fill, so the
+        /// two are different units and adding them together -- which the
+        /// previous version effectively did -- cannot balance and never did.
+        /// Rows are reported separately below.
+        ///
+        /// The identity here is exact:  recv = wrote + off-session + throttled
+        /// </summary>
+        private static string Bal(string name, long recv, long wrote,
+                                  long off, long throttled)
         {
-            var s = "  " + name.PadRight(14) +
-                    "recv " + got.ToString().PadLeft(9) +
-                    "   wrote " + wrote.ToString().PadLeft(9) +
-                    "   seq " + seq.ToString().PadLeft(9);
+            var s = "  " + name.PadRight(13) +
+                    "recv " + recv.ToString().PadLeft(10) +
+                    "  =  wrote " + wrote.ToString().PadLeft(10) +
+                    "  + off-session " + off.ToString().PadLeft(9);
             if (throttled > 0)
-                s += "   throttled " + throttled;
-            if (seq != wrote && seq > 0 && wrote > 0)
-                s += "   *** seq and written disagree ***";
+                s += "  + throttled " + throttled.ToString().PadLeft(9);
+            var diff = recv - wrote - off - throttled;
+            if (diff != 0)
+                s += "   *** UNACCOUNTED " + diff + " ***";
             return s;
         }
 
@@ -569,20 +601,36 @@ namespace Claude1.Recorders
                 sb.AppendLine();
                 sb.AppendLine("OnCalculate calls:  " + _calcs);
                 sb.AppendLine();
-                sb.AppendLine("---- per stream: received / written / rejected ----");
-                sb.AppendLine("A recording can now prove its own completeness.");
-                sb.AppendLine("Every data row carries a dense seq, so a gap in a");
-                sb.AppendLine("file is a lost row and no gap means none were lost.");
+                sb.AppendLine("---- per stream, in EVENTS ----");
+                sb.AppendLine("recv = wrote + off-session + throttled, exactly.");
+                sb.AppendLine("An UNACCOUNTED figure means a path is not counted.");
                 sb.AppendLine();
-                sb.AppendLine(Line("tape", _trades, _tapeWritten, _seqTape, 0));
-                sb.AppendLine(Line("depth", _depthEvents, _depthWritten,
-                                   _seqDepth, _depthThrottled));
-                sb.AppendLine(Line("best bid/ask", _bboEvents, _bboWritten,
-                                   _seqBbo, 0));
-                sb.AppendLine(Line("cumulative", _cumTrades, _seqCum,
-                                   _seqCum, 0));
-                sb.AppendLine(Line("by order", _mboEvents, _mboWritten,
-                                   _seqMbo, 0));
+                sb.AppendLine(Bal("tape", _trades, _tapeWritten, _offTape, 0));
+                sb.AppendLine(Bal("depth", _depthEvents, _depthSnapshots,
+                                  _offDepth, _depthThrottled));
+                sb.AppendLine(Bal("best bid/ask", _bboEvents, _bboWritten,
+                                  _offBbo, 0));
+                sb.AppendLine(Bal("cumulative", _cumTrades, _cumOrderRows,
+                                  _offCum, 0));
+                sb.AppendLine(Bal("by order", _mboEvents, _mboWritten,
+                                  _offMbo, 0));
+                sb.AppendLine();
+                sb.AppendLine("---- rows actually written to disk ----");
+                sb.AppendLine("Rows exceed events wherever one event expands:");
+                sb.AppendLine("a depth snapshot writes one row per changed");
+                sb.AppendLine("level, and an aggressive order writes one row");
+                sb.AppendLine("for itself plus one for each of its fills.");
+                sb.AppendLine();
+                sb.AppendLine("  tape rows         " + _tapeWritten);
+                sb.AppendLine("  depth rows        " + _depthWritten +
+                    "   from " + _depthSnapshots + " snapshots");
+                sb.AppendLine("  best bid/ask rows " + _bboWritten);
+                sb.AppendLine("  cumulative ORDER rows " + _cumOrderRows);
+                sb.AppendLine("  cumulative FILL rows  " + _cumFillRows);
+                sb.AppendLine("  cumulative total      " +
+                    (_cumOrderRows + _cumFillRows) +
+                    "   (orders + fills; fills carry parent_seq)");
+                sb.AppendLine("  by order rows     " + _mboWritten);
                 if (_cumTrades == 0)
                     sb.AppendLine("  cumulative trades are not being supplied");
                 if (_mboEvents == 0)
@@ -592,13 +640,11 @@ namespace Claude1.Recorders
                     sb.AppendLine("  The callback exists in this ATAS build but has");
                     sb.AppendLine("  not fired. The feed is delivering aggregated");
                     sb.AppendLine("  depth only, so the ladder poll is the best");
-                    sb.AppendLine("  available and add/change/remove is not");
-                    sb.AppendLine("  obtainable. That is a feed fact, not a bug.");
+                    sb.AppendLine("  available. That is a feed fact, not a bug.");
                 }
                 if (_depthEvents > 0)
                     sb.AppendLine("  depth kept " +
-                        (100.0 * (_depthEvents - _depthThrottled) /
-                         _depthEvents).ToString("F1",
+                        (100.0 * _depthSnapshots / _depthEvents).ToString("F1",
                              CultureInfo.InvariantCulture) +
                         "% of book updates at " + SnapshotMs + " ms throttle");
                 sb.AppendLine();
@@ -680,15 +726,36 @@ namespace Claude1.Recorders
                 sb.AppendLine();
                 if (_dataFirst != DateTime.MinValue)
                 {
-                    var span = (_dataLast - _dataFirst).TotalMinutes;
+                    var total = (_dataLast - _dataFirst).TotalMinutes;
+                    sb.AppendLine("total data span:    " +
+                        total.ToString("F0", CultureInfo.InvariantCulture) +
+                        " minutes  (" +
+                        _dataFirst.ToString("HH:mm", CultureInfo.InvariantCulture) +
+                        " to " +
+                        _dataLast.ToString("HH:mm", CultureInfo.InvariantCulture) +
+                        ")   -- all hours, not a coverage figure");
                     var expect = (RthEndHour * 60 + RthEndMinute) -
                                  (RthStartHour * 60 + RthStartMinute);
-                    if (expect > 0)
-                        sb.AppendLine("coverage of the window: " +
-                            (100.0 * span / expect).ToString("F1",
+                    if (_rthFirst != DateTime.MinValue && expect > 0)
+                    {
+                        var rth = (_rthLast - _rthFirst).TotalMinutes;
+                        sb.AppendLine("RTH coverage:       " +
+                            (100.0 * rth / expect).ToString("F1",
                                 CultureInfo.InvariantCulture) + "%  (" +
-                            span.ToString("F0", CultureInfo.InvariantCulture) +
-                            " of " + expect + " minutes)");
+                            rth.ToString("F0", CultureInfo.InvariantCulture) +
+                            " of " + expect + " minutes, " +
+                            _rthFirst.ToString("HH:mm", CultureInfo.InvariantCulture) +
+                            " to " +
+                            _rthLast.ToString("HH:mm", CultureInfo.InvariantCulture) +
+                            ")");
+                        if (rth < 0.97 * expect)
+                            sb.AppendLine("  *** SESSION IS SHORT -- check for a" +
+                                          " half day or a late start ***");
+                    }
+                    else
+                    {
+                        sb.AppendLine("RTH coverage:       no data inside the window yet");
+                    }
                 }
                 sb.AppendLine();
                 sb.AppendLine("record tape:        " + RecordTape);
@@ -1133,14 +1200,25 @@ namespace Claude1.Recorders
             if (depth == null)
                 return;
             _bboEvents++;
-            if (!RecordDepth)
+            // Gated with the TAPE, not the depth ladder. The best quote is the
+            // tape's companion -- it says what the trade crossed -- so it
+            // follows the tape's on/off and the tape's hours. Gating it on
+            // RecordDepth also left the balance below unaccountable whenever
+            // depth was off.
+            if (!RecordTape)
                 return;
             NotePrice(depth.Price);
             var now = depth.Time;
             NoteDataTime(now);
-            if (!InSession(now))
+            // The best quote follows the TAPE's hours, not the depth ladder's.
+            // It was gated on InSession alone, so with TapeAllHours on the
+            // recorder kept every overnight trade and threw away every
+            // overnight quote -- which is what made 643,281 of 1,353,342 look
+            // unexplained. The two streams are companions and now share a gate.
+            if (!TapeAllHours && !InSession(now))
             {
                 _skippedOutOfSession++;
+                _offBbo++;
                 return;
             }
             lock (_sync)
@@ -1224,6 +1302,7 @@ namespace Claude1.Recorders
             if (!TapeAllHours && !InSession(arg.Time))
             {
                 _skippedOutOfSession++;
+                _offTape++;
                 return;
             }
 
@@ -1270,6 +1349,7 @@ namespace Claude1.Recorders
             if (!InSession(now))
             {
                 _skippedOutOfSession++;
+                _offDepth++;
                 return;
             }
             lock (_sync)
@@ -1280,6 +1360,7 @@ namespace Claude1.Recorders
                     return;
                 }
                 _lastSnapshot = now;
+                _depthSnapshots++;
 
                 try
                 {

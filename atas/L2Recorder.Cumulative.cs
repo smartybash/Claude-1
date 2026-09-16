@@ -116,9 +116,10 @@ namespace Claude1.Recorders
                 return;
 
             var when = trade.Time;
-            if (!InSession(when))
+            if (!TapeAllHours && !InSession(when))
             {
                 _skippedOutOfSession++;
+                _offCum++;
                 return;
             }
 
@@ -165,6 +166,7 @@ namespace Claude1.Recorders
                         trade.Volume.ToString(CultureInfo.InvariantCulture) + "," +
                         fills + ",");
                     _rows++;
+                    _cumOrderRows++;
                     _pending++;
 
                     if (RecordFills && trade.Ticks != null)
@@ -186,6 +188,7 @@ namespace Claude1.Recorders
                                 tick.Volume.ToString(CultureInfo.InvariantCulture) +
                                 ",1," + seq);
                             _rows++;
+                            _cumFillRows++;
                             _pending++;
                         }
                     }

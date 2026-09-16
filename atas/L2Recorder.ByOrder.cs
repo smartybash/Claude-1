@@ -112,9 +112,10 @@ namespace Claude1.Recorders
                         _mboEvents++;
                         NotePrice(o.Price);
                         NoteDataTime(o.Time);
-                        if (!InSession(o.Time))
+                        if (!TapeAllHours && !InSession(o.Time))
                         {
                             _skippedOutOfSession++;
+                            _offMbo++;
                             continue;
                         }
                         EnsureByOrderOpen(o.Time);
