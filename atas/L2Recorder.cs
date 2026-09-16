@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-16.o";
+        private const string BuildTag = "2026-09-16.p";
 
         private readonly object _sync = new object();
 
@@ -138,6 +138,8 @@ namespace Claude1.Recorders
         // between consecutive distinct prices is tracked as the data arrives
         // and reported beside whatever the platform SAYS the step is. If the
         // two disagree, the status file says so in as many words.
+        private DateTime _lastBboWrite = DateTime.MinValue;
+
         private decimal _lastSeenPrice;
         private decimal _minGap;
         private long _priceSamples;
@@ -260,6 +262,39 @@ namespace Claude1.Recorders
         /// cumulative file.</summary>
         [DisplayName("Record individual fills")]
         public bool RecordFills { get; set; } = true;
+
+        /// <summary>Write a per-row sequence number on the tape and depth
+        /// streams.
+        ///
+        /// Off by default, and the reason is measured rather than assumed. On
+        /// 18 June the column cost 6.2 MB of a 13.3 MB depth file -- the most
+        /// expensive column in the recording -- because a dense counter is
+        /// unique on every row and compresses badly.
+        ///
+        /// It also buys nothing that the row COUNT does not. The count is
+        /// written to the status file and bundled with the data, so a
+        /// truncated or partially copied file is detected either way. A
+        /// per-row sequence localises the loss as well, which matters only if
+        /// rows can go missing from the middle of a file -- and gzip fails
+        /// loudly on corruption rather than silently dropping a line.
+        ///
+        /// The cumulative stream keeps its sequence regardless: there it is
+        /// not redundant, because parent_seq is how a fill is joined to its
+        /// order.</summary>
+        [DisplayName("Write per-row sequence numbers")]
+        public bool WriteSequence { get; set; } = false;
+
+        /// <summary>Throttle the best bid/offer stream, in milliseconds. Zero
+        /// records every change.
+        ///
+        /// Unthrottled is the right default and the size is genuinely unknown:
+        /// it cannot be estimated from any existing recording, because the
+        /// 250 ms depth poll aliases the quote badly -- 88% of consecutive
+        /// samples differ, which means the true rate is far above four a
+        /// second but says nothing about how far. Measure it on the first
+        /// session and set this if it is too large.</summary>
+        [DisplayName("BBO throttle ms (0 = every change)")]
+        public int BboMs { get; set; } = 0;
 
         /// <summary>
         /// Record only the cash session. The recorder writes the ATAS platform
@@ -506,7 +541,7 @@ namespace Claude1.Recorders
                     "   seq " + seq.ToString().PadLeft(9);
             if (throttled > 0)
                 s += "   throttled " + throttled;
-            if (seq != wrote)
+            if (seq != wrote && seq > 0 && wrote > 0)
                 s += "   *** seq and written disagree ***";
             return s;
         }
@@ -659,6 +694,11 @@ namespace Claude1.Recorders
                 sb.AppendLine("record tape:        " + RecordTape);
                 sb.AppendLine("record by order:    " + RecordByOrder);
                 sb.AppendLine("record fills:       " + RecordFills);
+                sb.AppendLine("per-row sequence:   " + WriteSequence
+                    + (WriteSequence ? "" : "  (row counts above are the proof)"));
+                sb.AppendLine("bbo throttle:       " +
+                    (BboMs > 0 ? BboMs + " ms" : "every change"));
+                sb.AppendLine("compression:        gzip SmallestSize");
                 sb.AppendLine("record depth:       " + RecordDepth);
                 sb.AppendLine("tape all hours:     " + TapeAllHours);
                 sb.AppendLine("depth RTH only:     " + RthOnly + "  ("
@@ -764,14 +804,15 @@ namespace Claude1.Recorders
             // same callback, OpenInterest is free, and the two exchange order
             // ids are the only identity the feed offers -- they are what makes
             // a trade joinable to the order that caused it.
+            var sq = WriteSequence ? "seq," : "";
             if (dNew)
-                _depthWriter.WriteLine("seq,time,side,level,price,volume");
+                _depthWriter.WriteLine(sq + "time,side,level,price,volume");
             if (tNew)
                 _tapeWriter.WriteLine(
-                    "seq,time,price,volume,aggressor,datatype,oi," +
+                    sq + "time,price,volume,aggressor,datatype,oi," +
                     "aggressor_order_id,order_id");
             if (bNew)
-                _bboWriter.WriteLine("seq,time,side,price,volume");
+                _bboWriter.WriteLine(sq + "time,side,price,volume");
 
             _openDate = date;
             _files = Path.GetFileName(dPath) + " + " + Path.GetFileName(tPath)
@@ -826,7 +867,7 @@ namespace Claude1.Recorders
 
             var fs = new FileStream(path, FileMode.Append, FileAccess.Write,
                                     FileShare.ReadWrite | FileShare.Delete);
-            var gz = new GZipStream(fs, CompressionLevel.Optimal, false);
+            var gz = new GZipStream(fs, CompressionLevel.SmallestSize, false);
             return new StreamWriter(gz, new UTF8Encoding(false));
         }
 
@@ -1039,8 +1080,9 @@ namespace Claude1.Recorders
                 }
                 _book[key] = vol;
 
+                _seqDepth++;
                 _depthWriter.WriteLine(
-                    (++_seqDepth) + "," + stamp + "," + side + "," + i + "," +
+                    Seq(_seqDepth) + stamp + "," + side + "," + i + "," +
                     Num(price) + "," + Num(vol));
                 _rows++;
                 _depthWritten++;
@@ -1060,6 +1102,16 @@ namespace Claude1.Recorders
         /// may well be null for every row, in which case the columns cost a
         /// comma each and the status file says the count was zero -- which is
         /// itself the answer to whether they are usable.</summary>
+        /// <summary>The sequence prefix, or nothing when sequences are off.
+        /// The counter is maintained either way so the status file can
+        /// reconcile it against the rows written.</summary>
+        private string Seq(long n)
+        {
+            return WriteSequence
+                ? n.ToString(CultureInfo.InvariantCulture) + ","
+                : "";
+        }
+
         private static string IdOf(long? id)
         {
             return id.HasValue
@@ -1093,6 +1145,10 @@ namespace Claude1.Recorders
             }
             lock (_sync)
             {
+                if (BboMs > 0 &&
+                    (now - _lastBboWrite).TotalMilliseconds < BboMs)
+                    return;
+                _lastBboWrite = now;
                 try
                 {
                     EnsureOpen(now);
@@ -1100,8 +1156,9 @@ namespace Claude1.Recorders
                     var side = depth.DataType == MarketDataType.Bid ? "B"
                              : depth.DataType == MarketDataType.Ask ? "A"
                              : "?";
+                    _seqBbo++;
                     _bboWriter.WriteLine(
-                        (++_seqBbo) + "," + Ts(now) + "," + side + "," +
+                        Seq(_seqBbo) + Ts(now) + "," + side + "," +
                         Num(depth.Price) + "," + Num(depth.Volume));
                     _rows++;
                     _bboWritten++;
@@ -1181,8 +1238,9 @@ namespace Claude1.Recorders
                 {
                     EnsureOpen(arg.Time);
                     _lastData = DateTime.Now;
+                    _seqTape++;
                     _tapeWriter.WriteLine(
-                        (++_seqTape) + "," + Ts(arg.Time) + "," +
+                        Seq(_seqTape) + Ts(arg.Time) + "," +
                         Num(arg.Price) + "," + Num(arg.Volume) + "," + side +
                         "," + (int)arg.DataType + "," + Num(arg.OpenInterest) +
                         "," + IdOf(arg.AggressorExchangeOrderId) +
@@ -1274,8 +1332,9 @@ namespace Claude1.Recorders
                             _gone.Add(kv.Key);
                     foreach (var key in _gone)
                     {
+                        _seqDepth++;
                         _depthWriter.WriteLine(
-                            (++_seqDepth) + "," + stamp + "," +
+                            Seq(_seqDepth) + stamp + "," +
                             key.Substring(0, 1) + ",-1," +
                             key.Substring(2) + ",0");
                         _book.Remove(key);

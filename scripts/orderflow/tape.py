@@ -64,6 +64,9 @@ def read_maybe_truncated(path: Path) -> io.BytesIO:
 
 
 def load_day(path: Path) -> pd.DataFrame:
+    # Columns are matched by name, so the recorder adding a leading `seq` or
+    # trailing `datatype`/`oi`/order-id columns changes nothing here. Only the
+    # four the analysis uses are typed.
     df = pd.read_csv(read_maybe_truncated(path), encoding="utf-8-sig",
                      dtype={"price": np.float64, "volume": np.int64,
                             "aggressor": "string"})
@@ -135,6 +138,16 @@ def unpack_bundles(folder: Path = None) -> int:
                         dest = folder / "depth" / base
                     elif base.startswith("CUM_"):
                         dest = folder / "cum" / base
+                    elif base.startswith("BBO_"):
+                        dest = folder / "bbo" / base
+                    elif base.startswith("MBO_"):
+                        dest = folder / "mbo" / base
+                    elif base.startswith("_status"):
+                        # Provenance: which settings and what resolution this
+                        # session was recorded at. Kept beside the data rather
+                        # than discarded, which is the whole reason it is now
+                        # bundled.
+                        dest = folder / "status" / base
                     else:
                         continue
                     if dest.exists():
