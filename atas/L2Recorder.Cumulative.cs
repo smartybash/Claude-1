@@ -133,8 +133,22 @@ namespace Claude1.Recorders
                              : "?";
 
                     // Lastprice, not LastPrice -- the lowercase p is why two
-                    // earlier builds failed. Ticks is still walked, but only
-                    // for the fill count, which has no property of its own.
+                    // earlier builds failed.
+                    //
+                    // Ticks was previously walked only to count fills, and the
+                    // fills themselves were thrown away. That was the single
+                    // biggest loss in the recording: an aggressive order that
+                    // swept four price levels was reduced to a first price, a
+                    // last price and the number 4, so its shape -- how much
+                    // went at each level, in what order -- could not be
+                    // recovered. The inventory confirms Ticks is a
+                    // List<MarketDataArg>, so each fill carries its own price,
+                    // size, time and side.
+                    //
+                    // The order row is written as before, then one row per
+                    // fill into the same file, tagged by the order's seq. A
+                    // reader takes kind == 'O' for orders and kind == 'F' for
+                    // fills, and a fill joins its order on parent_seq.
                     var lastPrice = trade.Lastprice;
                     var fills = 0;
                     if (trade.Ticks != null)
@@ -143,16 +157,38 @@ namespace Claude1.Recorders
                             fills++;
                     }
 
+                    var seq = ++_seqCum;
                     _cumWriter.WriteLine(
-                        when.ToString("yyyy-MM-dd HH:mm:ss.fff",
-                                      CultureInfo.InvariantCulture) + "," +
-                        side + "," +
+                        seq + ",O," + Ts(when) + "," + side + "," +
                         trade.FirstPrice.ToString(CultureInfo.InvariantCulture) + "," +
                         lastPrice.ToString(CultureInfo.InvariantCulture) + "," +
                         trade.Volume.ToString(CultureInfo.InvariantCulture) + "," +
-                        fills);
+                        fills + ",");
                     _rows++;
                     _pending++;
+
+                    if (RecordFills && trade.Ticks != null)
+                    {
+                        foreach (var tick in trade.Ticks)
+                        {
+                            if (tick == null)
+                                continue;
+                            var fSide = tick.Direction == TradeDirection.Buy ? "B"
+                                      : tick.Direction == TradeDirection.Sell ? "S"
+                                      : "?";
+                            _cumWriter.WriteLine(
+                                (++_seqCum) + ",F," + Ts(tick.Time) + "," +
+                                fSide + "," +
+                                tick.Price.ToString(CultureInfo.InvariantCulture) +
+                                "," +
+                                tick.Price.ToString(CultureInfo.InvariantCulture) +
+                                "," +
+                                tick.Volume.ToString(CultureInfo.InvariantCulture) +
+                                ",1," + seq);
+                            _rows++;
+                            _pending++;
+                        }
+                    }
                     FlushIfDue(false);
                 }
                 catch (Exception ex)
@@ -193,7 +229,8 @@ namespace Claude1.Recorders
             _cumWriter.AutoFlush = false;
             if (isNew)
                 _cumWriter.WriteLine(
-                    "time,aggressor,first_price,last_price,volume,fills");
+                    "seq,kind,time,aggressor,first_price,last_price," +
+                    "volume,fills,parent_seq");
         }
     }
 }

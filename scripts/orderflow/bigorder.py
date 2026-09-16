@@ -64,6 +64,11 @@ def cum_ok(day: str):
     if not f.exists():
         return None
     c = pd.read_csv(f, compression="gzip")
+    # Recorder 2026-09-16.o added a sequence number, a row kind and per-fill
+    # rows. Orders are kind "O"; the "F" rows are the individual fills of the
+    # order above them and would be counted twice by anything summing volume.
+    if "kind" in c.columns:
+        c = c[c.kind == "O"].drop(columns=["kind"])
     if c.empty or c.fills.max() <= 1:
         return None
     c["time"] = pd.to_datetime(c.time)

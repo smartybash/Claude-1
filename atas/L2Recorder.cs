@@ -46,13 +46,33 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-16.n";
+        private const string BuildTag = "2026-09-16.o";
 
         private readonly object _sync = new object();
 
         private StreamWriter _depthWriter;
         private StreamWriter _tapeWriter;
         private StreamWriter _cumWriter;
+        private StreamWriter _bboWriter;
+
+        // Per-stream sequence numbers, written as the first column of every
+        // data row. A recording can then prove its own completeness: the
+        // sequence is dense by construction, so any gap in a file is a row
+        // that was lost after this process wrote it, and no gap means none
+        // were. Without this a truncated or partially-copied file is
+        // indistinguishable from a quiet market, which is the position every
+        // recording so far has been in.
+        private long _seqDepth, _seqTape, _seqCum, _seqBbo, _seqMbo;
+
+        // Received / written / rejected, per stream. _trades and _depthEvents
+        // count what the platform handed us; these count what happened to it.
+        // The difference is the only thing that can distinguish "the market
+        // was quiet" from "we threw it away".
+        private long _tapeWritten, _depthWritten, _bboEvents, _bboWritten;
+        private long _depthThrottled;
+#pragma warning disable 0649   // assigned only in the optional ByOrder part
+        private long _mboEvents, _mboWritten;
+#pragma warning restore 0649
 #pragma warning disable 0649   // assigned only in the optional Cumulative part
         private long _cumTrades;
 #pragma warning restore 0649
@@ -80,7 +100,7 @@ namespace Claude1.Recorders
         private DateTime _lastData = DateTime.MinValue;
         private Timer _idleTimer;
         private string _pathDate = "";
-        private string _dPath, _tPath;
+        private string _dPath, _tPath, _bPath;
         private long _skippedOutOfSession;
 
         // The actual clock on the data, recorded before any session gate sees
@@ -225,6 +245,21 @@ namespace Claude1.Recorders
         /// </summary>
         [DisplayName("Record depth")]
         public bool RecordDepth { get; set; } = false;
+
+        /// <summary>Record the market-by-order event stream when the feed
+        /// supplies one. Costs nothing when it does not: the callback simply
+        /// never fires and the status file reports zero, which is itself the
+        /// answer to whether this route carries order-by-order data.</summary>
+        [DisplayName("Record market by order")]
+        public bool RecordByOrder { get; set; } = true;
+
+        /// <summary>Write one row per individual fill of each aggressive
+        /// order, alongside the order row. This is the shape of a sweep --
+        /// how much went at each level and in what order -- which the
+        /// first-price/last-price/count summary destroys. Roughly doubles the
+        /// cumulative file.</summary>
+        [DisplayName("Record individual fills")]
+        public bool RecordFills { get; set; } = true;
 
         /// <summary>
         /// Record only the cash session. The recorder writes the ATAS platform
@@ -459,6 +494,23 @@ namespace Claude1.Recorders
         // ------------------------------------------------------------------
         // status
         // ------------------------------------------------------------------
+        /// <summary>One reconciliation line. `seq` is the last sequence number
+        /// issued, so it must equal `written`; if it does not, rows were
+        /// written outside the counted path and the discrepancy is real.</summary>
+        private static string Line(string name, long got, long wrote,
+                                   long seq, long throttled)
+        {
+            var s = "  " + name.PadRight(14) +
+                    "recv " + got.ToString().PadLeft(9) +
+                    "   wrote " + wrote.ToString().PadLeft(9) +
+                    "   seq " + seq.ToString().PadLeft(9);
+            if (throttled > 0)
+                s += "   throttled " + throttled;
+            if (seq != wrote)
+                s += "   *** seq and written disagree ***";
+            return s;
+        }
+
         private void WriteStatus(bool force)
         {
             var now = DateTime.Now;
@@ -481,11 +533,40 @@ namespace Claude1.Recorders
                 sb.AppendLine("instrument:         " + SymbolName());
                 sb.AppendLine();
                 sb.AppendLine("OnCalculate calls:  " + _calcs);
-                sb.AppendLine("trades received:    " + _trades);
-                sb.AppendLine("aggressive orders:  " + _cumTrades
-                    + (_cumTrades == 0
-                       ? "  (cumulative trades not supplied)" : ""));
-                sb.AppendLine("depth updates:      " + _depthEvents);
+                sb.AppendLine();
+                sb.AppendLine("---- per stream: received / written / rejected ----");
+                sb.AppendLine("A recording can now prove its own completeness.");
+                sb.AppendLine("Every data row carries a dense seq, so a gap in a");
+                sb.AppendLine("file is a lost row and no gap means none were lost.");
+                sb.AppendLine();
+                sb.AppendLine(Line("tape", _trades, _tapeWritten, _seqTape, 0));
+                sb.AppendLine(Line("depth", _depthEvents, _depthWritten,
+                                   _seqDepth, _depthThrottled));
+                sb.AppendLine(Line("best bid/ask", _bboEvents, _bboWritten,
+                                   _seqBbo, 0));
+                sb.AppendLine(Line("cumulative", _cumTrades, _seqCum,
+                                   _seqCum, 0));
+                sb.AppendLine(Line("by order", _mboEvents, _mboWritten,
+                                   _seqMbo, 0));
+                if (_cumTrades == 0)
+                    sb.AppendLine("  cumulative trades are not being supplied");
+                if (_mboEvents == 0)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("  NO MARKET-BY-ORDER DATA ON THIS ROUTE.");
+                    sb.AppendLine("  The callback exists in this ATAS build but has");
+                    sb.AppendLine("  not fired. The feed is delivering aggregated");
+                    sb.AppendLine("  depth only, so the ladder poll is the best");
+                    sb.AppendLine("  available and add/change/remove is not");
+                    sb.AppendLine("  obtainable. That is a feed fact, not a bug.");
+                }
+                if (_depthEvents > 0)
+                    sb.AppendLine("  depth kept " +
+                        (100.0 * (_depthEvents - _depthThrottled) /
+                         _depthEvents).ToString("F1",
+                             CultureInfo.InvariantCulture) +
+                        "% of book updates at " + SnapshotMs + " ms throttle");
+                sb.AppendLine();
                 sb.AppendLine("rows written:       " + _rows);
                 sb.AppendLine();
                 sb.AppendLine("skipped, off-session " + _skippedOutOfSession);
@@ -562,7 +643,22 @@ namespace Claude1.Recorders
                 }
                 sb.AppendLine("------------------------");
                 sb.AppendLine();
+                if (_dataFirst != DateTime.MinValue)
+                {
+                    var span = (_dataLast - _dataFirst).TotalMinutes;
+                    var expect = (RthEndHour * 60 + RthEndMinute) -
+                                 (RthStartHour * 60 + RthStartMinute);
+                    if (expect > 0)
+                        sb.AppendLine("coverage of the window: " +
+                            (100.0 * span / expect).ToString("F1",
+                                CultureInfo.InvariantCulture) + "%  (" +
+                            span.ToString("F0", CultureInfo.InvariantCulture) +
+                            " of " + expect + " minutes)");
+                }
+                sb.AppendLine();
                 sb.AppendLine("record tape:        " + RecordTape);
+                sb.AppendLine("record by order:    " + RecordByOrder);
+                sb.AppendLine("record fills:       " + RecordFills);
                 sb.AppendLine("record depth:       " + RecordDepth);
                 sb.AppendLine("tape all hours:     " + TapeAllHours);
                 sb.AppendLine("depth RTH only:     " + RthOnly + "  ("
@@ -645,6 +741,7 @@ namespace Claude1.Recorders
                 var run = NextRun(dir, sym, date, ext);
                 _dPath = RunPath(dir, "L2_" + sym + "_" + date, run, ext);
                 _tPath = RunPath(dir, "TAPE_" + sym + "_" + date, run, ext);
+                _bPath = RunPath(dir, "BBO_" + sym + "_" + date, run, ext);
                 _pathDate = date;
             }
             var dPath = _dPath;
@@ -652,19 +749,33 @@ namespace Claude1.Recorders
 
             var dNew = !File.Exists(dPath);
             var tNew = !File.Exists(tPath);
+            var bNew = !File.Exists(_bPath);
 
             _depthWriter = OpenWriter(dPath);
             _tapeWriter = OpenWriter(tPath);
+            _bboWriter = OpenWriter(_bPath);
             _depthWriter.AutoFlush = false;
             _tapeWriter.AutoFlush = false;
+            _bboWriter.AutoFlush = false;
 
+            // Every stream leads with seq. The extra tape columns are fields
+            // MarketDataArg has always carried and we have never written:
+            // DataType distinguishes a trade print from anything else on the
+            // same callback, OpenInterest is free, and the two exchange order
+            // ids are the only identity the feed offers -- they are what makes
+            // a trade joinable to the order that caused it.
             if (dNew)
-                _depthWriter.WriteLine("time,side,level,price,volume");
+                _depthWriter.WriteLine("seq,time,side,level,price,volume");
             if (tNew)
-                _tapeWriter.WriteLine("time,price,volume,aggressor");
+                _tapeWriter.WriteLine(
+                    "seq,time,price,volume,aggressor,datatype,oi," +
+                    "aggressor_order_id,order_id");
+            if (bNew)
+                _bboWriter.WriteLine("seq,time,side,price,volume");
 
             _openDate = date;
-            _files = Path.GetFileName(dPath) + " + " + Path.GetFileName(tPath);
+            _files = Path.GetFileName(dPath) + " + " + Path.GetFileName(tPath)
+                   + " + " + Path.GetFileName(_bPath);
         }
 
         private static string RunPath(string dir, string stem, int run,
@@ -688,7 +799,8 @@ namespace Claude1.Recorders
             {
                 var d = RunPath(dir, "L2_" + sym + "_" + date, run, ext);
                 var t = RunPath(dir, "TAPE_" + sym + "_" + date, run, ext);
-                if (!File.Exists(d) && !File.Exists(t))
+                var b = RunPath(dir, "BBO_" + sym + "_" + date, run, ext);
+                if (!File.Exists(d) && !File.Exists(t) && !File.Exists(b))
                     return run;
             }
             return 1;
@@ -750,6 +862,14 @@ namespace Claude1.Recorders
         /// </summary>
         partial void AddCumFile(List<string> paths);
 
+        /// <summary>Implemented in L2Recorder.ByOrder.cs when that part is
+        /// compiled in. A partial method with no implementation compiles to
+        /// nothing, so the recorder works identically with the market-by-order
+        /// stream removed.</summary>
+        partial void AddByOrderFile(List<string> paths);
+        partial void FlushByOrder();
+        partial void CloseByOrder();
+
         private void CloseFiles()
         {
             FlushPendingCumulative();
@@ -757,8 +877,11 @@ namespace Claude1.Recorders
             try { if (_depthWriter != null) { _depthWriter.Flush(); _depthWriter.Dispose(); } } catch { }
             try { if (_tapeWriter != null) { _tapeWriter.Flush(); _tapeWriter.Dispose(); } } catch { }
             try { if (_cumWriter != null) { _cumWriter.Flush(); _cumWriter.Dispose(); } } catch { }
+            try { if (_bboWriter != null) { _bboWriter.Flush(); _bboWriter.Dispose(); } } catch { }
+            CloseByOrder();
             _depthWriter = null;
             _tapeWriter = null;
+            _bboWriter = null;
             _cumWriter = null;
             _openDate = "";
         }
@@ -796,7 +919,15 @@ namespace Claude1.Recorders
                 var parts = new List<string>();
                 if (_dPath != null) parts.Add(_dPath);
                 if (_tPath != null) parts.Add(_tPath);
+                if (_bPath != null) parts.Add(_bPath);
                 AddCumFile(parts);
+                AddByOrderFile(parts);
+                // Provenance must travel with the data. The status file holds
+                // the settings, the resolution and the per-stream counts, and
+                // leaving it out of the bundle is why four months of
+                // recordings could not say what they were recorded at.
+                WriteStatus(true);
+                var statusPath = Path.Combine(dir, "_status.txt");
 
                 var zipPath = Path.Combine(
                     dir, Clean(SymbolName()) + "_" + _pathDate + ".zip");
@@ -826,6 +957,29 @@ namespace Claude1.Recorders
                         zip.CreateEntryFromFile(src, entry,
                                                 CompressionLevel.NoCompression);
                         packed.Add(src);
+                    }
+
+                    // The status file goes in by copy and is NOT added to
+                    // `packed`, because everything in that list is deleted
+                    // afterwards and this one is live -- the user reads it
+                    // while the recorder runs. It is also named per date
+                    // rather than deduplicated as a .csv.gz, which the loop
+                    // above would otherwise do to it.
+                    if (File.Exists(statusPath))
+                    {
+                        var sName = "_status_" + _pathDate + ".txt";
+                        var m = 2;
+                        while (zip.GetEntry(sName) != null)
+                        {
+                            sName = "_status_" + _pathDate + "_part" + m + ".txt";
+                            m++;
+                        }
+                        try
+                        {
+                            zip.CreateEntryFromFile(statusPath, sName,
+                                                    CompressionLevel.Optimal);
+                        }
+                        catch { }
                     }
                 }
 
@@ -857,6 +1011,8 @@ namespace Claude1.Recorders
             try { if (_depthWriter != null) _depthWriter.Flush(); } catch { }
             try { if (_tapeWriter != null) _tapeWriter.Flush(); } catch { }
             try { if (_cumWriter != null) _cumWriter.Flush(); } catch { }
+            try { if (_bboWriter != null) _bboWriter.Flush(); } catch { }
+            FlushByOrder();
             _pending = 0;
         }
 
@@ -884,16 +1040,79 @@ namespace Claude1.Recorders
                 _book[key] = vol;
 
                 _depthWriter.WriteLine(
-                    stamp + "," + side + "," + i + "," + Num(price) + "," +
-                    Num(vol));
+                    (++_seqDepth) + "," + stamp + "," + side + "," + i + "," +
+                    Num(price) + "," + Num(vol));
                 _rows++;
+                _depthWritten++;
                 _pending++;
             }
         }
 
         private static string Ts(DateTime t)
         {
-            return t.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            return t.ToString("yyyy-MM-dd HH:mm:ss.ffffff",
+                              CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>A nullable exchange id as a column: empty when absent.
+        ///
+        /// These are the only identity the feed offers on a print. On CME they
+        /// may well be null for every row, in which case the columns cost a
+        /// comma each and the status file says the count was zero -- which is
+        /// itself the answer to whether they are usable.</summary>
+        private static string IdOf(long? id)
+        {
+            return id.HasValue
+                ? id.Value.ToString(CultureInfo.InvariantCulture)
+                : "";
+        }
+
+        /// <summary>The inside quote, as its own stream.
+        ///
+        /// The book snapshot is throttled to SnapshotMs and always will be --
+        /// it is a whole ladder and re-reading it on every change would cost
+        /// more than it returns. The touch is different: it is four numbers,
+        /// it changes constantly, and every quote change between two snapshots
+        /// was previously lost. This writes all of them, unthrottled, so the
+        /// spread and the size at the touch are exact rather than sampled.
+        /// </summary>
+        protected override void OnBestBidAskChanged(MarketDataArg depth)
+        {
+            if (depth == null)
+                return;
+            _bboEvents++;
+            if (!RecordDepth)
+                return;
+            NotePrice(depth.Price);
+            var now = depth.Time;
+            NoteDataTime(now);
+            if (!InSession(now))
+            {
+                _skippedOutOfSession++;
+                return;
+            }
+            lock (_sync)
+            {
+                try
+                {
+                    EnsureOpen(now);
+                    _lastData = DateTime.Now;
+                    var side = depth.DataType == MarketDataType.Bid ? "B"
+                             : depth.DataType == MarketDataType.Ask ? "A"
+                             : "?";
+                    _bboWriter.WriteLine(
+                        (++_seqBbo) + "," + Ts(now) + "," + side + "," +
+                        Num(depth.Price) + "," + Num(depth.Volume));
+                    _rows++;
+                    _bboWritten++;
+                    _pending++;
+                    FlushIfDue(false);
+                }
+                catch (Exception ex)
+                {
+                    _lastError = "bbo: " + ex.Message;
+                }
+            }
         }
 
         private static string Num(decimal d)
@@ -963,9 +1182,13 @@ namespace Claude1.Recorders
                     EnsureOpen(arg.Time);
                     _lastData = DateTime.Now;
                     _tapeWriter.WriteLine(
-                        Ts(arg.Time) + "," + Num(arg.Price) + "," +
-                        Num(arg.Volume) + "," + side);
+                        (++_seqTape) + "," + Ts(arg.Time) + "," +
+                        Num(arg.Price) + "," + Num(arg.Volume) + "," + side +
+                        "," + (int)arg.DataType + "," + Num(arg.OpenInterest) +
+                        "," + IdOf(arg.AggressorExchangeOrderId) +
+                        "," + IdOf(arg.ExchangeOrderId));
                     _rows++;
+                    _tapeWritten++;
                     _pending++;
                     FlushIfDue(false);
                 }
@@ -994,7 +1217,10 @@ namespace Claude1.Recorders
             lock (_sync)
             {
                 if ((now - _lastSnapshot).TotalMilliseconds < SnapshotMs)
+                {
+                    _depthThrottled++;
                     return;
+                }
                 _lastSnapshot = now;
 
                 try
@@ -1049,10 +1275,12 @@ namespace Claude1.Recorders
                     foreach (var key in _gone)
                     {
                         _depthWriter.WriteLine(
-                            stamp + "," + key.Substring(0, 1) + ",-1," +
+                            (++_seqDepth) + "," + stamp + "," +
+                            key.Substring(0, 1) + ",-1," +
                             key.Substring(2) + ",0");
                         _book.Remove(key);
                         _rows++;
+                        _depthWritten++;
                         _pending++;
                     }
 

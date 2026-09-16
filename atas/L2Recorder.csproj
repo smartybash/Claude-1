@@ -40,6 +40,10 @@
     <Compile Remove="L2Recorder.Cumulative.cs" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(NoByOrder)' == 'true'">
+    <Compile Remove="L2Recorder.ByOrder.cs" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(NoRender)' == 'true'">
     <Compile Remove="LevelPlanner.Render.cs" />
     <Compile Remove="StructureMap.cs" />
