@@ -30,7 +30,7 @@ namespace Claude1.Recorders
 
         partial void AddCumFile(List<string> paths)
         {
-            if (_cPath != null)
+            if (_cPath != null && File.Exists(_cPath))
                 paths.Add(_cPath);
         }
 
@@ -225,6 +225,30 @@ namespace Claude1.Recorders
                 throw new IOException("no writable output folder");
 
             var date = stamp.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            // Roll over on a DATE change, not only when the path is unset.
+            //
+            // This only checked for null, so once a session ended the path
+            // stayed pointing at the finished day. If a cumulative trade for
+            // the new date arrived before the first tape or depth event -- and
+            // it often does, because the streams are independent -- the new
+            // day's orders were appended to the PREVIOUS day's file. The file
+            // then belonged to neither session cleanly and could be bundled
+            // into the wrong one.
+            if (_cPath != null &&
+                Path.GetFileName(_cPath).IndexOf(date, StringComparison.Ordinal) < 0)
+            {
+                try
+                {
+                    if (_cumWriter != null)
+                    {
+                        _cumWriter.Flush();
+                        _cumWriter.Dispose();
+                    }
+                }
+                catch { }
+                _cumWriter = null;
+                _cPath = null;
+            }
             if (_cPath == null)
             {
                 var ext = Gzip ? ".csv.gz" : ".csv";

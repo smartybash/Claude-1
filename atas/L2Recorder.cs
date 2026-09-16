@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-17.x";
+        private const string BuildTag = "2026-09-17.y";
 
         private readonly object _sync = new object();
 
@@ -926,7 +926,9 @@ namespace Claude1.Recorders
             {
                 var old = _pathDate;
                 var oldParts = CurrentParts();
-                _bundledDate = old;
+                if (_bundled.Contains(old))
+                    oldParts.Clear();
+                _bundled.Add(old);
                 QueueBundle(dir, old, oldParts);
                 _dPath = null;
                 _tPath = null;
@@ -1107,7 +1109,12 @@ namespace Claude1.Recorders
             _openDate = "";
         }
 
-        private string _bundledDate = "";
+        // Dates already handed to the bundler. This was a single string, so
+        // only the most recent bundle was remembered and a date could be
+        // queued twice -- once by the date-change hand-off and again by the
+        // idle timer, the second time with nothing left to pack. That is what
+        // a 3 KB zip beside a real one is.
+        private readonly HashSet<string> _bundled = new HashSet<string>();
 
         /// <summary>
         /// Fold the day's outputs into one zip once recording has stopped,
@@ -1207,7 +1214,7 @@ namespace Claude1.Recorders
                 return;
             if ((DateTime.Now - _lastData).TotalMinutes < BundleMinutes)
                 return;
-            if (_bundledDate == _pathDate)
+            if (_bundled.Contains(_pathDate))
                 return;
 
             var dir = ResolveFolder();
@@ -1219,7 +1226,7 @@ namespace Claude1.Recorders
                 return;
 
             var date = _pathDate;
-            _bundledDate = date;
+            _bundled.Add(date);
             _pathDate = "";
             _dPath = null;
             _tPath = null;
@@ -1245,6 +1252,29 @@ namespace Claude1.Recorders
             var packed = new List<string>();
             var stuck = 0;
             string stuckName = null;
+
+            // A session with no data files is not a session. Sundays,
+            // mis-set replay ranges and second passes over an already bundled
+            // date all reach here with nothing but a status file, and writing
+            // a 3 KB zip for each is how the folder became unreadable at a
+            // glance.
+            var real = 0L;
+            foreach (var src in parts)
+            {
+                try
+                {
+                    if (src != null && File.Exists(src))
+                        real += new FileInfo(src).Length;
+                }
+                catch { }
+            }
+            if (real < 65536)
+            {
+                foreach (var src in parts)
+                    try { if (File.Exists(src)) File.Delete(src); } catch { }
+                _bundleNote = "skipped " + date + ": no data (" + real + " bytes)";
+                return;
+            }
 
             try
             {
@@ -1321,6 +1351,7 @@ namespace Claude1.Recorders
                 _bundleNote = "bundled " + packed.Count + " file(s) into " +
                               Path.GetFileName(finalPath);
                 _files = _bundleNote;
+                WriteManifest(dir, date, finalPath, packed);
             }
             catch (Exception ex)
             {
@@ -1333,6 +1364,50 @@ namespace Claude1.Recorders
             {
                 _bundling = false;
             }
+        }
+
+        /// <summary>
+        /// Append one line per finished session to _manifest.txt.
+        ///
+        /// A folder of zips says nothing about which are complete. This does:
+        /// the date, the size, which of the four streams made it in, and OK or
+        /// INCOMPLETE. One file to read instead of comparing sizes by eye and
+        /// guessing.
+        /// </summary>
+        private void WriteManifest(string dir, string date, string zipPath,
+                                   List<string> packed)
+        {
+            try
+            {
+                var want = new[] { "TAPE_", "L2_", "CUM_", "BBO_" };
+                var got = new List<string>();
+                var missing = new List<string>();
+                foreach (var w in want)
+                {
+                    var found = false;
+                    foreach (var p in packed)
+                    {
+                        if (Path.GetFileName(p).StartsWith(w, StringComparison.Ordinal))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    (found ? got : missing).Add(w.TrimEnd('_'));
+                }
+                var mb = new FileInfo(zipPath).Length / 1e6;
+                var line = date + "  " +
+                    mb.ToString("F1", CultureInfo.InvariantCulture).PadLeft(6) + " MB  " +
+                    (missing.Count == 0 ? "OK          " : "INCOMPLETE  ") +
+                    "streams: " + string.Join("+", got.ToArray()) +
+                    (missing.Count > 0
+                        ? "   MISSING: " + string.Join(",", missing.ToArray())
+                        : "") +
+                    "   " + Path.GetFileName(zipPath);
+                File.AppendAllText(Path.Combine(dir, "_manifest.txt"),
+                                   line + Environment.NewLine, Encoding.UTF8);
+            }
+            catch { }
         }
 
         /// <summary>Remove scratch left by an interrupted bundle. A .part zip
