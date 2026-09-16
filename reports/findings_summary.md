@@ -2062,3 +2062,98 @@ fail the null calibration and the points test in the same run.
 Whether it would be alive on a true 0.25 tape is genuinely unknown — that is
 what the recorder diagnostic is for, and it is worth re-running this study if
 the grid turns out to be a settings problem rather than the feed.
+
+---
+
+## Correction: the 5-point grid is a setting, not a defect
+
+Step is set to 20 ticks, so the footprint is deliberately a $5 one. The "feed is
+broken" entry above is wrong and the recorder diagnostic will simply report the
+configuration working as intended. It is left in — it costs nothing and it means
+the grid can never be silently assumed again.
+
+The ladder-indexing bug was separate and real: indexing in 0.25 on a 5-point
+grid still put nineteen empty rungs between traded prices. That fix stands.
+
+## The footprint test was asking a quant's question, not a trader's
+
+The bar-level study scored every bar's shape against the next fifteen minutes —
+"given this bar, where is price going." No footprint trader works that way. A
+footprint marks a **price**; the trade is the **return** to that price. Scoring
+3,658 bars dilutes a handful of meaningful prices into invisibility, and would
+have read as noise even if the levels were perfect.
+
+Rebuilt as an event study on returns. A level is a rung with ≥2× the bar's
+median volume. Price must clear it by 15 points and come **back**. Everything
+is measured from the moment of return, which is the only moment a trader has a
+decision to make. Matched against ordinary rungs (0.8–1.2×) from the same
+sessions through identical machinery.
+
+**The first version of this was broken too**: it called it a return the moment
+price touched the level again, usually the next print — a median wait of one
+minute. Price had never left. Requiring a departure is what made the test a
+test.
+
+### It looked like a finding
+
+| | n | +15m | +30m | +60m | held 30m |
+|---|---|---|---|---|---|
+| heavy levels | 3,246 | **+4.09** | +2.54 | +0.53 | 50.7% |
+| ordinary rungs | 3,191 | +1.38 | −0.31 | −1.02 | 49.1% |
+
+Heavy levels after cost: **+2.88 points at 15 minutes, t = +2.07**, 31 of 47
+sessions positive.
+
+### Three controls, and it dies on the third
+
+**Paired against the control, the gap is not significant.** +1.83 pts at 15m,
+t = +1.20, 95% CI **[−0.99, +4.71]**. Heavy levels beat *zero*; they do not beat
+*ordinary prices*. Beating zero is the flattering comparison and the wrong one.
+
+**The aggressor at the level carries no direction.** Splitting heavy levels into
+buyers / even / sellers gives cell numbers that look dramatic — buyers +9.98 at
+60m against sellers −5.88 — but the buyers-minus-sellers gap has per-session
+t of **+0.41, +0.84, +1.17**, and at 15 minutes it flips sign depending on which
+way price approached. Noise with good tailoring.
+
+**And the placebo kills it outright.** Move the level 25 points to a price that
+was never a level, change nothing else:
+
+| price used | n | +15m | +30m | +60m | t@15m |
+|---|---|---|---|---|---|
+| the real level | 3,246 | +2.09 | +0.54 | −1.47 | **+2.07** |
+| shifted +25 pts | 3,057 | **+2.43** | +2.36 | +0.35 | +1.41 |
+| shifted −25 pts | 3,044 | +1.59 | −0.30 | +0.91 | **+2.09** |
+
+A price 25 points away from the level pays **the same or better**.
+
+**Footprint levels are dead — ninth finding to die, and the first killed by a
+placebo rather than a holdout.** The footprint did not find a level. It found a
+pullback, and a pullback happens at whatever price you nominate.
+
+### What is actually there, and it is not a footprint thing
+
+The symmetric effect underneath all of it:
+
+```
+price leaves a price by 15+ points, then returns   ->  it resumes
+    left upward    +2.95 pts over the next 15 min
+    left downward  -2.56 pts over the next 15 min
+```
+
+Opposite signs, near-equal magnitude — so it is not drift, it is a real
+pullback-continuation shape. Worth roughly **+2 points after cost at 15
+minutes**, and it decays fast: t +2.07 at 15m, +1.03 at 30m, +0.26 at 60m.
+
+Note the time profile is the **exact opposite** of the VWAP hypothesis, which
+strengthens with holding time. Two different effects, if both are real.
+
+**This is not a finding yet and must not be treated as one.** It came out of a
+search over thresholds (2× heaviness, 15-point departure, three horizons) on
+the discovery set, which is precisely the specification search that produced
+seven of the nine corpses above. It needs pre-registering and testing on the
+same sealed holdout, and the honest thing is that it has no better claim than
+the VWAP rule did at this stage.
+
+It also needs no ATAS, no order flow and no footprint — which is worth saying
+plainly given how much of this project has been spent recording them.
