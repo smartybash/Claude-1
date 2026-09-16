@@ -1,0 +1,104 @@
+﻿L2 Recorder status
+==================
+recorder version:   2026-09-16.r
+updated:            2026-09-16 19:09:52
+instrument:         NQ
+
+OnCalculate calls:  29456
+
+---- per stream, in EVENTS ----
+recv = wrote + off-session + throttled, exactly.
+An UNACCOUNTED figure means a path is not counted.
+
+  tape         recv     660988  =  wrote     660988  + off-session         0
+  depth        recv   18452190  =  wrote      86149  + off-session   8327107  + throttled  10038934
+  best bid/ask recv    1592248  =  wrote    1592248  + off-session         0
+  cumulative   recv     362537  =  wrote     362537  + off-session         0
+  by order     recv          0  =  wrote          0  + off-session         0
+
+---- rows actually written to disk ----
+Rows exceed events wherever one event expands:
+a depth snapshot writes one row per changed
+level, and an aggressive order writes one row
+for itself plus one for each of its fills.
+
+  tape rows         660988
+  depth rows        2756994   from 86149 snapshots
+  best bid/ask rows 1592248
+  cumulative ORDER rows 362537
+  cumulative FILL rows  660988
+  cumulative total      1023525   (orders + fills; fills carry parent_seq)
+  by order rows     0
+
+  NO MARKET-BY-ORDER DATA ON THIS ROUTE.
+  The callback exists in this ATAS build but has
+  not fired. The feed is delivering aggregated
+  depth only, so the ladder poll is the best
+  available. That is a feed fact, not a bug.
+  depth kept 0.5% of book updates at 250 ms throttle
+
+rows written:       6033755
+
+skipped, off-session 8327107
+
+---- the clock on the incoming data ----
+data timestamps run 2026-06-22 22:00:00  to  2026-06-23 23:59:59
+session window is 13:30 to 20:00   inside 11216104, outside 9489322
+----------------------------------------
+
+---- the price grid ----
+platform says the step is:
+  TickSize = 0.25
+smallest gap actually seen: 0.25   over 2253236 prints
+------------------------
+
+total data span:    1560 minutes  (22:00 to 23:59)   -- all hours, not a coverage figure
+RTH coverage:       100.0%  (390 of 390 minutes, 13:30 to 19:59)
+
+record tape:        True
+record by order:    True
+record fills:       True
+per-row sequence:   False  (row counts above are the proof)
+bbo throttle:       every change
+compression:        gzip SmallestSize
+record depth:       True
+tape all hours:     True
+depth RTH only:     True  (13:30 to 20:00 platform clock)
+compressed:         True
+files:              CLOSED, safe to move or delete
+release when idle:  1s
+changed levels only:True  (full ladder every 60s)
+requested folder:   C:\Users\lenovo\Desktop\ATAS_Export
+WRITING HERE:       C:\Users\lenovo\Desktop\ATAS_Export
+folder choice:      (first choice)
+data files:         L2_NQ_20260623.csv.gz + TAPE_NQ_20260623.csv.gz + BBO_NQ_20260623.csv.gz
+last error:         (none)
+
+---- platform API, for Claude ----
+overridable methods mentioning trade or depth:
+    OnNewMyTrade(MyTrade)
+    OnNewTrades(IEnumerable`1)
+    OnNewTrade(MarketDataArg)
+    MarketDepthsChanged(IEnumerable`1)
+    MarketDepthChanged(MarketDataArg)
+    OnCumulativeTrade(CumulativeTrade)
+    OnUpdateCumulativeTrade(CumulativeTrade)
+    OnCumulativeTradesResponse(CumulativeTradesRequest, IEnumerable`1)
+
+CumulativeTrade properties:
+    Decimal FirstPrice
+    Decimal Lastprice
+    Decimal Volume
+    DateTime Time
+    TradeDirection Direction
+    List`1 Ticks
+    MarketDataArg PreviousAsk
+    MarketDataArg PreviousBid
+    MarketDataArg NewAsk
+    MarketDataArg NewBid
+---------------------------------
+
+If trades and depth updates are both 0, the platform is
+sending neither. In Market Replay, switch the replay mode
+to Ticks + DOM: the other modes carry no tick or depth
+data and there is nothing for this to record.

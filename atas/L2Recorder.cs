@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-16.r";
+        private const string BuildTag = "2026-09-16.s";
 
         private readonly object _sync = new object();
 
@@ -1039,12 +1039,20 @@ namespace Claude1.Recorders
                 if (dir == null)
                     return;
 
+                // Two bundles, not one. The quote stream is a third of a
+                // session on its own and the busiest days reach 25 MB all
+                // together, so a single zip cannot stay under a 20 MB sharing
+                // limit without throwing data away. Split by stream instead:
+                // the core bundle holds tape, depth and cumulative, the quote
+                // bundle holds the best bid/offer. Both sit comfortably under
+                // the limit even on the heaviest session, and nothing is lost.
                 var parts = new List<string>();
                 if (_dPath != null) parts.Add(_dPath);
                 if (_tPath != null) parts.Add(_tPath);
-                if (_bPath != null) parts.Add(_bPath);
                 AddCumFile(parts);
                 AddByOrderFile(parts);
+                var quoteParts = new List<string>();
+                if (_bPath != null) quoteParts.Add(_bPath);
                 // Provenance must travel with the data. The status file holds
                 // the settings, the resolution and the per-stream counts, and
                 // leaving it out of the bundle is why four months of
@@ -1054,6 +1062,8 @@ namespace Claude1.Recorders
 
                 var zipPath = Path.Combine(
                     dir, Clean(SymbolName()) + "_" + _pathDate + ".zip");
+                var quotePath = Path.Combine(
+                    dir, Clean(SymbolName()) + "_" + _pathDate + "_BBO.zip");
                 var packed = new List<string>();
 
                 // Update, always. Create mode throws on GetEntry -- "Cannot
@@ -1109,6 +1119,46 @@ namespace Claude1.Recorders
                     }
                 }
 
+                // The quote bundle. Same rules, its own file, and the status
+                // copy is repeated inside it so either zip is self-describing
+                // if they are shared separately -- which is the whole reason
+                // they are two files.
+                if (quoteParts.Count > 0)
+                {
+                    using (var zip = ZipFile.Open(quotePath, ZipArchiveMode.Update))
+                    {
+                        foreach (var src in quoteParts)
+                        {
+                            if (src == null || !File.Exists(src))
+                                continue;
+                            var name = Path.GetFileName(src);
+                            var entry = name;
+                            var n = 2;
+                            while (zip.GetEntry(entry) != null)
+                            {
+                                entry = Path.GetFileNameWithoutExtension(
+                                            Path.GetFileNameWithoutExtension(name)) +
+                                        "_part" + n + ".csv.gz";
+                                n++;
+                            }
+                            zip.CreateEntryFromFile(src, entry,
+                                                    CompressionLevel.NoCompression);
+                            packed.Add(src);
+                        }
+                        if (File.Exists(statusPath) &&
+                            zip.GetEntry("_status_" + _pathDate + ".txt") == null)
+                        {
+                            try
+                            {
+                                zip.CreateEntryFromFile(statusPath,
+                                    "_status_" + _pathDate + ".txt",
+                                    CompressionLevel.Optimal);
+                            }
+                            catch { }
+                        }
+                    }
+                }
+
                 foreach (var src in packed)
                 {
                     try { File.Delete(src); } catch { }
@@ -1120,7 +1170,8 @@ namespace Claude1.Recorders
                 _tPath = null;
                 ClearCumPath();
                 _files = "bundled " + packed.Count + " file(s) into " +
-                         Path.GetFileName(zipPath);
+                         Path.GetFileName(zipPath) + " and " +
+                         Path.GetFileName(quotePath);
             }
             catch (Exception ex)
             {
@@ -1130,9 +1181,22 @@ namespace Claude1.Recorders
 
         partial void ClearCumPath();
 
+        /// <summary>
+        /// Flushing a GZipStream ends a deflate block, so flushing often costs
+        /// real size: at one flush per 2,000 rows the 18 June session was
+        /// 20.01 MB where the identical bytes compressed in one pass are
+        /// 18.11 MB. A tenth of the file was flush boundaries.
+        ///
+        /// The threshold is now 250,000 rows, which is roughly nine flushes on
+        /// a depth file instead of eleven hundred. The cost is that a hard
+        /// crash loses the buffered tail rather than the last two thousand
+        /// rows -- acceptable because these are replays, which can simply be
+        /// run again, and because the idle timer and OnDispose both force a
+        /// flush on any orderly finish.
+        /// </summary>
         private void FlushIfDue(bool force)
         {
-            if (!force && _pending < 2000)
+            if (!force && _pending < 250000)
                 return;
             try { if (_depthWriter != null) _depthWriter.Flush(); } catch { }
             try { if (_tapeWriter != null) _tapeWriter.Flush(); } catch { }
