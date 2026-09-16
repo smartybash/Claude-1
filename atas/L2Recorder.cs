@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-17.v";
+        private const string BuildTag = "2026-09-17.w";
 
         private readonly object _sync = new object();
 
@@ -185,6 +185,13 @@ namespace Claude1.Recorders
         private bool _mboOpen;
         private volatile bool _bundling;
         private volatile string _bundleNote = "";
+        // Pending bundles, drained by one worker in order. A queue rather than
+        // a flag because moving straight to the next replay date hands off a
+        // bundle while the previous one may still be compressing, and losing
+        // that hand-off is how a session's loose files would be orphaned.
+        private readonly List<KeyValuePair<string, List<string>>> _bundleQueue =
+            new List<KeyValuePair<string, List<string>>>();
+        private bool _bundleWorkerRunning;
         private int _leftBehind;
         private string _leftBehindWhy;
 
@@ -823,6 +830,10 @@ namespace Claude1.Recorders
                     sb.AppendLine();
                     sb.AppendLine("*** BUNDLING IN PROGRESS ***");
                     sb.AppendLine(_bundleNote);
+                    sb.AppendLine("queued behind it: " + _bundleQueue.Count +
+                                  " more session(s)");
+                    sb.AppendLine("You can start the next replay now. Recording");
+                    sb.AppendLine("and bundling run on different threads.");
                     sb.AppendLine("Brotli at maximum quality takes a few minutes on");
                     sb.AppendLine("a full session. The recorder is NOT blocked -- this");
                     sb.AppendLine("runs on its own thread. The zip appears under a");
@@ -901,6 +912,25 @@ namespace Claude1.Recorders
             // Only choose a run number the first time this date is opened. A
             // reopen after an idle close must resume the same files, or every
             // idle gap would start a new run and split one recording.
+            // Moving to a new session date. The previous one's files are
+            // finished and must be handed to the bundler NOW, not left to the
+            // idle timer: _pathDate is about to be overwritten, and once it is
+            // there is nothing left pointing at those files. Going straight
+            // from one replay date to the next used to orphan the earlier
+            // session's loose files permanently.
+            if (_pathDate.Length > 0 && date != _pathDate && _dPath != null)
+            {
+                var old = _pathDate;
+                var oldParts = CurrentParts();
+                _bundledDate = old;
+                QueueBundle(dir, old, oldParts);
+                _dPath = null;
+                _tPath = null;
+                _bPath = null;
+                ClearCumPath();
+                _pathDate = "";
+            }
+
             if (date != _pathDate || _dPath == null)
             {
                 var sym = Clean(SymbolName());
@@ -1087,6 +1117,72 @@ namespace Claude1.Recorders
         /// are and the day is still complete -- the bundle is a convenience,
         /// never a step that data has to survive.
         /// </summary>
+        /// <summary>Queue one date's files for bundling and make sure a
+        /// worker is draining the queue. Caller holds _sync.</summary>
+        private void QueueBundle(string dir, string date, List<string> parts)
+        {
+            if (parts == null || parts.Count == 0)
+                return;
+            _bundleQueue.Add(
+                new KeyValuePair<string, List<string>>(date, parts));
+            _bundleNote = "queued " + date + " for bundling";
+            if (_bundleWorkerRunning)
+                return;
+            _bundleWorkerRunning = true;
+            _bundling = true;
+            var worker = new Thread(() => DrainBundles(dir));
+            worker.IsBackground = true;
+            worker.Priority = ThreadPriority.BelowNormal;
+            worker.Start();
+        }
+
+        private void DrainBundles(string dir)
+        {
+            try
+            {
+                while (true)
+                {
+                    string date;
+                    List<string> parts;
+                    lock (_sync)
+                    {
+                        if (_bundleQueue.Count == 0)
+                        {
+                            _bundleWorkerRunning = false;
+                            _bundling = false;
+                            return;
+                        }
+                        date = _bundleQueue[0].Key;
+                        parts = _bundleQueue[0].Value;
+                        _bundleQueue.RemoveAt(0);
+                    }
+                    RunBundle(dir, date, parts);
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastError = "bundle worker: " + ex.Message;
+                lock (_sync)
+                {
+                    _bundleWorkerRunning = false;
+                    _bundling = false;
+                }
+            }
+        }
+
+        /// <summary>The files of the date currently open, for handing to the
+        /// bundler. Caller holds _sync.</summary>
+        private List<string> CurrentParts()
+        {
+            var parts = new List<string>();
+            if (_dPath != null) parts.Add(_dPath);
+            if (_tPath != null) parts.Add(_tPath);
+            if (_bPath != null) parts.Add(_bPath);
+            AddCumFile(parts);
+            AddByOrderFile(parts);
+            return parts;
+        }
+
         private void BundleIfDone()
         {
             if (BundleMinutes <= 0 || _pathDate.Length == 0)
@@ -1108,12 +1204,7 @@ namespace Claude1.Recorders
             if (dir == null)
                 return;
 
-            var parts = new List<string>();
-            if (_dPath != null) parts.Add(_dPath);
-            if (_tPath != null) parts.Add(_tPath);
-            if (_bPath != null) parts.Add(_bPath);
-            AddCumFile(parts);
-            AddByOrderFile(parts);
+            var parts = CurrentParts();
             if (parts.Count == 0)
                 return;
 
@@ -1124,21 +1215,7 @@ namespace Claude1.Recorders
             _tPath = null;
             _bPath = null;
             ClearCumPath();
-            _bundling = true;
-            _bundleNote = "bundling " + date + " in the background...";
-
-            // OFF THE RECORDER'S THREAD, and outside _sync.
-            //
-            // This used to run inline, under the lock every market-data
-            // handler needs, and Brotli at maximum quality on a hundred
-            // megabytes of depth takes minutes. The recorder froze solid for
-            // the whole of it, left a zero-byte zip with a held handle, and
-            // stranded a .br.tmp beside it. The compression is worth having
-            // and there is no reason whatever for it to be on that thread.
-            var worker = new Thread(() => RunBundle(dir, date, parts));
-            worker.IsBackground = true;
-            worker.Priority = ThreadPriority.BelowNormal;
-            worker.Start();
+            QueueBundle(dir, date, parts);
         }
 
         /// <summary>
@@ -1259,10 +1336,28 @@ namespace Claude1.Recorders
                 var dir = ResolveFolder();
                 if (dir == null)
                     return;
+                // Only stale scratch. A .part being written by this or any
+                // other instance right now must survive, so anything touched
+                // in the last half hour is left alone.
+                var cutoff = DateTime.Now.AddMinutes(-30);
                 foreach (var f in Directory.GetFiles(dir, "*.part"))
-                    try { File.Delete(f); } catch { }
+                {
+                    try
+                    {
+                        if (File.GetLastWriteTime(f) < cutoff)
+                            File.Delete(f);
+                    }
+                    catch { }
+                }
                 foreach (var f in Directory.GetFiles(dir, "*.br.tmp"))
-                    try { File.Delete(f); } catch { }
+                {
+                    try
+                    {
+                        if (File.GetLastWriteTime(f) < cutoff)
+                            File.Delete(f);
+                    }
+                    catch { }
+                }
                 // Zero-byte outputs are writers that opened and never received
                 // a row -- a stray event arriving after a session was already
                 // bundled will do it. They are not data and they are what
