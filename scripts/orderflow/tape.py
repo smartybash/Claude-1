@@ -273,9 +273,26 @@ def _at(day: pd.Timestamp, hm) -> pd.Timestamp:
     return day.normalize() + pd.Timedelta(hours=hm[0], minutes=hm[1])
 
 
+def session_day(df: pd.DataFrame) -> pd.Timestamp:
+    """The calendar day this recording is OF.
+
+    Not the first row's date. A recording that runs around the clock begins
+    the PREVIOUS evening -- the encoded files carry an epoch of the day before
+    -- so taking the first timestamp put the cash window on the wrong day and
+    found almost nothing in it. An 18 June tape was classified a half session
+    that way, with 371,904 prints sitting inside the window it had just
+    missed.
+
+    The day with the most prints is the session, which is robust to a few
+    hours of lead-in at either end.
+    """
+    counts = df.time.dt.normalize().value_counts()
+    return counts.index[0]
+
+
 def rth(df: pd.DataFrame) -> pd.DataFrame:
     """The cash session only. Overnight is a different animal and is excluded."""
-    d = df.time.iloc[0]
+    d = session_day(df)
     m = (df.time >= _at(d, RTH_OPEN)) & (df.time < _at(d, RTH_CLOSE))
     return df.loc[m].reset_index(drop=True)
 
@@ -326,7 +343,7 @@ def is_full_session(df: pd.DataFrame) -> bool:
     s = rth(df)
     if len(s) < 40_000:
         return False
-    open_t = _at(s.time.iloc[0], RTH_OPEN)
+    open_t = _at(session_day(df), RTH_OPEN)
     minutes = (s.time.iloc[-1] - open_t).total_seconds() / 60.0
     return minutes >= 0.97 * 390.0
 
