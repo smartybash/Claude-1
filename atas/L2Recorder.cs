@@ -46,7 +46,7 @@ namespace Claude1.Recorders
         /// left behind by a failed build is visible rather than mistaken for the
         /// current one.
         /// </summary>
-        private const string BuildTag = "2026-09-16.t";
+        private const string BuildTag = "2026-09-16.u";
 
         private readonly object _sync = new object();
 
@@ -182,6 +182,9 @@ namespace Claude1.Recorders
         private long _bLastUs, _bLastAbs;
         private long _cLastUs, _cLastAbs;
         private long _gzipBytes, _brotliBytes;
+        private bool _mboOpen;
+        private int _leftBehind;
+        private string _leftBehindWhy;
 
         private decimal _lastSeenPrice;
         private decimal _minGap;
@@ -802,6 +805,16 @@ namespace Claude1.Recorders
                     + RthEndHour.ToString("00") + ":"
                     + RthEndMinute.ToString("00") + " platform clock)");
                 sb.AppendLine("compressed:         " + Gzip);
+                if (_leftBehind > 0)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("*** " + _leftBehind + " FILE(S) COULD NOT BE " +
+                                  "DELETED AFTER BUNDLING ***");
+                    sb.AppendLine("first: " + _leftBehindWhy);
+                    sb.AppendLine("They are safely inside the zip; the copies on");
+                    sb.AppendLine("disk are duplicates and can be removed by hand.");
+                    sb.AppendLine();
+                }
                 sb.AppendLine("files:              "
                     + (_depthWriter == null
                        ? "CLOSED, safe to move or delete"
@@ -970,7 +983,14 @@ namespace Claude1.Recorders
         /// </summary>
         private void CloseIfIdle()
         {
-            if (IdleCloseSeconds <= 0 || _depthWriter == null)
+            if (IdleCloseSeconds <= 0)
+                return;
+            // Any open writer, not just the depth one. Gating on _depthWriter
+            // meant that with depth off -- or simply already closed -- the
+            // quote and cumulative files were never released, so the bundle
+            // could not delete them and they piled up in the folder.
+            if (_depthWriter == null && _tapeWriter == null &&
+                _cumWriter == null && _bboWriter == null && !ByOrderOpen())
                 return;
             if (_lastData == DateTime.MinValue)
                 return;
@@ -1000,6 +1020,15 @@ namespace Claude1.Recorders
         /// nothing, so the recorder works identically with the market-by-order
         /// stream removed.</summary>
         partial void AddByOrderFile(List<string> paths);
+
+        /// <summary>True while the market-by-order writer holds its file.
+        /// A partial method cannot return a value, so this is a normal method
+        /// with a weak default that the optional part overrides via the
+        /// _mboOpen flag it maintains.</summary>
+        private bool ByOrderOpen()
+        {
+            return _mboOpen;
+        }
         partial void FlushByOrder();
         partial void CloseByOrder();
 
@@ -1022,19 +1051,31 @@ namespace Claude1.Recorders
         private string _bundledDate = "";
 
         /// <summary>
-        /// Fold the day's outputs into one zip once recording has stopped.
+        /// Fold the day's outputs into one zip once recording has stopped,
+        /// recompress them with Brotli, and delete the loose originals.
         ///
-        /// Entries are stored rather than deflated: the parts are already
-        /// gzipped, so a second pass costs CPU and saves nothing. If anything
-        /// here throws, the originals are left exactly where they are and the
-        /// day is still complete -- the bundle is a convenience, never a step
-        /// that data has to survive.
+        /// Entries are STORED inside the zip, because AddRecompressed has
+        /// already compressed them harder than the zip format can. Deflating
+        /// compressed bytes a second time costs CPU and gains nothing.
+        ///
+        /// This runs only once every writer has released its file. Bundling
+        /// while one is still open leaves that file undeletable, and the
+        /// delete failure was previously swallowed -- which is how loose
+        /// copies accumulated beside the zips. Anything that still will not
+        /// delete is now named in the status file rather than ignored.
+        ///
+        /// If anything here throws, the originals are left exactly where they
+        /// are and the day is still complete -- the bundle is a convenience,
+        /// never a step that data has to survive.
         /// </summary>
         private void BundleIfDone()
         {
             if (BundleMinutes <= 0 || _pathDate.Length == 0)
                 return;
-            if (_depthWriter != null || _tapeWriter != null || _cumWriter != null)
+            // Every writer, or the delete below fails on a locked file and
+            // is swallowed, which is exactly how the folder filled up.
+            if (_depthWriter != null || _tapeWriter != null ||
+                _cumWriter != null || _bboWriter != null || ByOrderOpen())
                 return;
             if (_lastData == DateTime.MinValue)
                 return;
@@ -1123,10 +1164,27 @@ namespace Claude1.Recorders
                     }
                 }
 
+                // The originals go once they are safely inside the zip.
+                // Anything that will not delete is named in the status file:
+                // a file silently left behind is how the last folder ended up
+                // needing manual archiving.
+                var stuck = 0;
+                string stuckName = null;
                 foreach (var src in packed)
                 {
-                    try { File.Delete(src); } catch { }
+                    try
+                    {
+                        File.Delete(src);
+                    }
+                    catch (Exception ex)
+                    {
+                        stuck++;
+                        if (stuckName == null)
+                            stuckName = Path.GetFileName(src) + " (" + ex.Message + ")";
+                    }
                 }
+                _leftBehind = stuck;
+                _leftBehindWhy = stuckName;
 
                 _bundledDate = _pathDate;
                 _pathDate = "";

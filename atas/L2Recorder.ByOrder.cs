@@ -72,6 +72,7 @@ namespace Claude1.Recorders
             }
             catch { }
             _mboWriter = null;
+            _mboOpen = false;
         }
 
         private void EnsureByOrderOpen(DateTime when)
@@ -88,6 +89,7 @@ namespace Claude1.Recorders
             var isNew = !File.Exists(_mPath);
             _mboWriter = OpenWriter(_mPath);
             _mboWriter.AutoFlush = false;
+            _mboOpen = true;
             if (isNew)
                 _mboWriter.WriteLine(
                     "seq,time,type,side,price,volume,priority,order_id");
