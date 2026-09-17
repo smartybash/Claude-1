@@ -2849,3 +2849,70 @@ structure that survived the second dissolved when isolated and tested directly.
 variant of this one.** No rescue filter is proposed and none will be.
 
 **Sealed NQ days: still sealed, still never read.**
+
+---
+
+# European vs US session on NQ: same market, different hour, worse terms
+
+`reports/european_session_data_inventory.md`,
+`reports/european_vs_us_session_profile.md`. **Descriptive only — no
+expectancy, no win rate, no verdict.** P&L fields deleted at source.
+
+## The data position
+
+The tape recordings are **24-hour**, not cash-session only — the filtering to
+US hours was in the analysis code. That gives **21 usable European sessions**
+(22 dates at 0.25 covering ≥539 of 540 European minutes, minus sealed). 21
+rather than 20 because a US half day is a normal European one.
+
+Nothing else on disk reaches those hours; the ETH bar files are 30-minute and
+1-hour over 54–78 days. External access was probed: FMP denies intraday on the
+current plan, Alpha Vantage intraday is US equities only, and IBKR serves NQ
+and DAX at the right hours but caps at 3,500 bars per request with no date
+paging — six sessions at one minute.
+
+**MDE at 21 sessions is +1.55 R/session** against a largest observed effect of
+~0.04 across three screens. 500–1,300 sessions would be required.
+
+## The profile, length-matched (EU 07:00–13:30 vs US 13:30–20:00)
+
+| range | vol | path | **efficiency** | ATR | OR30 | prints | volume |
+|---|---|---|---|---|---|---|---|
+| 0.54 | 0.58 | 0.55 | **1.00** | 0.53 | **0.34** | **0.15** | **0.16** |
+
+**The efficiency ratio is 0.05 in both.** Every rule in this project is a
+continuation rule and every one depends on the market trending rather than
+chopping. On that property the two sessions are indistinguishable. It is the
+same shape at 55% of the size.
+
+## The cost arithmetic decides it
+
+Cost is fixed at 0.667 bps; the stop is a multiple of ATR and European ATR is
+half. So **cost/risk goes from 5.0% to 16.3%**, and the edge needed over the
+coin at 3R goes from **+1.2 to +4.1 percentage points** — **2.7× to 3.3× more
+edge required** for the same rule at the same target. Liquidity at **15% of US
+levels** means the 2.0-point cost assumption is optimistic for Europe, so every
+figure understates the hurdle.
+
+## Reported fairly, the two findings that point the other way
+
+1. The opening range is **34% of the session range in Europe against 55% in the
+   US** — a European break has more room to run relative to what it broke.
+2. The pullback rule fires **21/21 sessions against 17/21** length-matched,
+   ~45% more setups.
+
+More setups on worse terms with the same chop character is not obviously a
+better bet.
+
+## Position
+
+**Nothing bought, nothing recommended for purchase.** The one favourable
+finding does not justify 500–1,300 sessions of acquisition. **The recorder
+keeps running on 24-hour tapes** — European coverage now accumulates at no
+extra cost.
+
+What would change the answer is not more of this measurement: it is a cost
+structure where a 4 bps stop is viable, or a rule family that does not need the
+efficiency ratio to be above 0.05.
+
+**Sealed NQ days: still sealed, still never read.**
