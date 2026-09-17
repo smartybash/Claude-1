@@ -3051,3 +3051,74 @@ year for three of four T1 variants.
 materially above the random-walk rate. It landed below.
 
 **Sealed NQ days: still sealed, still never read.**
+
+---
+
+# Dealer gamma: 0 of 4 on the regime, best-in-project on volatility
+
+`reports/regime_forecast_gamma_preregistration.md` (`dd6e7ea`),
+`reports/regime_forecast_gamma_result.md`. Descriptive, stage-2 budget unspent.
+
+## Does ATAS have gamma? No
+
+The API inventory has no GEX — every `gex` hit is a substring of `RangeX`,
+`Regex` or `LegExecId`. `Security` carries `StrikePrice`/`OptionType`/
+`OpenInterest`, but that is generic plumbing for venues serving options; the CME
+route delivers futures only. An `OptionsKeyLevels` indicator exists but sits in a
+bare namespace (third-party, not core), reads from a `DataPath` file, and has **no
+gamma** — max pain and OI walls only. **`data/gex_history.jsonl` (335 QQQ
+sessions from real chains) is better than anything ATAS would supply**, and the
+existing architecture — compute outside, export lines into ATAS — is already
+right.
+
+## The hypothesis: 0 of 4
+
+323 sessions, gamma from the chain as-of the **immediately preceding** close, so
+known before the open.
+
+| predictor | best ρ vs eff_later | bar | best spread | bar |
+|---|---|---|---|---|
+| net_gex / dist_flip | **0.076** | 0.167 (gate at this n) | **0.0076** | 0.020 |
+
+Nothing reaches nominal significance uncorrected. The declared 2025–2026
+robustness read agrees. **Combined with the price-based run: 0 of 18 across two
+independent predictor families — price structure and dealer positioning.**
+
+## The positive control is the interesting half
+
+| predictor | ρ vs later **volatility** | later vol d1 → d10 |
+|---|---|---|
+| **net_gex** | **−0.520** (p = 1.1e-27) | **95.3 → 50.6 bps** |
+| dist_flip | −0.474 | 94.0 → 62.5 bps |
+
+**Most-negative-gamma sessions run 1.9× the later volatility of most-positive** —
+sharper than the 1.49× on record from daily close-to-close data.
+
+### It beats the free price predictor — correcting what I said beforehand
+
+I told the user gamma "would have to beat a free predictor we already have." **On
+the same 322 sessions it does.** `rv_open` +0.445, `or_ratio` +0.335, **`net_gex`
+−0.521**. And partial rank corr(net_gex, rv_later | rv_open) = **−0.439**: gamma
+keeps 0.44 of its 0.52 after the price predictor is removed. **Complementary, not
+redundant.**
+
+## What it settles
+
+**Gamma cannot be a regime filter for these rules.** The regime a continuation
+rule needs is trend-vs-chop; gamma predicts it at ρ = 0.08.
+
+**Gamma is the best volatility forecaster in the project**, which strengthens what
+is already shipped (`gamma_em_mult`, ×1.20/×1.00/×0.80 expected-move scaling).
+
+**But the structural limit is unchanged.** These rules are R-normalised — stop
+1.0 ATR, target 3R. Double the volatility and the stop, target and ATR all widen;
+the R distribution is untouched. **An excellent volatility forecast is near a
+no-op for a strategy denominated in R.** The one real channel is cost, fixed in
+points while risk scales: a 1.9× wider session nearly halves cost/risk, worth
+about half a percentage point on a 3R breakeven. Too small to rescue a rule
+already at its random-walk rate.
+
+**2022 is absent from the gamma sample**, so the year-stability rule could not be
+applied — a thing to fix by fetching chains, not to waive.
+
+**Sealed NQ days: still sealed, still never read.**
