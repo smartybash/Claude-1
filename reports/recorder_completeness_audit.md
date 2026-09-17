@@ -275,3 +275,70 @@ that is happening to 12 and 20 August right now. Re-recording 17 June while
 that bug stands would work, but the moment any date is recorded twice the wrong
 one may win. I will fix the keying to prefer the finer recording before the
 first new file lands.
+
+---
+
+## Ingest, 17 September — five sessions re-recorded at true tick
+
+`20260729, 20260730, 20260731, 20260803, 20260804`. Recorder version
+`2026-09-17.z`. These five were already on disk from 15 September, so the
+question was whether the new recordings are better, not whether they are new.
+
+**They are, decisively. The recordings on disk were 5.0-point.**
+
+| day | on disk: step | levels | new: step | levels | minutes |
+|---|---|---|---|---|---|
+| 20260729 | **5.00** | 196 | **0.25** | 3,888 | 1,379 → 1,380 |
+| 20260730 | **5.00** | 222 | **0.25** | 4,424 | 1,379 → 1,380 |
+| 20260731 | **5.00** | 131 | **0.25** | 2,585 | 1,259 → 1,260 |
+| 20260803 | **5.00** | 133 | **0.25** | 2,636 | 1,379 → 1,380 |
+| 20260804 | **5.00** | 226 | **0.25** | 4,499 | 1,379 → 1,380 |
+
+A 5.0-point step is **20× the real NQ tick**, and it is why all five failed the
+`step <= 0.25` gate in `reports/european_session_data_inventory.md` and were
+absent from the 21-session set. They now pass.
+
+> **Usable 0.25-tick sessions over the European window: 21 → 26.**
+> `0701 0702 0703 0706 0707 0708 0709 0710 0713 0714 0715 0716 0717 0720 0721
+> 0722 0724 0727 0728 **0729 0730 0731 0803 0804** 0812 0820`
+
+Row counts are near-identical between the two recordings (e.g. 734,016 against
+734,600 on 29 July), so the old files were not sparser — they were **rounded**.
+Every print was there; its price was wrong by up to 20 ticks.
+
+**All four streams arrived, and BBO is entirely new for these dates** — the
+`data/bbo` archive previously stopped at 28 July.
+
+| day | tape | cum fills | reconcile | cum orders | BBO | depth |
+|---|---|---|---|---|---|---|
+| 20260729 | 734,600 | 734,600 | **exact** | 407,715 | 1,412,864 | 3,317,223 |
+| 20260730 | 626,331 | 626,331 | **exact** | 369,091 | 1,404,782 | 2,615,116 |
+| 20260731 | 598,579 | 598,579 | **exact** | 339,790 | 1,211,429 | 2,928,965 |
+| 20260803 | 478,327 | 478,327 | **exact** | 272,491 | 1,078,454 | 2,215,068 |
+| 20260804 | 561,238 | 561,238 | **exact** | 321,438 | 1,162,040 | 2,199,991 |
+
+Every tape print reconciles one-to-one against a fill row in the cumulative
+stream, on all five. That is the check worth having: it says no print was
+dropped between the two independent streams.
+
+### Two things in the status files that are not faults
+
+1. **The counters read low against the files.** `_status_20260729.txt` reports
+   495,077 tape rows where the file holds 734,600. Its own internal
+   consistency is intact — it reports 495,078 fill rows against 495,077 tape
+   rows, matching the exact reconciliation seen in the finished files. **The
+   status file is a mid-recording snapshot, not a final tally.**
+2. **`*** UNACCOUNTED 191321 ***` on the best bid/ask stream.** Same cause: the
+   counters were written while the stream was still running. Flagged here
+   because the recorder flags it itself, and because if it ever appears in a
+   status file whose tape and fill counts *do* match the finished file, it
+   would mean something different.
+
+### Handling
+
+The `.gz` 5-point recordings were **kept, not replaced**. The loader selects the
+finest recording per date, so the coarse files are now inert but the provenance
+of what was previously analysed stays on disk. This is the same convention used
+for the June re-records.
+
+Sealed NQ days were not read. None of these five is sealed.
