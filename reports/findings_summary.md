@@ -2916,3 +2916,68 @@ structure where a 4 bps stop is viable, or a rule family that does not need the
 efficiency ratio to be above 0.05.
 
 **Sealed NQ days: still sealed, still never read.**
+
+---
+
+# The session regime is not forecastable: 0 of 14, and there is barely a regime
+
+`reports/regime_forecastability_preregistration.md` (`43ab596`),
+`reports/regime_forecastability_result.md`. Descriptive. **No rule traded, no
+expectancy computed, stage-2 budget unspent.**
+
+## The prior question, asked before any performance test
+
+The regime hypothesis — continuation rules win in trending sessions, lose in
+choppy ones, netting to flat — requires the regime to be callable **before** the
+trade. The whole-session efficiency ratio cannot do it: it reads bars from after
+the decision timestamp. So: does anything available at D = open + `OR_MIN`
+predict the efficiency ratio over the remainder?
+
+**7 predictors × 2 decision timestamps = 14 combinations. 0 of 14.**
+
+Largest effect in the entire grid: **|ρ| = 0.042, decile spread 0.0054**, against
+pre-registered bars of 0.10 and 0.020. Not one reached nominal significance at an
+uncorrected 0.05. The strongest candidate a priori — early efficiency predicting
+later efficiency — returned **ρ = +0.035 and −0.001**.
+
+## The positive control rules out a broken pipeline
+
+Later **realised volatility**, same predictors, same timestamp, same code:
+
+| predictor | ρ vs eff_later | ρ vs rv_later |
+|---|---|---|
+| rv_open | −0.016 | **+0.414** (p = 1e-64) |
+| or_ratio | −0.002 | **+0.347** |
+| vol_ratio | +0.010 | **+0.315** |
+
+Later volatility roughly **doubles** bottom-decile to top-decile. Five of seven
+clear every bar all fourteen missed on efficiency. **The null is a fact about the
+market, not the measurement** — and it is what the pre-registration predicted in
+writing: efficiency divides the volatility level out by construction, and
+volatility clustering is the one reliably forecastable thing here.
+
+## The deeper finding: sessions do not come in two kinds
+
+| | observed | random walk | ratio |
+|---|---|---|---|
+| cross-sectional SD of efficiency | 0.0499 | 0.0458 (95%: .0440–.0480) | **1.09** |
+| mean efficiency | 0.0682 | 0.0608 | **1.12** |
+
+Session-to-session autocorrelation of efficiency: **−0.054, −0.009, −0.037,
+−0.001** at lags 1, 2, 3, 5. A persistent state would autocorrelate positively.
+
+**Driftless random walks of the same length reproduce ~91% of the dispersion.**
+The difference between a session that trended and one that chopped is mostly the
+arithmetic of short samples. The two real effects — mean 12% above random walk,
+SD 9% above — are **constants, not states**, already inside what the three flat
+screens measured.
+
+## What this settles
+
+The flat pooled results are **not** a positive and a negative cancelling. There
+is no forecastable state to separate them with. Stage 2 was not run.
+
+Not ruled out: regimes on a slower clock; regimes defined by something other
+than the efficiency ratio. The **1,259 sessions of 2016–2020** remain unread.
+
+**Sealed NQ days: still sealed, still never read.**
