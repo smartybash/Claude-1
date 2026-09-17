@@ -2491,3 +2491,130 @@ that fires whenever its conditions are met, which is a different problem.
 
 That is a new direction, not a retest, and it needs its own pre-registration
 and the trader's agreement before anything is run.
+
+---
+
+# CLOSED: the pullback family
+
+**Reason for closure: the rule is indistinguishable from a coin flip on its own
+stop and target.** Across 12 variants in grid 2, measured against
+`P(hit +M×R before −R) = 1/(1+M)`, eight sat below the random-walk rate and four
+above, and **not one differed from it significantly** — the smallest binomial p
+was 0.32. Every variant needed 2 to 6 percentage points over a coin and
+delivered, on average, slightly less than a coin.
+
+That is a stronger statement than "it lost money". A losing rule might have an
+edge eaten by costs; this one has no edge to eat.
+
+**Consumed:** two grids, 24 variants, 20 discovery sessions. **Sealed days: not
+spent.**
+
+**Cannot be reopened without new data.** Not new parameters, not a new anchor,
+not a different target ladder — new *sessions*. The discovery set has now been
+searched twice over this family and a third pass would be fitting noise.
+
+---
+
+# How much can 20 sessions actually see?
+
+The question that decides whether to finish the re-record.
+
+## The noise, measured
+
+Per-session P&L standard deviation on the 12 grid-2 variants:
+
+| stop setting | sd per session | avg risk | trades/session |
+|---|---|---|---|
+| OR30 SATR0.5 (tightest) | **13.9** | 15.4 | 0.80 |
+| OR15 SATR0.5 | 18.5–28.2 | 17.2 | 1.30 |
+| OR30 SATR1.0 | 30.1–38.9 | 29.9 | 0.80 |
+| OR15 SATR1.0 (widest) | **43.1–55.1** | 33.7 | 1.30 |
+
+Median **29.2 points a session**. Variance scales with the stop, which is the
+trap: tightening the stop cuts the noise but raises cost as a share of risk,
+and grid 1 is what happens at the far end of that trade-off.
+
+## Minimum detectable edge, 80% power, two-sided 5%
+
+`MDE = 2.80 × sd / √n`, at the median sd of 29.2:
+
+| sessions | MDE per session | per trade |
+|---|---|---|
+| **20** (now) | **18.3 pts** | 10.7 |
+| **53** (re-record finished) | **11.2 pts** | 6.6 |
+| 65 (entire replay window) | 10.1 pts | 5.9 |
+| 250 | 5.2 pts | 3.0 |
+| 1,000 | 2.6 pts | 1.5 |
+
+At the tightest viable stop (sd 13.9) those halve: 8.7 points at 20 sessions,
+4.8 at 65.
+
+## Sessions required for a real edge
+
+| edge per session | per trade | sessions | years at 250/yr |
+|---|---|---|---|
+| 1 pt | 0.6 | **6,674** | 26.7 |
+| 2 pts | 1.2 | **1,668** | 6.7 |
+| 3 pts | 1.8 | 742 | 3.0 |
+| 5 pts | 2.9 | 267 | 1.1 |
+| 8 pts | 4.7 | 104 | 0.4 |
+
+At the tightest stop, the 2-point row falls to about 380 sessions and the
+3-point row to about 170.
+
+## The answer
+
+**A genuinely good discretionary futures day trader nets on the order of one to
+two points a trade after costs.** At 1.3 trades a session that is 1 to 3 points
+a session — the top three rows. **Detecting it requires roughly 400 to 1,700
+sessions.**
+
+**Twenty sessions can only see an edge of 18 points a session**, which on a
+50k account at one contract is about 180% a year. Any edge that large would be
+visible without a backtest.
+
+**Finishing the re-record does not change this.** Fifty-three sessions detects
+11 points a session. And the binding limit is harder than that: **ATAS replay
+reaches back three months, about 65 sessions total.** Even exhausting it
+entirely, the floor is roughly 5 to 10 points a session. **A realistic edge is
+not detectable from ATAS replay data at these constraints, at any point, ever.**
+
+That is not a statement about the market. It is arithmetic about two trades a
+session against a 15-to-34-point stop.
+
+## What this means for the re-record
+
+**Stop it.** The 0.25 re-record was worth doing for the order-flow question,
+which needed tick-level price separation and is now answered. For strategy
+validation it cannot reach the required sample, and 37 more days changes the
+detection floor from 18 points to 11.
+
+## The only sample that could answer it
+
+Already on disk, and it is not ATAS:
+
+```
+QQQ 1-minute   553,973 bars   1,421 sessions   2021-01 .. 2026-08
+QQQ 5-minute   208,941 bars   2,680 sessions   2016-01 .. 2026-08
+```
+
+**1,421 sessions is exactly the range required.** The honest caveats: QQQ is
+not NQ, one-minute bars cannot order a stop against a target inside a bar, and
+the cost structure differs. But with a 15-to-34-point stop the intra-bar
+ordering problem is small — it was fatal at a 2-point stop and is minor at
+twenty times that — and the pessimistic convention already in the backtest
+(stop before target) bounds the error in the conservative direction.
+
+**This inverts the order of work:** screen wide and cheap on years of bar data,
+then verify narrow and expensive on NQ tick data for whatever survives. This
+project did it the other way round, which is why twenty sessions of
+beautifully-recorded ticks cannot answer a question a proxy with seventy times
+the sample could.
+
+## On the "which two moments" idea — the sample it would need
+
+Selecting the best two moments from roughly 78 five-minute bars is a ranking
+problem over a large candidate space. Fitting it on 20 sessions would find
+noise with certainty. Before any such thing is proposed it needs a data source
+of **at least 500 sessions**, and the MDE arithmetic above applies on top of
+the selection cost, not instead of it. **Not proposed now.**
