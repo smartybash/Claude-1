@@ -73,7 +73,7 @@ def resolve_on(bars, direction, entry, stop, target, entry_t, inclusive=False):
     Returns the pessimistic exit (stop wins a bar that spans both), the
     optimistic one (target wins), and whether the deciding bar was ambiguous.
     """
-    t, hi, lo, _open_t, _flat_t, _atr = bars
+    t, hi, lo, op, _open_t, _flat_t, _atr = bars
     n = len(t)
     start = int(np.searchsorted(t, entry_t, "right"))
     if inclusive:
@@ -181,7 +181,8 @@ def reverse_panel(per, freq):
             pb = grids.get(freq)
             if pb is None:
                 continue
-            tt, thi, tlo = grids[TRUTH][0], grids[TRUTH][1], grids[TRUTH][2]
+            tt, thi, tlo, top = (grids[TRUTH][0], grids[TRUTH][1],
+                                 grids[TRUTH][2], grids[TRUTH][3])
             for tr in run_session(pb, or_min, satr, tgt):
                 dirn, e, st, tg = tr["dir"], tr["entry"], tr["stop"], tr["target"]
                 # locate the real fill second: the proxy bar is labelled at its
@@ -194,6 +195,8 @@ def reverse_panel(per, freq):
                         break
                 if fill < 0:
                     continue
+                # the tape's own answer to "what price was actually on offer"
+                e = max(e, top[fill]) if dirn > 0 else min(e, top[fill])
                 exp = tt[fill] + np.timedelta64(MAX_MIN, "m")
                 why, px = "flat", None
                 for i in range(fill, len(tt)):

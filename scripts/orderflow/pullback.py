@@ -93,6 +93,7 @@ def second_bars(s: pd.DataFrame, freq: str = "1s"):
     g = w.set_index("time").price.resample(freq)
     hi = g.max().dropna()
     lo = g.min().reindex(hi.index)
+    op = g.first().reindex(hi.index)
     # 20-bar 1-minute ATR, forward-filled onto the second grid. Every value is
     # the mean range of bars that have already CLOSED, so it is known at the
     # trigger print and reaches no further than the decision timestamp.
@@ -102,12 +103,21 @@ def second_bars(s: pd.DataFrame, freq: str = "1s"):
     atr = rng.rolling(ATR_BARS, min_periods=10).mean().shift(1)
     atr_s = atr.reindex(hi.index, method="ffill").to_numpy(np.float64)
     return (hi.index.to_numpy(), hi.to_numpy(np.float64),
-            lo.to_numpy(np.float64), open_t, flat_t, atr_s)
+            lo.to_numpy(np.float64), op.to_numpy(np.float64),
+            open_t, flat_t, atr_s)
 
 
 def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
-                exc: float = EXC_FIXED, entry_bar_exit: bool = True):
+                exc: float = EXC_FIXED, entry_bar_exit: bool = True,
+                brk: float = None, rej: float = None, floor: float = None,
+                cost: float = None, last_entry=None):
     """The pre-registered state machine. Returns a list of closed trades.
+
+    `brk`, `rej`, `floor`, `cost` and `last_entry` default to the NQ constants
+    above. They exist so the SAME code can run on an instrument priced at $600
+    instead of 30,000: the rule is scale-free, but four of its constants are
+    written in NQ points and have to be restated as a fraction of price before
+    they mean the same thing. Left at None, every NQ number is unchanged.
 
     `entry_bar_exit` decides whether the bar that triggers the entry is also
     examined for the exit. On the tape this question barely exists -- the
@@ -118,10 +128,11 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
     False is the optimistic reading, and the calibration reports the gap
     between them because on bar data there is no unbiased third option.
     """
-    t, hi, lo, open_t, flat_t, atr = bars
+    t, hi, lo, op, open_t, flat_t, atr = bars
     or_end = open_t + pd.Timedelta(minutes=or_min)
-    last_entry = (open_t.normalize() +
-                  pd.Timedelta(hours=LAST_ENTRY_H, minutes=LAST_ENTRY_M))
+    if last_entry is None:
+        last_entry = (open_t.normalize() +
+                      pd.Timedelta(hours=LAST_ENTRY_H, minutes=LAST_ENTRY_M))
 
     n = len(t)
     or_mask = t < np.datetime64(or_end)
@@ -138,9 +149,10 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
     if orr <= 0:
         return []
 
-    brk = BREAK_TICKS * TICK
-    rej = REJ_TICKS * TICK
-    stp_floor = STOP_MIN_TICKS * TICK
+    brk = BREAK_TICKS * TICK if brk is None else brk
+    rej = REJ_TICKS * TICK if rej is None else rej
+    stp_floor = STOP_MIN_TICKS * TICK if floor is None else floor
+    cost = COST_PTS if cost is None else cost
 
     trades = []
     state = "SCAN"
@@ -206,7 +218,15 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
                 if not np.isfinite(a):
                     i += 1
                     continue
-                entry = trigger
+                # A STOP ORDER FILLS AT THE FIRST PRICE AVAILABLE, NOT AT
+                # ITS OWN TRIGGER. If this bar opened already beyond the
+                # trigger, the order was filled at the open and the trigger
+                # price was never on offer. Assuming otherwise credits the
+                # trade with a price that did not exist -- measured at 90.8%
+                # of QQQ one-minute entries, worth +0.56R, which is larger
+                # than any expectancy this rule has ever shown.
+                entry = (max(trigger, op[i]) if direction > 0
+                         else min(trigger, op[i]))
                 stop = pb_ext - direction * max(stp_floor, stop_atr * a)
                 risk = abs(entry - stop)
                 if risk <= 0:
@@ -236,7 +256,11 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
             ambiguous = bool(stopped and hit_tgt)
             exit_px = None
             if stopped:
-                exit_px, why = stop, "stop"
+                # same argument on the way out: a stop that gaps through
+                # fills at the open, not at the stop price
+                gap = (min(stop, op[i]) if direction > 0
+                       else max(stop, op[i]))
+                exit_px, why = (gap if i != entry_i else stop), "stop"
             elif hit_tgt:
                 exit_px, why = target, "target"
             elif now >= expires:
@@ -246,7 +270,7 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
             if exit_px is None:
                 i += 1
                 continue
-            pnl = direction * (exit_px - entry) - COST_PTS
+            pnl = direction * (exit_px - entry) - cost
             trades.append(dict(dir=direction, entry=entry, stop=stop,
                                target=target, exit=exit_px, why=why,
                                pnl=pnl, risk=abs(entry - stop),

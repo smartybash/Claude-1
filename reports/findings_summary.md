@@ -2618,3 +2618,79 @@ problem over a large candidate space. Fitting it on 20 sessions would find
 noise with certainty. Before any such thing is proposed it needs a data source
 of **at least 500 sessions**, and the MDE arithmetic above applies on top of
 the selection cost, not instead of it. **Not proposed now.**
+
+---
+
+# The QQQ screen ran. 0 of 16. And two defects came out of it.
+
+`reports/bar_resolution_gate.md`, `reports/qqq_screen_result.md`.
+
+## The result
+
+| | |
+|---|---|
+| QQQ sessions | **1,418** (2021-01-04 to 2026-08-31) |
+| trades per variant | 1,425 to 2,175 |
+| variants surviving | **0 of 16** |
+| significantly negative | 4 (t −3.4 to −4.5) |
+| positive in ≥4 of 6 years | **none** |
+
+Target hit rates land within a couple of points of the random-walk rate at
+every target from 1R to 4R. The rule is a coin; the cost is 6–11% of risk; the
+coin loses. Extending to 3R and 4R — the cells needing the least edge, which
+grid 2 never reached — did not rescue it.
+
+**The pullback family is finished, and now on a sample big enough that the
+absence of an edge is a measurement rather than a shrug.**
+
+## Two defects, both of which flattered the rule
+
+**1. Entry lookahead.** The `ARMED` state updated the pullback extreme with the
+current bar and then asked whether that same bar had crossed extreme + 4 ticks.
+Same-bar entries: 34.5% at one second, **72.3% at one minute** where the bar is
+28 points wide. Fixed.
+
+**2. A stop order assumed to fill at its own trigger.** On **90.8%** of QQQ
+one-minute entries the bar had already opened past the trigger, so the trigger
+price was never on offer. Mean unmodelled slippage **+0.561R**, against
+expectancies of +0.24R to +0.55R. **The edge was the defect.** Entries now fill
+at `max(trigger, open)`; stop exits gap through the same way.
+
+## What each defect was pretending to be
+
+Defect 2 scaled with bar width, so it looked exactly like a resolution effect:
+the tape said −0.19R, five-minute bars said +0.90R at a session t of +2.96, and
+the paired divergence was t +4.87. An earlier version of the gate report read
+that as a real finding — "wait for the candle to close rather than chasing the
+first bounce off a tick low" — and built a mechanism for it. **That hypothesis
+is withdrawn in full.** With honest fills the one-minute grid reproduces the
+tape to within 0.003R on every trade.
+
+Before the fill fix the QQQ screen returned **16 of 16 surviving, t +5.8 to
++16.5, every year positive, a 74% win rate at 1R**. Nobody leaves that in QQQ
+minute bars since 2021.
+
+## The rule that earned its keep
+
+**A favourable-looking difference between two ways of measuring the same rule
+is almost always a defect in the more favourable one.** Twice today an
+extraordinary result was treated as a defect until proven otherwise, and twice
+it was a defect.
+
+## Corrections to previously reported numbers
+
+Grid 2 carried defect 1. Re-run with both fixes, all twelve variants are
+negative on expectancy (best −3.65 pts, worst −11.36) against a published table
+where some were near zero. **Survivors were 0 of 12 and remain 0 of 12.** The
+verdict is unchanged; the numbers moved and are corrected here because they
+moved.
+
+## What is not settled
+
+NQ's cash open follows a live overnight auction; QQQ's follows a closed book.
+If the edge lives entirely in that difference, this screen could not see it.
+Named before the run, still true — but it is a narrow escape hatch for a rule
+that performs at coin-flip rates on 1,418 sessions of an instrument tracking
+the same index.
+
+**Sealed days: still sealed.** Eight June days and 23 July have never been read.
