@@ -62,6 +62,7 @@ LAST_ENTRY_H, LAST_ENTRY_M = 18, 0
 HARD_FLAT_H, HARD_FLAT_M = 18, 30      # 22:30 Dubai, UTC+4
 COST_PTS = 2.0
 MAX_TRADES = 2
+MIN_OR_BARS = 3
 
 # --- the declared grid: 2 x 2 x 3 = 12 ------------------------------------
 GRID_OR_MIN = (15, 30)
@@ -72,15 +73,24 @@ GRID_TGT_R = (1.0, 1.5, 2.0)
 EXC_FIXED = 0.5
 
 
-def second_bars(s: pd.DataFrame):
-    """(t, high, low) per second of the cash session, as numpy arrays."""
+def second_bars(s: pd.DataFrame, freq: str = "1s"):
+    """(t, high, low, ...) per bar of the cash session, as numpy arrays.
+
+    `freq` sets the evaluation grid. One second is the truth for these tick
+    recordings; 1min and 5min are the proxies the QQQ screen would have to rely
+    on, and the calibration compares them on identical sessions.
+
+    ATR is ALWAYS computed from 1-minute bars whatever the evaluation grid, so
+    the stop distance is the same number in every run. Letting it follow the
+    grid would compare two different rules rather than two resolutions.
+    """
     d = session_day(s)
     open_t = d + pd.Timedelta(hours=RTH_OPEN_H, minutes=RTH_OPEN_M)
     flat_t = d + pd.Timedelta(hours=HARD_FLAT_H, minutes=HARD_FLAT_M)
     w = s[(s.time >= open_t) & (s.time <= flat_t)]
     if len(w) < 5000:
         return None
-    g = w.set_index("time").price.resample("1s")
+    g = w.set_index("time").price.resample(freq)
     hi = g.max().dropna()
     lo = g.min().reindex(hi.index)
     # 20-bar 1-minute ATR, forward-filled onto the second grid. Every value is
@@ -96,8 +106,18 @@ def second_bars(s: pd.DataFrame):
 
 
 def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
-                exc: float = EXC_FIXED):
-    """The pre-registered state machine. Returns a list of closed trades."""
+                exc: float = EXC_FIXED, entry_bar_exit: bool = True):
+    """The pre-registered state machine. Returns a list of closed trades.
+
+    `entry_bar_exit` decides whether the bar that triggers the entry is also
+    examined for the exit. On the tape this question barely exists -- the
+    trigger second is two ticks wide. On a one-minute bar it is the whole
+    argument: that bar is ~30 points wide and a 17-point stop sits inside it,
+    so skipping it quietly hands the trade a free minute. True keeps the
+    project's standing pessimism (the stop wins a bar that reaches both);
+    False is the optimistic reading, and the calibration reports the gap
+    between them because on bar data there is no unbiased third option.
+    """
     t, hi, lo, open_t, flat_t, atr = bars
     or_end = open_t + pd.Timedelta(minutes=or_min)
     last_entry = (open_t.normalize() +
@@ -105,7 +125,12 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
 
     n = len(t)
     or_mask = t < np.datetime64(or_end)
-    if or_mask.sum() < 30 or or_mask.all():
+    # The opening range must contain at least MIN_OR_BARS bars of whatever
+    # grid is in use. At one second a 15-minute range holds 900 bars, so this
+    # is never binding on the truth run and does not change any number already
+    # reported; it exists so the identical rule can also run on a 5-minute
+    # grid, where the same range is three bars.
+    if or_mask.sum() < MIN_OR_BARS or or_mask.all():
         return []
     orh = float(hi[or_mask].max())
     orl = float(lo[or_mask].min())
@@ -166,11 +191,14 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
             continue
 
         if state == "ARMED":
-            pb_ext = min(pb_ext, l) if direction > 0 else max(pb_ext, h)
-            if direction * (pb_ext - edge) < 0:
-                state = "SCAN"
-                i += 1
-                continue
+            # ORDER MATTERS AND IT IS NOT COSMETIC. The trigger has to be
+            # fixed by bars that have already CLOSED, then tested against this
+            # bar. Updating pb_ext with this bar's own low and then asking
+            # whether this bar's own high crossed low+REJ means buying one
+            # point off the low of a bar you have already seen the whole of.
+            # At one second that bar is a couple of ticks wide and the bias is
+            # small; at one minute it is ~28 points wide and the bias is the
+            # entire result. So the test comes first and the update second.
             trigger = pb_ext + direction * rej
             hit = h >= trigger if direction > 0 else l <= trigger
             if hit and now < np.datetime64(last_entry):
@@ -189,6 +217,13 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
                 expires = now + np.timedelta64(MAX_MIN, "m")
                 state = "IN"
                 entry_i = i
+                if entry_bar_exit:
+                    continue        # this same bar may already resolve it
+            else:
+                # no trigger on this bar, so now it may extend the pullback
+                pb_ext = min(pb_ext, l) if direction > 0 else max(pb_ext, h)
+                if direction * (pb_ext - edge) < 0:
+                    state = "SCAN"
             i += 1
             continue
 
@@ -196,6 +231,9 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
             # stop before target on the same second, deliberately pessimistic
             stopped = l <= stop if direction > 0 else h >= stop
             hit_tgt = h >= target if direction > 0 else l <= target
+            # AMBIGUOUS: this single bar reaches both. The bar cannot say which
+            # came first, and the convention below takes the stop.
+            ambiguous = bool(stopped and hit_tgt)
             exit_px = None
             if stopped:
                 exit_px, why = stop, "stop"
@@ -212,6 +250,8 @@ def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
             trades.append(dict(dir=direction, entry=entry, stop=stop,
                                target=target, exit=exit_px, why=why,
                                pnl=pnl, risk=abs(entry - stop),
+                               ambiguous=ambiguous,
+                               entry_t=t[entry_i], exit_t=now,
                                bars_held=i - entry_i))
             state = "SCAN"
             i += 1
