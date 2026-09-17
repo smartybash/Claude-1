@@ -2157,3 +2157,113 @@ the VWAP rule did at this stage.
 
 It also needs no ATAS, no order flow and no footprint — which is worth saying
 plainly given how much of this project has been spent recording them.
+
+---
+
+# Order-flow batch: the four never-measured families, plus the unsafe kills
+
+Pre-registered in `reports/orderflow_batch_preregistration.md`, committed at
+`d85b15c` before any test ran. Twelve tests, one horizon, bar |t| ≥ 3.0.
+
+**Provenance.** 16 explored-pile sessions at a verified 0.25 grid:
+`0701 0702 0706 0707 0708 0709 0710 0713 0714 0715 0716 0717 0720 0721 0812
+0820`. Families C, D and F run on 14 of them — 12 and 20 August are 0.25 tapes
+but their cumulative and depth files predate the per-fill and encoded formats.
+Recorder lineage `2026-09-16.r` to `2026-09-17.z` for July, original captures
+for August. **The eight sealed June dates were not read by any script in this
+batch**; they are excluded when each session list is built rather than filtered
+afterwards.
+
+## First: the fields are alive now
+
+This is the part the coarse grid made impossible, and it is worth separating
+from the results.
+
+| | on the 5-point grid | at 0.25 |
+|---|---|---|
+| aggressive orders with zero sweep span | 94–97% | **82.0%** |
+| orders spanning ≥ 1 tick | — | **18.0%** |
+| bars containing a 3+ stacked imbalance | **0.00%** | **21.1%** |
+| bars with any diagonal imbalance | (meaningless) | 90.9% |
+
+Stacked imbalance could not physically form before. It now forms in a fifth of
+all bars, and the longest run seen is 5. Sweep depth was a near-constant zero
+and is now a distribution. **The earlier nulls on these were about the
+instrument, not the market** — that classification was correct.
+
+## The twelve tests
+
+| family | feature | IC | t | null t | points after cost | t |
+|---|---|---|---|---|---|---|
+| C sweep | sweep ≥2 ticks | +0.0187 | +0.80 | +0.23 | −0.35 | −0.23 |
+| C sweep | sweep ≥8 ticks | −0.0021 | −0.06 | −1.12 | +1.38 | +0.42 |
+| A diagonal | imbalance net | +0.0122 | +0.47 | +1.42 | −1.72 | −1.03 |
+| A diagonal | at the extremes | −0.0012 | −0.06 | −2.67 | −0.84 | −0.36 |
+| B stacked | 3+ stack net | −0.0239 | −1.22 | −1.27 | — | — |
+| B stacked | run length | +0.0187 | +0.68 | −0.76 | −1.96 | −1.30 |
+| E absorption | absorb net | −0.0451 | −1.54 | +1.04 | −1.94 | −1.55 |
+| E absorption | unfinished net | −0.0518 | −1.63 | −0.77 | — | — |
+| **D book** | **imbalance ≤ 1 pt** | **+0.0763** | **+3.05** | −0.59 | +1.88 | +0.64 |
+| D book | imbalance ≤ 5 pt | −0.0066 | −0.29 | −0.05 | +2.38 | +0.97 |
+| F pull/fill | size pulled | −0.1025 | −2.12 | +1.70 | −4.05 | −0.66 |
+| F pull/fill | size filled | −0.0791 | −1.43 | −0.94 | −1.41 | −0.21 |
+
+**One of twelve clears the IC bar. None clears all three gates.**
+
+## The one survivor, and why it is not a finding
+
+Book imbalance **within one point of the touch** scores IC +0.0763 at t = +3.05
+against a null of −0.59. It is the only thing in this batch that is not noise,
+and it says something specific: the same measure taken over **five** points is
+t = −0.29. The information is at the touch and nowhere else.
+
+That reproduces, on 14 sessions, the "monotonic degradation" ordering that was
+previously asserted from **one** session. The Group 3 classification was right —
+the conclusion stood, the reasoning did not, and now it does.
+
+**It does not pay.** +1.88 points a trade after cost at t = +0.64, 10 of 14
+sessions positive. Pre-registration called this outcome in advance: a feature
+clearing correlation but failing the points test is reported as a correlation
+that does not trade, not as a finding.
+
+## Would more sessions settle it?
+
+| | effect/sd | sessions for t ≥ 2 | expected t at 53 sessions |
+|---|---|---|---|
+| the correlation | 0.815 | 7 | 5.93 |
+| **the trade** | **0.171** | **137** | **1.25** |
+
+Fifty-three is every explored-pile day re-recorded — the 16 held plus the 37
+remaining. **Finishing the re-record takes the trade's t from 0.64 to about
+1.25.** It does not settle it. Settling it needs roughly 137 sessions for a
+two-sigma answer and 308 for three, which is six to fourteen months of
+recording for a signal already measured at under two points a trade.
+
+## Recommendation
+
+**The order-flow branch is done. Move to the pullback work.**
+
+Not because the data was bad — it is now good, and the fields that could not
+form are forming. Because with a real 0.25 grid, per-fill sweep detail, a true
+book and an unaligned quote stream, eleven of twelve pre-registered features are
+indistinguishable from their own shuffled nulls, and the twelfth is a
+correlation worth under two points that would need an order of magnitude more
+data than exists to prove it covers its own cost.
+
+**Do not finish the re-record for order flow's sake.** The arithmetic above is
+the reason: 37 more days moves the only live number from 0.64 to 1.25.
+
+**Do keep recording, for a different reason.** The pullback candidate and the
+VWAP holdout both need sessions the strategy has never seen, and re-recorded
+days are better data for them than the coarse originals. That is a strategy-work
+argument, not an order-flow one, and it should not be dressed as this batch
+having found something.
+
+## What this closes
+
+Sweep depth, diagonal imbalance and stacked imbalance move from **never
+measured** to **measured and null**. Extreme absorption and the BOOK ladder
+family move from **unsafely killed** to **killed on data that can carry the
+question**. Book imbalance moves from **one session** to **fourteen**, and its
+verdict is now specific: real at the touch, absent one point further out, and
+too small to trade.
