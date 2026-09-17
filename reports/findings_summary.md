@@ -3122,3 +3122,67 @@ already at its random-walk rate.
 applied — a thing to fix by fetching chains, not to waive.
 
 **Sealed NQ days: still sealed, still never read.**
+
+---
+
+# Prior-day and gamma levels do not predict the next session: 0 of 13
+
+`reports/levels_predictive_preregistration.md` (`d6539a1`),
+`reports/levels_predictive_result.md`. Plus: **2022 gamma chains fetched**, so all
+six years are now present (12/13/13/12/133/153) and the year-stability rule is
+applicable for the first time. Re-running the gamma regime check with the gap
+closed leaves it unchanged — largest ρ 0.076 → **0.069**, still 0 of 4, while the
+volatility control strengthens to **−0.524**.
+
+## The test that was refused
+
+**Containment is degenerate and was not run.** "Next-day high stayed below the
+call wall 90%" is fixed entirely by P(price travels that far) — a wall, a random
+price and an arbitrary number score *identically* at the same distance, so no
+placebo repairs it. That 90% measures "QQQ rarely moves 2% in a day."
+
+## Test A — reaction at touch: 0 of 8
+
+Counted only where price **reached** the level, so distance cannot do the work.
+
+| level | touches | react 30m | react 60m |
+|---|---|---|---|
+| **PDH** | 545 | **44.8%** | 46.7% |
+| PDL | 468 | 48.1% | 49.6% |
+| VAH / VAL / POC | 586–661 | 47.2–51.5% | 48.8–52.4% |
+
+Five price levels properly tested, all coins. **The three gamma levels are
+INELIGIBLE, not failed** — 40, 24 and 90 touches against a pre-registered minimum
+of 100. The call wall is reached in **12%** of sessions, the put wall **7%**:
+settling them needs ~5,000 sessions of chains.
+
+**PDH leans continuation (44.8%), not rejection** — the opposite of the folk
+claim, consistent at both horizons, uncorrected p = 0.015, does not survive
+correction. Noted, not claimed.
+
+## Test B — turning-point clustering: 0 of 5
+
+Do the day's high and low land nearer these levels than a **stranger's level
+set** (same geometry, random other session, 200 shuffles)?
+
+| level set | real | placebo | ratio | p |
+|---|---|---|---|---|
+| **prior-day (PDH/PDL)** | 47.4 bps | 50.8 | **0.934** | **0.005** (0 of 200) |
+| all five price levels | 28.4 bps | 30.4 | 0.936 | 0.005 |
+| gamma (walls + flip) | 64.2 bps | 65.9 | 0.975 | 0.294 |
+
+**PDH/PDL genuinely do attract the next day's turning points** — not one of 200
+shuffles beat them. **And the effect is 3.4 bps.** On a level already half a
+percent from the turn, knowing it is the real prior-day high buys three basis
+points of precision. Fails the pre-registered ≤0.90 magnitude bar and the
+corrected significance gate both. **Detectable and immaterial — the distinction
+the two-part bar exists to make.**
+
+## Plainly
+
+**These levels describe where the market has been. They do not measurably move
+where it goes next.** That does not contradict how the project already uses them
+— a prior-day high is a real price where real business happened, and fine for
+hanging a confluence map on. The claim it will not support is prediction.
+
+**Sealed NQ days: still sealed, still never read.**
