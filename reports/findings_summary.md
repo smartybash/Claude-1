@@ -2296,3 +2296,105 @@ No result is rescued by this and none is invalidated outright; the point is
 that a constraint was carried for weeks in the wrong timezone and every
 statement conditioned on it inherited the error. The constant is now a single
 named value and the pullback work uses 18:30 UTC.
+
+---
+
+# Pullback batch: all 12 rejected, and the rejection is about my specification
+
+Run against `reports/pullback_preregistration.md`, committed at `7f19544`
+before the code existed. **20 discovery sessions at 0.25**, sealed days not
+read, flat 18:30 UTC, 2.0 points a round turn, max two trades a session.
+
+## Trade counts first
+
+| variant | trades | sessions | per session |
+|---|---|---|---|
+| OR15 EXC0.5 (×3 targets) | 26 | 15 | 1.73 |
+| OR30 EXC0.5 (×3) | 16 | 9 | 1.78 |
+| OR15 EXC1.0 (×3) | 11 | 8 | 1.38 |
+| OR30 EXC1.0 (×3) | 7 | 4 | 1.75 |
+
+Only one of the four setup definitions reaches the 15-session minimum at all.
+
+## All 12 rejected
+
+Every variant fails on expectancy, profit factor, top-five dependence and the
+split-half. Per-session t ranges from −0.51 to −2.67; **no variant has a single
+positive half.**
+
+## The rejection does not mean what it looks like
+
+Every trade in the entire grid has **exactly the same risk: 2.00 points.**
+
+```
+distinct risk values across all trades: [2.0]
+```
+
+That is not a property of the market, it is arithmetic I built in:
+
+```
+trigger = pullback extreme + REJ_TICKS  × 0.25 = +1.00
+stop    = pullback extreme − STOP_TICKS × 0.25 = −1.00
+risk    = trigger − stop                       =  2.00   always
+```
+
+Both offsets are fixed tick counts from the **same** price, so the risk can
+never be anything else. Cost is 2.00 points. **The cost is 100% of the risk on
+every trade.**
+
+What that forced:
+
+| target | winner nets | loser nets | breakeven win rate | observed |
+|---|---|---|---|---|
+| 1.0R | **+0.00** | −4.00 | impossible | 0.0% "wins" |
+| 1.5R | +1.00 | −4.00 | **80.0%** | 73.1% |
+| 2.0R | +2.00 | −4.00 | **66.7%** | 61.5% |
+
+At 1.0R a winning trade nets **exactly zero**, which is why those three
+variants report a 0% win rate — not one trade made money, by construction. At
+1.5R the rule needed to be right 80% of the time and managed 73%. At 2.0R it
+needed 67% and managed 62%.
+
+Those are not bad hit rates for a pullback entry. They lost because a 2-point
+stop on NQ is roughly one second of noise and the round turn costs as much as
+the entire risk.
+
+**So this batch tested whether a 2-point stop can survive a 2-point round trip.
+It cannot, and that was decidable with arithmetic before any data was touched.**
+I should have caught it when fixing the constants and did not.
+
+## What is and is not established
+
+**Established:** the specification is unusable. `REJ_TICKS` and `STOP_TICKS`
+cannot both be fixed offsets from the pullback extreme, because that pins risk
+to a constant independent of the session, the instrument's volatility and the
+size of the move being retraced.
+
+**Not established:** anything about pullback continuation. The hypothesis was
+never given a risk large enough to clear its own costs, so these twelve
+rejections carry no information about it. Recording them as a kill would be
+exactly the failure mode flagged before this batch began — a verdict resting on
+a test that was never properly conceived.
+
+## The corrected specification, for approval before it runs
+
+The stop must be anchored to structure, not to a tick count:
+
+```
+stop = pullback extreme − dir × max(STOP_MIN_TICKS × 0.25, STOP_ATR × ATR)
+```
+
+with the trigger unchanged, so risk scales with the session's own volatility.
+On these sessions a 20-bar one-minute ATR runs 8–15 points, which puts a
+typical stop at 4–8 points and cost at 25–50% of risk rather than 100%.
+
+That is one changed line and it does not touch a single trading constraint:
+still two trades, still never concurrent, still hard stop at entry, still flat
+at 18:30 UTC, still 2.0 points of cost. The grid stays at 12 by swapping the
+`EXC` axis for `STOP_ATR ∈ {0.5, 1.0}` and keeping `EXC` fixed at 0.5, which is
+the only value that produced enough sessions to test.
+
+**I have not run it.** The spec changed after seeing a result, even though what
+was seen is a construction error rather than a performance number, and that
+distinction is exactly the sort a person should get to judge rather than have
+assumed on their behalf.
