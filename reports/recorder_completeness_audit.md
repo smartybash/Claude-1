@@ -342,3 +342,44 @@ of what was previously analysed stays on disk. This is the same convention used
 for the June re-records.
 
 Sealed NQ days were not read. None of these five is sealed.
+
+## Ingest, 17 September — second set of five, same story
+
+`20260805, 20260806, 20260807, 20260810, 20260811`. Recorder `2026-09-17.z`.
+All five were already on disk from 15 September, all five at a 5.0-point step.
+
+| day | on disk: step | levels | new: step | levels | rows old → new |
+|---|---|---|---|---|---|
+| 20260805 | **5.00** | 109 | **0.25** | 2,169 | 512,673 → 513,033 |
+| 20260806 | **5.00** | 90 | **0.25** | 1,781 | 504,657 → 505,065 |
+| 20260807 | **5.00** | 84 | **0.25** | 1,657 | 477,581 → 477,856 |
+| 20260810 | **5.00** | 62 | **0.25** | 1,225 | 358,424 → 358,685 |
+| 20260811 | **5.00** | 72 | **0.25** | 1,414 | 406,063 → 406,321 |
+
+Rows within 0.1% again — rounded, not sparser. The level counts on the coarse
+recordings are lower than the first batch's (62 to 109, against 131 to 226),
+which is what a 5-point grid does to a quiet week rather than anything about the
+new files.
+
+> **Usable 0.25-tick sessions over the European window: 26 → 31.**
+> `0701 0702 0703 0706 0707 0708 0709 0710 0713 0714 0715 0716 0717 0720 0721
+> 0722 0724 0727 0728 0729 0730 0731 0803 0804 **0805 0806 0807 0810 0811**
+> 0812 0820`
+
+**BBO and the status files are new for all five** — neither existed on disk for
+these dates in any form.
+
+| day | tape | cum fills | reconcile | cum orders | BBO | depth |
+|---|---|---|---|---|---|---|
+| 20260805 | 513,033 | 513,033 | **exact** | 298,361 | 1,040,409 | 2,666,746 |
+| 20260806 | 505,065 | 505,065 | **exact** | 298,080 | 1,175,512 | 2,652,305 |
+| 20260807 | 477,856 | 477,856 | **exact** | 278,784 | 1,078,716 | 2,504,700 |
+| 20260810 | 358,685 | 358,685 | **exact** | 210,214 | 936,255 | 2,106,912 |
+| 20260811 | 406,321 | 406,321 | **exact** | 228,595 | 916,689 | 2,116,831 |
+
+**7 August ends at 20:59:59**, as 31 July does. Both recordings of that date stop
+there, so it is a recording fact rather than a regression, and it still covers
+the European window in full.
+
+Coarse `.gz` files kept, loader prefers the finer recording, same convention.
+Sealed NQ days were not read; none of these five is sealed.
