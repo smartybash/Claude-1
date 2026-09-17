@@ -2398,3 +2398,96 @@ the only value that produced enough sessions to test.
 was seen is a construction error rather than a performance number, and that
 distinction is exactly the sort a person should get to judge rather than have
 assumed on their behalf.
+
+---
+
+# Pullback grid 2: a properly conceived test, and it finds nothing
+
+Pre-registered at `1a02a18`, run after. 20 discovery sessions at 0.25, sealed
+days not read, flat 18:30 UTC, 2.0 points a round turn, max two trades a
+session, `EXC` fixed at 0.5 (data-informed, logged).
+
+## Trade counts first
+
+| variant | trades | sessions | per session | expiry | avg risk |
+|---|---|---|---|---|---|
+| OR15 SATR0.5 (×3) | 25–26 | 15 | 1.7 | **0%** | 17.2 |
+| OR15 SATR1.0 (×3) | 26 | 15 | 1.7 | **0%** | 33.7 |
+| OR30 SATR0.5 (×3) | 16 | 9 | 1.8 | **0%** | 15.4 |
+| OR30 SATR1.0 (×3) | 16 | 9 | 1.8 | **0%** | 29.9 |
+
+**The specification fault is fixed.** Risk now runs 15 to 34 points and varies
+trade to trade, so cost is 6–12% of risk rather than 100%.
+
+**My pre-run prediction about expiry was wrong.** I said expiry exits would be
+a large share, particularly at wide stops. They are **zero** in all twelve
+variants — every trade resolved at its stop or its target inside the hour.
+Recording that because a prediction made before a run is worth nothing if it is
+quietly dropped afterwards.
+
+## All 12 rejected again — but this time the test was sound
+
+Expectancy runs −0.87 to −5.76 points a trade. Profit factor 0.48 to 0.96.
+Per-session t from −0.10 to −1.42. Every variant fails on expectancy, profit
+factor, top-five dependence and the split-half.
+
+## Why this rejection means something and grid 1's did not
+
+The question is whether the rule beats a coin **on its own stop and target**.
+For a random walk, `P(hit +M×R before −R) = 1/(1+M)`.
+
+| variant | n | observed | random walk | breakeven | vs random |
+|---|---|---|---|---|---|
+| OR15 SATR0.5 R1.0 | 26 | 46.2% | 50.0% | 55.8% | −3.8 |
+| OR15 SATR0.5 R1.5 | 25 | 36.0% | 40.0% | 44.7% | −4.0 |
+| OR15 SATR0.5 R2.0 | 26 | 30.8% | 33.3% | 37.2% | −2.5 |
+| OR15 SATR1.0 R1.0 | 26 | 50.0% | 50.0% | 53.0% | +0.0 |
+| OR15 SATR1.0 R1.5 | 26 | 38.5% | 40.0% | 42.4% | −1.5 |
+| OR15 SATR1.0 R2.0 | 26 | 26.9% | 33.3% | 35.3% | −6.4 |
+| OR30 SATR0.5 R1.0 | 16 | 43.8% | 50.0% | 56.5% | −6.2 |
+| OR30 SATR0.5 R1.5 | 16 | 37.5% | 40.0% | 45.2% | −2.5 |
+| OR30 SATR0.5 R2.0 | 16 | 37.5% | 33.3% | 37.6% | +4.2 |
+| OR30 SATR1.0 R1.0 | 16 | 56.2% | 50.0% | 53.3% | +6.2 |
+| OR30 SATR1.0 R1.5 | 16 | 43.8% | 40.0% | 42.7% | +3.8 |
+| OR30 SATR1.0 R2.0 | 16 | 37.5% | 33.3% | 35.6% | +4.2 |
+
+**Eight of twelve sit below the random-walk rate and four above, and not one is
+statistically distinguishable from it** — the smallest binomial p is 0.32.
+
+That is the finding. **The rule is a coin flip on its own stop and target, and
+a coin flip cannot pay a round turn.** Costs did not eat a thin edge; there was
+no edge to eat. Every variant needs 2 to 6 percentage points over random and
+delivers, on average, slightly less than random.
+
+The four "above random" cells are all `OR30`, all on 16 trades over 9 sessions,
+and they fail the 15-session minimum anyway. They are what four cells out of
+twelve look like when the true rate is the coin.
+
+## Status of the hypothesis
+
+The original pullback observation — price leaves a price by 15 points, returns,
+and resumes, worth +2.95 and −2.56 points over 15 minutes — was measured by
+taking **every** qualifying signal, about 69 a session, with no stop and no
+cost discipline. Under two trades a day with a hard stop and a real round turn,
+**it is gone.**
+
+That is not a contradiction. A tiny per-event drift spread across seventy
+overlapping observations a day is not the same object as a trade you can take
+twice, and the placebo attached to the original result already showed the
+specific price did no work.
+
+**Two grids, 24 variants, 20 discovery sessions, nothing above a coin.** The
+sealed days are not needed and must not be spent: a holdout tests something
+that survived discovery, and nothing here did.
+
+## Where that leaves the project
+
+Every mechanical hypothesis tried under the real constraints has now failed on
+discovery. What has not been tried is the one thing the constraints point at
+directly: the trader takes **two** trades a session, so the binding question is
+not "does this pattern have an edge" but "which two moments in a session are
+worth acting on". Every test so far has answered the first question with a rule
+that fires whenever its conditions are met, which is a different problem.
+
+That is a new direction, not a retest, and it needs its own pre-registration
+and the trader's agreement before anything is run.

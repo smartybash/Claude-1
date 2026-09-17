@@ -2,8 +2,8 @@
 """PULLBACK CONTINUATION, MECHANICAL, UNDER THE TRADER'S CONSTRAINTS.
 
 Implements exactly the rule pre-registered in
-`reports/pullback_preregistration.md`, committed at 7f19544 before this file
-existed. Nothing here is a parameter that was chosen after seeing a result.
+`reports/pullback_preregistration_v2.md`, committed at 1a02a18 before this
+version ran. Grid 1 is at 7f19544. Nothing here is a parameter that was chosen after seeing a result.
 
 THE CONSTRAINTS, AS CODE
 
@@ -51,7 +51,12 @@ RTH_OPEN_H, RTH_OPEN_M = 13, 30
 BREAK_TICKS = 2
 PB_LO, PB_HI = 0.25, 0.75
 REJ_TICKS = 4
-STOP_TICKS = 4
+# Grid 1 took the stop as a fixed tick offset from the same price as the
+# trigger, which pinned risk to exactly 2.00 points on every trade and made
+# cost 100% of risk. The stop is now a volatility distance with a 2-point floor
+# so a dead-quiet patch cannot recreate that fault.
+STOP_MIN_TICKS = 8
+ATR_BARS = 20
 MAX_MIN = 60
 LAST_ENTRY_H, LAST_ENTRY_M = 18, 0
 HARD_FLAT_H, HARD_FLAT_M = 18, 30      # 22:30 Dubai, UTC+4
@@ -60,8 +65,11 @@ MAX_TRADES = 2
 
 # --- the declared grid: 2 x 2 x 3 = 12 ------------------------------------
 GRID_OR_MIN = (15, 30)
-GRID_EXC = (0.5, 1.0)
+GRID_STOP_ATR = (0.5, 1.0)
 GRID_TGT_R = (1.0, 1.5, 2.0)
+# Fixed at 0.5 because 1.0 produced trades on only 8 and 4 sessions in grid 1.
+# That is a DATA-INFORMED selection, logged in the pre-registration ledger.
+EXC_FIXED = 0.5
 
 
 def second_bars(s: pd.DataFrame):
@@ -75,13 +83,22 @@ def second_bars(s: pd.DataFrame):
     g = w.set_index("time").price.resample("1s")
     hi = g.max().dropna()
     lo = g.min().reindex(hi.index)
+    # 20-bar 1-minute ATR, forward-filled onto the second grid. Every value is
+    # the mean range of bars that have already CLOSED, so it is known at the
+    # trigger print and reaches no further than the decision timestamp.
+    m = w.set_index("time").price.resample("1min")
+    mh, ml = m.max().dropna(), m.min()
+    rng = (mh - ml.reindex(mh.index))
+    atr = rng.rolling(ATR_BARS, min_periods=10).mean().shift(1)
+    atr_s = atr.reindex(hi.index, method="ffill").to_numpy(np.float64)
     return (hi.index.to_numpy(), hi.to_numpy(np.float64),
-            lo.to_numpy(np.float64), open_t, flat_t)
+            lo.to_numpy(np.float64), open_t, flat_t, atr_s)
 
 
-def run_session(bars, or_min: float, exc: float, tgt_r: float):
+def run_session(bars, or_min: float, stop_atr: float, tgt_r: float,
+                exc: float = EXC_FIXED):
     """The pre-registered state machine. Returns a list of closed trades."""
-    t, hi, lo, open_t, flat_t = bars
+    t, hi, lo, open_t, flat_t, atr = bars
     or_end = open_t + pd.Timedelta(minutes=or_min)
     last_entry = (open_t.normalize() +
                   pd.Timedelta(hours=LAST_ENTRY_H, minutes=LAST_ENTRY_M))
@@ -98,7 +115,7 @@ def run_session(bars, or_min: float, exc: float, tgt_r: float):
 
     brk = BREAK_TICKS * TICK
     rej = REJ_TICKS * TICK
-    stp = STOP_TICKS * TICK
+    stp_floor = STOP_MIN_TICKS * TICK
 
     trades = []
     state = "SCAN"
@@ -157,8 +174,12 @@ def run_session(bars, or_min: float, exc: float, tgt_r: float):
             trigger = pb_ext + direction * rej
             hit = h >= trigger if direction > 0 else l <= trigger
             if hit and now < np.datetime64(last_entry):
+                a = atr[i]
+                if not np.isfinite(a):
+                    i += 1
+                    continue
                 entry = trigger
-                stop = pb_ext - direction * stp
+                stop = pb_ext - direction * max(stp_floor, stop_atr * a)
                 risk = abs(entry - stop)
                 if risk <= 0:
                     state = "SCAN"
@@ -212,10 +233,10 @@ def sessions():
     return out
 
 
-def evaluate(per, or_min, exc, tgt_r):
+def evaluate(per, or_min, stop_atr, tgt_r):
     rows = []
     for d, bars in per.items():
-        for tr in run_session(bars, or_min, exc, tgt_r):
+        for tr in run_session(bars, or_min, stop_atr, tgt_r):
             rows.append({**tr, "day": d})
     return pd.DataFrame(rows)
 
@@ -257,14 +278,17 @@ def main():
 
     results = {}
     print("  TRADE COUNTS FIRST, before any performance number:\n")
-    print(f"  {'variant':<22}{'trades':>8}{'sessions':>10}{'trades/sess':>13}")
-    for or_min, exc, tgt in product(GRID_OR_MIN, GRID_EXC, GRID_TGT_R):
-        key = f"OR{or_min} EXC{exc} R{tgt}"
-        T = evaluate(per, or_min, exc, tgt)
+    print(f"  {'variant':<22}{'trades':>8}{'sessions':>10}{'trades/sess':>13}"
+          f"{'expiry%':>11}{'avg risk':>10}")
+    for or_min, satr, tgt in product(GRID_OR_MIN, GRID_STOP_ATR, GRID_TGT_R):
+        key = f"OR{or_min} SATR{satr} R{tgt}"
+        T = evaluate(per, or_min, satr, tgt)
         results[key] = T
         ns = T.day.nunique() if not T.empty else 0
+        exp_share = 100 * (T.why == "expiry").mean() if not T.empty else 0.0
         print(f"  {key:<22}{len(T):>8}{ns:>10}"
-              f"{(len(T)/ns if ns else 0):>13.2f}")
+              f"{(len(T)/ns if ns else 0):>13.2f}{exp_share:>11.0f}%"
+              f"{(T.risk.mean() if not T.empty else 0):>10.1f}")
 
     print("\n" + "=" * 100)
     print("  PER TRADE")
