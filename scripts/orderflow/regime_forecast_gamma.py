@@ -146,8 +146,11 @@ def main():
         print("  per year: " + "  ".join(
             f"{y} {int((yr == y).sum())}" for y in sorted(yr.unique())))
         print(f"  2025-2026 block: {int((yr >= 2025).sum())} of {len(M)} "
-              f"= {100 * (yr >= 2025).mean():.0f}%   "
-              f"(2022 absent -- the year-stability rule cannot be applied)")
+              f"= {100 * (yr >= 2025).mean():.0f}%")
+        missing = [y for y in range(2021, 2027) if (yr == y).sum() == 0]
+        print(f"  years covered: {sorted(yr.unique())}   "
+              + ("all six present -- year-stability rule now applicable"
+                 if not missing else f"MISSING {missing}"))
 
         block(M, or_min, "eff_later",
               "EFFICIENCY AFTER D — THE REGIME, THE THING THE HYPOTHESIS NEEDS",
