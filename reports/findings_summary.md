@@ -2694,3 +2694,82 @@ that performs at coin-flip rates on 1,418 sessions of an instrument tracking
 the same index.
 
 **Sealed days: still sealed.** Eight June days and 23 July have never been read.
+
+---
+
+# ORB with a session VWAP filter: 0 of 16. Third fill-model defect found.
+
+`reports/orb_vwap_preregistration.md` (declared at `bbbddb1`),
+`reports/orb_vwap_result.md`.
+
+| | |
+|---|---|
+| QQQ sessions | **1,418**, every one producing a trade at `OR_MIN` 15 |
+| trades per variant | 2,578 to 2,740 |
+| survivors | **0 of 16** |
+| best variant | OR15 SATR1.0 R4.0 — exp **+0.012R**, t **+0.29**, PF 1.01 |
+
+## A nearer miss than the pullback, and precisely why
+
+At the wider stop and wider targets the rule does beat the coin: **+1.9 points
+at 3R and +2.4 at 4R**. Cost needs +1.3 to +1.5. So it arrives at breakeven and
+stops — t +0.29 on 2,619 trades. With a sample that size, flat means flat, not
+underpowered. The tighter stop is worse at every target, which is the opposite
+of how a real effect usually behaves.
+
+## The third defect: pre-entry stop-outs
+
+First run: −0.26R to −0.75R, a 1R target hitting **19.6%** against a coin's
+50%, session t of **−49**. Broken, not losing.
+
+For a breakout the trigger sits at the top of the bar's travel, so the entry
+bar's low is usually pre-entry price action: **73.9%** of entry bars opened on
+the far side of their trigger, **44.9%** of trades had an entry-bar adverse
+extreme beyond the stop, and **87.8% of those** opened on the far side. The
+model was being told something false about sequence. The pullback family was
+immune because its trigger was a rejection off a *prior* bar's extreme — the
+same switch was worth 0.07R there and most of the result here.
+
+## The slippage audit paid for itself on its first outing
+
+Over **half** of all entries gap past the trigger, double the pullback rate,
+because a breakout trigger sits where price is accelerating. Phantom of +0.04R
+to +0.16R — and **seven of the eight `OR_MIN` 15 variants report positive
+expectancy under the naive fill and negative under the honest one.** Without
+the fix made two families ago, this screen would have produced eight apparent
+winners.
+
+## The VWAP filter is decorative
+
+It vetoes **9.0% to 35.8%** of signals, changes the trade count by **5 to 18
+out of ~2,700**, and changes expectancy by **+0.005R to +0.017R**. A vetoed
+breakout is replaced by a later one in the same session, so it substitutes
+rather than reduces. My pre-registered prediction guessed the veto rate would
+be under 15% — it is higher, and the filter is decorative anyway. The
+prediction was aimed at the wrong quantity: veto rate measures how often a
+filter fires, not whether it helps.
+
+## Regime findings worth keeping
+
+- **92% of breakouts fire in the first hour.** The time-of-day axis is
+  effectively one bucket; the +0.40R in the `180+` column rests on **18 trades**
+  and is noise.
+- **Narrow opening ranges are worse than wide ones, in 13 of 16 variants.**
+  Opposite to the folklore that a tight range coils for a big move. Decent
+  sample in every bucket. Logged as a description of this data, not a
+  hypothesis.
+- **`OR30 SATR0.5` is positive only in 2022** across every target. A
+  volatility artifact.
+- The one near-positive variant has its **worst year in 2026**, the most recent.
+
+## Three screens, three sequencing defects
+
+1. Entry lookahead — trigger computed from the bar it was tested against.
+2. Unavailable fill — a stop order credited with its own trigger price.
+3. Pre-entry stop-outs — the entry bar's adverse range charged to a trade that
+   did not yet exist.
+
+All three inflate results in proportion to bar size. All three are now fixed
+and instrumented as standing output.
+
+**Sealed days: still sealed, still never read.**
