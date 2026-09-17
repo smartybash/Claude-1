@@ -2267,3 +2267,32 @@ family move from **unsafely killed** to **killed on data that can carry the
 question**. Book imbalance moves from **one session** to **fourteen**, and its
 verdict is now specific: real at the touch, absent one point further out, and
 too small to trade.
+
+---
+
+## Correction: every prior "22:30 local" was an IST deadline, and it was wrong
+
+Confirmed by the trader: **Dubai, UTC+4. The flat time is 18:30 UTC.**
+
+Every earlier statement in this record that reads "22:30 local" was computed
+against **17:00 UTC**, which is 22:30 India Standard Time. That is ninety
+minutes earlier than the real constraint.
+
+What it touches:
+
+- The three pre-registered VWAP exits were 17:00 UTC (+9.73 pts, t +1.55),
+  19:00 UTC (+13.02, t +1.49) and the close (+21.70, t +2.14). The first was
+  labelled "the only one a trader can take" **on the wrong clock**. Under the
+  real 18:30 deadline the 17:00 variant is legal but no longer the boundary
+  case, the 19:00 variant is illegal by thirty minutes rather than legal-ish,
+  and hold-to-close remains illegal by ninety.
+- The conclusion those figures fed — that the tradeable exit is the weakest of
+  the three — is unchanged in direction, because 18:30 sits between 17:00 and
+  19:00 and the series was monotonic. But the specific number attached to "what
+  the trader can actually take" was never measured at the trader's actual
+  deadline.
+
+No result is rescued by this and none is invalidated outright; the point is
+that a constraint was carried for weeks in the wrong timezone and every
+statement conditioned on it inherited the error. The constant is now a single
+named value and the pullback work uses 18:30 UTC.
