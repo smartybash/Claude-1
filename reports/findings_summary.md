@@ -2773,3 +2773,79 @@ All three inflate results in proportion to bar size. All three are now fixed
 and instrumented as standing output.
 
 **Sealed days: still sealed, still never read.**
+
+---
+
+# OR height promoted to a hypothesis: 0 of 4. The gradient was a sign count.
+
+`reports/or_height_preregistration.md` (declared at `9307834`),
+`reports/or_height_result.md`.
+
+## Result
+
+| | |
+|---|---|
+| in sample | 1,418 QQQ sessions, 1-minute, 2021–2026 |
+| held out | 1,256 sessions, 5-minute, 2016–2020, never previously read |
+| variants | **4** of a 6 budget; **2 left unspent** |
+| survivors | **0 of 4** in sample, **0 of 4** held out |
+| largest gradient | **+0.083R at Welch t +1.21**; two of four have the wrong sign |
+
+## Correcting my own over-read
+
+The ORB screen's "narrow worse than wide in 13 of 16 variants" was presented as
+"the one consistent gradient in the whole screen". **It was a count of signs,
+not of effects.** Applying the same split to all sixteen cells: 14 of 16 signs
+positive, **largest Welch t anywhere +1.72**. Sixteen heavily overlapping cells
+sharing sessions and trades will agree on the sign of a small common noise term
+— that is what the count measured.
+
+**And the gradient was concentrated at `STOP_ATR` 0.5**, the setting dropped
+from this grid for being worse at every target. The gradient was largest exactly
+where the underlying rule was least credible.
+
+**My threshold choice was not the reason it looks weak.** I checked the tails
+(<0.8 vs >1.2, the cuts the gradient was first seen at) at the wide stop: t of
++0.11 to +1.04. As weak as the median split.
+
+## The bridge check failed, and the design fault was mine
+
+Signs disagreed on all four variants between 1-minute and 5-minute over the same
+years, so per the pre-registration the held-out run was **withdrawn rather than
+explained away**. Two reasons, one of them my fault:
+
+1. **The test was too weak to be informative.** I specified sign agreement
+   without anticipating that both quantities would sit within noise of zero.
+   Comparing signs of two near-zero measurements fails about as often as a coin.
+2. **The 5-minute grid genuinely is not the same rule.** Realised risk came out
+   **19% wider** than my scale constant intended, and flat-time exits were **13×
+   more common**, because waiting for a 5-minute bar to close delays entry.
+
+The withdrawal cost nothing: the held-out run was 0 of 4 as well.
+
+## The largest phantom yet measured
+
+On 5-minute bars, **over half of all entries gap past the trigger** and the naive
+fill reports **+0.78R to +1.04R** where the honest one reports roughly zero.
+Phantom of **+0.47R to +1.08R**. A five-minute backtest of this rule with a
+trigger-price fill would look like an outstanding strategy and be entirely
+imaginary. The artifact scales with bar width exactly as the last two families
+predicted.
+
+## Instrumentation
+
+**Entry lookahead: 0 entries**, all three runs, all four variants. Ambiguous
+bars 0.0% on 1-minute, 0.2–0.3% on 5-minute — the calibration gate's prediction
+that a 1.0 ATR stop with a 3R–4R target puts the stop-to-target span four to
+five times the bar held exactly.
+
+## The plain statement
+
+**Index breakout structures are exhausted at these constraints.** Three screens
+on 1,418 QQQ sessions returned 0 of 16, 0 of 16 and 0 of 4. The one piece of
+structure that survived the second dissolved when isolated and tested directly.
+
+**The next move is a different instrument or a different session, not another
+variant of this one.** No rescue filter is proposed and none will be.
+
+**Sealed NQ days: still sealed, still never read.**
