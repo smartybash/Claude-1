@@ -451,3 +451,65 @@ the anomaly.
 
 BBO and status files new for all five. Sealed NQ days were not read; none of
 these five is sealed.
+
+## Ingest, 17 September — fourth set, two sessions
+
+`20260819, 20260820`. Recorder `2026-09-17.z`.
+
+| day | on disk: step | levels | new: step | levels | rows old → new |
+|---|---|---|---|---|---|
+| 20260819 | 5.00 | 77 | **0.25** | 1,526 | 518,037 → 518,299 |
+| **20260820** | **0.25** | 1,936 | **0.25** | 1,936 | 505,997 → **505,997** |
+
+> **Usable 0.25-tick sessions over the European window: 35 → 36.**
+> One added; 20 August was already in the set.
+
+### 20 August is the second control, and it passes the same way
+
+Like 12 August, 20 August already held a true-tick recording. **Price and volume
+series identical element for element across all 505,997 rows**, with timestamp
+deltas under 1 ms — the microsecond digits the old format truncated. Two
+independent control days now confirm the re-record reproduces known-good
+sessions exactly.
+
+`TAPE_NQ_20260820_run2.csv.gz` and `L2_NQ_20260820_run2.csv.gz` — the second
+half of the shadowing case flagged earlier — remain inert under the finest-wins
+loader. **Both shadowing dates, 12 and 20 August, are now also the two dates that
+verify the re-recording.**
+
+### One file was renamed on ingest, and why
+
+The archive shipped 19 August's cumulative stream as **`CUM_NQ_20260819_run2.csv.br`**
+while its three sibling streams carried no suffix. Taken at face value that would
+pair the new unsuffixed tape with the **old** `.gz` cumulative file under a
+date-keyed loader, which would be wrong.
+
+It was checked rather than assumed:
+
+| | |
+|---|---|
+| fills in the `_run2` cumulative file | **518,299** |
+| rows in this run's 19 August tape | **518,299** |
+| time span, both | 00:00:00 – 23:59:59 |
+
+It reconciles exactly and covers the identical span, so it **is** this run's
+cumulative stream and the suffix is a recorder naming artifact. Ingested as
+`CUM_NQ_20260819.csv.br` to match its siblings. This is the only file in four
+batches that was renamed, and the evidence for it is above.
+
+| day | tape | cum fills | reconcile | cum orders | BBO | depth |
+|---|---|---|---|---|---|---|
+| 20260819 | 518,299 | 518,299 | **exact** | 301,122 | 1,096,477 | 2,398,961 |
+| 20260820 | 505,997 | 505,997 | **exact** | 301,547 | 1,122,315 | 2,438,001 |
+
+BBO and status new for both. Sealed NQ days were not read; neither is sealed.
+
+### Where the archive stands after four batches
+
+**36 usable 0.25-tick sessions** over the European window, 1 July to 20 August,
+against 21 before today — a 71% increase. Every one now carries tape, depth,
+cumulative and BBO at true tick with microsecond timestamps.
+
+The minimum detectable effect has not moved enough to change any conclusion:
+36 sessions still cannot support a performance claim against the ~0.04 R effects
+this project has been measuring. The set is better, not yet sufficient.
