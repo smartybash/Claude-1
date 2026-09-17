@@ -2981,3 +2981,73 @@ Not ruled out: regimes on a slower clock; regimes defined by something other
 than the efficiency ratio. The **1,259 sessions of 2016–2020** remain unread.
 
 **Sealed NQ days: still sealed, still never read.**
+
+---
+
+# A public discretionary NQ strategy, mechanised: 0 of 8, below the random walk
+
+`reports/pullback_discretionary_preregistration.md` (`b8db9d2`),
+`reports/pullback_discretionary_result.md`.
+
+## The claim
+
+77% win rate at 1.87 R:R, PF 6.39, 31 trades, January 2024, manual TradingView
+bar replay. At 1.87 R:R a driftless random walk touches the target first 34.8%
+of the time, so the claim sits **42.2 points above chance — z = 4.9 on n = 31**,
+from a method with no fill model. Its internal arithmetic checks out (77% at 1.87
+implies PF 6.26 against 6.39 reported), which is why it was mechanised rather
+than dismissed.
+
+## Result: 1,417 sessions, 12,253 trades, 0 of 8
+
+Judged against **each variant's own realised reward-to-risk**, not against 50%:
+
+| realised R:R span | RW rate span | observed span | **gap** |
+|---|---|---|---|
+| 0.87 – 1.54 | 53.4% – 39.4% | 51.5% – 39.2% | **−2.4 to −0.2 pts** |
+
+**Every variant lands below its own random-walk rate.** Mean gap **−1.45 points**
+against the +42.2 the claim needs — a shortfall of **43.6 points**. A 77% rate on
+the mechanised sample would be a **27.5-sigma** event. Zero entry lookahead,
+0.0–0.3% ambiguous bars.
+
+### The finding inside the grid
+
+Across the eight variants, **correlation between observed win rate and 1/(1+R:R)
+= 0.9982**, mean absolute deviation 1.45 points. **The win rate is the target
+distance.** Move the target and the hit rate moves exactly as far as a coin says
+it should, with no residual. That is what no edge looks like when you sweep a
+target.
+
+## Where the 42 points did not come from
+
+- **Not fills.** Naive-versus-honest phantom profit is **+0.001 to +0.006 R**.
+  Even a backtest filling every entry at the trigger and every stop exactly would
+  still be at or below chance. The claimed gap is ~7,000× the fill correction.
+- **Not the daily stop.** Pre-registered as unable to move per-trade expectancy;
+  confirmed — differences of −0.031 to +0.005 R, both signs, a composition
+  effect. It removes ~25% of trades and flatters the equity curve and drawdown
+  **without touching expectancy**. That is the mechanism by which a PF of 6.39
+  can coexist with negative per-trade expectancy.
+- **Not the trend rule, depth or levels.** Eight combinations move trade counts
+  from 822 to 2,823 and move the gap over the random walk by 2.2 points total.
+
+## The levels story is decorative — the pre-registered sentence, now due
+
+**P1 (exit at nearest prior-session level) loses to P2 (flat 3R) in all four
+pairs**, by −0.014 to −0.028 R. Levels raise the win rate (50% vs 41%) and lower
+the reward-to-risk by just enough to make it worse than not using them. They are
+not attracting price; they are a nearer target.
+
+## Plainly
+
+**The reported figure was method, not market.** The trader's realised 1.87 R:R is
+also above every value the mechanised rule produces (0.87–1.54) — obtainable only
+by selecting setups and targets, which is the discretion that cannot be tested and
+that hindsight replay makes feel reliable. 2024, the claim's year, is the worst
+year for three of four T1 variants.
+
+**The 21 NQ tick sessions are not spent.** Verification was conditional on landing
+materially above the random-walk rate. It landed below.
+
+**Sealed NQ days: still sealed, still never read.**
