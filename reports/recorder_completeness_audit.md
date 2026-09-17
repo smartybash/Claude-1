@@ -383,3 +383,71 @@ the European window in full.
 
 Coarse `.gz` files kept, loader prefers the finer recording, same convention.
 Sealed NQ days were not read; none of these five is sealed.
+
+## Ingest, 17 September — third set of five, and two corrections
+
+`20260812, 20260813, 20260814, 20260817, 20260818`. Recorder `2026-09-17.z`.
+
+| day | on disk: step | levels | new: step | levels | rows old → new |
+|---|---|---|---|---|---|
+| **20260812** | **0.25** | 1,510 | **0.25** | 1,510 | 367,002 → **367,002** |
+| 20260813 | 5.00 | 94 | **0.25** | 1,899 | 411,508 → 411,842 |
+| 20260814 | 5.00 | 52 | **0.25** | 1,019 | 358,162 → 358,514 |
+| 20260817 | 5.00 | 59 | **0.25** | 1,150 | 367,286 → 367,569 |
+| 20260818 | 5.00 | 123 | **0.25** | 2,428 | 513,678 → 513,861 |
+
+> **Usable 0.25-tick sessions over the European window: 31 → 35.**
+> Four added, because 12 August was already in the set.
+
+`TAPE_NQ_20260812_run2.csv.gz` — the coarse file the earlier note flagged as
+shadowing a fine original — remains inert under the finest-wins loader.
+
+### 12 August is the control, and the re-record passes it
+
+12 August already held a true-tick recording, so the new one can be checked
+against it rather than merely trusted. **Price and volume series are identical,
+element for element, across all 367,002 rows.** The re-recording reproduces a
+known-good session exactly.
+
+Two schema differences, both improvements:
+
+1. **Timestamps are microsecond, not millisecond.** `00:00:00.012` becomes
+   `00:00:00.012475`. Every delta is under 1 ms — these are the sub-millisecond
+   digits the old format truncated, not a re-timing.
+2. **Four new columns:** `datatype`, `oi`, `aggressor_order_id`, `order_id`. The
+   first two are constant (2 and 0). **The two order-ID columns are entirely
+   empty**, which matches what the status files state directly: no
+   market-by-order data on this route. The schema is present, the feed is not
+   delivering it. That is a feed fact, and the columns should not be mistaken
+   for available data.
+
+### Correction: the short sessions are the Friday close, not truncation
+
+Earlier entries recorded 31 July and 7 August as ending at 20:59 and called it
+"a recording fact rather than a regression." That was too vague. 14 August ends
+the same way, and:
+
+| date | day | ends |
+|---|---|---|
+| 20260731 | **Friday** | 20:59 |
+| 20260807 | **Friday** | 20:59 |
+| 20260814 | **Friday** | 20:59 |
+| 20260730 | Thursday | 23:59 |
+| 20260813 | Thursday | 23:59 |
+
+**Every short session is a Friday, and no Friday is full-length.** This is the
+weekly close — the contract stops trading Friday afternoon and does not reopen
+until Sunday evening. Nothing was truncated and nothing is missing. Any future
+Friday recording ending at 20:59 is correct; a Friday running to 23:59 would be
+the anomaly.
+
+| day | tape | cum fills | reconcile | cum orders | BBO | depth |
+|---|---|---|---|---|---|---|
+| 20260812 | 367,002 | 367,002 | **exact** | 216,075 | 879,371 | 2,007,796 |
+| 20260813 | 411,842 | 411,842 | **exact** | 235,708 | 846,291 | 2,028,072 |
+| 20260814 | 358,514 | 358,514 | **exact** | 204,660 | 801,988 | 1,963,589 |
+| 20260817 | 367,569 | 367,569 | **exact** | 209,930 | 770,912 | 1,893,046 |
+| 20260818 | 513,861 | 513,861 | **exact** | 296,028 | 987,902 | 2,250,701 |
+
+BBO and status files new for all five. Sealed NQ days were not read; none of
+these five is sealed.
