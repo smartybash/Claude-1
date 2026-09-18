@@ -3249,3 +3249,67 @@ on the sample that produced the idea.
 trades**. Grading sorts an unprofitable rule into unprofitable buckets.
 
 **Sealed NQ days: still sealed, still never read.**
+
+---
+
+# Calendar classification, Stage 1: the mechanism families show nothing
+
+`reports/calendar_classification_preregistration.md` (`c147285`),
+`reports/calendar_classification_result.md`. **Descriptive only. 2016–2020 stays
+sealed** — the script reads only QQQ_1m.parquet, which begins 2021.
+
+## One third of the design could not be built, and was not faked
+
+**FOMC / CPI / NFP need real release dates.** Repo has none; FMP's
+`economics-calendar` is **denied on this plan**; Alpha Vantage's series are keyed
+by **reference month, not release date** (verified). Not derived from memory — the
+NFP "first Friday" heuristic mislabels often enough to contaminate category *and*
+control. Unblocking needs an FMP Starter tier or a Fed/BLS date CSV.
+
+## Result: 13 categories × 4 statistics = 52 tests, α = 0.000962
+
+| | |
+|---|---|
+| clearing Bonferroni | **1 of 52** |
+| beating 95th pct of random labels | **6 of 52** (2.6 expected) |
+
+**The families carrying the mechanism are empty.** Month-end, quarter-end,
+first-of-month, roll week and all four expiry categories: flat on every statistic
+and in every intraday window. The closing-window split was built so rebalancing
+flow could not be averaged away — last-3-of-quarter puts 16.6% of volume in the
+final 30 min vs 14.1% overall, visible but not significant.
+
+**The only structure is day of week** — the category with the *least* obligation
+content in the set:
+
+| day | raw OR15 | OR ratio | rv | rv mid | vol% open30 |
+|---|---|---|---|---|---|
+| **Mon** | **55.9** | **1.075** | **91.3** | **76.7** | **16.0** |
+| **Wed** | **49.8** | **0.946** | **102.0** | **88.1** | 14.4 |
+| all | 53.1 | 1.014 | 97.6 | 83.3 | 15.0 |
+
+**Monday front-loads then goes quiet** — widest opening vs its own norm, most
+volume in the first 30 min, lowest mid-session vol. Coherent, with an obvious
+mechanism (weekend news priced at the open). Raw OR runs **~12% wider Monday than
+Wednesday** (F = 2.77, p ≈ 0.026); the trailing-mean normalisation sharpens it to
+F = 4.38 by removing volatility drift rather than by creating the effect.
+
+## The surviving axis already points the wrong way
+
+The setup-grading run measured the OR-ratio axis on 13,840 trades: **OR ratio ≥
+1.00 returned −0.021 R net.** Monday's distinguishing feature is a *high* OR
+ratio.
+
+## Stage 2 proposed, and recommended against
+
+Grid would be {Monday, Wednesday} × {ORB OR15 3R, pullback OR15 3R} on the sealed
+1,259 sessions. **MDE ≈ 0.60 R/session against observed effects of 0.04–0.08 —
+roughly eight times underpowered.** It would return a meaningless null and consume
+the only clean sample left doing it.
+
+**Recommendation: do not approve.** If the calendar direction continues, unblock
+the scheduled-events family instead — that is where the obligation mechanism is
+strongest and where a pre/post split has real content. It needs release dates, not
+more analysis of what is already on disk.
+
+**Sealed NQ days: still sealed. 2016–2020: still sealed.**
