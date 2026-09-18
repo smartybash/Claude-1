@@ -3186,3 +3186,66 @@ where it goes next.** That does not contradict how the project already uses them
 hanging a confluence map on. The claim it will not support is prediction.
 
 **Sealed NQ days: still sealed, still never read.**
+
+---
+
+# The setup grading scheme is worse than random — and backwards
+
+`reports/setup_grading_preregistration.md` (`bb0ab30`),
+`reports/setup_grading_result.md`. Grades applied to trades the existing ORB and
+pullback machines already generate. No new rule.
+
+## Counts first
+
+**13,840 trades** across 6 trade sets, **0 entry lookahead**, **0.0% ambiguous**.
+Grade shares A+ 11.6% / A 28.8% / B 59.6%, all ≥300 — the only pre-registered
+criterion that passes.
+
+## Result
+
+| grade | trades | NET expR | GROSS expR | cost drag |
+|---|---|---|---|---|
+| **A+** | 1,604 | **−0.1600** | −0.1233 | +0.0366 |
+| A | 3,990 | −0.0305 | +0.0256 | +0.0562 |
+| B | 8,246 | −0.0504 | +0.0395 | +0.0899 |
+
+**A+ is the worst grade.** A+ − B = **−0.1096 R net**, sitting at the **1.4th
+percentile** of 1,000 random assignments — beaten by 98.6% of them. Years 2 of 6.
+All six trade sets negative.
+
+### The pre-registered decomposition did its job
+
+The accounting identity behaved exactly as declared: A+ **does** pay a smaller
+toll, 0.0366 against 0.0899, a mechanical saving of **0.053 R**. **And the market
+swamped it three to one** — in gross terms, cost fully removed, A+ underperforms
+B by **0.163 R**.
+
+## Which component (diagnostic, not a new test)
+
+| component | gross: on − off | net: on − off |
+|---|---|---|
+| **cost/risk ≤ 5% (wide stop)** | **−0.1525** | **−0.1013** |
+| OR ratio ≥ 1.00 | −0.0378 | −0.0210 |
+| **minutes ≤ 60 (early)** | **+0.0630** | **+0.0840** |
+
+**The culprit is the component pre-registered as mechanically guaranteed to
+help.** Selecting a wide stop selects high volatility, and those trades lose
+0.15 R gross. Only early entry points the right way. The composite fails because
+it weights one helpful condition equally with two harmful ones.
+
+## Two things said plainly
+
+**The real grading does not beat random assignment. Grade does not separate
+outcome. Drop it.**
+
+**And "significant in the wrong direction" is not a result to invert and trade.**
+The 1.4th percentile would be a strong finding had that direction been declared.
+It was not. Flipping after seeing which way it failed is what pre-registration
+exists to stop. An inverted version needs its own pre-registration and should be
+spent on the **1,259 sessions of 2016–2020 still never read** — not re-measured
+on the sample that produced the idea.
+
+**Outranking both:** every grade is negative — pooled **−0.0574 R over 13,840
+trades**. Grading sorts an unprofitable rule into unprofitable buckets.
+
+**Sealed NQ days: still sealed, still never read.**
