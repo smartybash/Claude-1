@@ -267,4 +267,60 @@ the geometry did not already supply.
 
 ---
 
+## 10. AMENDMENT 1 — the literal 50% rule is degenerate at leg inception
+
+**Made on counts alone. No expectancy number had been displayed when this was
+written, and none is used to justify it.** The counts-first discipline exists
+precisely so a broken mechanisation is caught at this stage.
+
+### What was found
+
+Implemented literally — *retracement ≥ 50% of the run from origin to the
+running extreme* — the rule kills essentially every attempt on the bar after
+the break:
+
+| first 400 sessions, ORB 09:30–09:45 | attempts |
+|---|---|
+| killed by the 50% rule | **396** |
+| reached X | 2 |
+| killed by the Y-bar limit | 1 |
+
+**Median death: 1 bar after the break. 99% die within 3 bars.**
+
+### Why it is degenerate, not restrictive
+
+At the break bar the leg is only as long as the break bar's excursion beyond
+the ORB boundary — often a cent or two. The next bar's ordinary range then
+retraces more than half of that, mechanically, before any impulse has had a
+chance to form. The rule as literally written measures a percentage of a
+quantity that is still noise. This is the same class of defect as a containment
+test at a fixed distance: the test carries no information about the market
+because its own construction determines the answer.
+
+Across the full grid the literal rule yielded **6–11 outbursts from ~1,395
+breaks (0.4–0.8%)**, and **1–2 reversal setups**. Nothing could be resolved
+from that, and the reason would have been my implementation rather than the
+source's idea.
+
+### The amendment, and it adds no free parameter
+
+> **The 50% retracement is measured against the REQUIRED leg length,
+> `X × ORB height`, not against the run-so-far.**
+>
+> While the leg forms, the attempt fails if the pullback from the running
+> extreme reaches `0.50 × X × ORB height`.
+
+This preserves the source's intent — *the impulse must not give back half the
+move it is making* — and it is **parameter-free**, because both `X` and the ORB
+height are already declared in §1.1. No new number is introduced, nothing is
+swept, and the amendment is fixed before the amended run.
+
+**The literal rule's funnel is reported alongside the amended one** so the
+effect of the change is visible and the reader can see it was a repair, not a
+loosening chosen for its results. X, Y, Z, the bands, the entry, the stop, the
+exit and the rejection rules are all unchanged.
+
+---
+
 Committed before `scripts/orderflow/orb_fib.py` was written or run.
+Amendment 1 committed before the amended run.
