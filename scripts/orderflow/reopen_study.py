@@ -80,6 +80,14 @@ def test1(sessions, tg):
         d = -1 if high_first else 1
         stop = ibh if high_first else ibl
         i0 = int(np.searchsorted(t, 60, "left"))
+        # DECLARED RULE (IB pre-registration): if the OPPOSITE boundary breaks
+        # first, no trade -- the stop level was violated before entry.
+        fe = np.where(hi[i0:] > exp_lvl)[0] if d > 0 else np.where(lo[i0:] < exp_lvl)[0]
+        fo = np.where(lo[i0:] < stop)[0] if d > 0 else np.where(hi[i0:] > stop)[0]
+        if len(fe) == 0:
+            continue
+        if len(fo) and int(fo[0]) < int(fe[0]):
+            continue
         taken, i, armed = 0, i0, True
         while i < n and taken < 2:
             brk = hi[i] > exp_lvl if d > 0 else lo[i] < exp_lvl
