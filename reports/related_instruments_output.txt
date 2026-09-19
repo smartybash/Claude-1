@@ -1,0 +1,100 @@
+==================================================================================================================================
+  FROZEN IB 1R ON RELATED INSTRUMENTS — 5-minute bars, 2021-2025
+==================================================================================================================================
+  RELATED-INSTRUMENT CHECK, NOT A REPLICATION. Same period as
+  discovery, so the macro regime is shared. Only the instrument is
+  new. A pass is weaker evidence than a true out-of-period holdout.
+  Rule and cost convention unchanged. Entry bar excluded.
+
+  inst       sessions qualif  trades     expR     PF      t   yrs+ ex-top1%  +50%cost  med risk cost/R   amb  look          
+  SPY           1,255    676     600  +0.0143   1.04  +0.44   3/5     +2.6   +0.0075     57.7b   1.16%   0.2%     0          
+  IWM           1,255    689     599  +0.0205   1.08  +0.76   3/5     +6.3   +0.0171    105.9b   0.63%   0.0%     0          
+  XLK           1,255    673     592  +0.0637   1.23  +2.18   5/5    +31.7   +0.0600     99.9b   0.67%   0.0%     0  PASSES 5
+  IJH           1,255    695     615  +0.0164   1.06  +0.59   3/5     +3.1   +0.0124     86.2b   0.77%   0.0%     0          
+  EFA           1,255    670     577  +0.0579   1.20  +1.87   5/5    +27.4   +0.0500     47.8b   1.40%   0.0%     0  PASSES 5
+
+  BY YEAR — mean R
+  inst             2021       2022       2023       2024       2025
+  SPY           -0.0362    +0.1232    +0.0035    +0.0448    -0.0690
+  IWM           +0.0386    -0.0164    +0.0907    -0.0287    +0.0183
+  XLK           +0.1009    +0.1003    +0.0106    +0.0969    +0.0040
+  IJH           -0.0299    +0.0157    +0.0969    +0.0028    -0.0041
+  EFA           +0.0436    +0.0253    +0.0561    +0.1002    +0.0650
+
+  EXITS / FILLS
+  inst        mean MFE  mean MAE  naive expR  correction                                exit mix
+  SPY           +0.643    -0.623     +0.0143     +0.0000{'close': 260, 'stop': 171, 'target': 169}
+  IWM           +0.515    -0.520     +0.0205     +0.0000{'close': 404, 'stop': 100, 'target': 95}
+  XLK           +0.559    -0.503     +0.0640     +0.0003{'close': 364, 'target': 117, 'stop': 111}
+  IJH           +0.511    -0.500     +0.0164     +0.0000{'close': 388, 'stop': 114, 'target': 113}
+  EFA           +0.575    -0.529     +0.0580     +0.0001{'close': 311, 'target': 141, 'stop': 125}
+
+==================================================================================================================================
+  POOLED NON-QQQ ESTIMATE
+==================================================================================================================================
+  The SE is CLUSTERED BY DATE. All instruments trade the same 1,255
+  sessions and move together, so per-trade independence is false and
+  the naive SE is too small. The clustered figure governs; the naive
+  one is printed only so the size of the mistake is visible.
+
+  XLK holds the large-cap US technology names that dominate QQQ by
+  weight. It is the LEAST INDEPENDENT instrument in the set and is
+  EXCLUDED from the headline pooling. Both versions are shown.
+
+  set                         trades  dates   mean R      sd  naive SE  clus SE  t clus        95% CI (clustered)
+  HEADLINE  SPY IWM IJH EFA    2,391    981  +0.0269  0.7236    0.0148   0.0219   +1.23   [-0.0160, +0.0698]
+  all five  + XLK              2,983  1,057  +0.0342  0.7212    0.0132   0.0207   +1.66   [-0.0063, +0.0747]
+
+  RE-WEIGHTING DIAGNOSTIC — equal-weight by DATE instead of by trade
+  This answers a DIFFERENT question and is NOT comparable to the
+  discovery figure. It is shown because the two disagree.
+
+  set                          dates   mean R      sd       SE       t                    95% CI
+  HEADLINE  SPY IWM IJH EFA      981  +0.0061  0.6746   0.0215   +0.29   [-0.0361, +0.0484]
+  all five  + XLK              1,057  +0.0049  0.6557   0.0202   +0.24   [-0.0346, +0.0444]
+
+  WHY THEY DISAGREE — headline set, by how many of the four
+  instruments qualified and traded that date (k):
+    k   dates  trades    mean R  share of trades
+    1     266     266   -0.0362            11.1%
+    2     267     534   -0.0340            22.3%
+    3     201     603   +0.0340            25.2%
+    4     247     988   +0.0725            41.3%
+
+  The whole pooled effect sits on the dates where MOST instruments
+  qualify at once. Those dates also carry most of the trades, so
+  per-trade weighting lands at +0.0269 while equal-weighting
+  dates lands at +0.0061. The per-trade figure is the one
+  that matches the discovery estimand -- expected R per trade taken --
+  and it is the one carried forward. The k pattern is NOT actionable:
+  it was found in this data, it is a new free parameter, and k is not
+  knowable at 10:30 without watching four instruments at once.
+
+  PER-INSTRUMENT MEAN R, side by side with the discovery figure
+  QQQ 2021-2025 (discovery, frozen)       +0.0612   685 trades
+  SPY                                     +0.0143   600 trades   clus SE 0.0326
+  IWM                                     +0.0205   599 trades   clus SE 0.0270
+  XLK                                     +0.0637   592 trades   clus SE 0.0292  <- overlaps QQQ, not independent
+  IJH                                     +0.0164   615 trades   clus SE 0.0277
+  EFA                                     +0.0579   577 trades   clus SE 0.0309
+
+==================================================================================================================================
+  IMPLIED HOLDOUT POWER AT THE POOLED EFFECT SIZE — ONE-SIDED
+==================================================================================================================================
+  Sealed holdout 2016-2020: 1,259 sessions.  Discovery trade rate 48.3%  -> expect ~608 trades.
+  One candidate, one test, so no Bonferroni: one-sided alpha = 0.05, z = 1.6449.  sd = 0.7175.
+  NOTHING IN 2016-2020 IS READ. This is an arithmetic projection.
+
+  effect assumed                                delta R    power  trades for 80%
+  discovery estimate (QQQ, in-sample)           +0.0612      68%             850
+  pooled headline: +0.0269                      +0.0269      24%           4,398
+     its CI lower bound -0.0160                 -0.0160      n/a        infinite   (effect <= 0)
+     its CI upper bound +0.0698                 +0.0698      78%             653
+  pooled all: +0.0342                           +0.0342      32%           2,720
+     its CI lower bound -0.0063                 -0.0063      n/a        infinite   (effect <= 0)
+     its CI upper bound +0.0747                 +0.0747      82%             571
+  the decision-rule threshold +0.05             +0.0500      53%           1,274
+
+  MDE at 608 trades, one-sided, 80% power:  +0.0724 R per trade
+
+  Sealed NQ days were not read. 2016-2020 remains sealed.
