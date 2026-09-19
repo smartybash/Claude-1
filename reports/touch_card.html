@@ -1,0 +1,513 @@
+<title>Level Touch Scorecard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Dark-first: :root carries the complete dark palette, light overrides below. */
+  :root {
+    --ground:   #0E1116;
+    --panel:    #161B22;
+    --panel-2:  #1B222B;
+    --line:     #262E38;
+    --line-soft:#1E252E;
+    --ink:      #E4E9EF;
+    --ink-mid:  #A9B4C2;
+    --ink-dim:  #7D8896;
+    --hold:     #3FB68B;
+    --hold-bg:  #12261F;
+    --through:  #E0524A;
+    --through-bg:#2A1614;
+    --accent:   #E8B33C;
+    --accent-bg:#241C0C;
+    --display: Archivo, "Helvetica Neue", Arial, sans-serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, Segoe UI, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --ground:   #F7F8FA;
+      --panel:    #FFFFFF;
+      --panel-2:  #F1F3F6;
+      --line:     #D8DEE6;
+      --line-soft:#E7EBF0;
+      --ink:      #141A21;
+      --ink-mid:  #4B5766;
+      --ink-dim:  #6E7A89;
+      --hold:     #1B7F5C;
+      --hold-bg:  #E4F4ED;
+      --through:  #C0362E;
+      --through-bg:#FBE9E7;
+      --accent:   #8A6410;
+      --accent-bg:#FBF2DC;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground:   #F7F8FA;
+    --panel:    #FFFFFF;
+    --panel-2:  #F1F3F6;
+    --line:     #D8DEE6;
+    --line-soft:#E7EBF0;
+    --ink:      #141A21;
+    --ink-mid:  #4B5766;
+    --ink-dim:  #6E7A89;
+    --hold:     #1B7F5C;
+    --hold-bg:  #E4F4ED;
+    --through:  #C0362E;
+    --through-bg:#FBE9E7;
+    --accent:   #8A6410;
+    --accent-bg:#FBF2DC;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0;
+    padding-inline: 20px;
+    padding-block: 40px 64px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.015em; }
+  h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 700; line-height: 1.1; }
+  h2 { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); }
+  h3 { font-size: 19px; font-weight: 600; }
+  p { margin: 0; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- header ---------- */
+  header { display: flex; flex-direction: column; gap: 18px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .question {
+    font-size: 17px; color: var(--ink-mid); max-width: 62ch;
+    border-left: 2px solid var(--accent); padding-left: 16px;
+  }
+  .question b { color: var(--ink); font-weight: 600; }
+
+  .loop { display: flex; flex-wrap: wrap; gap: 8px; }
+  .loop li {
+    list-style: none; flex: 1 1 150px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 3px; padding: 11px 13px;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .loop .n { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 0.1em; }
+  .loop .t { font-size: 13.5px; font-weight: 500; line-height: 1.35; }
+  .loop ol, .loop { margin: 0; padding: 0; }
+
+  /* ---------- reads ---------- */
+  .reads { display: flex; flex-direction: column; gap: 14px; }
+  .read {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 4px;
+    padding: 20px 22px 18px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .read-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .read-num {
+    font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--accent);
+    background: var(--accent-bg); border-radius: 2px; padding: 2px 7px; letter-spacing: 0.05em;
+  }
+  .read-sub { font-size: 13.5px; color: var(--ink-dim); flex: 1 1 100%; margin-top: -6px; }
+
+  figure { margin: 0; }
+  figure svg { display: block; width: 100%; max-width: 100%; height: auto; color: var(--ink-mid); }
+  figcaption { font-size: 12.5px; color: var(--ink-dim); margin-top: 8px; line-height: 1.45; }
+
+  .verdicts { display: flex; gap: 10px; flex-wrap: wrap; }
+  .verdict {
+    flex: 1 1 240px; border-radius: 3px; padding: 11px 13px;
+    display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.4;
+  }
+  .verdict .score {
+    font-family: var(--mono); font-size: 13px; font-weight: 600; flex: none;
+    padding-top: 1px;
+  }
+  .v-hold { background: var(--hold-bg); border: 1px solid var(--hold); color: var(--ink); }
+  .v-hold .score { color: var(--hold); }
+  .v-through { background: var(--through-bg); border: 1px solid var(--through); color: var(--ink); }
+  .v-through .score { color: var(--through); }
+  .verdict b { font-weight: 600; }
+
+  /* ---------- score strip ---------- */
+  .band-row { display: flex; gap: 3px; }
+  .band {
+    flex: 1; border-radius: 2px; padding: 12px 10px 13px; text-align: center;
+    display: flex; flex-direction: column; gap: 4px; border: 1px solid transparent;
+  }
+  .band .v { font-family: var(--mono); font-size: 16px; font-weight: 600; }
+  .band .l { font-size: 11.5px; line-height: 1.3; color: var(--ink-mid); }
+  .b-t2 { background: var(--through-bg); border-color: var(--through); }
+  .b-t2 .v { color: var(--through); }
+  .b-t1 { background: var(--through-bg); }
+  .b-t1 .v { color: var(--through); }
+  .b-0  { background: var(--panel-2); border-color: var(--line); }
+  .b-0 .v { color: var(--ink-dim); }
+  .b-h1 { background: var(--hold-bg); }
+  .b-h1 .v { color: var(--hold); }
+  .b-h2 { background: var(--hold-bg); border-color: var(--hold); }
+  .b-h2 .v { color: var(--hold); }
+
+  .note {
+    background: var(--accent-bg); border-left: 2px solid var(--accent);
+    padding: 14px 16px; border-radius: 0 3px 3px 0; font-size: 14px; line-height: 1.5;
+  }
+  .note b { color: var(--ink); }
+
+  /* ---------- tables ---------- */
+  .tw { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 460px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line-soft); }
+  thead th {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-dim); background: var(--panel-2); font-weight: 500;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .go   { color: var(--hold); font-weight: 600; }
+  .stop { color: var(--through); font-weight: 600; }
+  .mid  { color: var(--accent); font-weight: 600; }
+
+  .cols { display: flex; flex-wrap: wrap; gap: 6px; }
+  .col-chip {
+    font-family: var(--mono); font-size: 12px; background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 2px; padding: 5px 9px; color: var(--ink-mid);
+  }
+  .col-chip.key { border-color: var(--accent); color: var(--accent); }
+
+  section { display: flex; flex-direction: column; gap: 14px; }
+  hr { border: none; border-top: 1px solid var(--line); margin: 0; }
+  footer { font-size: 13.5px; color: var(--ink-dim); line-height: 1.55; }
+  footer b { color: var(--ink); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">ATAS Market Replay · Ticks + DOM · NQ</div>
+    <h1>Level Touch Scorecard</h1>
+    <p class="question">Price has reached one of your five fixed levels. <b>Before the 5-minute bar closes</b>, decide whether it holds or goes through — then find out if you were right. Four reads, each worth one point. The sum is your call.</p>
+    <ul class="loop">
+      <li><span class="n">01</span><span class="t">Price reaches a level — <b>pause the replay</b></span></li>
+      <li><span class="n">02</span><span class="t">Score the four reads below, −1 to +1 each</span></li>
+      <li><span class="n">03</span><span class="t">Write the total <b>before</b> resuming</span></li>
+      <li><span class="n">04</span><span class="t">Resume. Log what actually happened</span></li>
+    </ul>
+  </header>
+
+  <section>
+    <h2>The four reads</h2>
+
+    <!-- READ 1 — DOM -->
+    <div class="read">
+      <div class="read-head">
+        <span class="read-num">01</span>
+        <h3>Depth of Market</h3>
+        <p class="read-sub">Is there resting size sitting at the level, and does it survive the approach?</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 620 178" role="img" aria-label="Two order-book ladders. On the left, a 480-lot resting bid sits at the level and holds. On the right, only 9 lots rest at the level and price passes straight through.">
+          <defs>
+            <marker id="ar1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+              <polygon points="0,0 8,4 0,8" fill="currentColor"/>
+            </marker>
+          </defs>
+          <!-- divider -->
+          <line x1="310" y1="8" x2="310" y2="170" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.3"/>
+
+          <!-- LEFT: HOLD -->
+          <text x="8" y="16" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#3FB68B">HOLD</text>
+          <text x="8" y="40" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.75">29,420</text>
+          <rect x="62" y="31" width="14" height="10" fill="currentColor" opacity="0.35"/>
+          <text x="82" y="40" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">18</text>
+
+          <text x="8" y="60" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.75">29,415</text>
+          <rect x="62" y="51" width="10" height="10" fill="currentColor" opacity="0.35"/>
+          <text x="78" y="60" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">12</text>
+
+          <!-- the level -->
+          <line x1="4" y1="72" x2="300" y2="72" stroke="#3FB68B" stroke-width="1.5"/>
+          <text x="8" y="88" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600" fill="#3FB68B">29,410</text>
+          <rect x="62" y="79" width="182" height="11" fill="#3FB68B" opacity="0.85"/>
+          <text x="250" y="88" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#3FB68B">480</text>
+          <line x1="4" y1="95" x2="300" y2="95" stroke="#3FB68B" stroke-width="1.5"/>
+
+          <text x="8" y="112" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.75">29,405</text>
+          <rect x="62" y="103" width="16" height="10" fill="currentColor" opacity="0.35"/>
+          <text x="84" y="112" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">21</text>
+
+          <text x="8" y="132" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.75">29,400</text>
+          <rect x="62" y="123" width="11" height="10" fill="currentColor" opacity="0.35"/>
+          <text x="79" y="132" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">14</text>
+
+          <text x="8" y="160" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor">wall stays as price arrives · gets eaten, refills</text>
+
+          <!-- RIGHT: THROUGH -->
+          <text x="322" y="16" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#E0524A">THROUGH</text>
+          <text x="322" y="40" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.75">29,420</text>
+          <rect x="376" y="31" width="12" height="10" fill="currentColor" opacity="0.35"/>
+          <text x="394" y="40" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">15</text>
+
+          <text x="322" y="60" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.75">29,415</text>
+          <rect x="376" y="51" width="8" height="10" fill="currentColor" opacity="0.35"/>
+          <text x="390" y="60" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">10</text>
+
+          <line x1="318" y1="72" x2="612" y2="72" stroke="#E0524A" stroke-width="1.5"/>
+          <text x="322" y="88" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600" fill="#E0524A">29,410</text>
+          <rect x="376" y="79" width="7" height="11" fill="#E0524A" opacity="0.85"/>
+          <text x="389" y="88" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#E0524A">9</text>
+          <line x1="318" y1="95" x2="612" y2="95" stroke="#E0524A" stroke-width="1.5"/>
+
+          <text x="322" y="112" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.75">29,405</text>
+          <rect x="376" y="103" width="9" height="10" fill="currentColor" opacity="0.35"/>
+          <text x="391" y="112" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">11</text>
+
+          <text x="322" y="132" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.75">29,400</text>
+          <rect x="376" y="123" width="10" height="10" fill="currentColor" opacity="0.35"/>
+          <text x="392" y="132" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">13</text>
+
+          <line x1="470" y1="126" x2="470" y2="78" stroke="#E0524A" stroke-width="1.6" marker-end="url(#ar1)"/>
+          <text x="482" y="98" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#E0524A">nothing to stop it</text>
+          <text x="322" y="160" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor">ladder is thin · size pulled before price got there</text>
+        </svg>
+        <figcaption>The level is the same price in both panels. The only difference is whether anyone is standing there.</figcaption>
+      </figure>
+      <div class="verdicts">
+        <div class="verdict v-hold"><span class="score">+1</span><span><b>Large resting order at the level</b> that gets hit and reappears. Someone is defending it.</span></div>
+        <div class="verdict v-through"><span class="score">−1</span><span><b>Thin, or size pulled</b> as price approached. Nobody is there.</span></div>
+      </div>
+    </div>
+
+    <!-- READ 2 — CLUSTER -->
+    <div class="read">
+      <div class="read-head">
+        <span class="read-num">02</span>
+        <h3>Cluster at the level</h3>
+        <p class="read-sub">Does the footprint cell at that price swell while price stops advancing?</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 620 178" role="img" aria-label="Three consecutive footprint bars at the level. On the left, the cell at the level grows from 310 to 740 to 1150 while the high stops advancing. On the right, the cells stay near 50 and price walks straight up through the level.">
+          <line x1="310" y1="8" x2="310" y2="170" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.3"/>
+
+          <!-- LEFT: HOLD -->
+          <text x="8" y="16" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#3FB68B">HOLD</text>
+          <line x1="4" y1="52" x2="300" y2="52" stroke="#3FB68B" stroke-width="1.5"/>
+          <text x="8" y="47" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#3FB68B">level 29,410</text>
+
+          <!-- three bars, cell at level swells; highs flat -->
+          <rect x="70" y="54" width="52" height="22" fill="#3FB68B" opacity="0.28" stroke="#3FB68B" stroke-width="0.8"/>
+          <text x="96" y="69" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#3FB68B">310</text>
+          <line x1="70" y1="52" x2="122" y2="52" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+          <rect x="80" y="82" width="32" height="14" fill="currentColor" opacity="0.18"/>
+          <text x="96" y="93" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.6">220</text>
+
+          <rect x="140" y="54" width="52" height="22" fill="#3FB68B" opacity="0.55" stroke="#3FB68B" stroke-width="0.8"/>
+          <text x="166" y="69" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#3FB68B">740</text>
+          <line x1="140" y1="52" x2="192" y2="52" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+          <rect x="150" y="82" width="32" height="14" fill="currentColor" opacity="0.18"/>
+          <text x="166" y="93" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.6">180</text>
+
+          <rect x="210" y="54" width="52" height="22" fill="#3FB68B" opacity="0.9" stroke="#3FB68B" stroke-width="0.8"/>
+          <text x="236" y="69" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#0E1116">1150</text>
+          <line x1="210" y1="52" x2="262" y2="52" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+          <rect x="220" y="82" width="32" height="14" fill="currentColor" opacity="0.18"/>
+          <text x="236" y="93" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.6">160</text>
+
+          <text x="8" y="126" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor">cell triples · the high never moves</text>
+          <text x="8" y="146" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="#3FB68B">someone is filling passively, absorbing it</text>
+
+          <!-- RIGHT: THROUGH -->
+          <text x="322" y="16" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#E0524A">THROUGH</text>
+          <line x1="318" y1="76" x2="612" y2="76" stroke="#E0524A" stroke-width="1.5"/>
+          <text x="322" y="71" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#E0524A">level 29,410</text>
+
+          <rect x="384" y="78" width="52" height="20" fill="#E0524A" opacity="0.22" stroke="#E0524A" stroke-width="0.8"/>
+          <text x="410" y="92" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#E0524A">55</text>
+          <line x1="384" y1="76" x2="436" y2="76" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+
+          <rect x="454" y="56" width="52" height="20" fill="currentColor" opacity="0.15"/>
+          <text x="480" y="70" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity="0.7">48</text>
+          <line x1="454" y1="54" x2="506" y2="54" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+
+          <rect x="524" y="34" width="52" height="20" fill="currentColor" opacity="0.15"/>
+          <text x="550" y="48" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity="0.7">31</text>
+          <line x1="524" y1="32" x2="576" y2="32" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+
+          <text x="322" y="126" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor">cells stay small · each high is higher</text>
+          <text x="322" y="146" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="#E0524A">nobody transacting there — it's a vacuum</text>
+        </svg>
+        <figcaption>Your tape: a normal cell is 300–600, a big one 900+. It is the swelling that matters, not the absolute figure.</figcaption>
+      </figure>
+      <div class="verdicts">
+        <div class="verdict v-hold"><span class="score">+1</span><span><b>Cell grows bar over bar</b> at one price while the high or low stops extending.</span></div>
+        <div class="verdict v-through"><span class="score">−1</span><span><b>Cell stays small</b> and price walks through it. Thin means undefended.</span></div>
+      </div>
+    </div>
+
+    <!-- READ 3 — DELTA VS PRICE -->
+    <div class="read">
+      <div class="read-head">
+        <span class="read-num">03</span>
+        <h3>Delta against price</h3>
+        <p class="read-sub">The whole game in one question: <b>is the aggression achieving anything?</b></p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 620 178" role="img" aria-label="Delta bars rising in both panels. On the left, price stays flat while delta reaches plus 520 — aggression paying for nothing. On the right, price rises in step with delta — aggression being rewarded.">
+          <line x1="310" y1="8" x2="310" y2="170" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.3"/>
+
+          <!-- LEFT: HOLD (absorb) -->
+          <text x="8" y="16" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#3FB68B">HOLD</text>
+          <text x="8" y="36" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="currentColor" opacity="0.7">price</text>
+          <polyline points="60,46 118,45 176,47 234,46 292,45" fill="none" stroke="currentColor" stroke-width="2" opacity="0.8"/>
+          <circle cx="292" cy="45" r="3" fill="#3FB68B"/>
+          <text x="8" y="86" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="currentColor" opacity="0.7">delta</text>
+          <rect x="66" y="118" width="26" height="18" fill="#3FB68B" opacity="0.45"/>
+          <text x="79" y="112" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.7">180</text>
+          <rect x="124" y="104" width="26" height="32" fill="#3FB68B" opacity="0.6"/>
+          <text x="137" y="98" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.7">340</text>
+          <rect x="182" y="94" width="26" height="42" fill="#3FB68B" opacity="0.75"/>
+          <text x="195" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.7">450</text>
+          <rect x="240" y="86" width="26" height="50" fill="#3FB68B" opacity="0.9"/>
+          <text x="253" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600" fill="#3FB68B">520</text>
+          <line x1="56" y1="136" x2="300" y2="136" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+          <text x="8" y="160" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="#3FB68B">buyers paid 520 and bought nothing</text>
+
+          <!-- RIGHT: THROUGH (reward) -->
+          <text x="322" y="16" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#E0524A">THROUGH</text>
+          <text x="322" y="36" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="currentColor" opacity="0.7">price</text>
+          <polyline points="374,62 432,55 490,45 548,32 596,24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.8"/>
+          <circle cx="596" cy="24" r="3" fill="#E0524A"/>
+          <rect x="380" y="118" width="26" height="18" fill="#E0524A" opacity="0.45"/>
+          <text x="393" y="112" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.7">175</text>
+          <rect x="438" y="104" width="26" height="32" fill="#E0524A" opacity="0.6"/>
+          <text x="451" y="98" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.7">330</text>
+          <rect x="496" y="94" width="26" height="42" fill="#E0524A" opacity="0.75"/>
+          <text x="509" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor" opacity="0.7">460</text>
+          <rect x="554" y="86" width="26" height="50" fill="#E0524A" opacity="0.9"/>
+          <text x="567" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600" fill="#E0524A">515</text>
+          <line x1="370" y1="136" x2="612" y2="136" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+          <text x="322" y="160" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="#E0524A">same 515 — and price went with it</text>
+        </svg>
+        <figcaption>Identical delta in both panels. What separates them is whether price moved. Aggression that achieves nothing is being absorbed.</figcaption>
+      </figure>
+      <div class="verdicts">
+        <div class="verdict v-hold"><span class="score">+1</span><span><b>Delta pushes hard, price doesn't move.</b> They're paying the spread and getting nowhere.</span></div>
+        <div class="verdict v-through"><span class="score">−1</span><span><b>Delta and price move together.</b> The aggressor is being paid — expect it to continue.</span></div>
+      </div>
+    </div>
+
+    <!-- READ 4 — TAPE SPEED -->
+    <div class="read">
+      <div class="read-head">
+        <span class="read-num">04</span>
+        <h3>Speed of tape</h3>
+        <p class="read-sub">What happens to the rate of trades in the seconds <em>after</em> price arrives?</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 620 152" role="img" aria-label="Trade rate over the twenty seconds after the level is touched. On the left the rate spikes then collapses to near zero. On the right it rises and keeps rising.">
+          <line x1="310" y1="8" x2="310" y2="144" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.3"/>
+
+          <!-- LEFT -->
+          <text x="8" y="16" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#3FB68B">HOLD</text>
+          <line x1="56" y1="110" x2="298" y2="110" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+          <line x1="90" y1="26" x2="90" y2="110" stroke="#3FB68B" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+          <text x="94" y="34" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="#3FB68B">touch</text>
+          <polyline points="60,100 78,96 90,44 108,38 126,62 150,84 180,98 214,104 250,106 290,107"
+                    fill="none" stroke="#3FB68B" stroke-width="2"/>
+          <text x="8" y="128" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor">spikes on arrival, then dies</text>
+          <text x="8" y="144" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="#3FB68B">the sellers ran out</text>
+
+          <!-- RIGHT -->
+          <text x="322" y="16" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#E0524A">THROUGH</text>
+          <line x1="368" y1="110" x2="610" y2="110" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+          <line x1="402" y1="26" x2="402" y2="110" stroke="#E0524A" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+          <text x="406" y="34" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="#E0524A">touch</text>
+          <polyline points="372,102 390,98 402,80 424,70 450,60 484,48 522,38 562,30 602,24"
+                    fill="none" stroke="#E0524A" stroke-width="2"/>
+          <text x="322" y="128" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor">keeps accelerating past the level</text>
+          <text x="322" y="144" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="#E0524A">more are joining, not fewer</text>
+        </svg>
+        <figcaption>Trade rate over roughly the twenty seconds after the touch. Exhaustion looks like a spike that fades; initiative looks like a rate that keeps climbing.</figcaption>
+      </figure>
+      <div class="verdicts">
+        <div class="verdict v-hold"><span class="score">+1</span><span><b>Spikes, then dies.</b> The push spent itself at the level.</span></div>
+        <div class="verdict v-through"><span class="score">−1</span><span><b>Accelerating through.</b> Participation is building, not fading.</span></div>
+      </div>
+    </div>
+
+    <div class="note">Any read you genuinely can't see scores <b class="mono">0</b>. Guessing to fill the box is how you end up measuring your imagination instead of the tape.</div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2>Reading the total</h2>
+    <div class="band-row">
+      <div class="band b-t2"><span class="v">−4 −3</span><span class="l">strong<br>THROUGH</span></div>
+      <div class="band b-t1"><span class="v">−2</span><span class="l">lean<br>THROUGH</span></div>
+      <div class="band b-0"><span class="v">−1 0 +1</span><span class="l">no read<br>log as NEITHER</span></div>
+      <div class="band b-h1"><span class="v">+2</span><span class="l">lean<br>HOLD</span></div>
+      <div class="band b-h2"><span class="v">+3 +4</span><span class="l">strong<br>HOLD</span></div>
+    </div>
+    <div class="note"><b>Log the number, not just the word.</b> At the end you compare your hit rate at |score| ≥ 3 against your hit rate at |score| = 2. If accuracy climbs as conviction climbs, the reads are carrying real information. If a 4 is no better than a 2, you are pattern-matching noise — and that is the single most useful thing this exercise can tell you.</div>
+  </section>
+
+  <section>
+    <h2>One row per touch</h2>
+    <div class="cols">
+      <span class="col-chip">date</span>
+      <span class="col-chip">level</span>
+      <span class="col-chip">time ET</span>
+      <span class="col-chip">dom −1/0/+1</span>
+      <span class="col-chip">cluster −1/0/+1</span>
+      <span class="col-chip">delta −1/0/+1</span>
+      <span class="col-chip">tape −1/0/+1</span>
+      <span class="col-chip key">score</span>
+      <span class="col-chip key">my call</span>
+      <span class="col-chip key">what happened</span>
+      <span class="col-chip">points after</span>
+      <span class="col-chip key">correct Y/N</span>
+      <span class="col-chip">notes</span>
+    </div>
+    <p style="font-size:13.5px;color:var(--ink-dim)"><b style="color:var(--ink)">Every</b> touch goes in, including the ones you had no read on. Logging only the obvious ones will show you 80% and the 80% will be fake.</p>
+  </section>
+
+  <section>
+    <h2>Decide before you start — 20–30 sessions, 80–120 touches</h2>
+    <div class="tw">
+      <table>
+        <thead>
+          <tr><th>Hit rate</th><th>What it means</th><th>What you do</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num go">≥ 65%</td>
+            <td>You see something a 5-minute bar cannot</td>
+            <td class="go">Build the trade. Then, and only then.</td>
+          </tr>
+          <tr>
+            <td class="num mid">55–64%</td>
+            <td>Marginal — probably won't survive costs</td>
+            <td class="mid">Extend to 50 sessions before deciding</td>
+          </tr>
+          <tr>
+            <td class="num stop">≤ 54%</td>
+            <td>Tick data adds nothing here</td>
+            <td class="stop">Stop. You've closed the question yourself.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>Call it before the bar closes, every single time.</b> The moment you allow yourself to wait for the close, you have reproduced the backtest — and that answer is already known: flat at every stop width, both halves of two years.</p>
+    <p style="margin-top:10px">Written against 523 sessions of testing in which fading these levels blind lost −0.513R at t = −10.30, and requiring the bar to close back through recovered 0.47R of it. The read is right. This is the test of whether you can act on it in time.</p>
+  </footer>
+
+</div>

@@ -1,0 +1,78 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <AssemblyName>L2Recorder</AssemblyName>
+    <RootNamespace>Claude1.Recorders</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(ProgramFiles)\ATAS Platform\ATAS.Indicators.dll')">
+    <AtasDir>$(ProgramFiles)\ATAS Platform</AtasDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(ProgramW6432)\ATAS Platform\ATAS.Indicators.dll')">
+    <AtasDir>$(ProgramW6432)\ATAS Platform</AtasDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(LOCALAPPDATA)\ATAS Platform\ATAS.Indicators.dll')">
+    <AtasDir>$(LOCALAPPDATA)\ATAS Platform</AtasDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AtasDir)' == '' And Exists('$(LOCALAPPDATA)\ATAS Platform\bin\ATAS.Indicators.dll')">
+    <AtasDir>$(LOCALAPPDATA)\ATAS Platform\bin</AtasDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(AtasIndicatorsDir)' == ''">
+    <AtasIndicatorsDir>$(USERPROFILE)\Documents\ATAS\Indicators</AtasIndicatorsDir>
+  </PropertyGroup>
+
+  <Target Name="CheckAtasDir" BeforeTargets="BeforeBuild">
+    <Error Condition="'$(AtasDir)' == ''"
+           Text="Could not find ATAS.Indicators.dll. Search your drive for it, then run: build.bat &quot;C:\Your\Path\ATAS Platform&quot;" />
+    <Message Importance="high" Text="ATAS assemblies: $(AtasDir)" />
+  </Target>
+
+  <ItemGroup Condition="'$(NoCumulative)' == 'true'">
+    <Compile Remove="L2Recorder.Cumulative.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NoByOrder)' == 'true'">
+    <Compile Remove="L2Recorder.ByOrder.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NoRender)' == 'true'">
+    <Compile Remove="LevelPlanner.Render.cs" />
+    <Compile Remove="StructureMap.cs" />
+    <Compile Remove="VwapStretch.cs" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <SysDrawingDll>$(AtasDir)\System.Drawing.Common.dll</SysDrawingDll>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(SysDrawingDll)')">
+    <Reference Include="$(SysDrawingDll)" Private="false" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('$(SysDrawingDll)')">
+    <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(AtasDir)' != ''">
+    <Reference Include="$(AtasDir)\ATAS.*.dll" Private="false" />
+    <Reference Include="$(AtasDir)\OFT.*.dll" Private="false" />
+    <Reference Include="$(AtasDir)\Utils.*.dll" Private="false" />
+  </ItemGroup>
+
+  <Target Name="InstallToAtas" AfterTargets="Build">
+    <MakeDir Directories="$(AtasIndicatorsDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(AtasIndicatorsDir)"
+          ContinueOnError="true" />
+    <Message Importance="high"
+             Text="Installed $(TargetFileName) to $(AtasIndicatorsDir)" />
+  </Target>
+
+</Project>

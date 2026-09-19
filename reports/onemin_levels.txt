@@ -1,0 +1,37 @@
+QQQ — 251 sessions, 2025-08-01 to 2026-07-31
+identical levels, identical rule; only the bar size changes
+
+=== FADE: 1-minute vs 5-minute, same sessions ===
+                                                                                                    freq
+  5-min  stop 0.05% (15 NQ pts)                n= 175  win  31%  mean -0.328R  PF 0.53  t=-3.64     3.5/wk
+  1-min  stop 0.05% (15 NQ pts)                n= 179  win  34%  mean -0.155R  PF 0.77  t=-1.50     3.6/wk
+
+  5-min  stop 0.10% (29 NQ pts)                n= 175  win  38%  mean -0.264R  PF 0.58  t=-3.18     3.5/wk
+  1-min  stop 0.10% (29 NQ pts)                n= 179  win  39%  mean -0.191R  PF 0.69  t=-2.22     3.6/wk
+
+  5-min  stop 0.15% (44 NQ pts)                n= 175  win  42%  mean -0.214R  PF 0.62  t=-2.70     3.5/wk
+  1-min  stop 0.15% (44 NQ pts)                n= 179  win  44%  mean -0.126R  PF 0.77  t=-1.49     3.6/wk
+
+  5-min  stop 0.25% (74 NQ pts)                n= 175  win  51%  mean -0.144R  PF 0.69  t=-2.10     3.5/wk
+  1-min  stop 0.25% (74 NQ pts)                n= 179  win  51%  mean -0.117R  PF 0.75  t=-1.64     3.6/wk
+
+=== CONTINUATION: 1-minute vs 5-minute (target 2R) ===
+  5-min  stop 0.05%                            n= 215  win  34%  mean -0.074R  PF 0.88  t=-0.87     4.3/wk
+  1-min  stop 0.05%                            n= 218  win  34%  mean -0.049R  PF 0.92  t=-0.57     4.3/wk
+
+  5-min  stop 0.10%                            n= 207  win  41%  mean +0.044R  PF 1.08  t=+0.51     4.1/wk
+  1-min  stop 0.10%                            n= 213  win  38%  mean +0.005R  PF 1.01  t=+0.05     4.2/wk
+
+  5-min  stop 0.15%                            n= 197  win  44%  mean +0.048R  PF 1.10  t=+0.59     3.9/wk
+  1-min  stop 0.15%                            n= 201  win  39%  mean +0.023R  PF 1.04  t=+0.27     4.0/wk
+
+=== detail: best 1-min fade config ===
+  stop 0.25%  median +0.03R  max DD 28.2R  worst streak 7  mean R:R 1.34
+  first half                                   n=  87  win  56%  mean -0.062R  PF 0.85  t=-0.61     3.5/wk
+  second half                                  n=  92  win  46%  mean -0.168R  PF 0.68  t=-1.68     3.7/wk
+
+  by level:
+    pdHigh                                     n=  48  win  42%  mean -0.225R  PF 0.60  t=-1.55     1.0/wk
+    pdLow                                      n=  32  win  31%  mean -0.268R  PF 0.59  t=-1.35     0.6/wk
+    pdVAH                                      n=  50  win  62%  mean -0.041R  PF 0.89  t=-0.35     1.0/wk
+    pdVAL                                      n=  49  win  61%  mean +0.011R  PF 1.03  t=+0.08     1.0/wk
