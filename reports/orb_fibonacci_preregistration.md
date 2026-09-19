@@ -324,3 +324,23 @@ exit and the rejection rules are all unchanged.
 
 Committed before `scripts/orderflow/orb_fib.py` was written or run.
 Amendment 1 committed before the amended run.
+
+---
+
+## 11. AMENDMENT 2 — standing change to the concentration rule
+
+Recorded here because it supersedes §9 rule 4 for this family and for every
+family from this point on.
+
+> **OLD:** positive after removing the best 1% of trades.
+> **NEW:** positive after removing the best 10 trades **or** the top decile,
+> **whichever is stricter** — remove `max(10, ceil(0.10 × n))`.
+
+At n ≈ 100 the old rule strips one or two trades and cannot meaningfully fail.
+Applied retroactively to this family's QQQ discovery cells, **both variants
+that passed the original screen fail the strengthened test** (ORB15 A:
++0.0814 → −0.1084; ORB30 A: +0.1834 → −0.0616). The two "survivors" reported
+in `orb_fibonacci_result.md` were survivors of a test too weak to reject them.
+
+Rules 1, 2, 3 and 5, the random-walk benchmark, and every declared parameter
+are unchanged.
