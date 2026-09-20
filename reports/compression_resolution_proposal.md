@@ -374,3 +374,86 @@ It is a diagnostic, not the headline.
 Calibration on counts and widths only, `c` frozen before any R is read, and the
 design-grounds rejection if realised median cost/risk ≥ 0.50% at the frozen `c`.
 Sealed days unread, 2016–2020 unread.
+
+---
+
+# AMENDMENT 3 — the calibration tie-break, declared before any R was computed
+
+The counts-only pass ran. **No expectancy has been computed at this point.** Two
+things it exposed have to be declared before the expectancy pass.
+
+## A3.1 The proposal did not specify a tie-break, and the code's default was wrong
+
+§5 said `c` is *"frozen at the value landing 3–6 trades/month"*. **It did not say
+which one**, because I did not anticipate that a wide band of `c` would qualify.
+The code I wrote defaulted to *closest to 4.5/month*, which was **not
+pre-registered** and which freezes `c` at **1.30** — the top of the scanned
+ladder.
+
+**That default is wrong on the substance.** `k ≤ 1.30` admits **78% of
+sessions**. A filter that admits 78% is not a compression condition, and the
+pre-registered mechanism — *"compression manufactures the counterparty"* —
+would be untested, because the compression term would be binding on almost
+nothing. The rule would be selective only through its width floor and its
+resolution condition.
+
+**Declared tie-break, from here: the SMALLEST `c` that lands in the 3–6 band.**
+The mechanism claim is that tighter compression gives a stronger effect, so the
+rule should be as selective as the band permits. This is chosen on principle and
+it is the conservative choice for the hypothesis.
+
+**Disclosure:** this tie-break is being set *after* seeing the counts table,
+because the counts table is what revealed the proposal's gap. It is set
+**before any R has been read**, and it is the choice that makes the mechanism
+testable rather than the one that maximises sample.
+
+| | c = 1.00 (frozen) | c = 1.30 (the code's default) |
+|---|---|---|
+| share of sessions admitted by `k ≤ c` | **55.3%** | 78.0% |
+| trades/month | **3.04** | 4.34 |
+| triggers, 10:00 / 10:30 | **200 / 208** | 285 / 297 |
+| long / short | **258 / 150** | 368 / 214 |
+| median risk | **293 bps** | 315 bps |
+| **median cost/risk** | **0.228%** | 0.211% |
+
+**FROZEN: `c` = 1.00.** n ≈ 200–208 per variant.
+
+## A3.2 The cost requirement is met with room
+
+| | |
+|---|---|
+| median cost/risk at the frozen `c` | **0.228%** |
+| p75 / p90 | 0.286% / 0.334% |
+| rejection threshold | 0.50% |
+| IB family | 0.77–1.16% |
+| ATR-stopped families | 5–16% |
+
+**A 3.4–5.1× improvement on the IB family and 22–70× on the ATR families.**
+The expectancy pass proceeds.
+
+## A3.3 A counts-only finding that already bears on the mechanism
+
+The resolution rate — the share of compressed, wide-enough sessions whose range
+actually resolves and holds to D — is **flat in `c`**:
+
+| c | k ≤ c | + W floor | + resolved & held | resolution rate |
+|---|---|---|---|---|
+| 0.80 | 498 | 380 | 120 | **31.6%** |
+| 1.00 | 772 | 647 | 200 | **30.9%** |
+| 1.30 | 1,089 | 964 | 285 | **29.6%** |
+
+**Tighter compression does not make resolution more likely.** Compression acts
+as a proportional sampler on incidence. This is measured on counts alone and
+says nothing yet about effect size — the mechanism claims a larger *effect* at
+smaller `k`, not a higher *frequency* — but it is recorded now, before the
+expectancy pass, so it cannot be reinterpreted afterwards.
+
+## A3.4 The random-label control, made exact
+
+Under Amendment 2 the control permutes `k` across sessions. Because `k` only
+gates inclusion, this is exactly equivalent to, and is implemented as:
+**draw a random subset of the structurally-eligible pool (W floor + resolved +
+held) of exactly the observed triggered size.** Group sizes match by
+construction. The question it asks is the right one: **does taking the most
+compressed n of the eligible pool beat taking a random n?** 5,000 draws, max
+statistic across the 6 variants, bar at the 95th percentile.
