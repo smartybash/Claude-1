@@ -306,3 +306,71 @@ Recorded. Two things to add, one of which cuts against my own design:
 **Not run. Awaiting your approval.** Two alternative constructions were already
 rejected on the cost/risk requirement before reaching code (§3), which is the
 filter working as you specified.
+
+---
+
+# AMENDMENT 1 — approved, declared before the calibration pass ran
+
+Approved at 3–6 trades/month, six variants. Two amendments from you, and one
+correction of my own that they forced into view.
+
+## A1.1 Excess over buy-and-hold is the headline in every table
+
+`excess_R` is printed first in every table; raw `R` is reported beside it, never
+in front of it.
+
+## A1.2 Long and short arms reported separately from the outset
+
+Every table carries LONG, SHORT and BOTH rows. The pooled row is printed last,
+and the per-arm rows are never suppressed in favour of it. If one arm carries
+the result entirely, that is visible before pooling.
+
+## A1.3 A correction: my proposed benchmark was wrong for the short arm
+
+The proposal (§4.6) defined the benchmark as *"the R of a long-always
+open-to-close hold using the same risk denominator"*. **That definition is wrong
+once the short arm is reported separately**, and it only became obvious when
+A1.2 forced the two arms apart.
+
+For a short trade held to the close with no barrier, `R = −(close − entry)/risk`,
+which is exactly minus the long hold. Subtracting a *long* benchmark would give
+`excess = R − bh = −2 × bh` — it would double the session's realised move rather
+than remove drift, and would mechanically reward the short arm on down days and
+punish it on up days. It is not a drift control at all.
+
+**The corrected definition, used from here:**
+
+```
+drift_D  = mean over ALL 1,396 sessions of (close_16:00 − price at entry clock D+1)
+excess_R = R − d × drift_D / risk
+```
+
+`drift_D` is an **unconditional constant per decision timestamp**, not the
+triggered session's own move. It subtracts exactly the expected profit of a
+directional position of sign `d`, sized `1/risk`, held over the same clock
+window. A long-biased rule on a rising index has its drift removed; a
+short-biased rule has it added back, which is the correct sign.
+
+Declared limitations: `drift_D` is a full-sample constant and therefore in-sample.
+It is a benchmark, not a predictor, so this does not leak — but it is stated.
+
+**The same-session long hold is retained as a second diagnostic**, labelled
+`vs_hold`, because it answers a different and still useful question: did the
+stop, target and timing add anything over passive exposure on the same days.
+It is a diagnostic, not the headline.
+
+## A1.4 Both mechanism controls run regardless of outcome
+
+1. **Effect must grow as `c` falls.** Mean `excess_R` by compression bucket
+   within the triggered set, and across a nested ladder of `c`. Reported
+   whatever it shows. `c` is already frozen before this runs, so the ladder is
+   a mechanism check, not a sweep.
+2. **Effect must vanish for breaks not held to D.** Sessions that broke the
+   range before D but had reverted inside by D, traded identically in the
+   direction of the earlier break. Reported whatever it shows.
+
+## A1.5 Unchanged
+
+Calibration on counts and widths only, `c` frozen before any R is read, and the
+design-grounds rejection if realised median cost/risk ≥ 0.50% at the frozen `c`.
+Sealed days unread, 2016–2020 unread.
