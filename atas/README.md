@@ -266,3 +266,55 @@ what the fallback build passes are for.
 identically. The fallback scheme can only rescue mistakes that live in the
 optional half — which is exactly why the always-compiled files get the
 strictest check.
+
+---
+
+## IB 1R (`IbOneR.cs`) — the frozen candidate, live, display only
+
+Added 2026-09-20. Builds with the existing `L2Recorder.csproj` and `build.bat`;
+it is in the `NoRender` exclusion group because it draws.
+
+**This rule failed its own screen.** On 685 QQQ 1-minute trades it returns
++0.0612 R (t +2.23, PF 1.22, 5 of 6 years) and **−0.0433 R** once
+`max(10, ⌈0.10n⌉)` is removed. The top 69 trades carry **164% of total R**; the
+other 616 lose money in aggregate. The live allocation exists to collect
+out-of-sample data, not because the rule is believed.
+
+It **prints zones and levels and never places an order.**
+
+### The self-check line
+
+The panel prints, every bar: IBH, IBL, IB bar count, which extreme formed first
+with both timestamps, the 10:30 close, the ending zone percent, qualified or
+not, the expected break level, the stop, risk in points, the 1R target, the
+state, **the window it is actually using**, the first IB candle's timestamp and
+**the chart period**. Check these against the backtest on the same session.
+
+### Three things it warns about, in red
+
+1. **Chart is not 1-minute.** Which extreme formed first is a property of the
+   bar grid. On another period this is a different rule.
+2. **The first IB candle does not match the configured window.** Catches the
+   daylight-saving shift: 09:30 ET is 13:30 UTC in summer and **14:30 UTC in
+   winter**. Check every March and November, or set the platform clock to
+   New York.
+3. **The stop was touched on the entry bar.** `run_trade` scans from `i+1`, so
+   the backtest never sees these. Live you can be stopped there. The indicator
+   follows the backtest convention so the numbers reconcile, and flags the bar.
+   **Log what happened, not what the panel says.**
+
+### Not compiled here
+
+This container has no .NET SDK and no ATAS assemblies, so **`IbOneR.cs` has not
+been built**. It follows the same API surface as `VwapStretch.cs`
+(`ChartInfo.GetYByPrice`, `RenderContext.DrawLine/DrawString/FillRectangle`,
+`SubscribeToDrawingEvents`) and is brace- and paren-balanced, but the first
+`build.bat` run is the real compile test.
+
+### Companion deliverables
+
+| file | what |
+|---|---|
+| `atas/ib1r_guide.svg` | one-page visual guide: qualified long and short side by side, invalidation, state machine, decision list |
+| `journal/ib1r_trade_log.csv` | log template, 15 columns, with the pre-outcome note |
+| `reports/ib1r_live_review_protocol.md` | how the log is evaluated at 100 trades, fixed before the first trade |

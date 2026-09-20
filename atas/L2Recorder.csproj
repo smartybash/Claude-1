@@ -48,6 +48,7 @@
     <Compile Remove="LevelPlanner.Render.cs" />
     <Compile Remove="StructureMap.cs" />
     <Compile Remove="VwapStretch.cs" />
+    <Compile Remove="IbOneR.cs" />
   </ItemGroup>
 
   <PropertyGroup>
