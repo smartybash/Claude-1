@@ -1,0 +1,353 @@
+================================================================================================================
+  TRADE CONDITIONING — COUNTS AND BURDEN, BEFORE ANY PERFORMANCE NUMBER
+================================================================================================================
+  IB 1R single             trades   677   dates   677   trades/date 1.00   can reach 150: yes
+  IB 1R re-entry           trades   728   dates   677   trades/date 1.08   can reach 150: yes
+  IB 2R re-entry           trades   711   dates   677   trades/date 1.05   can reach 150: yes
+  IB 3R re-entry           trades   710   dates   677   trades/date 1.05   can reach 150: yes
+  IB 4R re-entry           trades   710   dates   677   trades/date 1.05   can reach 150: yes
+  ORB-Fib cont ORB15 A     trades   112   dates   112   trades/date 1.00   can reach 150: NO — unresolvable
+  ORB-Fib cont ORB30 A     trades    76   dates    76   trades/date 1.00   can reach 150: NO — unresolvable
+
+  trade sets                      7
+  conditions                      6
+  declared partitions             4 continuous + 2 binary groups
+  TOTAL SUBSETS EXAMINED        152
+  trade floor for a claim       150
+  permutations                 5000
+  control percentile             95
+  years required positive    4 of 6
+
+  R is already net of costs (COST_F subtracted before dividing by risk).
+  IB sets 1-5 share entries and are NOT independent tests.
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R single  by  vix_lvl   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        60       60       60       59       60       60       59       60       60       60
+  R    +0.048   +0.017   +0.049   +0.195   -0.092   +0.094   +0.067   -0.058   +0.168   +0.039
+  t     +0.49    +0.18    +0.54    +2.12    -1.06    +1.01    +0.73    -0.66    +1.82    +0.38
+  spread d10-d1 -0.0090
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R single  by  vix_chg   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        60       60       60       59       60       60       59       60       60       60
+  R    -0.004   -0.044   +0.260   -0.105   -0.023   +0.164   +0.255   +0.045   +0.004   -0.027
+  t     -0.05    -0.45    +2.84    -1.09    -0.25    +1.62    +3.18    +0.51    +0.05    -0.29
+  spread d10-d1 -0.0223
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R single  by  on_range   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        67       67       67       67       67       67       67       67       67       67
+  R    +0.129   -0.001   +0.090   +0.141   -0.000   +0.004   +0.034   -0.078   +0.097   +0.179
+  t     +1.58    -0.01    +0.96    +1.74    -0.00    +0.05    +0.38    -0.88    +1.12    +2.01
+  spread d10-d1 +0.0492
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R single  by  on_disp   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        68       68       67       68       68       67       68       67       68       68
+  R    +0.076   +0.026   +0.104   -0.075   +0.064   +0.100   +0.095   +0.121   +0.041   +0.026
+  t     +0.82    +0.29    +1.26    -0.89    +0.67    +1.19    +1.13    +1.41    +0.48    +0.29
+  spread d10-d1 -0.0494
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R single  by  prior_loc   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        68       68       67       68       68       67       68       67       68       68
+  R    +0.010   -0.039   -0.019   +0.184   +0.052   +0.072   +0.112   +0.101   +0.098   +0.005
+  t     +0.11    -0.44    -0.24    +2.20    +0.61    +0.84    +1.27    +1.11    +1.06    +0.06
+  spread d10-d1 -0.0045
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R re-entry  by  vix_lvl   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        65       65       65       65       65       64       65       65       65       65
+  R    +0.078   +0.022   +0.079   +0.224   -0.092   +0.014   +0.057   -0.061   +0.151   +0.079
+  t     +0.82    +0.24    +0.87    +2.52    -1.13    +0.13    +0.67    -0.67    +1.71    +0.85
+  spread d10-d1 +0.0006
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R re-entry  by  vix_chg   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        65       65       65       65       65       64       65       65       65       65
+  R    -0.010   -0.049   +0.274   -0.133   +0.028   +0.137   +0.240   +0.062   +0.036   -0.033
+  t     -0.11    -0.52    +3.09    -1.63    +0.31    +1.36    +2.86    +0.65    +0.38    -0.36
+  spread d10-d1 -0.0236
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R re-entry  by  on_range   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        73       72       72       72       72       72       72       72       72       72
+  R    +0.148   -0.037   +0.082   +0.172   +0.013   +0.006   +0.076   -0.092   +0.067   +0.177
+  t     +1.66    -0.43    +0.85    +2.22    +0.15    +0.08    +0.94    -1.07    +0.79    +1.87
+  spread d10-d1 +0.0292
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R re-entry  by  on_disp   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        73       73       73       72       73       73       72       73       73       73
+  R    +0.071   +0.033   +0.128   -0.051   +0.032   +0.085   +0.106   +0.123   +0.003   +0.064
+  t     +0.81    +0.38    +1.59    -0.61    +0.34    +0.95    +1.35    +1.42    +0.04    +0.78
+  spread d10-d1 -0.0072
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE LADDER — IB 1R re-entry  by  prior_loc   (no decile can reach 150; descriptive only)
+----------------------------------------------------------------------------------------------------------------
+            1        2        3        4        5        6        7        8        9       10
+  n        73       73       73       72       73       73       72       73       73       73
+  R    +0.012   -0.044   -0.018   +0.168   +0.073   +0.089   +0.130   +0.097   +0.072   +0.019
+  t     +0.13    -0.48    -0.22    +2.14    +0.89    +1.08    +1.54    +1.14    +0.82    +0.21
+  spread d10-d1 +0.0071
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE SPREADS — IB 2R re-entry   (compact)
+----------------------------------------------------------------------------------------------------------------
+    vix_lvl      n/decile   63   d1  +0.045   d10  +0.090   spread  +0.045   best  +0.216
+    vix_chg      n/decile   63   d1  -0.054   d10  -0.074   spread  -0.021   best  +0.270
+    on_range     n/decile   70   d1  +0.075   d10  +0.060   spread  -0.015   best  +0.240
+    on_disp      n/decile   71   d1  +0.093   d10  +0.111   spread  +0.018   best  +0.124
+    prior_loc    n/decile   71   d1  -0.006   d10  +0.006   spread  +0.013   best  +0.214
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE SPREADS — IB 3R re-entry   (compact)
+----------------------------------------------------------------------------------------------------------------
+    vix_lvl      n/decile   63   d1  +0.045   d10  +0.107   spread  +0.062   best  +0.196
+    vix_chg      n/decile   63   d1  -0.058   d10  -0.078   spread  -0.020   best  +0.272
+    on_range     n/decile   70   d1  +0.090   d10  +0.054   spread  -0.036   best  +0.238
+    on_disp      n/decile   71   d1  +0.109   d10  +0.116   spread  +0.007   best  +0.163
+    prior_loc    n/decile   71   d1  -0.003   d10  +0.003   spread  +0.006   best  +0.227
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE SPREADS — IB 4R re-entry   (compact)
+----------------------------------------------------------------------------------------------------------------
+    vix_lvl      n/decile   63   d1  +0.045   d10  +0.107   spread  +0.062   best  +0.193
+    vix_chg      n/decile   63   d1  -0.058   d10  -0.078   spread  -0.020   best  +0.272
+    on_range     n/decile   70   d1  +0.093   d10  +0.054   spread  -0.039   best  +0.235
+    on_disp      n/decile   71   d1  +0.113   d10  +0.116   spread  +0.004   best  +0.166
+    prior_loc    n/decile   71   d1  -0.003   d10  +0.003   spread  +0.006   best  +0.202
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE SPREADS — ORB-Fib cont ORB15 A   (compact)
+----------------------------------------------------------------------------------------------------------------
+    vix_lvl      insufficient (n<100)
+    vix_chg      insufficient (n<100)
+    on_range     n/decile   10   d1  +0.315   d10  +0.080   spread  -0.234   best  +0.499
+    on_disp      n/decile   11   d1  -0.024   d10  +0.233   spread  +0.256   best  +0.919
+    prior_loc    n/decile   11   d1  -0.171   d10  -0.546   spread  -0.376   best  +0.620
+
+----------------------------------------------------------------------------------------------------------------
+  DECILE SPREADS — ORB-Fib cont ORB30 A   (compact)
+----------------------------------------------------------------------------------------------------------------
+    vix_lvl      insufficient (n<100)
+    vix_chg      insufficient (n<100)
+    on_range     insufficient (n<100)
+    on_disp      insufficient (n<100)
+    prior_loc    insufficient (n<100)
+
+================================================================================================================
+  THE DECLARED SUBSETS — every one examined, claimable or not
+================================================================================================================
+  set                 condition  partition            n   mean R  clus SE      t  after conc   yrs  n>=150  PASS
+  IB 1R single        vix_lvl    top half           299  +0.0620   0.0418  +1.48     -0.0420  5/6      yes     .
+  IB 1R single        vix_lvl    bottom half        299  +0.0429   0.0413  +1.04     -0.0630  6/6      yes     .
+  IB 1R single        vix_lvl    top quartile       150  +0.0668   0.0604  +1.11     -0.0364  3/6      yes     .
+  IB 1R single        vix_lvl    bottom quartile    150  +0.0382   0.0598  +0.64     -0.0677  3/5      yes     .
+  IB 1R single        vix_chg    top half           299  +0.0878   0.0412  +2.13     -0.0133  6/6      yes     .
+  IB 1R single        vix_chg    bottom half        299  +0.0171   0.0418  +0.41     -0.0918  4/6      yes     .
+  IB 1R single        vix_chg    top quartile       150  -0.0236   0.0581  -0.41     -0.1367  3/6      yes     .
+  IB 1R single        vix_chg    bottom quartile    150  +0.0265   0.0574  +0.46     -0.0810  4/6      yes     .
+  IB 1R single        on_range   top half           335  +0.0471   0.0394  +1.20     -0.0599  5/6      yes     .
+  IB 1R single        on_range   bottom half        335  +0.0718   0.0391  +1.84     -0.0323  5/6      yes     .
+  IB 1R single        on_range   top quartile       168  +0.1126   0.0550  +2.05     +0.0133  4/6      yes  PASS
+  IB 1R single        on_range   bottom quartile    168  +0.0557   0.0560  +1.00     -0.0496  4/6      yes     .
+  IB 1R single        on_disp    top half           338  +0.0765   0.0383  +2.00     -0.0260  5/6      yes     .
+  IB 1R single        on_disp    bottom half        338  +0.0360   0.0396  +0.91     -0.0711  4/6      yes     .
+  IB 1R single        on_disp    top quartile       169  +0.0428   0.0545  +0.79     -0.0635  4/6      yes     .
+  IB 1R single        on_disp    bottom quartile    169  +0.0524   0.0561  +0.93     -0.0529  5/6      yes     .
+  IB 1R single        prior_loc  top half           338  +0.0776   0.0398  +1.95     -0.0248  5/6      yes     .
+  IB 1R single        prior_loc  bottom half        338  +0.0401   0.0381  +1.05     -0.0666  6/6      yes     .
+  IB 1R single        prior_loc  top quartile       169  +0.0456   0.0581  +0.78     -0.0604  4/6      yes     .
+  IB 1R single        prior_loc  bottom quartile    169  -0.0292   0.0540  -0.54     -0.1436  1/6      yes     .
+  IB 1R single        fomc       FOMC = 1            25  -0.0792   0.1756  -0.45     -0.7139  3/6       NO     .
+  IB 1R single        fomc       FOMC = 0           652  +0.0629   0.0278  +2.26     -0.0419  5/6      yes     .
+  IB 1R re-entry      vix_lvl    top half           324  +0.0480   0.0414  +1.16     -0.0594  5/6      yes     .
+  IB 1R re-entry      vix_lvl    bottom half        324  +0.0632   0.0405  +1.56     -0.0420  6/6      yes     .
+  IB 1R re-entry      vix_lvl    top quartile       162  +0.0650   0.0576  +1.13     -0.0441  4/6      yes     .
+  IB 1R re-entry      vix_lvl    bottom quartile    162  +0.0608   0.0578  +1.05     -0.0482  3/5      yes     .
+  IB 1R re-entry      vix_chg    top half           324  +0.0881   0.0419  +2.10     -0.0146  6/6      yes     .
+  IB 1R re-entry      vix_chg    bottom half        324  +0.0232   0.0399  +0.58     -0.0868  4/6      yes     .
+  IB 1R re-entry      vix_chg    top quartile       162  -0.0246   0.0591  -0.42     -0.1440  3/6      yes     .
+  IB 1R re-entry      vix_chg    bottom quartile    162  +0.0264   0.0562  +0.47     -0.0870  4/6      yes     .
+  IB 1R re-entry      on_range   top half           360  +0.0468   0.0384  +1.22     -0.0584  5/6      yes     .
+  IB 1R re-entry      on_range   bottom half        360  +0.0752   0.0392  +1.92     -0.0268  5/6      yes     .
+  IB 1R re-entry      on_range   top quartile       180  +0.0919   0.0568  +1.62     -0.0083  5/6      yes     .
+  IB 1R re-entry      on_range   bottom quartile    180  +0.0491   0.0583  +0.84     -0.0555  5/6      yes     .
+  IB 1R re-entry      on_disp    top half           364  +0.0763   0.0382  +2.00     -0.0274  5/6      yes     .
+  IB 1R re-entry      on_disp    bottom half        364  +0.0429   0.0388  +1.10     -0.0648  4/6      yes     .
+  IB 1R re-entry      on_disp    top quartile       182  +0.0332   0.0537  +0.62     -0.0788  4/6      yes     .
+  IB 1R re-entry      on_disp    bottom quartile    182  +0.0454   0.0536  +0.85     -0.0652  4/6      yes     .
+  IB 1R re-entry      prior_loc  top half           364  +0.0814   0.0385  +2.12     -0.0217  6/6      yes     .
+  IB 1R re-entry      prior_loc  bottom half        364  +0.0377   0.0384  +0.98     -0.0704  4/6      yes     .
+  IB 1R re-entry      prior_loc  top quartile       182  +0.0404   0.0566  +0.71     -0.0706  4/6      yes     .
+  IB 1R re-entry      prior_loc  bottom quartile    182  -0.0375   0.0558  -0.67     -0.1578  2/6      yes     .
+  IB 1R re-entry      fomc       FOMC = 1            35  +0.0993   0.1515  +0.66     -0.2561  4/6       NO     .
+  IB 1R re-entry      fomc       FOMC = 0           693  +0.0576   0.0276  +2.09     -0.0476  5/6      yes     .
+  IB 2R re-entry      vix_lvl    top half           316  +0.0579   0.0462  +1.25     -0.1142  5/6      yes     .
+  IB 2R re-entry      vix_lvl    bottom half        316  +0.0448   0.0440  +1.02     -0.1243  5/6      yes     .
+  IB 2R re-entry      vix_lvl    top quartile       158  +0.0929   0.0644  +1.44     -0.0793  3/6      yes     .
+  IB 2R re-entry      vix_lvl    bottom quartile    158  +0.0410   0.0622  +0.66     -0.1257  3/5      yes     .
+  IB 2R re-entry      vix_chg    top half           316  +0.0732   0.0455  +1.61     -0.0983  5/6      yes     .
+  IB 2R re-entry      vix_chg    bottom half        316  +0.0295   0.0447  +0.66     -0.1396  4/6      yes     .
+  IB 2R re-entry      vix_chg    top quartile       158  -0.0382   0.0624  -0.61     -0.2104  3/6      yes     .
+  IB 2R re-entry      vix_chg    bottom quartile    158  +0.0161   0.0615  +0.26     -0.1308  4/6      yes     .
+  IB 2R re-entry      on_range   top half           352  +0.0387   0.0409  +0.95     -0.1169  4/6      yes     .
+  IB 2R re-entry      on_range   bottom half        352  +0.0776   0.0440  +1.76     -0.1006  5/6      yes     .
+  IB 2R re-entry      on_range   top quartile       176  +0.0647   0.0590  +1.10     -0.0881  4/6      yes     .
+  IB 2R re-entry      on_range   bottom quartile    176  +0.0199   0.0624  +0.32     -0.1533  4/6      yes     .
+  IB 2R re-entry      on_disp    top half           356  +0.0902   0.0425  +2.12     -0.0841  5/6      yes     .
+  IB 2R re-entry      on_disp    bottom half        356  +0.0248   0.0417  +0.60     -0.1329  3/6      yes     .
+  IB 2R re-entry      on_disp    top quartile       178  +0.0401   0.0586  +0.68     -0.1228  4/6      yes     .
+  IB 2R re-entry      on_disp    bottom quartile    178  +0.0587   0.0603  +0.97     -0.1059  5/6      yes     .
+  IB 2R re-entry      prior_loc  top half           356  +0.0572   0.0417  +1.37     -0.1050  5/6      yes     .
+  IB 2R re-entry      prior_loc  bottom half        356  +0.0562   0.0425  +1.32     -0.1135  5/6      yes     .
+  IB 2R re-entry      prior_loc  top quartile       178  +0.0261   0.0629  +0.41     -0.1429  4/6      yes     .
+  IB 2R re-entry      prior_loc  bottom quartile    178  -0.0293   0.0585  -0.50     -0.1878  2/6      yes     .
+  IB 2R re-entry      fomc       FOMC = 1            32  -0.1048   0.1533  -0.68     -0.6224  3/6       NO     .
+  IB 2R re-entry      fomc       FOMC = 0           679  +0.0641   0.0303  +2.12     -0.0995  5/6      yes     .
+  IB 3R re-entry      vix_lvl    top half           316  +0.0632   0.0485  +1.30     -0.1181  5/6      yes     .
+  IB 3R re-entry      vix_lvl    bottom half        316  +0.0501   0.0452  +1.11     -0.1243  5/6      yes     .
+  IB 3R re-entry      vix_lvl    top quartile       158  +0.0819   0.0693  +1.18     -0.1021  3/6      yes     .
+  IB 3R re-entry      vix_lvl    bottom quartile    158  +0.0516   0.0649  +0.80     -0.1257  3/5      yes     .
+  IB 3R re-entry      vix_chg    top half           316  +0.0636   0.0460  +1.38     -0.1057  5/6      yes     .
+  IB 3R re-entry      vix_chg    bottom half        316  +0.0458   0.0474  +0.97     -0.1387  4/6      yes     .
+  IB 3R re-entry      vix_chg    top quartile       158  -0.0580   0.0631  -0.92     -0.2234  3/6      yes     .
+  IB 3R re-entry      vix_chg    bottom quartile    158  +0.0285   0.0644  +0.44     -0.1301  4/6      yes     .
+  IB 3R re-entry      on_range   top half           352  +0.0432   0.0417  +1.04     -0.1170  4/6      yes     .
+  IB 3R re-entry      on_range   bottom half        352  +0.0776   0.0458  +1.69     -0.1074  5/6      yes     .
+  IB 3R re-entry      on_range   top quartile       176  +0.0705   0.0611  +1.15     -0.0914  4/6      yes     .
+  IB 3R re-entry      on_range   bottom quartile    176  +0.0258   0.0641  +0.40     -0.1533  4/6      yes     .
+  IB 3R re-entry      on_disp    top half           355  +0.0886   0.0442  +2.00     -0.0913  5/6      yes     .
+  IB 3R re-entry      on_disp    bottom half        355  +0.0288   0.0428  +0.67     -0.1359  3/6      yes     .
+  IB 3R re-entry      on_disp    top quartile       178  +0.0367   0.0591  +0.62     -0.1279  4/6      yes     .
+  IB 3R re-entry      on_disp    bottom quartile    178  +0.0636   0.0615  +1.03     -0.1059  5/6      yes     .
+  IB 3R re-entry      prior_loc  top half           355  +0.0651   0.0432  +1.51     -0.1061  5/6      yes     .
+  IB 3R re-entry      prior_loc  bottom half        355  +0.0523   0.0438  +1.19     -0.1207  5/6      yes     .
+  IB 3R re-entry      prior_loc  top quartile       178  +0.0391   0.0658  +0.59     -0.1429  4/6      yes     .
+  IB 3R re-entry      prior_loc  bottom quartile    178  -0.0298   0.0585  -0.51     -0.1878  2/6      yes     .
+  IB 3R re-entry      fomc       FOMC = 1            32  -0.1714   0.1700  -1.01     -0.6888  3/6       NO     .
+  IB 3R re-entry      fomc       FOMC = 0           678  +0.0696   0.0311  +2.24     -0.0999  5/6      yes     .
+  IB 4R re-entry      vix_lvl    top half           316  +0.0583   0.0478  +1.22     -0.1181  5/6      yes     .
+  IB 4R re-entry      vix_lvl    bottom half        316  +0.0501   0.0452  +1.11     -0.1243  5/6      yes     .
+  IB 4R re-entry      vix_lvl    top quartile       158  +0.0834   0.0697  +1.20     -0.1021  3/6      yes     .
+  IB 4R re-entry      vix_lvl    bottom quartile    158  +0.0527   0.0652  +0.81     -0.1257  3/5      yes     .
+  IB 4R re-entry      vix_chg    top half           316  +0.0636   0.0460  +1.38     -0.1057  5/6      yes     .
+  IB 4R re-entry      vix_chg    bottom half        316  +0.0409   0.0467  +0.88     -0.1387  4/6      yes     .
+  IB 4R re-entry      vix_chg    top quartile       158  -0.0580   0.0631  -0.92     -0.2234  3/6      yes     .
+  IB 4R re-entry      vix_chg    bottom quartile    158  +0.0299   0.0649  +0.46     -0.1301  4/6      yes     .
+  IB 4R re-entry      on_range   top half           352  +0.0382   0.0410  +0.93     -0.1170  4/6      yes     .
+  IB 4R re-entry      on_range   bottom half        352  +0.0783   0.0459  +1.70     -0.1074  5/6      yes     .
+  IB 4R re-entry      on_range   top quartile       176  +0.0604   0.0591  +1.02     -0.0914  4/6      yes     .
+  IB 4R re-entry      on_range   bottom quartile    176  +0.0268   0.0644  +0.42     -0.1533  4/6      yes     .
+  IB 4R re-entry      on_disp    top half           355  +0.0886   0.0442  +2.00     -0.0913  5/6      yes     .
+  IB 4R re-entry      on_disp    bottom half        355  +0.0244   0.0422  +0.58     -0.1359  3/6      yes     .
+  IB 4R re-entry      on_disp    top quartile       178  +0.0367   0.0591  +0.62     -0.1279  4/6      yes     .
+  IB 4R re-entry      on_disp    bottom quartile    178  +0.0649   0.0618  +1.05     -0.1059  5/6      yes     .
+  IB 4R re-entry      prior_loc  top half           355  +0.0662   0.0434  +1.53     -0.1061  5/6      yes     .
+  IB 4R re-entry      prior_loc  bottom half        355  +0.0468   0.0430  +1.09     -0.1207  5/6      yes     .
+  IB 4R re-entry      prior_loc  top quartile       178  +0.0413   0.0664  +0.62     -0.1429  4/6      yes     .
+  IB 4R re-entry      prior_loc  bottom quartile    178  -0.0298   0.0585  -0.51     -0.1878  2/6      yes     .
+  IB 4R re-entry      fomc       FOMC = 1            32  -0.1714   0.1700  -1.01     -0.6888  3/6       NO     .
+  IB 4R re-entry      fomc       FOMC = 0           678  +0.0673   0.0308  +2.18     -0.0999  5/6      yes     .
+  ORB-Fib cont ORB15 Avix_lvl    top half            48  +0.3525   0.1880  +1.87     -0.0758  5/6       NO     .
+  ORB-Fib cont ORB15 Avix_lvl    bottom half         48  -0.1447   0.1658  -0.87     -0.6442  1/6       NO     .
+  ORB-Fib cont ORB15 Avix_lvl    top quartile        24  +0.3184   0.2744  +1.16     -0.6889  5/6       NO     .
+  ORB-Fib cont ORB15 Avix_lvl    bottom quartile     24  +0.0056   0.2346  +0.02     -0.8756  2/3       NO     .
+  ORB-Fib cont ORB15 Avix_chg    top half            48  +0.1000   0.1758  +0.57     -0.3692  4/6       NO     .
+  ORB-Fib cont ORB15 Avix_chg    bottom half         48  +0.1078   0.1859  +0.58     -0.3775  4/6       NO     .
+  ORB-Fib cont ORB15 Avix_chg    top quartile        24  +0.2623   0.2596  +1.01     -0.6889  4/5       NO     .
+  ORB-Fib cont ORB15 Avix_chg    bottom quartile     24  +0.1828   0.2703  +0.68     -0.8732  4/6       NO     .
+  ORB-Fib cont ORB15 Aon_range   top half            54  +0.1003   0.1716  +0.58     -0.3209  4/6       NO     .
+  ORB-Fib cont ORB15 Aon_range   bottom half         54  +0.1442   0.1646  +0.88     -0.2655  5/6       NO     .
+  ORB-Fib cont ORB15 Aon_range   top quartile        27  -0.0551   0.2448  -0.23     -0.9809  4/6       NO     .
+  ORB-Fib cont ORB15 Aon_range   bottom quartile     27  +0.1902   0.2228  +0.85     -0.5903  4/6       NO     .
+  ORB-Fib cont ORB15 Aon_disp    top half            56  +0.2758   0.1700  +1.62     -0.0932  4/6       NO     .
+  ORB-Fib cont ORB15 Aon_disp    bottom half         56  -0.0449   0.1571  -0.29     -0.4723  3/6       NO     .
+  ORB-Fib cont ORB15 Aon_disp    top quartile        28  +0.2451   0.2375  +1.03     -0.5656  4/6       NO     .
+  ORB-Fib cont ORB15 Aon_disp    bottom quartile     28  -0.1414   0.2339  -0.60     -0.9831  3/6       NO     .
+  ORB-Fib cont ORB15 Aprior_loc  top half            56  -0.0495   0.1600  -0.31     -0.4772  4/6       NO     .
+  ORB-Fib cont ORB15 Aprior_loc  bottom half         56  +0.2804   0.1671  +1.68     -0.0885  5/6       NO     .
+  ORB-Fib cont ORB15 Aprior_loc  top quartile        28  -0.2977   0.1984  -1.50     -0.9881  1/6       NO     .
+  ORB-Fib cont ORB15 Aprior_loc  bottom quartile     28  +0.1182   0.2301  +0.51     -0.7026  4/6       NO     .
+  ORB-Fib cont ORB15 Afomc       FOMC = 0           111  +0.0987   0.1160  +0.85     -0.1294  5/6       NO     .
+  ORB-Fib cont ORB30 Avix_lvl    top half            34  +0.2249   0.1989  +1.13     -0.4081  4/6       NO     .
+  ORB-Fib cont ORB30 Avix_lvl    bottom half         34  +0.1855   0.1982  +0.94     -0.4477  4/6       NO     .
+  ORB-Fib cont ORB30 Avix_lvl    top quartile        17  +0.2641   0.2817  +0.94     -0.9232  4/4       NO     .
+  ORB-Fib cont ORB30 Avix_lvl    bottom quartile     17  -0.1384   0.2720  -0.51     -1.0345  1/2       NO     .
+  ORB-Fib cont ORB30 Avix_chg    top half            34  +0.2749   0.1873  +1.47     -0.3026  4/6       NO     .
+  ORB-Fib cont ORB30 Avix_chg    bottom half         34  +0.0764   0.2009  +0.38     -0.5858  2/6       NO     .
+  ORB-Fib cont ORB30 Avix_chg    top quartile        17  +0.1490   0.2623  +0.57     -0.8436  4/6       NO     .
+  ORB-Fib cont ORB30 Avix_chg    bottom quartile     17  +0.1335   0.2667  +0.50     -0.9414  3/5       NO     .
+  ORB-Fib cont ORB30 Aon_range   top half            37  +0.2492   0.1990  +1.25     -0.3405  4/6       NO     .
+  ORB-Fib cont ORB30 Aon_range   bottom half         37  +0.2095   0.1781  +1.18     -0.3341  3/6       NO     .
+  ORB-Fib cont ORB30 Aon_range   top quartile        18  +0.3192   0.3071  +1.04     -0.9457  3/5       NO     .
+  ORB-Fib cont ORB30 Aon_range   bottom quartile     18  +0.0107   0.2662  +0.04     -0.9413  1/4       NO     .
+  ORB-Fib cont ORB30 Aon_disp    top half            38  +0.2634   0.1693  +1.56     -0.2503  4/6       NO     .
+  ORB-Fib cont ORB30 Aon_disp    bottom half         38  +0.1508   0.1997  +0.76     -0.4597  3/6       NO     .
+  ORB-Fib cont ORB30 Aon_disp    top quartile        19  +0.2514   0.2658  +0.95     -0.7929  3/5       NO     .
+  ORB-Fib cont ORB30 Aon_disp    bottom quartile     19  -0.0355   0.2727  -0.13     -1.0250  2/6       NO     .
+  ORB-Fib cont ORB30 Aprior_loc  top half            38  +0.3416   0.1979  +1.73     -0.1942  5/6       NO     .
+  ORB-Fib cont ORB30 Aprior_loc  bottom half         38  +0.0726   0.1690  +0.43     -0.4451  3/6       NO     .
+  ORB-Fib cont ORB30 Aprior_loc  top quartile        19  +0.0921   0.2747  +0.34     -0.9658  2/5       NO     .
+  ORB-Fib cont ORB30 Aprior_loc  bottom quartile     19  -0.0429   0.2268  -0.19     -0.8017  2/5       NO     .
+  ORB-Fib cont ORB30 Afomc       FOMC = 0            76  +0.2071   0.1302  +1.59     -0.0616  5/6       NO     .
+
+================================================================================================================
+  RANDOM-LABEL CONTROL — matched group sizes, max statistic
+================================================================================================================
+  Conditions are permuted across dates WITHIN each condition's own
+  valid dates, so every subset has exactly the size it has in the
+  real data. This breaks cross-condition correlation, which makes
+  the permuted maximum LARGER and therefore the bar HARDER.
+
+  permuted GLOBAL max t, 95th percentile     +3.777
+  permuted GLOBAL max t, median              +2.926
+  observed best t across all subsets         +2.263
+  that subset                              IB 1R single / fomc / FOMC = 0  (n=652)
+  beats the control?                       NO
+  empirical p of the observed max            0.9902
+
+  set                       obs max t  perm 95th   beats?
+  IB 1R single                 +2.263     +3.531       no
+  IB 1R re-entry               +2.117     +3.594       no
+  IB 2R re-entry               +2.125     +3.297       no
+  IB 3R re-entry               +2.240     +3.271       no
+  IB 4R re-entry               +2.181     +3.237       no
+  ORB-Fib cont ORB15 A         +1.874     +2.823       no
+  ORB-Fib cont ORB30 A         +1.726     +3.259       no
+
+================================================================================================================
+  THE DECLARED DECISION
+================================================================================================================
+  subsets examined                            152
+  of those, claimable (n >= 150)             105
+  unresolvable on size                         47
+  passing all four bars                         1
+  claimable subsets with mean R > 0            95
+  ... and surviving the concentration rule      1
+
+  NO SUBSET BEATS THE 95TH PERCENTILE OF THE RANDOM-LABEL MAXIMUM.
+  Per the pre-registration, THE DIRECTION CLOSES. No new hypotheses.
+
+  2016-2020 was not read. Sealed days were not read.
