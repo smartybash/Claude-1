@@ -1,0 +1,120 @@
+========================================================================================================
+  PRE-OPEN CONDITIONING, STAGE 1 — COUNTS AND TEST BURDEN, BEFORE ANY RESULT
+========================================================================================================
+  sessions built                         1395
+  sessions rejected by the builder          3
+  sessions with no overnight tape           0
+  first session                      2021-01-05
+  last session                       2026-08-31
+  years covered                      [np.int64(2021), np.int64(2022), np.int64(2023), np.int64(2024), np.int64(2025), np.int64(2026)]
+
+  condition     n non-null   definition
+  on_range            1375   overnight range / trailing mean
+  on_disp             1395   overnight net displacement, bps signed
+  prior_loc           1395   prior close location in prior range
+  vix_lvl             1229   prior-day VIX close
+  vix_chg             1228   prior-day VIX change, points
+  fomc                1395   FOMC decision date flag
+
+  outcome       n non-null   definition
+  rv                  1395   session realised vol, bps
+  range               1395   session range, bps
+  eff_full            1395   efficiency ratio, full session
+  eff_post            1395   efficiency ratio, post-10:30
+  ret                 1395   signed session return, bps
+
+  conditions                       6
+  outcomes                         5
+  TOTAL TESTS                     30
+  Bonferroni alpha          0.001667
+  |rho| bar                     0.10
+  decile-spread bar (eff)      0.020
+  permutations per test        10000
+  years required to agree   4 of 6
+
+========================================================================================================
+  POSITIVE CONTROL — early rv (09:30-10:00) vs post-10:30 rv
+========================================================================================================
+  n = 1395   Spearman rho = +0.7327   required > 0.40
+  control PASSES — the pipeline reproduces a known-forecastable outcome.
+
+========================================================================================================
+  DECLARED REDUNDANCY CHECK (pre-registration §1.2)
+========================================================================================================
+  Spearman(|overnight displacement|, dropped `gap`) = +0.9995   n = 1395
+  `gap` was dropped as an already-tested predictor; this shows the overlap.
+
+========================================================================================================
+  OUTCOME: rv  —  session realised vol, bps
+========================================================================================================
+  condition         n   Spearman     perm p     bottom        top     spread    yrs   verdict
+  on_range       1375    +0.2966    0.00010    72.2144   107.1876   +34.9731   6/6       PASS
+  on_disp        1395    -0.1781    0.00010   133.4087   111.1811   -22.2277   5/6       PASS
+  prior_loc      1395    -0.1984    0.00010   125.3119    93.7354   -31.5765   6/6       PASS
+  vix_lvl        1229    +0.6956    0.00010    69.4469   181.0490  +111.6020   6/6       PASS
+  vix_chg        1228    +0.1081    0.00020   112.6810   142.9883   +30.3073   6/6       PASS
+  fomc           1395    +0.1258    0.00010    95.9626   132.6939   +36.7313   6/6       PASS
+
+========================================================================================================
+  OUTCOME: range  —  session range, bps
+========================================================================================================
+  condition         n   Spearman     perm p     bottom        top     spread    yrs   verdict
+  on_range       1375    +0.2495    0.00010   116.9871   176.4147   +59.4276   6/6       PASS
+  on_disp        1395    -0.0935    0.00050   218.1096   193.4427   -24.6669   3/6          .
+  prior_loc      1395    -0.1466    0.00010   195.3074   157.0171   -38.2903   6/6       PASS
+  vix_lvl        1229    +0.5901    0.00010   111.6089   294.6846  +183.0757   6/6       PASS
+  vix_chg        1228    +0.0488    0.08729   189.5242   219.8803   +30.3561   6/6          .
+  fomc           1395    +0.0840    0.00170   157.9411   212.8876   +54.9465   5/6          .
+
+========================================================================================================
+  OUTCOME: eff_full  —  efficiency ratio, full session
+========================================================================================================
+  condition         n   Spearman     perm p     bottom        top     spread    yrs   verdict
+  on_range       1375    -0.0162    0.54755     0.0589     0.0534    -0.0054   4/6          .
+  on_disp        1395    +0.0725    0.00740     0.0582     0.0665    +0.0083   5/6          .
+  prior_loc      1395    +0.0212    0.42566     0.0550     0.0601    +0.0051   5/6          .
+  vix_lvl        1229    +0.0763    0.00870     0.0599     0.0638    +0.0039   5/6          .
+  vix_chg        1228    -0.0690    0.01640     0.0624     0.0548    -0.0076   5/6          .
+  fomc           1395    +0.0216    0.42366     0.0598     0.0636    +0.0038   5/6          .
+
+========================================================================================================
+  OUTCOME: eff_post  —  efficiency ratio, post-10:30
+========================================================================================================
+  condition         n   Spearman     perm p     bottom        top     spread    yrs   verdict
+  on_range       1375    -0.0109    0.68523     0.0551     0.0601    +0.0049   4/6          .
+  on_disp        1395    +0.0356    0.18628     0.0609     0.0637    +0.0028   4/6          .
+  prior_loc      1395    +0.0686    0.01140     0.0531     0.0614    +0.0083   6/6          .
+  vix_lvl        1229    +0.0488    0.08659     0.0580     0.0616    +0.0037   4/6          .
+  vix_chg        1228    -0.0708    0.01280     0.0579     0.0499    -0.0080   5/6          .
+  fomc           1395    +0.0124    0.64514     0.0600     0.0653    +0.0053   4/6          .
+
+========================================================================================================
+  OUTCOME: ret  —  signed session return, bps
+========================================================================================================
+  condition         n   Spearman     perm p     bottom        top     spread    yrs   verdict
+  on_range       1375    -0.0372    0.16738     5.0838    -4.2838    -9.3677   5/6          .
+  on_disp        1395    +0.0084    0.75232     7.7499    -9.4015   -17.1514   3/6          .
+  prior_loc      1395    +0.0085    0.75542    12.7712     1.9764   -10.7948   4/6          .
+  vix_lvl        1229    +0.0407    0.15828     8.1828    18.7969   +10.6141   5/6          .
+  vix_chg        1228    -0.0169    0.55424    -5.6776    17.8908   +23.5684   4/6          .
+  fomc           1395    +0.0015    0.95550     2.7097     0.7183    -1.9913   4/6          .
+
+========================================================================================================
+  THE DECLARED DECISION POINT
+========================================================================================================
+  tests run                                       30  (declared 30)
+  passing on eff_full / eff_post / ret             0
+  passing on rv / range (NOT sufficient)           9
+  largest |rho| on a decision outcome         0.0763
+  largest |rho| anywhere                      0.6956
+  smallest permutation p anywhere             0.00010   threshold 0.001667
+
+  NO CONDITION PREDICTS EFFICIENCY OR DIRECTION BEYOND THE CORRECTED
+  THRESHOLD. Per the pre-registration this STOPS AT STAGE 1 and is
+  reported as a replication of the regime finding on a new class of
+  predictors. No strategy stage, no Stage 2.
+
+  Volatility-side passes are reported as a successful positive
+  control and nothing more — declared in advance as NOT sufficient.
+
+  2016-2020 was not read. Sealed NQ days were not read.
