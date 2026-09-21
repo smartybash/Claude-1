@@ -1,0 +1,3 @@
+alert_ts,side,chart_entry,chart_stop,chart_target,kind,pos_before,chart_exit_ts,chart_exit_px,chart_exit_why
+2026-09-22T13:35:00Z,short,29733.13,29745.50,29699.00,entry,flat,2026-09-22T14:05:00Z,29699.00,tp
+2026-09-22T14:05:00Z,long,29699.00,29687.00,29733.60,reversal,short,2026-09-22T14:20:00Z,29687.00,sl
