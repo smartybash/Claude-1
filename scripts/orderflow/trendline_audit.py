@@ -50,6 +50,7 @@ COMMISSION_PTS = 0.22           # round turn, reconciled to the supplied ledger
 SEALED_PREFIX, SEALED_DATES = "202606", {"20260723"}
 
 MIN_REVERSALS = 100             # the declared stopping point
+EXPECTED_TICK = 0.25            # NQ. NOT 1.0, NOT 5.0.
 
 ALERT_COLS = [
     "alert_ts",        # 1  UTC, when the alert FIRED (not the bar time)
@@ -67,17 +68,52 @@ ALERT_COLS = [
 
 # ---------------------------------------------------------------- tape ----
 
-def true_tick_files():
-    """Only fmt=1 encoded recordings. The plain .gz copies are quantised to
-    5 points and cannot resolve a ~12-point stop against a reversal."""
-    out = {}
+def _grid(path):
+    """Measured smallest price gap. Format flags are NOT trusted: a plain .gz
+    can be full resolution and an encoded file could in principle be coarse.
+    Only measurement decides."""
+    from math import gcd
+    px = load_any(path)["price"].astype(float)
+    u = sorted(set((px * 4).round().astype(int)))
+    if len(u) < 2:
+        return float("inf")
+    g = 0
+    for a, b in zip(u[:-1], u[1:]):
+        g = gcd(g, b - a)
+    return g * 0.25 if g else float("inf")
+
+
+def true_tick_files(cache=ROOT / "data/cache/tape_grid.json"):
+    """Per date, the file with the FINEST measured grid, and only if it is
+    0.25. Measurements are cached because they require a full decode."""
+    import json
+    seen = {}
+    try:
+        seen = json.loads(cache.read_text())
+    except Exception:
+        pass
+    best, dirty = {}, False
     for f in sorted(glob.glob(str(TAPE / "TAPE_NQ_*"))):
         d = re.search(r"(20\d{6})", os.path.basename(f)).group(1)
         if d.startswith(SEALED_PREFIX) or d in SEALED_DATES:
             continue
-        if is_encoded(f):
-            out[d] = f
-    return out
+        key = f"{os.path.basename(f)}:{os.path.getsize(f)}"
+        if key not in seen:
+            try:
+                seen[key] = _grid(f)
+            except Exception:
+                seen[key] = float("inf")
+            dirty = True
+        g = seen[key]
+        if g <= EXPECTED_TICK + 1e-9 and (d not in best or g < best[d][1]):
+            best[d] = (f, g)
+    if dirty:
+        try:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(json.dumps(seen))
+        except Exception:
+            pass
+    return {d: f for d, (f, _g) in best.items()}
 
 
 def load_tape(dates):
@@ -314,10 +350,145 @@ def selftest():
     report(R)
 
 
+# ------------------------------------------------------ step 1 / step 2 ----
+
+
+def verify(path):
+    """STEP 1. Report the five required facts and FAIL unless the grid is 0.25."""
+    from math import gcd
+    print("=" * 96)
+    print("  STEP 1 — RECORDER VERIFICATION")
+    print("=" * 96)
+    if not os.path.exists(path):
+        print(f"  file not found: {path}")
+        return 2
+    enc = is_encoded(path)
+    df = load_any(path)
+    t = pd.to_datetime(df["time"])
+    px = df["price"].astype(float)
+    u = sorted(set((px * 4).round().astype(int)))
+    g = 0
+    for a, b in zip(u[:-1], u[1:]):
+        g = gcd(g, b - a)
+    step = g * 0.25 if g else float("nan")
+
+    d = re.search(r"(20\d{6})", os.path.basename(path))
+    same_day = []
+    if d:
+        for f in glob.glob(str(TAPE / f"TAPE_NQ_{d.group(1)}*")):
+            same_day.append((os.path.basename(f), is_encoded(f)))
+    chosen = true_tick_files().get(d.group(1)) if d else None
+
+    print(f"  file                     {os.path.basename(path)}")
+    print(f"  format                   {'ENCODED fmt=1' if enc else 'PLAIN (degraded)'}")
+    print(f"  first timestamp          {t.iloc[0]}")
+    print(f"  last  timestamp          {t.iloc[-1]}")
+    print(f"  rows                     {len(px):,}")
+    print(f"  distinct traded prices   {len(u):,}")
+    print(f"  smallest price gap       {step:.2f}")
+    print(f"  price range              {px.min():.2f} .. {px.max():.2f}")
+    print(f"  same-day files on disk   {same_day if same_day else 'none'}")
+    print(f"  audit loader would pick  "
+          f"{os.path.basename(chosen) if chosen else 'NOTHING (no file at 0.25 for this date)'}")
+    print()
+    if abs(step - 5.0) < 1e-9:
+        print("  *** STOP. Smallest gap is 5.00. This is the degraded copy. ***")
+        return 1
+    if abs(step - EXPECTED_TICK) > 1e-9:
+        print(f"  *** STOP. Smallest gap is {step:.2f}, expected {EXPECTED_TICK}. ***")
+        print("  NQ trades on a 0.25 grid. Any coarser step is still quantised.")
+        return 1
+    if chosen is None or os.path.basename(chosen) != os.path.basename(path):
+        print("  *** STOP. Grid is 0.25 but the loader would not select this "
+              "file. ***")
+        return 1
+    print(f"  PASS — 0.25 grid, {'encoded' if enc else 'plain'} format, "
+          f"loader selects THIS file over the same-day copies.")
+    return 0
+
+
+def check_alert(raw):
+    """STEP 2. Reconcile ONE alert to the first executable tick."""
+    import json
+    print("=" * 96)
+    print("  STEP 2 — SINGLE ALERT RECONCILIATION")
+    print("=" * 96)
+    try:
+        a = json.loads(raw)
+    except Exception as e:
+        print(f"  JSON did not parse: {e}")
+        return 2
+    ok = True
+    ts = pd.Timestamp(a.get("ts"))
+    if ts.tzinfo is not None:
+        ts = ts.tz_convert("UTC").tz_localize(None)
+    print(f"  1 timestamp parses      {ts}   (tape clock is UTC — no conversion)")
+    ok &= pd.notna(ts)
+
+    act = str(a.get("act", "")).lower()
+    pos = str(a.get("pos", "")).lower()
+    prev = str(a.get("prev", "")).lower()
+    side = 1 if pos.startswith("l") else (-1 if pos.startswith("s") else 0)
+    print(f"  2 side                  act={act!r} pos={pos!r} -> "
+          f"{'LONG' if side > 0 else 'SHORT' if side < 0 else 'FLAT (an exit)'}")
+    ok &= act in ("buy", "sell")
+
+    if prev in ("", "flat", "none"):
+        kind = "entry"
+    elif pos in ("", "flat", "none"):
+        kind = "exit"
+    elif prev != pos:
+        kind = "REVERSAL"
+    else:
+        kind = "add/scale"
+    print(f"  3 fresh entry vs reversal  prev={prev!r} -> {kind}")
+
+    px = a.get("px")
+    print(f"  4 chart order price     {px}")
+    ok &= isinstance(px, (int, float))
+    if isinstance(px, (int, float)):
+        ongrid = abs(round(px / EXPECTED_TICK) * EXPECTED_TICK - px) < 1e-9
+        print(f"    on the 0.25 grid?     {ongrid}"
+              + ("" if ongrid else "   <- a line value, not a tradeable price"))
+
+    cmt = str(a.get("cmt", "") or "")
+    oid = str(a.get("id", "") or "")
+    tag = next((k for k in ("tp", "target", "sl", "stop", "rev", "entry")
+                if k in (cmt + " " + oid).lower()), None)
+    print(f"  5 comment/id tag        cmt={cmt!r} id={oid!r} -> "
+          f"{tag or 'NONE — fall back to the position transition above'}")
+
+    d = ts.strftime("%Y%m%d")
+    T = load_tape([d])
+    if d not in T:
+        print(f"  6 first executable tick  NO TRUE-TICK TAPE FOR {d}")
+        print("    Cannot reconcile. Restore the recorder first.")
+        return 1
+    t_, p_ = T[d]
+    i, fill = first_after(t_, p_, ts)
+    if i is None:
+        print("  6 first executable tick  none after the alert (end of tape)")
+        return 1
+    lag = (pd.Timestamp(t_[i]) - ts).total_seconds()
+    print(f"  6 first executable tick  {pd.Timestamp(t_[i])}  @ {fill:.2f}"
+          f"   (+{lag:.3f}s after the alert)")
+    if isinstance(px, (int, float)) and side:
+        slip = -side * (fill - float(px))
+        print(f"    slippage vs chart      {slip:+.2f} pts"
+              f"   ({'adverse' if slip < 0 else 'favourable'})")
+    print()
+    print("  RECONCILED" if ok else "  INCOMPLETE — see the lines above")
+    return 0 if ok else 1
+
+
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "audit"
     if mode == "selftest":
         return selftest()
+    if mode == "verify":
+        return verify(sys.argv[2])
+    if mode == "alert":
+        return check_alert(sys.argv[2])
     if not ALERTS.exists():
         print(f"No alert file at {ALERTS}.")
         print("The forward audit cannot start until the script's own alerts "
@@ -339,4 +510,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)
