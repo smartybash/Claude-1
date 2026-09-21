@@ -68,6 +68,19 @@ ALERT_COLS = [
 
 # ---------------------------------------------------------------- tape ----
 
+def _grid_rows(path):
+    """(smallest measured price gap, row count). Measurement only."""
+    from math import gcd
+    px = load_any(path)["price"].astype(float)
+    u = sorted(set((px * 4).round().astype(int)))
+    if len(u) < 2:
+        return float("inf"), len(px)
+    g = 0
+    for a, b in zip(u[:-1], u[1:]):
+        g = gcd(g, b - a)
+    return (g * 0.25 if g else float("inf")), len(px)
+
+
 def _grid(path):
     """Measured smallest price gap. Format flags are NOT trusted: a plain .gz
     can be full resolution and an encoded file could in principle be coarse.
@@ -100,20 +113,24 @@ def true_tick_files(cache=ROOT / "data/cache/tape_grid.json"):
         key = f"{os.path.basename(f)}:{os.path.getsize(f)}"
         if key not in seen:
             try:
-                seen[key] = _grid(f)
+                seen[key] = list(_grid_rows(f))
             except Exception:
-                seen[key] = float("inf")
+                seen[key] = [float("inf"), 0]
             dirty = True
-        g = seen[key]
-        if g <= EXPECTED_TICK + 1e-9 and (d not in best or g < best[d][1]):
-            best[d] = (f, g)
+        v = seen[key]
+        g, nrows = (v[0], v[1]) if isinstance(v, list) else (v, 0)
+        if g > EXPECTED_TICK + 1e-9:
+            continue
+        # finest valid grid first, then the best verified coverage (most prints)
+        if d not in best or (g, -nrows) < (best[d][1], -best[d][2]):
+            best[d] = (f, g, nrows)
     if dirty:
         try:
             cache.parent.mkdir(parents=True, exist_ok=True)
             cache.write_text(json.dumps(seen))
         except Exception:
             pass
-    return {d: f for d, (f, _g) in best.items()}
+    return {d: f for d, (f, _g, _n) in best.items()}
 
 
 def load_tape(dates):
@@ -353,57 +370,90 @@ def selftest():
 # ------------------------------------------------------ step 1 / step 2 ----
 
 
+def _status_for(date):
+    """Platform TickSize and the recorder's own measured gap, if a status file
+    exists for this date. The configured ATAS Step is NOT stored in the file;
+    it is inferred below as measured_gap / TickSize."""
+    f = ROOT / f"data/status/_status_{date}.txt"
+    if not f.exists():
+        return {}
+    txt = f.read_text(errors="ignore")
+    out = {}
+    m = re.search(r"TickSize\s*=\s*([0-9.]+)", txt)
+    if m:
+        out["ticksize"] = float(m.group(1))
+    m = re.search(r"smallest gap actually seen:\s*([0-9.]+)", txt)
+    if m:
+        out["status_gap"] = float(m.group(1))
+    m = re.search(r"recorder version:\s*(\S+)", txt)
+    if m:
+        out["version"] = m.group(1)
+    return out
+
+
 def verify(path):
-    """STEP 1. Report the five required facts and FAIL unless the grid is 0.25."""
-    from math import gcd
+    """STEP 1. Judge the MEASURED output gap only.
+
+    Not the filename. Not the compression format. Not the configured Step.
+    PASS only if the recorded tape shows a minimum nonzero price gap of
+    exactly 0.25. FAIL on anything else, including 1.00 and 5.00.
+    """
     print("=" * 96)
-    print("  STEP 1 — RECORDER VERIFICATION")
+    print("  STEP 1 — RECORDER VERIFICATION (measured output only)")
     print("=" * 96)
     if not os.path.exists(path):
         print(f"  file not found: {path}")
         return 2
-    enc = is_encoded(path)
+    d = re.search(r"(20\d{6})", os.path.basename(path))
+    date = d.group(1) if d else None
+    st = _status_for(date) if date else {}
+
     df = load_any(path)
     t = pd.to_datetime(df["time"])
     px = df["price"].astype(float)
+    step = _grid(path)
     u = sorted(set((px * 4).round().astype(int)))
-    g = 0
-    for a, b in zip(u[:-1], u[1:]):
-        g = gcd(g, b - a)
-    step = g * 0.25 if g else float("nan")
 
-    d = re.search(r"(20\d{6})", os.path.basename(path))
-    same_day = []
-    if d:
-        for f in glob.glob(str(TAPE / f"TAPE_NQ_{d.group(1)}*")):
-            same_day.append((os.path.basename(f), is_encoded(f)))
-    chosen = true_tick_files().get(d.group(1)) if d else None
+    ts = st.get("ticksize")
+    cfg = (step / ts) if (ts and np.isfinite(step)) else None
 
-    print(f"  file                     {os.path.basename(path)}")
-    print(f"  format                   {'ENCODED fmt=1' if enc else 'PLAIN (degraded)'}")
+    same_day = sorted(
+        (os.path.basename(f),) + _grid_rows(f)
+        for f in glob.glob(str(TAPE / f"TAPE_NQ_{date}*"))) if date else []
+    chosen = true_tick_files().get(date) if date else None
+
+    print(f"  1 configured ATAS Step   "
+          + (f"{cfg:.0f}  (inferred: measured gap / TickSize)" if cfg
+             else "unknown — no status file for this date"))
+    print(f"  2 platform TickSize      "
+          + (f"{ts}" if ts else "not reported in a status file"))
+    print(f"  3 smallest nonzero gap   {step:.2f}   <- THE ONLY PASS CRITERION")
+    if "status_gap" in st:
+        print(f"    recorder also says     {st['status_gap']:.2f}"
+              + ("  (agrees)" if abs(st["status_gap"] - step) < 1e-9
+                 else "  *** DISAGREES WITH THE TAPE ***"))
+    print(f"  4 distinct traded prices {len(u):,}   over {len(px):,} prints")
+    print(f"  5 same-date files        ")
+    for nm, g, nr in same_day:
+        mark = "  <- SELECTED" if chosen and nm == os.path.basename(chosen) else ""
+        print(f"      {nm:<38} gap {g:>5.2f}  {nr:>9,} prints{mark}")
+    print(f"    selection rule         finest measured valid grid, then most prints")
     print(f"  first timestamp          {t.iloc[0]}")
     print(f"  last  timestamp          {t.iloc[-1]}")
-    print(f"  rows                     {len(px):,}")
-    print(f"  distinct traded prices   {len(u):,}")
-    print(f"  smallest price gap       {step:.2f}")
     print(f"  price range              {px.min():.2f} .. {px.max():.2f}")
-    print(f"  same-day files on disk   {same_day if same_day else 'none'}")
-    print(f"  audit loader would pick  "
-          f"{os.path.basename(chosen) if chosen else 'NOTHING (no file at 0.25 for this date)'}")
     print()
-    if abs(step - 5.0) < 1e-9:
-        print("  *** STOP. Smallest gap is 5.00. This is the degraded copy. ***")
-        return 1
-    if abs(step - EXPECTED_TICK) > 1e-9:
-        print(f"  *** STOP. Smallest gap is {step:.2f}, expected {EXPECTED_TICK}. ***")
-        print("  NQ trades on a 0.25 grid. Any coarser step is still quantised.")
+    if not np.isfinite(step) or abs(step - EXPECTED_TICK) > 1e-9:
+        print(f"  *** FAIL. Measured gap is {step:.2f}, required exactly "
+              f"{EXPECTED_TICK}. ***")
+        if cfg:
+            print(f"      That is ATAS Step = {cfg:.0f}. Set Step = 1.")
         return 1
     if chosen is None or os.path.basename(chosen) != os.path.basename(path):
-        print("  *** STOP. Grid is 0.25 but the loader would not select this "
-              "file. ***")
+        print("  *** FAIL. Gap is 0.25 but the loader selects a different "
+              "same-date file. ***")
         return 1
-    print(f"  PASS — 0.25 grid, {'encoded' if enc else 'plain'} format, "
-          f"loader selects THIS file over the same-day copies.")
+    print("  PASS — measured gap is exactly 0.25 and the loader selects "
+          "this file.")
     return 0
 
 
