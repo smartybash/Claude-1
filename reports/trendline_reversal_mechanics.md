@@ -270,3 +270,167 @@ reported flagged as such rather than left to read as a risk statistic.
    so it is not fixed.
 
 With those, the state machine in §3 has no empty slots and all three models run.
+
+---
+
+# PART 2 — what the evidence constrains, and the pseudocode
+
+**I cannot supply the four specification blocks.** Anchoring, stop rule, target
+rule and reversal ordering are facts about your script. Writing plausible
+answers and then testing them would produce numbers describing my guess.
+
+What follows is (a) what your data *does* constrain, and (b) the full state
+machine with the unknowns as named slots.
+
+## 2.1 The stop is not fixed
+
+| | |
+|---|---|
+| the one stop in your sample | **6.36 pts** |
+| aggregate average loss | **23.2 pts** |
+| ratio | **3.6×** |
+
+A fixed-point stop caps ordinary losses near a constant. These are 3.6× apart.
+**Rules out a fixed stop.** Consistent with ATR-scaled, swing-based, or
+geometry-based.
+
+## 2.2 Target does not scale with per-trade risk — or risk is flat within a day
+
+| | |
+|---|---|
+| TP spread **within** the sample day | 14.43 → 21.55 = **1.49×** |
+| stop spread **across** the record (implied) | **3.6×** |
+
+If `TP = m × risk` and risk varies 3.6× across the record, TP should vary as
+much wherever risk does. Within one day it varies only 1.49×. Two readings,
+both consistent:
+
+- TP scales with something smoother than per-trade risk (session volatility,
+  channel width); **or**
+- risk is near-constant *within* a day and varies *across* days — which is
+  exactly what an ATR-based stop does.
+
+**The second is the more economical explanation and fits everything else.**
+
+## 2.3 A reversal exit breached its own stop by ~4×
+
+Fri 04:20 Long 29929.25 → Fri 04:25 exit **29904.42** on `Rev`, **−24.83 pts**.
+
+The sample's stop was 6.36 pts. If that trade's stop were similar, price ran
+**18.5 points past it** and the trade still booked at the reversal price.
+
+**This contradicts the export's own description** — *"the opposite trade opened
+between entry and stop"*. Either that trade's stop was wider than 24.83, or
+**reversal exits are not bounded by the stop**. Both cannot be true.
+
+**This is the single most important thing to resolve**, because it decides
+whether the stop is a real risk limit or a level the reversal path can ignore.
+
+## 2.4 Where the losses actually sit — a reconstruction, assumptions stated
+
+Assuming the sample day's reward-to-risk (2.62) holds on average, and that
+stop exits lose R while reversal exits lose X:
+
+| | |
+|---|---|
+| implied average risk R | **12.0 pts ($241)** |
+| implied average target | 31.5 pts |
+| stop exits | 485, losing ~12.0 pts |
+| **reversal exits** | **438, losing ~35.6 pts = 3.0× the stop** |
+| **share of ALL loss carried by reversal exits** | **≈ 73%** |
+
+**Cross-check:** the reconstruction predicts reversal exits average 3.0× their
+stop; the one observed `Rev` is **3.9×**. Right order of magnitude.
+
+> **20.4% of trades carry roughly three-quarters of all losses, and those are
+> exactly the trades whose exit price is set by an intrabar ordering
+> assumption.**
+
+This sharpens the hypothesis. The A-versus-C difference will not be spread
+evenly across 2,147 trades — it concentrates almost entirely in the 438.
+
+**Flagged as a reconstruction, not a measurement.** It rests on the sample day's
+RR generalising, and that day was 87% winners against a 57% record. A full
+trade list replaces it with the real numbers.
+
+## 2.5 Pseudocode — complete except for three named slots
+
+```
+# ---------------- UNKNOWN, must be supplied ----------------
+# U1  anchor(bars, i) -> (line_long, line_short)
+#       Q1.1 what two points anchor the line?
+#       Q1.2 do anchors move after placement?
+#       Q1.3 do pivots need future bars to confirm?   <- if yes, LOOKAHEAD
+#       Q1.4 can the line repaint?                    <- if yes, Model A is
+#                                                        unimplementable, not
+#                                                        merely optimistic
+# U2  stop_px(side, entry, bars, i) -> price
+#       Q2.1 rule?  Q2.2 ATR?  Q2.3 swing?  Q2.4 line geometry?
+# U3  target_px(side, entry, stop, bars, i) -> price
+#       Q3.1 formula?  Q3.2 scales with risk?  Q3.3 with channel size?
+#       Q3.4 modified after entry?              <- trailing changes everything
+# -----------------------------------------------------------
+
+REENTRY_WAIT = 0        # known
+REVERSE_ON   = True     # known
+SESSION      = 24h      # known: the bell has no boundary, never fires
+TICK         = 0.25     # NQ
+
+state, pos = FLAT, None
+
+for i in bars:                                   # 5-minute NQ
+    line_L, line_S = U1.anchor(bars, i)
+    sig_L = triggered(bars[i], line_L, UP)       # UNKNOWN trigger type:
+    sig_S = triggered(bars[i], line_S, DOWN)     # touch | close | tick-through
+
+    if state == FLAT:
+        if sig_L or sig_S:
+            enter(side, px = line_price)         # A: at the line
+        continue                                 # B: next bar open
+                                                 # C: first tick at/through,
+                                                 #    snapped to TICK, BBO-crossed
+    hit_stop = touched(bars[i], pos.stop_px)
+    hit_tp   = touched(bars[i], pos.tp_px)
+    hit_rev  = sig_S if pos.side == LONG else sig_L
+
+    # ================= THE ORDERING PROBLEM =================
+    # When two or more of these fire on ONE 5-minute bar, the OHLC
+    # contains NO information about which came first.
+    #
+    #  MODEL A  reversal wins ties, books at the NEW ENTRY price.
+    #           This is the 438 trades. Optimistic by construction.
+    #  MODEL B  nothing resolves intrabar. Everything executes at the
+    #           NEXT bar's open. Ties cannot exist.
+    #  MODEL C  read the tick sequence. Whichever price printed first,
+    #           wins. No tie is ever resolved by assumption.
+    # ========================================================
+
+    if hit_stop or hit_tp or hit_rev:
+        exit_px = resolve_exit(model, bars[i], ticks[i], pos)
+        close(pos, exit_px)
+        if hit_rev and REENTRY_WAIT == 0:
+            enter(opposite_side, px = line_price)   # SAME BAR — the
+                                                    # v2.6.2 lookahead
+```
+
+## 2.6 The one artefact that removes all three unknowns without source code
+
+**The full List of Trades export as CSV** — all 2,147 rows, with entry price,
+exit price, both timestamps, side, and exit type.
+
+From that I can **derive** the rules rather than be told them:
+
+| derivable | how |
+|---|---|
+| **stop rule** | every `SL` row gives an exact stop distance. Regress it on ATR(n) at entry, on the prior swing distance, and on the line-to-line channel width. Whichever fits, wins |
+| **does TP scale with risk** | pair `TP` distances against the stop distances of neighbouring trades on the same day. Constant ratio → risk-scaled. Constant absolute → volatility-scaled |
+| **TP formula** | same regression, against the same candidates |
+| **reversal ordering** | every `Rev` row where the exit is *beyond* the stop distance proves reversal exits are not stop-bounded. One such row already exists (§2.3); the count settles it |
+| **anchoring** | the hardest. Entry prices give the line's value at known timestamps. **Two entries on the same line give its slope**, and the slope points back at the anchor bars |
+
+That last one is the real prize: **a full trade list is a set of samples of the
+trendline function**, and with enough of them the anchoring rule is recoverable
+by fitting rather than by guessing.
+
+**If you can send the trade list covering 2026-07-01 → 2026-08-20**, those rows
+sit inside the true-tick window and I can reconcile them print by print.
