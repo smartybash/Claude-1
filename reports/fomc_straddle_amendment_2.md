@@ -140,3 +140,54 @@ family uses 2016–2020 as OOS.**
 ---
 
 Committed before `scripts/orderflow/fomc_straddle.py` was written or run.
+
+---
+
+## F. Correction to §C and to amendment 1 §A, before the run
+
+Building the script surfaced two errors in the counts declared above. Nothing
+had been run; no P&L informed either correction.
+
+### 1. The quarterly count was computed with a naive Friday
+
+§C classified contract class using the same-week Friday without applying the
+holiday fallback that the pre-registration §9 declares. **2026-06-19 is
+Juneteenth, a Friday market holiday**, so the June 2026 FOMC week has no Friday
+expiry and the fallback moves it to Thursday 2026-06-18.
+
+Calling that Thursday a weekly is wrong. **When the third Friday is an exchange
+holiday, the monthly and quarterly contracts expire on the preceding Thursday** —
+2026-06-18 *is* the June 2026 quarterly. The classifier is now holiday-aware
+(`standard_expiry`).
+
+**The declared counts in §C are unchanged and correct: 27 of 84 quarterly, 15
+discovery and 12 OOS, 57 non-quarterly.** The intermediate figure of 26 produced
+by the naive classifier was the error, and it is recorded here rather than
+quietly fixed. The promotion gate and its stated operating characteristic
+(split SE 10.5% against pooled MDE 9.8%, ~35% false-void under a true null)
+stand as declared.
+
+### 2. The DTE-1 set is four events, not three
+
+Amendment 1 §A listed three events exiting at DTE 1, all election-week
+Thursdays. **There is a fourth:** 2026-06-17, where the Juneteenth holiday moves
+the expiry to Thursday 2026-06-18 and leaves the announcement-day exit one day
+from expiry.
+
+| event | weekday | expiry | cause | quarterly |
+|---|---|---|---|---|
+| 2018-11-08 | Thursday | 2018-11-09 | midterm shift | no |
+| 2020-11-05 | Thursday | 2020-11-05+1 | election shift | no |
+| 2024-11-07 | Thursday | 2024-11-08 | election shift | no |
+| **2026-06-17** | **Wednesday** | **2026-06-18** | **Juneteenth holiday** | **yes** |
+
+80 events exit at DTE 2, four at DTE 1. The DTE split remains **a reported
+diagnostic excluded from promotion**, on the same footing as before; only its
+membership changes.
+
+### Placebo exclusions
+
+Two placebos fall on market holidays and are excluded, recorded not silent:
+**2024-06-19** (Juneteenth) and **2024-12-25** (Christmas). Placebo count is
+**166**, not 168. Placebo standard-expiry share is **19 of 166 (11%)** against
+the events' 27 of 84 (32%); the confound in §C is unchanged.
