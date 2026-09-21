@@ -49,6 +49,10 @@ EXITS = ("IBbound", "1.5R", "2R")
 
 N_VARIANTS = len(ZONES) * len(REJECTS) * len(EXITS)      # 18
 
+# Optional hook so the FROZEN rule can be run on another instrument without
+# editing it. (px, day) -> (lo_lim, hi_lim) in that instrument's price units.
+LIMIT_HOOK = None
+
 
 def nq_to_qqq(pts):
     """NQ points -> QQQ price units. NQ = QQQ x 41.27, so 1 NQ pt = 1/41.27."""
@@ -153,9 +157,12 @@ def run_session(S, zone, rej, ex, use_ez=True, flip=False, shift=0.0,
     t, hi, lo, op, cl = S["t"], S["hi"], S["lo"], S["op"], S["cl"]
     n, px, d = len(t), S["px"], Q["d"]
     vw = vwap_series(S)
-    buf = nq_to_qqq(BUFFER_TICKS_NQ)
-    lo_lim = max(nq_to_qqq(MIN_PTS_NQ), px * COST_F / COST_FRAC_MAX)
-    hi_lim = nq_to_qqq(MAX_PTS_NQ)
+    if LIMIT_HOOK is not None:
+        buf, lo_lim, hi_lim = LIMIT_HOOK(px, S["day"])
+    else:
+        buf = nq_to_qqq(BUFFER_TICKS_NQ)
+        lo_lim = max(nq_to_qqq(MIN_PTS_NQ), px * COST_F / COST_FRAC_MAX)
+        hi_lim = nq_to_qqq(MAX_PTS_NQ)
 
     i0 = int(np.searchsorted(t, 60, "left"))
     broke_at = None
