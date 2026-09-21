@@ -190,3 +190,27 @@ unchanged either way (−0.047 vs −0.0433). Corrected in **`6c99ff1`**.
 
 **Two errors changed a reported number (5, 8). One is permanently
 unrecoverable (6). The rest were caught before they could.**
+
+## Contradicting evidence already committed to the repository
+
+**2. FOMC announcement weekday hardcoded to Wednesday** (`a971882`, corrected
+`b7becac`). The pre-registration fixed entry to Tuesday close, exit to Wednesday
+close, and gated on every announcement date being a Wednesday. Three of the 84
+events are Thursdays — the November meeting shifts to Wed-Thu in election and
+midterm weeks (2018-11-08, 2020-11-05, 2024-11-07). The gate would have rejected
+valid events and the fill construction was wrong for them.
+
+The fact was **already in the repository**: the commit that added
+`data/events/fomc.csv` (`a306378`, 2026-09-18) states that "the single non
+Wednesday is the November 2024 meeting that shifted for the election, which is
+correct rather than an error." The pre-registration was written three days later
+and contradicted it.
+
+Caught pre-run by independently recalling the 2021-2026 dates to validate the
+recall method, which surfaced the weekday as a side effect. Nothing had been run,
+so no result changed.
+
+**This is the same failure mode as entry 1 (ATAS `Step` vs `TickSize`,
+`5509fcc`): evidence already on disk, contradicted rather than checked.** Both are
+specification errors. Neither would have raised an exception; both would have
+produced plausible-looking numbers.
