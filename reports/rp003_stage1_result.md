@@ -219,3 +219,27 @@ minutes on **52.3%** of signals.
 No Stage 2. No trading proposal. No data acquired. **2023–2025 not read.**
 
 RP-004 (intraday lead-lag) remains unrun and awaits separate authorisation.
+
+---
+
+## Closure entry, as recorded by the principal
+
+Closed as an **economic and mechanism failure**:
+
+1. Best gross contraction **+0.92 bps** against the pre-declared **2.0 bps**.
+2. Estimated net contraction after paired costs **+0.38 bps**.
+3. Average adverse expansion **7.02 bps ≈ 7.6×** the gross contraction.
+4. **Positive residuals contracted; negative residuals kept expanding.** The
+   proposed relative-value mechanism was not symmetric.
+5. A deliberately incorrect beta of **0.75×** performed better at key horizons.
+   The estimated hedge ratio was **not load-bearing**.
+6. Frequency was excellent at **44 signals/month** — and frequency does not
+   rescue economically inert signals.
+7. QQQ alone did not explain the result, which is worth recording, but is
+   insufficient to overcome the failed economics and controls.
+
+> The QQQ and SPY residual exists and is measurable, but its future contraction
+> is too small, too adverse before resolution, one sided, and insensitive to the
+> proposed hedge ratio. **It is not tradeable after paired execution costs.**
+
+2023 and 2024–2025 not opened. No Stage 2. No data acquisition.
