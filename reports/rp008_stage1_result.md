@@ -340,3 +340,39 @@ applied unchanged; the one addition — block-relative terciles — was made at 
 counts stage before any forward outcome was computed, is labelled a diagnostic
 throughout, and made the volatility axis look **better**, not worse, without
 changing the verdict.
+
+---
+
+## Closure entry, as recorded by the principal
+
+RP-008 is accepted as closed and the dynamic regime allocator branch is closed
+with it. Recorded:
+
+1. **Forward volatility in basis points is predictable from recent volatility.**
+2. **Once movement is normalised by the ATR unit used to size risk, volatility
+   states do not create materially different excursion or stop-out
+   environments.**
+3. **The six regime labels add effectively no explanatory value beyond time of
+   day and current volatility** — +0.0014 R² for forward volatility, +0.0001 for
+   forward excursion.
+4. **Path efficiency remains broadly flat through the session** (0.127–0.140).
+5. **Time of day produces the only large, stable forward distinction.**
+6. **Forward volatility falls approximately 44% and excursions approximately
+   55% from the open to the later session.**
+7. **The session becomes quieter, not more directional.**
+8. **Neighbouring volatility thresholds produce nearly identical results**,
+   indicating a continuous gradient rather than distinct regimes.
+
+> **Therefore there is no basis for a dynamic selector switching strategies
+> according to low, normal or high volatility states.**
+
+**Verdict: regimes not meaningful. RP-008 closed before strategy P&L was
+opened.**
+
+Stage 2 was not opened. No conditional strategy performance was inspected. No
+allocator was constructed from the existing strategy library.
+
+**Preserved finding, recorded in the form it should carry forward:** *time of
+day is economically meaningful, and it is a **continuous opportunity gradient**,
+not a regime.* It requires no detection, no classification and no state
+variable. It is the input to RP-009.
