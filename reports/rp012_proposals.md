@@ -38,9 +38,13 @@ regardless of which proposal is approved.
 - **2023 was opened by RP-006B** (cross-sectional ranking) and is treated as
   examined, not clean.
 - **2021–2022 is examined** by several closed families.
-- **2024–2025 (502 sessions) is unread** and is the only genuinely untouched
-  intraday block. It is proposed as final OOS in exactly one place, because it
-  can only be spent once.
+- ~~**2024–2025 (502 sessions) is unread** and is the only genuinely untouched
+  intraday block.~~ **CORRECTED at RP-012A Stage 0: false.** 2024–2025 was read
+  by IB 1R (`related_instruments.py`), the ORB-Fib and IB-pullback instrument
+  extensions (all 2021-01-04 → 2025-12-31), and RP-005's internal validation on
+  QQQ. No **RP-012A** outcome has been inspected there, so it can serve as
+  internal validation, but it is not untouched and is not final OOS. See
+  `rp012a_stage0.md` §1.
 - **Pre-2016 daily (4,068 sessions) is unread** by any family here.
 
 ---
@@ -97,6 +101,11 @@ in the untouched OOS block. Frequency is not a constraint. *(Order-of-magnitude
 from the construction, not a measurement; the exact count is a Stage 0 output.)*
 
 ## Cost and risk feasibility
+
+> **Corrected at RP-012A Stage 0:** the figure below applied the NQ-derived cost
+> fraction to QQQ against a 1.0 × ATR₁ₘ container. At QQQ's own measured cost
+> (0.505 bps round trip, discovery) against the project's 1.2 × ATR₁ₘ container
+> it is **6.0%**, and on NQ **7.7%**. See `rp012a_stage0.md` §8.
 
 QQQ round turn at `COST_F = 2.00/30000` = **0.667 bps**; measured ATR₁ₘ on QQQ
 is **6.19 bps** (RP-009), so one ATR₁ₘ of movement carries a **10.8%** cost

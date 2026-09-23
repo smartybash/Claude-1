@@ -54,6 +54,13 @@ PRE-OUTCOME COUNT CONDITIONS (all five must hold before any outcome is viewed)
   5. the cap binds on no more than 50% of sessions within a cell
 
 If any fail, the proposal is revised BEFORE outcome data is collected.
+
+APPROVED AND FROZEN 2026-09-23. The one-third separation is PERMANENTLY
+frozen: it will never be compared with 0.45 or 0.50 on performance. The fresh-
+data counts gate adds: at least three blocks with both states in >= 30
+independent sessions; genuine closing-period representation; no cell dominated
+by fewer than five sessions. A failed counts gate returns RP-011 for redesign;
+thresholds and separation are never amended using outcome data.
 """
 from __future__ import annotations
 

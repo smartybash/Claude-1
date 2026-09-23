@@ -85,7 +85,9 @@ def staleness(close) -> dict:
 def split_scan(daily_close, thresh=0.5) -> list:
     """Session-close jumps large enough to be a corporate action, not a move.
 
-    IJH's five-for-one at 2026-02-22 is the reference case: 280.84 -> 56.99.
+    IJH's five-for-one at 2024-02-22 is the reference case: 280.84 -> 56.99
+    (measured by rp012a_common.detect_splits; an earlier version of this line
+    said 2026, which the data contradicts).
     """
     c = pd.Series(np.asarray(daily_close, float))
     r = np.log(c).diff()

@@ -245,3 +245,40 @@ Note the asymmetry: the opening initiative cell now populates on 48% of sessions
 rather than never, but it is still the slowest cell and needs **63** sessions for
 30 independent ones. The 50-session gate is met with three blocks fully
 represented and the opening block interpretable but short of 30.
+
+---
+
+## 7. APPROVED — frozen status, 2026-09-23
+
+**RP-011 is frozen and awaiting fresh forward data.** No RP-011 outcome may be
+calculated on any existing NQ session. The existing archive is fully consumed:
+all 44 full-resolution sessions were read by RP-010, all nine sealed sessions
+were consumed, the 5-point sessions are unusable, and **no untouched NQ
+falsification or validation block remains.**
+
+**The ⅓-block separation rule is permanently frozen.** It was chosen from three
+counts-only candidates (⅓, 0.45, 0.50) before any outcome data existed. That
+does not contaminate future outcomes, but it means **⅓ will never be compared
+with 0.45 or 0.50 on performance.**
+
+**Counts gate — all must hold on fresh data before any forward outcome:**
+
+1. no empty state × time-block cell
+2. no time block contributing more than 40% of retained events
+3. buy and sell events in every interpretable cell
+4. cap binding on no more than 50% of sessions within any cell
+5. at least three time blocks with both states in ≥ 30 independent sessions
+6. genuine closing-period representation
+7. no cell dominated by fewer than five sessions
+
+**If the counts gate fails, RP-011 returns for redesign.** The thresholds and the
+separation rule are not amended using outcome data.
+
+**Stage 1 requires ≥ 50 fresh full NQ sessions passing the shared quality gate**
+(measured 0.25 grid, full cash session, zero aggressor nulls, valid status file,
+monotonic microsecond timestamps, no duplicate-date ambiguity, no previous
+research use). Cumulative fills, BBO and depth remain diagnostics; missing depth
+alone does not invalidate a session unless RP-011 later uses depth in its primary
+construction. Fifty sessions permit a mechanism screen only. Any deployable
+result still requires ≥ 150 untouched frozen-rule trades, ≥ 12 months of forward
+data, separate Stage 2 approval, and no reuse of RP-010 sessions.

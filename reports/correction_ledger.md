@@ -572,3 +572,87 @@ study cannot report on a block it retained no events in. Platform tests section
 **Standing rule: any cap that binds on more than half of sessions is part of the
 sampling design and must be reported as one before outcomes, with its block
 distribution before and after.**
+
+---
+
+## 13. Half days invisible to the shared calendar
+
+Found during RP-012A Stage 0. `sessioncal.early_closes` — written for the
+integrity audit on the principle "measured, never remembered" — measured the
+wrong thing. It flagged a session as a half day when its last bar came more than
+30 minutes before 16:00. The QQQ and SPY "RTH" files carry after-hours prints
+**every minute to 15:59** on half days, so the function found **zero half days
+in five years** of either. On illiquid files it had the opposite failure: a
+normal day whose last print came early would be flagged.
+
+| | |
+|---|---|
+| affected results | **none that used the function** — RP-012A was its first caller |
+| latent exposure | RP-008 and RP-009 contain no half-day handling at all. They **may** have read up to 10 of ~1,420 QQQ sessions as full sessions, with after-hours prints standing in for the 13:30–15:30 timestamps. Bounded at 0.7% of sessions; **not verified and not rerun**. Neither verdict rested on a margin that 0.7% of sessions could plausibly move — RP-008's tercile added +0.0014 R², RP-009's verdict rested on ratios across ~1,400 sessions — but that is an argument, and the rerun is available on request |
+| fix | two measured signals: afternoon bar coverage, and median afternoon-to-morning minute volume. All five ETF files return **the same ten dates**, the NYSE half days 2021–2025; half days score 0.002–0.061, the lowest normal day 0.301 |
+| tests | five new platform assertions, including one that reproduces the after-hours case and one that proves the old rule would have flagged an illiquid normal day |
+| corrected in | this commit |
+
+The first version of the new illiquid-day fixture was itself wrong — "3 of every
+5 minutes, last print 15:20" is 48% coverage, under the 50% line, so the detector
+correctly flagged it and the test failed. Fixed to what its comment claimed. The
+fourth time a platform fixture has been miscounted by me; the tests caught it
+each time, which is the point of having them.
+
+---
+
+## 14. Two RP-012A count conditions that failed before any outcome
+
+Both caught by the Stage 0 counts, both revised before any forward return
+existed.
+
+**(a) Pooled thresholds on bucket-normalised volume still encoded time of day.**
+Relative volume divides each window by the median of its own clock bucket, and I
+pooled the p90 across buckets on the argument that the normalisation made them
+comparable. It fixes the **level**, not the **spread**: opening volume is high
+every day, so opening RV varies less, and a pooled p90 caught only 0.47–0.71× the
+average abnormal rate in the opening block. RP-011's defect one step removed.
+Revised to block-specific percentiles; the rate is now 0.97–1.08× in every block.
+
+**(b) A threshold imported without being re-derived.** "No block above 40% of
+events" came from RP-011, where blocks were capped equally. In RP-012A midday
+**is** 40.0% of the session's windows, so the ceiling would bind under perfectly
+uniform rates. Revised to compare each block's event share with its window share,
+using the 0.5–2.0× band already declared for the rate condition. **Ledger entry 5
+already said it: a filter is part of the hypothesis and must be re-derived from
+what the new design measures. I broke it again.**
+
+---
+
+## 15. Two numbers of mine that were wrong in output, caught before publication
+
+* **IJH cost on the split-adjusted price.** The first inventory charged IJH's
+  one-cent spread against its adjusted ~$51 discovery price — 3.30 bps round
+  trip. IJH actually traded near $258 then; the true figure is **0.66 bps**. Cost
+  is now charged on the unadjusted price.
+* **Negative missing-bar percentages.** After-hours bars on half days were
+  counted against a 210-bar expectation, so "missing" went below zero. Bars are
+  now counted inside each day's actual session only.
+
+Separately, **a stale date**: `dataquality.split_scan` and the integrity audit
+both gave the IJH split as 2026-02-22. The data says **2024-02-22**. Corrected in
+both places.
+
+**And one figure in a committed proposal.** `rp012_proposals.md` put Proposal A's
+cost at 10.8% of risk and said it failed the 10% gate. That used the NQ-derived
+cost fraction on QQQ against a 1.0 × ATR₁ₘ container. At QQQ's own measured cost
+against the project's 1.2 × ATR₁ₘ container it is **6.0%**; on NQ it is
+**7.7%**. It changed the ranking argument in my favour and would have misled if
+left.
+
+**And a worse one in the same proposal.** It described 2024–2025 as "unread
+... the only genuinely untouched intraday block" and proposed it as final OOS.
+The contamination search done for RP-012A shows it was read by IB 1R, the
+ORB-Fib and IB-pullback instrument extensions, and RP-005's internal
+validation. I wrote that line from memory of RP-006B's data roles — where
+2024–2025 was indeed unread *by that family* — without searching which other
+scripts had read the files. The same failure mode as entries 1 and 11: a claim
+about data provenance made without checking the loaders. It did not change
+your decision, because your approval preserved 2024–2025 only as internal
+validation and only on the condition that no RP-012A outcome had been
+inspected there — which holds.

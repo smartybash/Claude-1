@@ -97,6 +97,35 @@ def t_early_close_detection():
     check("early close measured, not remembered",
           got == {dt.date(2026, 6, 19)}, f"{got}")
 
+    # RP-012A defect: QQQ/SPY 'RTH' files keep printing after a 13:00 close,
+    # so the last-bar rule found ZERO half days in five years.
+    def day_bars(day, minutes, vol_fn):
+        d = pd.Timestamp(day)
+        ts = [d + pd.Timedelta(minutes=570 + m) for m in minutes]
+        return pd.DataFrame(dict(timestamp=ts, high=1.0, low=1.0, close=1.0,
+                                 volume=[vol_fn(m) for m in minutes]))
+    normal = day_bars("2026-06-16", range(390), lambda m: 50_000)
+    afterhours = day_bars("2026-06-17", range(390),
+                          lambda m: 50_000 if m <= 210 else 500)
+    stops = day_bars("2026-06-18", range(211), lambda m: 50_000)
+    # illiquid normal day: 4 of every 5 afternoon minutes print until the last
+    # print at 15:20 -> 108 of 170 afternoon minutes, 64% coverage
+    illiquid = day_bars("2026-06-19",
+                        [m for m in range(351) if m < 215 or m % 5 < 4],
+                        lambda m: 3_000)
+    got = SC.early_closes(pd.concat([normal, afterhours, stops, illiquid]))
+    check("half day with after-hours prints to 15:59 is detected",
+          dt.date(2026, 6, 17) in got, f"{got}")
+    check("file that stops at 13:00 is detected",
+          dt.date(2026, 6, 18) in got, f"{got}")
+    check("normal liquid day is not flagged",
+          dt.date(2026, 6, 16) not in got, f"{got}")
+    check("illiquid normal day with an early last print is NOT flagged",
+          dt.date(2026, 6, 19) not in got, f"{got}")
+    old_rule_would_flag = (390 - 350) > 30
+    check("the old last-bar rule WOULD have flagged the illiquid day",
+          old_rule_would_flag)
+
 
 # ======================================================== 2. data quality ----
 def t_dataquality():

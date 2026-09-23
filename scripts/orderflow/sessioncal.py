@@ -125,22 +125,62 @@ def halt_window_utc(day):
     return a.hour * 60 + a.minute, b.hour * 60 + b.minute
 
 
+EARLY_AFTER = (215, 385)          # 13:05-15:55, minutes after the open
+EARLY_MORNING = (30, 205)         # 10:00-12:55
+EARLY_COVERAGE = 0.5              # < half the afternoon bars present -> early
+EARLY_VOL_RATIO = 0.15            # median afternoon / morning minute volume
+
+
 def early_closes(bars: pd.DataFrame, ts_col="timestamp", clock="ET",
-                 tol_min=30) -> set:
+                 vol_col="volume", tol_min=30) -> set:
     """MEASURE which sessions closed early. Never remembered, always derived.
 
-    A session is an early close when its last bar is more than `tol_min`
-    before the regular close. Returns a set of dates.
+    TWO signals, because each fails alone:
+
+    * bar COVERAGE after 13:05 -- catches a file that simply stops, and an
+      illiquid instrument whose after-hours prints are sparse (IJH: 3 bars
+      after 13:00 on 2021-11-26);
+    * the MEDIAN per-minute VOLUME after 13:05 relative to the morning --
+      catches a file that keeps printing after the 13:00 close. QQQ and SPY
+      "RTH" files carry after-hours prints every minute to 15:59 on half
+      days, at 0.2-3% of normal volume.
+
+    The first version used the last bar's time alone. It found ZERO early
+    closes in five years of QQQ and SPY (every half day's last bar is 15:59)
+    and would have flagged illiquid instruments whose last print came early
+    on a normal day. On the 2021-2025 ETF files the two-signal rule returns
+    the same ten dates on all five instruments, and they are the ten NYSE
+    half days; the lowest ratio on any normal day is 0.30 against a maximum
+    of 0.06 on a half day.
+
+    Bar files without a volume column fall back to the last-bar rule.
     """
-    d = bars[[ts_col]].copy()
+    d = bars.copy()
     d["ts"] = pd.to_datetime(d[ts_col])
     d["day"] = d["ts"].dt.normalize()
+    mins = d["ts"].dt.hour * 60 + d["ts"].dt.minute
+    if clock.upper() == "ET":
+        d["mm"] = mins - (CASH_OPEN_ET.hour * 60 + CASH_OPEN_ET.minute)
+    else:
+        d["mm"] = mins - d["day"].map(lambda x: open_minute_utc(x.date()))
+    has_vol = vol_col in d.columns
+    n_after = EARLY_AFTER[1] - EARLY_AFTER[0]
     out = set()
     for day, g in d.groupby("day"):
-        last = g["ts"].max()
-        m = last.hour * 60 + last.minute
-        _o, c = session_window(day.date(), early=False, clock=clock)
-        if c - m > tol_min:
+        if not has_vol:
+            last = g["ts"].max()
+            m = last.hour * 60 + last.minute
+            _o, c = session_window(day.date(), early=False, clock=clock)
+            if c - m > tol_min:
+                out.add(day.date())
+            continue
+        aft = g[(g["mm"] >= EARLY_AFTER[0]) & (g["mm"] < EARLY_AFTER[1])]
+        mor = g[(g["mm"] >= EARLY_MORNING[0]) & (g["mm"] < EARLY_MORNING[1])]
+        if len(aft) < EARLY_COVERAGE * n_after:
+            out.add(day.date())
+            continue
+        if len(mor) and aft[vol_col].median() / max(mor[vol_col].median(), 1) \
+                < EARLY_VOL_RATIO:
             out.add(day.date())
     return out
 

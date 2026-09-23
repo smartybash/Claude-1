@@ -93,7 +93,7 @@ verdict (19, 20, 25, 26, 29, 35). 11 were caught before any result was viewed.**
 * **Holiday and early-close handling.** `is_full_session` rejects them on
   measured coverage; 2026-06-19, 2026-07-03, 2026-07-12 and 2026-09-07 are
   excluded everywhere by that test, not by a remembered list.
-* **Corporate actions.** One split in scope (IJH five-for-one, 2026-02-22),
+* **Corporate actions.** One split in scope (IJH five-for-one, **2024-02-22** -- corrected; this line originally said 2026, measured date is 2024),
   verified before RP-006B and confirmed outside the 2023 discovery block.
 
 ---
