@@ -413,3 +413,71 @@ document arguing for it. Two conclusions:
    too. That is recorded as the one unresolved item in the audit.
 
 Renamed to `side_labels`. Nothing downstream had been computed.
+
+---
+
+## 9. Microsecond timestamps divided as if they were nanoseconds
+
+Caught in the **first** RP-010 Stage 1 run, before any figure was reported. The
+forward-outcome loop converted tape timestamps to elapsed seconds with
+
+```python
+tt = pd.DatetimeIndex(s["time"]).view("int64") / 1e9        # WRONG
+```
+
+The ATAS tape is stored at **microsecond** resolution, which the Stage 0
+inventory had already measured and printed. Dividing `asi8` by `1e9` therefore
+made every elapsed time **1,000× too small**, so `secs <= h` was true for the
+entire remaining session at every horizon.
+
+| symptom | what it should have been |
+|---|---|
+| all six horizons returned **identical** numbers | six distinct paths |
+| MFE ≈ 130 points at 30 seconds | ≈ 8–10 points |
+| every landmark time 0 | 10–360 seconds |
+| 100% break of the event extreme | 73–86% |
+
+**It raised no exception and produced a full, well-formatted table.** Every cell
+was wrong and nothing in the output said so.
+
+| | |
+|---|---|
+| affected results | the first RP-010 Stage 1 run, **never reported** |
+| rerun | **yes, in full.** Every number in `rp010_stage1_result.md` is post-fix |
+| corrected in | this commit — `(ti - ti[0]).total_seconds()`, which is unit-agnostic |
+
+**Two lessons, and the second is the reusable one.**
+
+1. **Never convert a timestamp through its integer representation.** `asi8`,
+   `.view("int64")` and `.astype(int)` all hand back a number whose unit is a
+   property of the data, not of the code. `total_seconds()` cannot be got wrong.
+2. **The tell was in the output, not in an error.** Six horizons returning the
+   same value to three decimals is impossible for genuinely nested windows. The
+   check that caught it was reading the table for internal consistency before
+   reading it for a result — the same habit as counts-before-outcomes, applied
+   one level down.
+
+Test added: `t_timestamp_units()` in `test_platform.py` asserts correct elapsed
+seconds at ns/us/ms/s resolution **and** asserts that the naive `asi8 / 1e9`
+conversion is detectably wrong on a microsecond index, so the specific defect
+cannot return silently. Suite: **115 assertions, 0 failures.**
+
+---
+
+## 10. Three frozen-spec outputs omitted from the first Stage 1 pass
+
+Not a wrong number — a **missing** one. The RP-010 brief asked for additional
+same-direction aggressive volume, a near-versus-away-from-levels diagnostic, and
+results by week and by session. The first harness produced the first two not at
+all and the third only at one horizon.
+
+Declared in the script docstring **before** the amended run, added as
+diagnostics, and the harness rerun in full. The rerun reproduced every count and
+every primary figure exactly — 414 initiative candidates, 584 absorption
+candidates, 204 events, identical means to three decimals — which is what makes
+it an addition rather than an amendment to the construction.
+
+**Standing lesson: check the report against the brief's output list before
+running, not after.** A specification is a checklist of outputs as much as a
+definition of method, and the cheapest time to notice a missing output is before
+the two-minute run, not after the write-up has started.

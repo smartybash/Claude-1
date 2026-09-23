@@ -28,3 +28,11 @@ reports/rp009_qqq_bar.parquet
 reports/rp009_nq_exc.parquet
 reports/rp009_nq_bar.parquet
 reports/rp009_nq_tick.parquet
+
+# RP-010 Stage 1 interim parquet: deterministic output of a committed script
+# over committed inputs, rebuilt in ~2 minutes by scripts/orderflow/rp010_stage1.py.
+# The reported evidence -- rp010_stage1_output.txt and the result -- is tracked.
+reports/rp010_windows.parquet
+reports/rp010_events.parquet
+reports/rp010_dataquality.parquet
+reports/rp010_thresholds.parquet

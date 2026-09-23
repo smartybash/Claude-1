@@ -10,6 +10,8 @@ Nothing here is remembered. Everything is measured from the prices.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -109,3 +111,66 @@ def report(name, **checks) -> str:
     for k, v in checks.items():
         out.append(f"    {k:<28}{v}")
     return "\n".join(out)
+
+
+# ---------------------------------------------------------------- lint ------
+# Three recurrences of the same defect -- DataFrame.pivot, .mod and .agg -- are
+# three too many. Naming discipline is not allowed to depend on memory, so it
+# lives here and in test_platform.py instead.
+
+RESERVED = frozenset(a for a in dir(pd.DataFrame) if not a.startswith("_"))
+
+
+def offending_columns(cols) -> list:
+    """Column names that collide with a public pandas DataFrame attribute."""
+    return sorted(str(c) for c in cols if str(c) in RESERVED)
+
+
+def assert_safe_columns(df, ctx="") -> None:
+    """RAISE on any column that shadows a pandas DataFrame method.
+
+    Every frame a study builds passes through here. `df.agg` resolving to the
+    method rather than the column is then impossible to ship.
+    """
+    bad = offending_columns(df.columns)
+    if bad:
+        raise ValueError(
+            f"reserved pandas column name(s) {bad}"
+            + (f" in {ctx}" if ctx else "")
+            + " -- rename; bracket indexing is not an acceptable fix because "
+              "it relies on remembering to use it every time")
+
+
+def lint_reserved_columns(paths) -> list:
+    """Static scan: reserved names used as DataFrame column keys.
+
+    Flags `dict(agg=...)`, `{"pivot": ...}` and `df["mod"] = ...` patterns in
+    source files. Heuristic by nature -- a false positive is cheap, a missed
+    collision has cost this project three times.
+    """
+    import ast
+    hits = []
+    for p in paths:
+        try:
+            tree = ast.parse(Path(p).read_text())
+        except (SyntaxError, OSError):
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and getattr(node.func, "id", "") == "dict":
+                for kw in node.keywords:
+                    if kw.arg in RESERVED:
+                        hits.append((str(p), node.lineno, kw.arg, "dict() key"))
+            elif isinstance(node, ast.Dict):
+                for k in node.keys:
+                    if isinstance(k, ast.Constant) and isinstance(k.value, str) \
+                            and k.value in RESERVED:
+                        hits.append((str(p), node.lineno, k.value, "dict literal"))
+            elif isinstance(node, ast.Assign):
+                for t in node.targets:
+                    if isinstance(t, ast.Subscript) and \
+                            isinstance(t.slice, ast.Constant) and \
+                            isinstance(t.slice.value, str) and \
+                            t.slice.value in RESERVED:
+                        hits.append((str(p), node.lineno, t.slice.value,
+                                     "column assignment"))
+    return hits

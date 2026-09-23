@@ -67,6 +67,27 @@ def t_minutes_after_open():
           list(wrong) == [240, 270, 360], f"{list(wrong)}")
 
 
+def t_timestamp_units():
+    """Elapsed time must be unit-agnostic.
+
+    The RP-010 defect: the NQ tape is stored at MICROSECOND resolution and
+    `asi8 / 1e9` treated it as nanoseconds, making every elapsed time 1000x
+    too small so that every forward horizon collapsed onto the whole session.
+    """
+    base = pd.Timestamp("2026-06-18 13:30:00")
+    want = [0.0, 30.0, 900.0]
+    for unit in ("ns", "us", "ms", "s"):
+        ti = pd.DatetimeIndex([base, base + pd.Timedelta(seconds=30),
+                               base + pd.Timedelta(seconds=900)]).as_unit(unit)
+        got = list((ti - ti[0]).total_seconds().to_numpy())
+        check(f"elapsed seconds correct at {unit} resolution", got == want,
+              f"got {got}")
+    us = pd.DatetimeIndex([base, base + pd.Timedelta(seconds=30)]).as_unit("us")
+    naive = list(us.asi8 / 1e9 - us.asi8[0] / 1e9)
+    check("the naive asi8/1e9 conversion is detectably wrong on a us tape",
+          abs(naive[1] - 30.0) > 1.0, f"{naive}")
+
+
 def t_early_close_detection():
     full = FX.bars(list(range(0, 390, 30)), [1] * 13, [1] * 13, [1] * 13)
     early = FX.bars(list(range(0, 210, 30)), [1] * 7, [1] * 7, [1] * 7,
@@ -288,19 +309,81 @@ def t_controls():
           abs(good_mean - true) > 1e-6)
 
 
+# ==================================================== 6. reserved-name lint --
+def t_reserved_lint():
+    """The rule that three recurrences proved cannot live in memory."""
+    check("reserved set is populated", len(DQ.RESERVED) > 100,
+          f"{len(DQ.RESERVED)}")
+    for n in ("pivot", "mod", "agg", "min", "max", "sum", "count", "index",
+              "size", "mean", "std", "var", "shift", "rank", "apply", "all",
+              "any", "values", "columns"):
+        check(f"'{n}' is recognised as reserved", n in DQ.RESERVED)
+
+    # the three that actually shipped
+    for n in ("pivot", "mod", "agg"):
+        df = pd.DataFrame({n: [1, 2], "ok": [3, 4]})
+        check(f"offending_columns finds '{n}'",
+              DQ.offending_columns(df.columns) == [n],
+              f"{DQ.offending_columns(df.columns)}")
+        raised = False
+        try:
+            DQ.assert_safe_columns(df, "test")
+        except ValueError:
+            raised = True
+        check(f"assert_safe_columns RAISES on '{n}'", raised)
+
+    clean = pd.DataFrame({"tod_min": [1], "side_labels": ["B"], "px": [1.0]})
+    ok = True
+    try:
+        DQ.assert_safe_columns(clean, "test")
+    except ValueError:
+        ok = False
+    check("assert_safe_columns passes a clean frame", ok)
+
+    # the static scan must find all three patterns
+    import tempfile
+    src = ('import pandas as pd\n'
+           'a = dict(agg=1, fine=2)\n'
+           'b = {"pivot": 3}\n'
+           'df = pd.DataFrame()\n'
+           'df["mod"] = 4\n'
+           'df["tod_min"] = 5\n')
+    with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as f:
+        f.write(src)
+        tmp = f.name
+    hits = DQ.lint_reserved_columns([tmp])
+    names = sorted(h[2] for h in hits)
+    check("static lint finds dict() key, dict literal and column assignment",
+          names == ["agg", "mod", "pivot"], f"{names}")
+    check("static lint does not flag a safe name",
+          "tod_min" not in names, f"{names}")
+
+    # the platform's own modules must be clean
+    here = Path(__file__).resolve().parent
+    own = [here / m for m in ("orderflow_core.py", "sessioncal.py",
+                              "dataquality.py", "fixtures.py",
+                              "rp010_stage1.py")
+           if (here / m).exists()]
+    hits = DQ.lint_reserved_columns(own)
+    check("platform modules pass the lint", not hits,
+          f"{hits[:4]}")
+
+
 def main() -> int:
     print("=" * 74)
     print("  PLATFORM INTEGRITY TESTS -- synthetic fixtures, known answers")
     print("=" * 74)
     for section, fn in (("1. session calendar", t_timezone),
                         ("1b. minutes after open", t_minutes_after_open),
-                        ("1c. early-close detection", t_early_close_detection),
+                        ("1c. timestamp units", t_timestamp_units),
+                        ("1d. early-close detection", t_early_close_detection),
                         ("2. data quality", t_dataquality),
                         ("3a. IB look-ahead", t_ib_lookahead),
                         ("3b. approach side and crossing", t_approach_side),
                         ("3c. barrier ordering", t_barrier_order),
                         ("4. order-flow core", t_orderflow),
-                        ("5. controls", t_controls)):
+                        ("5. controls", t_controls),
+                        ("6. reserved-name lint", t_reserved_lint)):
         print(f"\n{section}")
         try:
             fn()
