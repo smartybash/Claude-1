@@ -214,3 +214,24 @@ so no result changed.
 `5509fcc`): evidence already on disk, contradicted rather than checked.** Both are
 specification errors. Neither would have raised an exception; both would have
 produced plausible-looking numbers.
+
+**3. Overnight cleaning estimator systematically removed genuine extremes**
+(proposed `1a65e8c`, measured `rp002_stage1_result.md` §1). The two-bar
+confirmation rule -- clean high = second-largest bar high, ties kept -- was
+proposed as "mildly conservative on clean sessions" and as targeting the
+documented bad-print defect "exactly". It did neither. The maximum of ~330
+overnight bar highs is almost never tied, so the second-largest is almost always
+strictly below it: the rule changed **98.1% of sessions** and cut the mean
+overnight range from 117.6 to 91.7 bps, a 22% reduction.
+
+The error was reaching for a zero-parameter rule. Removing bad prints needs a
+**magnitude** test -- is the extreme far from its neighbours -- not a **count**
+test. Trading away a tunable parameter introduced a systematic bias worse than
+the parameter would have been.
+
+Caught by reporting cleaning impact before any state comparison, as the
+pre-registration required. The rule was frozen and was NOT changed after the
+fact. It did not cause the RP-002 verdict -- all states share the estimator, so
+the comparisons are internally consistent -- but it biases absolute ranges low
+and makes the "outer third" marginally easier to reach, and it would have
+contaminated any Stage 2. A future overnight-range family must not reuse it.
