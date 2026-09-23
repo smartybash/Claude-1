@@ -656,3 +656,27 @@ about data provenance made without checking the loaders. It did not change
 your decision, because your approval preserved 2024–2025 only as internal
 validation and only on the condition that no RP-012A outcome had been
 inspected there — which holds.
+
+---
+
+## 16. Corrections recorded at RP-012A Stage 1 approval, before any outcome
+
+Recorded as instructed, before the Stage 1 run:
+
+1. **No ETF period currently held is pristine final out-of-sample data.**
+2. **2024–2025 is internal validation only.** Earlier families used it; no
+   RP-012A outcome has been viewed there.
+3. **The shared early-close detector was defective**: after-hours ETF prints
+   masked the shortened cash session (§13).
+4. **The corrected detector** identifies the same ten half days across all five
+   ETF files, from afternoon cash-session coverage and the afternoon-to-morning
+   volume ratio.
+5. **RP-008 and RP-009 may have included up to ten half days incorrectly.**
+   Their conclusions remain qualified: ten of ~1,420 sessions are unlikely to
+   explain their primary results, but the exposure is recorded here and has not
+   been rerun.
+6. **IJH requires the measured 5-for-1 split adjustment from 2024-02-22** before
+   any post-split period is used.
+7. **Costs use the price actually traded in the relevant period**, never a
+   back-adjusted price.
+8. **QQQ cost against the 1.2 × ATR₁ₘ container is ≈ 6.0%, not 10.8%.**

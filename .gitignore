@@ -40,3 +40,4 @@ reports/rp010_windows_desealed.parquet
 reports/rp010_events_desealed.parquet
 reports/rp010_dataquality_desealed.parquet
 reports/rp010_thresholds_desealed.parquet
+reports/rp012a_stage1_windows.parquet
