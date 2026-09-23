@@ -340,3 +340,49 @@ decimals on 12,893 and 43,903 observations.
 The gradient is a property of the first touch of the day at any price, not of
 levels. **A 15-of-15 pass is a reason to build a control, not a reason to
 celebrate.**
+
+---
+
+## 7. A stop grid that saturated, and a pooled tercile that encoded the wrong axis
+
+Both from RP-008 Stage 1. Neither changed a verdict; both are specification
+defects of mine and both were visible in the counts.
+
+### 7a. The two-sided stop-out columns carried no information
+
+The pre-registration froze stop distances {0.5, 1.0, 1.5, 2.0} x ATR1m and asked
+for P(adverse excursion >= d) on each side and for either side. Over a
+60-minute forward window a random walk covers roughly sqrt(60) = 7.7 ATR1m, so
+the EITHER-SIDE probability returned **95.7% to 100.0% in every cell at every
+distance**. The column was saturated and tested nothing.
+
+The one-sided columns worked (57.9% to 96.1%) and the pass condition was judged
+on those. The grid was not changed after the fact.
+
+**Standing lesson: check that a declared threshold grid spans the distribution
+before freezing it.** A horizon and a threshold have to be chosen together; a
+stop distance that is sensible for a 5-minute hold is a certainty over an hour.
+
+### 7b. Pooled terciles partly encoded the instant, not the volatility
+
+RV60 was defined as the last 60 minutes of regular trading before the
+classification instant -- the prior session's 15:00-16:00 at the 09:30 instant,
+and the same session's 10:30-11:30 at the 11:30 instant. Those two clock windows
+have different volatility distributions (mean 4.47 vs 5.10 bps), so a tercile
+boundary pooled across both **partly labels which instant the observation came
+from**: 578 LO at 09:30 against 347 at 11:30, 521 HI at 11:30 against 359 at
+09:30.
+
+Caught in the cell-count table, before any forward outcome was computed, and
+fixed by adding block-relative terciles as a declared diagnostic carried through
+every table. The pooled labels stayed primary because they were frozen.
+
+The same confound appeared again in the persistence control: the "extra R2 the
+states add on top of RV60" read **0.4227**, which looked like a large
+independent contribution and was almost entirely **the instant**, which the
+state label carries and a linear fit on RV60 cannot. Decomposed properly the
+tercile adds **+0.0014**.
+
+**Standing lesson: when a state label is built from more than one axis, an R2
+gain attributed to the label belongs to whichever axis the comparison model
+omitted.** Decompose before interpreting.
