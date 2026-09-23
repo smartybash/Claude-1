@@ -5,3 +5,12 @@ data/*.jsonl.bak
 
 # parsed-tape cache: derived from data/tape, rebuilt in seconds
 data/cache/
+
+# RP-007 Stage 1A1 intermediates: derived from a committed script with a fixed
+# seed and a committed input (QQQ_1m.parquet), rebuilt in ~20 seconds by
+# scripts/orderflow/rp007_stage1a1.py. 33 MB of reproducible interim state.
+# The evidence itself -- rp007_1a1_output.txt, the family summary and the meta
+# funnel -- is committed.
+reports/rp007_1a1_genuine.parquet
+reports/rp007_1a1_shifted.parquet
+reports/rp007_1a1_pools.pkl
