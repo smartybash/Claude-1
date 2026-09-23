@@ -359,3 +359,29 @@ Closed as a **structural and economic failure**, not a marginal one:
 
 RP-006 is closed. 2023 is now spent for this family. 2024, 2025 and forward data
 remain unread and intact.
+
+---
+
+## Closure entry, as recorded by the principal
+
+RP-006 is accepted as closed. Recorded:
+
+* The corrected eligibility rule recovered **213 of 250 sessions**.
+* **QQQ occupied a ranking extreme on 91.5% of sessions**, so the three-instrument
+  universe behaved largely as QQQ versus one other instrument rather than a
+  broad cross-section.
+* Best continuation was **+2.24 bps at the close against a 3.99 bps execution
+  hurdle**.
+* **No realised pair cleared its own cost hurdle.**
+* The long-strongest leg was **negative at three of four horizons**.
+* **One pair generated 76.9% of the continuation.**
+* Corrected random and shuffled controls were **not materially weaker**.
+* High dispersion improved the early horizons but **reversed by the close** and
+  remained below costs.
+* **2024 and 2025 remain unread.**
+
+> **Cross-sectional momentum rejected.** The corrected construction produced too
+> little continuation to cover paired execution costs, depended heavily on QQQ
+> and one pair, and did not separate from the controls.
+
+**No Stage 2, no data acquisition and no further work on RP-006.**
