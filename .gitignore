@@ -14,3 +14,9 @@ data/cache/
 reports/rp007_1a1_genuine.parquet
 reports/rp007_1a1_shifted.parquet
 reports/rp007_1a1_pools.pkl
+
+# RP-008 Stage 1 intermediates: deterministic output of a committed script over
+# a committed input, rebuilt in ~7 seconds by scripts/orderflow/rp008_stage1.py.
+# The reported evidence -- rp008_stage1_output.txt and the summary -- is tracked.
+reports/rp008_stage1_obs.parquet
+reports/rp008_stage1_states.parquet
