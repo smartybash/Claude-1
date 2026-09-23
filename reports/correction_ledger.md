@@ -680,3 +680,21 @@ Recorded as instructed, before the Stage 1 run:
 7. **Costs use the price actually traded in the relevant period**, never a
    back-adjusted price.
 8. **QQQ cost against the 1.2 × ATR₁ₘ container is ≈ 6.0%, not 10.8%.**
+
+---
+
+## 17. "Pre-2016 daily data has never been read" — false
+
+`rp012_proposals.md` described the 4,068 QQQ/SPY daily sessions before 2016 as
+"never read by any family in this project" and proposed them as Proposal C's
+discovery block. Git history shows they were read in full by at least four
+multi-day families: the daily range breakout (`2fed2b4`), the daily fair-value
+gap (`0761d41`), the **oversold bounce** (`5a5051a`, which used 1999–2021 as its
+"out-of-sample"), and the gap-fill base rates (`e6e42c4`).
+
+The second provenance claim in the same proposal to fail an audit (§15 covers
+2024–2025). Both were written from memory of one family's data roles rather than
+from a search of every loader and the git log. **Standing rule: no data block is
+described as unread, untouched or out-of-sample without a loader search and a
+`git log -- <file>` recorded alongside the claim.** RP-012C Stage 0 is the first
+document to carry both.

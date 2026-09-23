@@ -207,3 +207,28 @@ conditions holds.
 
 **2024–2025 stays unopened**, and remains available as internal validation to a
 future family. No NQ data was acquired or inspected. No Stage 2.
+
+---
+
+## Closure entry — accepted
+
+Recorded as instructed. State A: **+0.69 bps QQQ, +0.02 SPY, −1.04 IWM** at
+15 minutes; pooled **−0.06**; continuation ≈ 50%. The same-magnitude move on
+ordinary volume did at least as well; A minus displacement-only was negative on
+all three instruments and in **8 of 9** instrument-years. Relative volume
+improved on raw volume only by making a negative result less negative. No
+instrument cleared its cost hurdle. Buys and sells disagreed outside QQQ; QQQ's
+strength was confined mainly to 2023. EFA showed no delayed or stale-price
+advantage. Frequency was sufficient and does not rescue a failed mechanism.
+
+> **Verdict: abnormal relative volume does not add tradeable continuation
+> information beyond the price move itself. Rejected before validation.**
+
+2024–2025 **not opened**. NQ history **not acquired** for RP-012A. No entry,
+stop, target or strategy constructed.
+
+**Broader finding, recorded narrowly:** large price movements may persist
+briefly, but neither abnormal absolute volume nor time-normalised relative
+volume has shown incremental predictive value once movement magnitude is
+controlled. **This does not authorise a price-momentum strategy** — price
+displacement alone was a control, not a candidate.
