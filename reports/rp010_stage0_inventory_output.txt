@@ -1,0 +1,19 @@
+full 0.25 sessions: 44
+
+tick sizes: {0.25: 44}
+aggressor labels: {'BS': 44}  total nulls: 0
+
+per session, 30-second NON-OVERLAPPING windows, 09:35-15:55:
+  w30          median    760.000   min    758.000   max    760.000
+  rth_prints   median 321470.500   min 244199.000   max 504296.000
+  med_vol      median    353.000   min    251.000   max    656.500
+  p90_vol      median    881.550   min    662.200   max   1336.700
+  med_trd      median    328.250   min    235.500   max    615.000
+  zero_vol     median      0.000   min      0.000   max      0.000
+  med_imb      median      0.106   min      0.075   max      0.130
+  p90_imb      median      0.245   min      0.182   max      0.297
+  med_tpk      median     58.315   min     35.187   max     92.793
+  p10_tpk      median     10.950   min      6.890   max     19.305
+  p90_tpk      median    137.368   min     82.887   max    214.111
+
+TOTAL windows across 44 sessions: 33437

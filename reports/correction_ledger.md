@@ -386,3 +386,30 @@ tercile adds **+0.0014**.
 **Standing lesson: when a state label is built from more than one axis, an R2
 gain attributed to the label belongs to whichever axis the comparison model
 omitted.** Decompose before interpreting.
+
+---
+
+## 8. `DataFrame.agg` collision — the THIRD recurrence of entry 1's failure mode
+
+Caught live during the RP-010 integrity audit, in the audit's own inventory
+script. A column named `agg` (aggressor labels) accessed as `R.agg` resolved to
+the pandas `DataFrame.agg` **method**, exactly as `R.pivot` and `EXT.mod` did
+before it.
+
+| occurrence | column | study | how it failed |
+|---|---|---|---|
+| 1 | `pivot` | trendline reconstruction | silently, wrong values |
+| 2 | `mod` | RP-003 | `TypeError`, immediately |
+| 3 | **`agg`** | **RP-010 Stage 0 inventory** | **`AttributeError`, immediately** |
+
+The standing rule from entry 4 was written and then broken by me in the very
+document arguing for it. Two conclusions:
+
+1. **A rule that depends on remembering is not a control.** The fix applied
+   after entry 4 -- "rename the column" -- is the right fix but it is still
+   enforced by memory.
+2. **The test suite now enforces it.** `test_platform.py` is where the rule
+   should have lived, and a lint check on reserved column names belongs there
+   too. That is recorded as the one unresolved item in the audit.
+
+Renamed to `side_labels`. Nothing downstream had been computed.
