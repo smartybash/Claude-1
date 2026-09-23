@@ -369,6 +369,80 @@ def t_reserved_lint():
           f"{hits[:4]}")
 
 
+def t_sealed_guard():
+    """RP-010 read all nine sealed sessions. The seal was prose, not code."""
+    import holdout as HO
+    check("June 2026 prefix is sealed", HO.is_sealed("20260618"))
+    check("23 July is sealed", HO.is_sealed("20260723"))
+    check("an ordinary date is not sealed", not HO.is_sealed("20260806"))
+    mixed = ["20260806", "20260723", "20260807"]
+    check("sealed_in finds the one sealed date",
+          HO.sealed_in(mixed) == ["20260723"], f"{HO.sealed_in(mixed)}")
+    check("drop_sealed removes exactly it",
+          HO.drop_sealed(mixed) == ["20260806", "20260807"])
+    raised = False
+    try:
+        HO.assert_unsealed(mixed, "fixture")
+    except ValueError:
+        raised = True
+    check("assert_unsealed RAISES on a sealed date", raised)
+    HO.assert_unsealed(["20260806", "20260807"], "fixture")
+    check("assert_unsealed is silent on a clean list", True)
+    # the exact RP-010 breach, reproduced so it cannot recur silently
+    rp010 = ["20260618", "20260622", "20260629", "20260706", "20260723"]
+    check("the RP-010 sample would now be refused",
+          len(HO.sealed_in(rp010)) == 4, f"{HO.sealed_in(rp010)}")
+    check("no sealed date remains unread after RP-010",
+          HO.still_unread() == frozenset(), f"{HO.still_unread()}")
+
+
+def t_cap_diagnostics():
+    """A cap that binds on most sessions is sampling design, not plumbing."""
+    # 3 sessions x 4 blocks x 3 candidates, cap 2 per session, chronological
+    day, block, cand, kept = [], [], [], []
+    for d in ("d1", "d2", "d3"):
+        n = 0
+        for b in ("open", "morning", "midday", "close"):
+            for _ in range(3):
+                day.append(d); block.append(b); cand.append(True)
+                take = n < 2
+                kept.append(take)
+                n += take
+    dg = DQ.cap_diagnostics(cand, kept, day, block, per_session_cap=2)
+    check("candidate count", dg["candidates"] == 36, f"{dg['candidates']}")
+    check("retained count", dg["retained"] == 6, f"{dg['retained']}")
+    check("discarded count", dg["discarded"] == 30, f"{dg['discarded']}")
+    check("discarded pct", abs(dg["discarded_pct"] - 83.333) < 0.01,
+          f"{dg['discarded_pct']}")
+    check("cap binds on 100% of sessions", dg["cap_binds_pct"] == 100.0,
+          f"{dg['cap_binds_pct']}")
+    check("every block has candidates before the cap",
+          all(v == 9 for v in dg["by_block_before"].values()),
+          f"{dg['by_block_before']}")
+    check("chronological retention empties three blocks",
+          dg["blocks_emptied"] == ["close", "midday", "morning"],
+          f"{dg['blocks_emptied']}")
+    raised = False
+    try:
+        DQ.assert_cap_is_declared(dg)
+    except ValueError:
+        raised = True
+    check("assert_cap_is_declared RAISES when a block is emptied", raised)
+    # stratified retention: 1 per block per session, nothing emptied
+    kept2 = []
+    seen = set()
+    for d, b in zip(day, block):
+        take = (d, b) not in seen
+        seen.add((d, b))
+        kept2.append(take)
+    dg2 = DQ.cap_diagnostics(cand, kept2, day, block, per_session_cap=4)
+    check("stratified retention keeps every block",
+          dg2["blocks_emptied"] == [], f"{dg2['blocks_emptied']}")
+    msg = DQ.assert_cap_is_declared(dg2)
+    check("a widely-binding cap returns the mandatory sentence",
+          "SAMPLING DESIGN" in msg, msg)
+
+
 def main() -> int:
     print("=" * 74)
     print("  PLATFORM INTEGRITY TESTS -- synthetic fixtures, known answers")
@@ -383,7 +457,9 @@ def main() -> int:
                         ("3c. barrier ordering", t_barrier_order),
                         ("4. order-flow core", t_orderflow),
                         ("5. controls", t_controls),
-                        ("6. reserved-name lint", t_reserved_lint)):
+                        ("6. reserved-name lint", t_reserved_lint),
+                        ("7. sealed-date guard", t_sealed_guard),
+                        ("8. capped-event sampling", t_cap_diagnostics)):
         print(f"\n{section}")
         try:
             fn()

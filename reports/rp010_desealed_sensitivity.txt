@@ -1,0 +1,54 @@
+RP-010 SENSITIVITY: WITH vs WITHOUT THE SEALED SESSIONS
+  A = committed run (3c5bcff), sealed dates wrongly included
+  B = rerun with holdout.is_sealed enforced at the loader
+  Descriptive only. No strategy, entry, stop, target or expectancy.
+
+  A: sessions loaded 44  warm-up 10  discovery 34  events 204
+  B: sessions loaded 35  warm-up 10  discovery 25  events 150
+
+=== forward outcomes, direction-adjusted NQ points ===
+  state       run      n       r30       r60      r180      r300      r600      r900
+  INITIATIVE  A       84    +1.363    +2.012    -4.161    -5.333    -6.598    -3.330
+  INITIATIVE  B       54    +1.519    +2.056    -1.875    -5.037    -6.898    -4.111
+  ABSORPTION  A      120    +0.487    +1.123    -0.463    -0.106    +3.783    +8.673
+  ABSORPTION  B       96    +0.893    +2.518    +0.299    +0.630    +1.766    +5.529
+  ORDINARY    A    24630    -0.140    -0.228    -0.380    -0.461    +0.829    +2.070
+  ORDINARY    B    18128    -0.069    -0.170    -0.236    -0.277    +1.030    +2.030
+
+=== buy / sell asymmetry at 900 s ===
+  state       run   buy n       buy  sell n      sell
+  INITIATIVE  A        38    -2.263      46    -4.212
+  INITIATIVE  B        23    -3.859      31    -4.298
+  ABSORPTION  A        66   +18.742      54    -3.634
+  ABSORPTION  B        51   +17.191      45    -7.689
+
+=== load-bearing: single variables vs the combined state, 900 s ===
+  selector                          run       n      r900
+  delta magnitude alone             A      2585   +15.733
+  price progress alone              A      2638   +15.292
+  total volume alone                A      2571   +15.537
+  impact alone                      A      2563    +2.345
+  INITIATIVE                        A        84    -3.330
+  ABSORPTION                        A       120    +8.673
+
+  delta magnitude alone             B      1885   +16.024
+  price progress alone              B      1944   +14.679
+  total volume alone                B      1886   +16.030
+  impact alone                      B      1884    +3.112
+  INITIATIVE                        B        54    -4.111
+  ABSORPTION                        B        96    +5.529
+
+=== matched random times (the control that beat the treatment) ===
+  A  n 190 of 204 (93.1% coverage)  r300 +1.441  r900 +13.442
+  B  n 142 of 150 (94.7% coverage)  r300 +0.896  r900 +6.481
+
+=== concentration: does the one positive cell survive? ===
+  state       hz    run   clustered      t  sess  sess +   -best3  best3 share
+  INITIATIVE  300s  A        -3.518  -1.08    33      13   -7.082       -83.0%
+  INITIATIVE  300s  B        -3.600  -0.90    24       9   -8.254      -100.6%
+  INITIATIVE  900s  A        -3.341  -0.73    33      16   -6.917       -88.2%
+  INITIATIVE  900s  B        -4.834  -0.93    24      11   -8.826       -59.8%
+  ABSORPTION  300s  A        +1.573  +0.45    34      17   -2.603       250.9%
+  ABSORPTION  300s  B        +2.765  +0.67    25      12   -2.426       177.2%
+  ABSORPTION  900s  A       +10.608  +1.72    34      20   +3.287        71.7%
+  ABSORPTION  900s  B        +6.696  +0.98    25      13   -1.497       119.7%

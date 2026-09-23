@@ -105,6 +105,62 @@ def roll_scan(prices, thresh_pts: float) -> dict:
     return dict(max_jump=float(j.max()), suspect=bool(j.max() > thresh_pts))
 
 
+# ------------------------------------------------------ capped event studies -
+# Required after RP-010, where a six-event-per-session cap bound on 100% of
+# sessions, discarded 725 of 929 candidates, and -- because retention was
+# chronological -- emptied the entire closing block. A cap that binds on most
+# sessions is part of the SAMPLING DESIGN, not an operational detail, and must
+# be reported as one before any outcome is read.
+
+def cap_diagnostics(cand, kept, day, block, per_session_cap=None) -> dict:
+    """The five figures every capped event study must print.
+
+    `cand` and `kept` are boolean arrays over the same candidate rows; `day`
+    and `block` are the session and the time block of each candidate.
+    """
+    c = np.asarray(cand, bool)
+    k = np.asarray(kept, bool) & c
+    d = np.asarray(day)
+    b = np.asarray(block)
+    per_day = pd.Series(k[c]).groupby(pd.Series(d[c])).sum()
+    binds = (per_day >= per_session_cap) if per_session_cap else None
+    pre = pd.Series(b[c]).value_counts().sort_index()
+    post = pd.Series(b[c][k[c]]).value_counts().reindex(pre.index, fill_value=0)
+    return dict(
+        sessions=int(len(per_day)),
+        cap_binds_pct=(float(100 * binds.mean()) if binds is not None
+                       else float("nan")),
+        candidates=int(c.sum()),
+        retained=int(k.sum()),
+        discarded=int(c.sum() - k.sum()),
+        discarded_pct=float(100 * (1 - k.sum() / c.sum())) if c.sum() else 0.0,
+        by_block_before=pre.to_dict(),
+        by_block_after=post.to_dict(),
+        blocks_emptied=sorted(str(x) for x in pre.index[post.to_numpy() == 0]),
+    )
+
+
+def assert_cap_is_declared(diag, max_bind_pct=50.0) -> str:
+    """Return the sentence a report MUST carry when a cap binds widely.
+
+    Does not raise: a binding cap is not an error, it is a design property that
+    has to be stated. It raises only when a whole time block is emptied, which
+    silently removes a question the study claims to have tested.
+    """
+    if diag["blocks_emptied"]:
+        raise ValueError(
+            f"the cap emptied time block(s) {diag['blocks_emptied']} -- the "
+            "study cannot report on a block it retained no events in; "
+            "stratify the cap by block or state the exclusion in the verdict")
+    if diag["cap_binds_pct"] > max_bind_pct:
+        return (f"SAMPLING DESIGN: the cap binds on {diag['cap_binds_pct']:.1f}% "
+                f"of sessions and discards {diag['discarded']} of "
+                f"{diag['candidates']} candidates ({diag['discarded_pct']:.1f}%). "
+                "Retained events are a filtered sample, not the candidate set.")
+    return (f"cap binds on {diag['cap_binds_pct']:.1f}% of sessions; "
+            f"{diag['discarded_pct']:.1f}% of candidates discarded")
+
+
 def report(name, **checks) -> str:
     """One-line-per-check block for a study report."""
     out = [f"  DATA QUALITY -- {name}"]

@@ -1,3 +1,12 @@
+> **CORRECTION, added at closure.** This run **read all nine sealed NQ
+> sessions.** Eight June 2026 dates entered as threshold warm-up and
+> **2026-07-23 entered the discovery block, contributing 6 of the 204 events.**
+> The seal was stated in the Stage 0 proposal and enforced in no loader. Every
+> figure below is from the contaminated run and is left unaltered for the
+> record. The rerun with the seal enforced is in
+> `reports/rp010_desealed_sensitivity.txt`: **it strengthens the rejection on
+> every axis.** Detail and cost in `reports/correction_ledger.md` §11.
+
 # RP-010 Stage 1 — order-flow impact, absorption and exhaustion
 
 **Descriptive only.** No entry, stop, target or strategy is defined. No

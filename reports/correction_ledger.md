@@ -481,3 +481,94 @@ it an addition rather than an amendment to the construction.
 running, not after.** A specification is a checklist of outputs as much as a
 definition of method, and the cheapest time to notice a missing output is before
 the two-minute run, not after the write-up has started.
+
+---
+
+## 11. Nine sealed sessions read — the seal existed only in prose
+
+**The most serious error in this project so far.** RP-010 Stage 1 loaded every
+sealed NQ session:
+
+| dates | how they were used |
+|---|---|
+| 2026-06-18, 06-22, 06-23, 06-24, 06-25, 06-26, 06-29, 06-30 | **threshold warm-up** — their flow distributions set the trailing p90/p80/p20 percentiles for the first discovery sessions |
+| **2026-07-23** | **a full discovery session**, contributing **6 of the 204 events**, with forward outcomes computed and reported |
+
+The sealed set had been declared in every proposal since the tape archive was
+inventoried, restated by the user in this very conversation ("Sealed NQ dates
+remain unread"), and asserted as fact in `findings_summary.md`: *"Eight June
+days and 23 July have never been read."* That sentence is now false, and it was
+made false by me.
+
+**How it happened.** The seal was enforced in exactly one script,
+`session_profile.py`, which kept a private copy of the list as two module
+constants. RP-010's loader filtered on measured resolution and session
+completeness and never asked the question. The Stage 0 proposal contradicted
+itself one row apart — *"full cash sessions at 0.25 | 44 (2026-06-18 →
+2026-08-20)"* directly above *"Sealed: June 2026 plus 2026-07-23 — unread"* —
+and I wrote both lines without noticing that the first contains the second.
+
+**This is the same failure mode as ledger entries 1, 4 and 8, at a higher cost.**
+Entry 8 concluded that "a rule that depends on remembering is not a control" and
+fixed the reserved-name problem with a lint. The seal was left as prose in the
+same breath.
+
+| | |
+|---|---|
+| affected results | the whole of RP-010 Stage 1 (`3c5bcff`) |
+| **dependency check** | full rerun with the seal enforced: `rp010_desealed_sensitivity.txt` |
+| **effect on the verdict** | **none — the rejection strengthens.** Absorption 900 s falls +8.673 → +5.529; clustered +10.608 → +6.696, t +1.72 → +0.98; removing the best three sessions now takes it **negative**, +3.287 → **−1.497**; buy/sell asymmetry widens, +18.742/−3.634 → +17.191/−7.689; delta alone +16.024, progress alone +14.679 and volume alone +16.030 still dwarf impact alone at +3.112; matched random times +6.481 still exceeds absorption's +5.529 |
+| rerun | **yes, in full.** The committed result carries a correction banner and is left otherwise unaltered |
+| corrected in | this commit |
+
+**The irrecoverable cost is not the verdict, it is the holdout.** Nine sessions
+that existed to falsify a frozen finding have been spent on a family that was
+rejected anyway. `holdout.still_unread()` now returns the **empty set**, and
+RP-011's planned falsification block does not exist. That cannot be undone by
+rerunning anything.
+
+**The fix is code, not a promise.** `scripts/orderflow/holdout.py` is the single
+register; `assert_unsealed` raises; `rp010_stage1.py` filters at the loader and
+records the exclusions in its own excluded-dates table. Platform tests section 7
+asserts the guard, and asserts specifically that **the RP-010 sample would now
+be refused**.
+
+**Standing rule: a holdout that is not enforced by a function call is not a
+holdout.** Any claim that data is unread must be backed by a guard that raises,
+and the guard must live in the loader, because that is the only place every
+study passes through.
+
+---
+
+## 12. A safety cap that was actually a sampling design
+
+RP-010 capped events at six per session as an operational guard against
+over-representing one session. It **bound on 100% of sessions**, discarded 725
+of 929 candidates, and — because retention was chronological — **left the entire
+closing block with zero events on all 34 sessions.**
+
+The study then reported forward outcomes "by time of day" with one of its four
+time blocks structurally empty. The cap was described in the proposal as a cap
+and never characterised as what it was: a first-come filter that selects the
+earliest six order-flow extremes of a session.
+
+Not caught before the run. Caught in the counts table afterwards, reported in
+the closure, and correctly identified by the user as limiting the *breadth* of
+the closure rather than rescuing it.
+
+| | |
+|---|---|
+| affected results | the generality of the RP-010 verdict, not its direction |
+| rerun | not required — the tested sample failed the mechanism controls decisively on its own terms |
+| corrected in | this commit, as platform assertions |
+
+`dataquality.cap_diagnostics` now returns the five required figures — share of
+sessions where the cap binds, candidates discarded, block distribution before
+and after capping, blocks emptied, retained-versus-discarded difference — and
+`assert_cap_is_declared` **raises** when capping empties a time block, because a
+study cannot report on a block it retained no events in. Platform tests section
+8 reproduces the RP-010 pattern on a fixture and asserts that it raises.
+
+**Standing rule: any cap that binds on more than half of sessions is part of the
+sampling design and must be reported as one before outcomes, with its block
+distribution before and after.**

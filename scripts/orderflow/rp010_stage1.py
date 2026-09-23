@@ -49,6 +49,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import dataquality as DQ                                            # noqa: E402
+import holdout as HO                                                # noqa: E402
 import orderflow_core as OF                                         # noqa: E402
 import sessioncal as SC                                             # noqa: E402
 from tape import load_all, price_step, rth, is_full_session         # noqa: E402
@@ -78,10 +79,20 @@ def gate():
 
 
 def session_frames():
-    """The 44 full 0.25 NQ cash sessions, with data-quality output."""
+    """The full 0.25 NQ cash sessions, with data-quality output.
+
+    SEALED DATES ARE EXCLUDED HERE. The first version of this function filtered
+    on measured resolution and session completeness only, so all nine sealed
+    sessions entered the study -- eight June dates as threshold warm-up and
+    23 July as a discovery session. The seal existed only in prose. It is now
+    enforced at the loader, which is the only place it can be enforced.
+    """
     days = load_all()
     keep, excluded = [], []
     for d, x in sorted(days.items()):
+        if HO.is_sealed(d):
+            excluded.append((str(d), "SEALED -- not read"))
+            continue
         step = price_step(x)
         if step > 1:
             excluded.append((str(d), f"resolution {step:.2f}"))
@@ -301,16 +312,17 @@ if __name__ == "__main__":
     print(f"PLATFORM GATE: {line}")
     W, Q, excluded, keep = build()
     print(f"windows {W.shape}  sessions {W.day.nunique()}  excluded {len(excluded)}")
+    HO.assert_unsealed(W["day"].unique(), "RP-010 window frame")
     W, THR = label(W)
     W = cooldown(W)
     O = outcomes(W, keep, mask=(W["state"] != "WARMUP"))
     out = ROOT / "reports"
-    W.to_parquet(out / "rp010_windows.parquet")
-    Q.to_parquet(out / "rp010_dataquality.parquet")
-    THR.to_parquet(out / "rp010_thresholds.parquet")
-    O.to_parquet(out / "rp010_events.parquet")
+    W.to_parquet(out / "rp010_windows_desealed.parquet")
+    Q.to_parquet(out / "rp010_dataquality_desealed.parquet")
+    THR.to_parquet(out / "rp010_thresholds_desealed.parquet")
+    O.to_parquet(out / "rp010_events_desealed.parquet")
     pd.DataFrame(excluded, columns=["day", "reason"]).to_csv(
-        out / "rp010_excluded.csv", index=False)
+        out / "rp010_excluded_desealed.csv", index=False)
     print(W.groupby("state").size().to_string())
     print(f"events after cooldown/cap: {int(W.event.sum())}  "
           f"outcome rows: {len(O)}")
