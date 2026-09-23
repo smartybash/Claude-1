@@ -20,3 +20,11 @@ reports/rp007_1a1_pools.pkl
 # The reported evidence -- rp008_stage1_output.txt and the summary -- is tracked.
 reports/rp008_stage1_obs.parquet
 reports/rp008_stage1_states.parquet
+
+# RP-009 Stage 1 interim parquet: deterministic output of a committed script
+# over committed inputs, rebuilt in ~90 seconds.
+reports/rp009_qqq_exc.parquet
+reports/rp009_qqq_bar.parquet
+reports/rp009_nq_exc.parquet
+reports/rp009_nq_bar.parquet
+reports/rp009_nq_tick.parquet
