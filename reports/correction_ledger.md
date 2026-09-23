@@ -235,3 +235,19 @@ fact. It did not cause the RP-002 verdict -- all states share the estimator, so
 the comparisons are internally consistent -- but it biases absolute ranges low
 and makes the "outer third" marginally easier to reach, and it would have
 contaminated any Stage 2. A future overnight-range family must not reuse it.
+
+**4. `DataFrame.mod` column collision — a recurrence of entry 1's failure mode**
+(`rp003_stage1.py`, caught pre-result). A column named `mod` (minute-of-day) was
+accessed as `EXT.mod`, which resolved to the pandas `DataFrame.mod` **method**
+rather than the column. This is the same class of error as the `R.pivot` bug in
+the trendline work.
+
+Two differences from the original. It raised `TypeError` immediately rather than
+failing silently, so it cost nothing. And the fix was **renaming the column to
+`tod_min` / `tod`** rather than switching to bracket indexing, because bracket
+indexing relies on remembering to use it every time whereas a non-colliding name
+cannot be got wrong.
+
+Standing rule going forward: **never name a DataFrame column after a pandas
+method** (`mod`, `pivot`, `min`, `max`, `sum`, `count`, `index`, `size`, `mean`,
+`std`, `var`, `shift`, `rank`, `apply`, `all`, `any`).
