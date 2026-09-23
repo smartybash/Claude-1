@@ -284,3 +284,59 @@ three-instrument ranking. Each session places one instrument strongest and one
 weakest, so two of three are at an extreme and the expected rate is 66.7% for
 every instrument. The flag fires unconditionally. Domination tests must be stated
 as deviations from the structural baseline, not as absolute percentages.
+
+---
+
+## 6. Approach-side convention inverted, and IB levels read before they existed
+
+Both found in RP-007 Stage 1A1 **before any outcome was read**, by looking at
+the interaction counts. Both are recorded because the way they were caught is
+the reusable part.
+
+### 6a. The support/resistance label was backwards
+
+`side = +1 if H[i-1] < lo_b` assigned **support** when the previous bar sat
+entirely *below* the zone. Approaching from below puts the level overhead, which
+is a **resistance** test. The outcome function then measured penetration and
+reclaim in the wrong direction for every interaction in the study.
+
+| | before | after |
+|---|---|---|
+| IB high | **1,307 support / 0 resistance** | 71 / 803 |
+| prior-day high | 429 / 233 | 234 / 422 |
+| extended-hours low | 27 / 449 | 441 / 30 |
+
+**It was visible in the counts, not in the results.** A level defined as the
+maximum of the morning cannot be approached from above 100% of the time. The
+counts-before-outcomes rule is what surfaced it, and it is the second time in
+this project that a table of counts caught a defect a table of performance
+would have hidden.
+
+### 6b. Initial Balance levels were interacted with before 10:30
+
+IBH, IBL and IBM are defined by the first sixty bars and were being tested for
+interaction from bar 1, so the first "interaction" with the IB high was often
+the bar that **set** it. Straight look-ahead. The pre-registration said IB levels
+are not eligible before 10:30; the code did not implement it. Fixed by gating
+those levels and their shifted controls to bars >= 60.
+
+The symptom was a 13-15% reclaim rate for IBH and IBL against 72-85% for every
+other family -- an outlier large enough to be a bug rather than a finding, which
+is how it was noticed.
+
+**Standing lesson: a level has a birth time, and the eligibility gate belongs in
+the interaction scan, not in the prose.** Any level computed from same-session
+data must carry the bar index at which it becomes knowable, and that index must
+be passed to the code that walks the tape.
+
+### 6c. A condition that every family passes is an artefact until controlled
+
+Not an error, but the practice that followed from one. All fifteen RP-007
+families passed "first interactions outperform repeated interactions". Running
+the identical comparison on the **shifted controls** returned **+2.68 points for
+genuine levels and +2.68 points for arbitrary prices** -- identical to two
+decimals on 12,893 and 43,903 observations.
+
+The gradient is a property of the first touch of the day at any price, not of
+levels. **A 15-of-15 pass is a reason to build a control, not a reason to
+celebrate.**

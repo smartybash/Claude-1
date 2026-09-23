@@ -1,0 +1,36 @@
+{
+ "fun": {
+  "sessions": 1421,
+  "short": 1,
+  "no_prior": 1,
+  "no_eth": 24,
+  "used": 1419
+ },
+ "cl": {
+  "iso": 21071,
+  "c2": 1113,
+  "c3": 119
+ },
+ "cross": 23,
+ "shift_gen": 54932,
+ "shift_excl": 6903,
+ "matched": 8921,
+ "unmatched": 4812,
+ "lvl_obs": {
+  "PDH": 1419,
+  "PDL": 1419,
+  "PDC": 1419,
+  "PDVWAP": 1419,
+  "VAH": 1419,
+  "VAL": 1419,
+  "POC": 1419,
+  "XH": 1395,
+  "XL": 1395,
+  "XM": 1395,
+  "IBH": 1419,
+  "IBL": 1419,
+  "IBM": 1419,
+  "VWAP": 1419,
+  "ROUND": 3862
+ }
+}
