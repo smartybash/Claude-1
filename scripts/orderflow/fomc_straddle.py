@@ -306,9 +306,15 @@ def concentration(x: np.ndarray, n_drop: int) -> float:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("mode", choices=["dates", "harvest", "run"])
+    # Two-stage means two stages: the discovery result is computed on discovery
+    # rows alone, and OOS is not reachable until that result is committed.
+    ap.add_argument("--block", choices=["discovery", "oos", "all"],
+                    default="discovery")
     a = ap.parse_args()
 
     E = events()
+    if a.mode != "dates" and a.block != "all":
+        E = E[E["block"] == a.block]
     ev = E[E["kind"] == "event"]
     print(f"\nevents {len(ev)} (discovery {sum(ev.block=='discovery')}, "
           f"oos {sum(ev.block=='oos')}) | placebos {sum(E.kind=='placebo')}")
@@ -361,3 +367,71 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main() or 0)
+
+
+def report(R: pd.DataFrame) -> None:
+    """Everything declared in a971882 / b7becac / 648b45d, and nothing else."""
+    ev = R[R["kind"] == "event"].sort_values("day")
+    pl = R[R["kind"] == "placebo"]
+
+    # sigma comes from the PLACEBO sample only, so the threshold cannot move
+    # with the FOMC mean. Declared at 648b45d section D.
+    sig = float(pl["r_exec"].std(ddof=1))
+    n = len(ev)
+    se = sig / np.sqrt(n)
+    mde = 2 * se
+    m_exec, m_mid = float(ev.r_exec.mean()), float(ev.r_mid.mean())
+
+    print("=" * 66)
+    print(f"sigma (placebo-estimated) {sig:+.4f} | n {n} | SE {se:.4f} | "
+          f"MDE {mde:+.4f}")
+    print("-" * 66)
+    print(f"FOMC mean r_exec  {m_exec:+.4f}   (headline)")
+    print(f"FOMC mean r_mid   {m_mid:+.4f}   (mid-quote, reported beside)")
+    print(f"placebo mean      {float(pl.r_exec.mean()):+.4f}  n={len(pl)}")
+    print(f"t (unpaired)      {m_exec/se:+.3f}")
+
+    # paired vs unpaired: the rho>0.25 switch, declared in advance
+    rows = []
+    for _, e in ev.iterrows():
+        p = pl[pl["anchor"] == e["anchor"]]["r_exec"]
+        if len(p):
+            rows.append((e["r_exec"], float(p.mean())))
+    if rows:
+        a = np.array(rows)
+        rho = float(np.corrcoef(a[:, 0], a[:, 1])[0, 1])
+        d = a[:, 0] - a[:, 1]
+        sed = d.std(ddof=1) / np.sqrt(len(d))
+        print(f"\nrho(event, its placebo mean) {rho:+.3f}  -> primary is "
+              f"{'PAIRED' if rho > 0.25 else 'UNPAIRED'} (threshold 0.25)")
+        print(f"paired difference {d.mean():+.4f}  SE {sed:.4f}  "
+              f"t {d.mean()/sed:+.3f}  n={len(d)}")
+
+    print("\n--- PROMOTION GATE: quarterly split (648b45d C) ---")
+    q, nq = ev[ev.quarterly], ev[~ev.quarterly]
+    if len(q) and len(nq):
+        diff = float(q.r_exec.mean() - nq.r_exec.mean())
+        print(f"quarterly     {q.r_exec.mean():+.4f} n={len(q)}")
+        print(f"non-quarterly {nq.r_exec.mean():+.4f} n={len(nq)}")
+        print(f"difference    {diff:+.4f}  vs MDE {mde:.4f}  -> "
+              f"{'VOID' if abs(diff) > mde else 'gate not triggered'}")
+
+    print("\n--- DIAGNOSTICS (none promotion-relevant) ---")
+    for lab, g in (("DTE 2", ev[ev.exit_dte == 2]), ("DTE 1", ev[ev.exit_dte == 1])):
+        if len(g):
+            print(f"  {lab:6s} {g.r_exec.mean():+.4f} n={len(g)}")
+    w = ev[ev["day"] != pd.Timestamp("2024-09-18")]
+    print(f"  ex 2024-09-18 probe {w.r_exec.mean():+.4f} n={len(w)}")
+    k = max(10, int(np.ceil(0.10 * n)))
+    print(f"  concentration rule, drop {k} each tail: "
+          f"{concentration(ev.r_exec.values, k):+.4f}")
+    s = np.sort(ev.r_exec.values)
+    print(f"  top-5 removed {s[:-5].mean():+.4f} | "
+          f"bottom-5 removed {s[5:].mean():+.4f}")
+    print("  by year:", {int(y): round(float(g.r_exec.mean()), 3)
+                         for y, g in ev.groupby(ev["day"].dt.year)})
+    print(f"  win rate {100*(ev.r_exec > 0).mean():.1f}% | "
+          f"best {ev.r_exec.max():+.3f} worst {ev.r_exec.min():+.3f}")
+    print(f"  RV/IV proxy: entry IV {ev.entry_iv.mean():.4f} -> "
+          f"exit IV {ev.exit_iv.mean():.4f}  (diagnostic only)")
+    print("=" * 66)
