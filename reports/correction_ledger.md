@@ -251,3 +251,36 @@ cannot be got wrong.
 Standing rule going forward: **never name a DataFrame column after a pandas
 method** (`mod`, `pivot`, `min`, `max`, `sum`, `count`, `index`, `size`, `mean`,
 `std`, `var`, `shift`, `rank`, `apply`, `all`, `any`).
+
+**5. A completeness filter imported from a family where it was correct**
+(`rp006_stage1.py`, caught at run time before any result was reported). The
+>=380-aligned-bar session filter was carried from RP-003/RP-004, where the whole
+one-minute return series was the object of study, into RP-006, where the design
+reads only six timestamps per session.
+
+IJH does not print in roughly 16 minutes of a typical session -- median 374 bars
+against 390 for QQQ, SPY and IWM. Applied to the 4-way intersection the filter
+dropped **292 of 503 sessions (58%)**, and the 79 surviving 2021 sessions were
+consumed entirely by the 20+60 session warm-up, leaving a discovery block that
+was **2022-only**. Pass condition 5 (present in both discovery years) was
+unachievable by construction: the specification could not pass its own gate.
+
+The filter was rejecting sessions for IJH's trade frequency, which the design
+never reads. IJH's 10:00 print is stale on only 1.22% of sessions, comparable to
+QQQ at 1.00%.
+
+Two further errors in the same harness: the shuffled-rankings control permuted
+outcome COLUMNS rather than the ranking identity, so its means were identical to
+the true ranking to two decimals and it tested nothing; and the random-pair
+control recorded a value only when the drawn pair coincided with the realised
+pair, collapsing n from 129 to 34-45.
+
+**Standing lesson: a filter is part of the hypothesis, not boilerplate.** Do not
+carry a data-completeness rule between families without re-deriving it from what
+the new design actually measures.
+
+**Also recorded:** the >60% rank-domination threshold cannot be satisfied by a
+three-instrument ranking. Each session places one instrument strongest and one
+weakest, so two of three are at an extreme and the expected rate is 66.7% for
+every instrument. The flag fires unconditionally. Domination tests must be stated
+as deviations from the structural baseline, not as absolute percentages.
