@@ -1,0 +1,81 @@
+RP-011 FROZEN SPECIFICATION -- BLOCK-RELATIVE THRESHOLDS
+  COUNTS AND DISTRIBUTIONS ONLY. No forward outcome is read; the
+  loaded frame is asserted to contain no outcome column.
+  Feasibility is estimated on RP-010's de-sealed sessions, which are
+  CONTAMINATED for evidence and usable only for this arithmetic.
+
+  sessions 35  warm-up 10  labelled 25  windows 19000  candidates 724
+
+=== BLOCK-SPECIFIC THRESHOLDS (median over sessions) ===
+  block        p90 imbalance   p80 ticks/1k   p20 ticks/1k   pooled p90 was
+  opening             0.1767          120.5           46.6           0.2496
+  morning             0.2117          126.8           46.1           0.2496
+  midday              0.2625          152.4           46.5           0.2496
+  closing             0.2646          146.7           44.1           0.2496
+
+  The opening gate falls from the pooled 0.2496 to its own block value.
+  That is the whole correction: each block is judged against itself.
+
+=== CANDIDATES by state x block ===
+  state    ABSORPTION  INITIATIVE
+  block                          
+  opening          35          15
+  morning         108          64
+  midday          157         119
+  closing         134          92
+
+=== RETAINED under the frozen rule (2 per state per block) ===
+  263 of 724 candidates retained (63.7% discarded), 10.52 per session of a theoretical 16
+  state    ABSORPTION  INITIATIVE
+  block                          
+  opening          22          14
+  morning          40          29
+  midday           45          39
+  closing          39          35
+
+=== INDEPENDENT SESSIONS per cell ===
+  state    ABSORPTION  INITIATIVE
+  block                          
+  opening          19          12
+  morning          23          20
+  midday           25          24
+  closing          25          22
+
+=== BUY / SELL by cell ===
+  side                buy  sell
+  block   state                
+  closing ABSORPTION   15    24
+          INITIATIVE   18    17
+  midday  ABSORPTION   28    17
+          INITIATIVE   17    22
+  morning ABSORPTION   20    20
+          INITIATIVE   12    17
+  opening ABSORPTION   12    10
+          INITIATIVE    7     7
+
+=== PRE-OUTCOME COUNT CONDITIONS ===
+  [PASS] 1 all four blocks produce both states           empty: []
+  [PASS] 2 no block structurally empty                   empty: []
+  [PASS] 3 no block over 40% of retained                 max 31.9% (midday); opening 13.7%, morning 26.2%, midday 31.9%, closing 28.1%
+  [PASS] 4 buy and sell in every interpretable cell      one-sided: []
+  [PASS] 5 cap binds on <= 50% of sessions per cell      max 28.0%
+
+  cap-binding detail:
+    block      state  sessions  cap_bind_sessions  bind_pct
+  opening INITIATIVE        12                  0       0.0
+  opening ABSORPTION        19                  0       0.0
+  morning INITIATIVE        20                  3      12.0
+  morning ABSORPTION        23                  5      20.0
+   midday INITIATIVE        24                  2       8.0
+   midday ABSORPTION        25                  7      28.0
+  closing INITIATIVE        22                  3      12.0
+  closing ABSORPTION        25                  5      20.0
+
+  VERDICT ON THE SPECIFICATION: ALL FIVE CONDITIONS PASS
+
+=== COMPARISON WITH THE RP-010 POOLED CONSTRUCTION ===
+                           RP-010 pooled   RP-011 block-relative
+  events / session                  6.00                   10.52
+  cap binds             100% of sessionsmax 28% of sessions in a cell
+  closing-block events                 0                      74
+  opening-block events        6 (of 204)                      36
