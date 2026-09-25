@@ -1,0 +1,109 @@
+========================================================================================================
+  FOMC FAMILY — STAGE 1, DESCRIPTIVE ONLY
+========================================================================================================
+  48 FOMC dates supplied, 45 inside the price sample.
+  sessions 1,411   control (non-FOMC, non-day-after) 1,321   20 tests, alpha 0.00250
+  windows: pre = 09:30-14:00 (statement at 14:00), post = 14:00-16:00
+  CONTROL IS CONTAMINATED: ~10% of it is CPI/NFP days, because those dates are
+  unobtainable here. That biases TOWARD finding nothing.
+
+========================================================================================================
+  RESULTS — each category against the same control
+========================================================================================================
+
+  FOMC decision day   (n 45 vs control 1321)
+    statistic            category    control      diff   ratio       t          p      
+    rv pre (bps)          66.5740    84.9645  -18.3905    0.78   -4.96   7.02e-07  PASS
+    rv post (bps)        107.8986    42.9868  +64.9118    2.51   +7.58   3.52e-14  PASS
+    post/pre ratio         1.6430     0.5071   +1.1359    3.24  +11.53   9.25e-31  PASS
+    efficiency post        0.1093     0.0932   +0.0162    1.17   +1.37   1.70e-01      
+    OR ratio               0.8658     1.0177   -0.1519    0.85   -2.81   4.95e-03      
+
+  day after FOMC   (n 45 vs control 1321)
+    statistic            category    control      diff   ratio       t          p      
+    rv pre (bps)          90.2643    84.9645   +5.2998    1.06   +1.06   2.87e-01      
+    rv post (bps)         52.4018    42.9868   +9.4150    1.22   +2.16   3.05e-02      
+    post/pre ratio         0.5682     0.5071   +0.0611    1.12   +2.15   3.13e-02      
+    efficiency post        0.0935     0.0932   +0.0004    1.00   +0.04   9.71e-01      
+    OR ratio               1.0566     1.0177   +0.0389    1.04   +0.62   5.38e-01      
+
+  FOMC with SEP   (n 22 vs control 1321)
+    statistic            category    control      diff   ratio       t          p      
+    rv pre (bps)          62.6144    84.9645  -22.3501    0.74   -4.85   1.23e-06  PASS
+    rv post (bps)        112.3674    42.9868  +69.3806    2.61   +6.03   1.66e-09  PASS
+    post/pre ratio         1.8273     0.5071   +1.3202    3.60   +9.57   1.06e-21  PASS
+    efficiency post        0.1149     0.0932   +0.0218    1.23   +1.10   2.70e-01      
+    OR ratio               0.8408     1.0177   -0.1769    0.83   -2.46   1.39e-02      
+
+  FOMC without SEP   (n 23 vs control 1321)
+    statistic            category    control      diff   ratio       t          p      
+    rv pre (bps)          70.3615    84.9645  -14.6030    0.83   -2.65   8.11e-03      
+    rv post (bps)        103.6241    42.9868  +60.6374    2.41   +4.74   2.13e-06  PASS
+    post/pre ratio         1.4668     0.5071   +0.9597    2.89   +7.22   5.30e-13  PASS
+    efficiency post        0.1040     0.0932   +0.0109    1.12   +0.81   4.17e-01      
+    OR ratio               0.8908     1.0177   -0.1269    0.88   -1.58   1.14e-01      
+
+========================================================================================================
+  VOLUME SHARE AFTER 14:00
+========================================================================================================
+  group                    vol% post-14:00
+  control                             25.4
+  FOMC decision day                   46.7
+  day after FOMC                      26.3
+  FOMC with SEP                       50.5
+  FOMC without SEP                    43.0
+
+========================================================================================================
+  CONTROL — 1,000 RANDOM LABELS PER CATEGORY, SIZES MATCHED
+========================================================================================================
+  category            statistic           real diff  rand |diff| 95th  percentile        
+  FOMC decision day   rv pre (bps)         -18.3905           11.7951       99.3%   BEATS
+  FOMC decision day   rv post (bps)        +64.9118            8.3487      100.0%   BEATS
+  FOMC decision day   post/pre ratio        +1.1359            0.0764      100.0%   BEATS
+  FOMC decision day   efficiency post       +0.0162            0.0202       86.8%        
+  FOMC decision day   OR ratio              -0.1519            0.1307       97.9%   BEATS
+  day after FOMC      rv pre (bps)          +5.2998           11.7064       60.4%        
+  day after FOMC      rv post (bps)         +9.4150            7.5315       98.3%   BEATS
+  day after FOMC      post/pre ratio        +0.0611            0.0476       97.8%   BEATS
+  day after FOMC      efficiency post       +0.0004            0.0210        3.7%        
+  day after FOMC      OR ratio              +0.0389            0.1285       43.9%        
+  FOMC with SEP       rv pre (bps)         -22.3501           16.5703       98.4%   BEATS
+  FOMC with SEP       rv post (bps)        +69.3806           10.7427      100.0%   BEATS
+  FOMC with SEP       post/pre ratio        +1.3202            0.1081      100.0%   BEATS
+  FOMC with SEP       efficiency post       +0.0218            0.0287       86.8%        
+  FOMC with SEP       OR ratio              -0.1769            0.1702       95.6%   BEATS
+  FOMC without SEP    rv pre (bps)         -14.6030           16.9839       92.5%        
+  FOMC without SEP    rv post (bps)        +60.6374           10.6871      100.0%   BEATS
+  FOMC without SEP    post/pre ratio        +0.9597            0.0855      100.0%   BEATS
+  FOMC without SEP    efficiency post       +0.0109            0.0299       53.5%        
+  FOMC without SEP    OR ratio              -0.1269            0.1731       86.2%        
+
+========================================================================================================
+  BY YEAR — FOMC decision day, post-window rv vs that year's control
+========================================================================================================
+  year       n   FOMC rv_post   control rv_post    ratio
+  2021       8          78.08             37.04     2.11
+  2022       8         205.93             67.72     3.04
+  2023       8         104.26             39.62     2.63
+  2024       8          90.27             35.04     2.58
+  2025       8          83.07             40.01     2.08
+  2026       5          72.51             36.11     2.01
+  higher on FOMC day in 6 of 6 years
+
+========================================================================================================
+  VERDICT
+========================================================================================================
+  clearing Bonferroni (p < 0.00250):       8 of 20
+  beating 95th pct of random labels:      12 of 20   (expected by chance: 1.0)
+
+  CLEARING BOTH:
+    FOMC decision day   rv pre (bps)         66.574 vs   84.965   x0.78   p 7.02e-07   99.3th pct
+    FOMC decision day   rv post (bps)       107.899 vs   42.987   x2.51   p 3.52e-14   100.0th pct
+    FOMC decision day   post/pre ratio        1.643 vs    0.507   x3.24   p 9.25e-31   100.0th pct
+    FOMC with SEP       rv pre (bps)         62.614 vs   84.965   x0.74   p 1.23e-06   98.4th pct
+    FOMC with SEP       rv post (bps)       112.367 vs   42.987   x2.61   p 1.66e-09   100.0th pct
+    FOMC with SEP       post/pre ratio        1.827 vs    0.507   x3.60   p 1.06e-21   100.0th pct
+    FOMC without SEP    rv post (bps)       103.624 vs   42.987   x2.41   p 2.13e-06   100.0th pct
+    FOMC without SEP    post/pre ratio        1.467 vs    0.507   x2.89   p 5.30e-13   100.0th pct
+
+  No performance test was run. 2016-2020 remains sealed.
