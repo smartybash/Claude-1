@@ -1,0 +1,53 @@
+{
+  "ticks": {
+    "discovery": {
+      "prints": 24855765,
+      "orders": 21374417,
+      "prints_per_order": 1.162874524250182,
+      "side_share": {
+        "A": 0.500505,
+        "B": 0.499491,
+        "N": 3e-06
+      },
+      "sessions": 65,
+      "big_threshold_contracts": 10.0,
+      "big_orders": 259989,
+      "footprint_files": [
+        3,
+        7293465,
+        2851261
+      ],
+      "instruments": [
+        42002475,
+        42004058
+      ],
+      "recombination_check": {
+        "sampled": 2000,
+        "ordered_sequence": 260,
+        "monotone_in_aggressor_direction": 2000
+      }
+    },
+    "holdout": {
+      "prints": 8313095,
+      "orders": 7290362,
+      "prints_per_order": 1.140285626420197,
+      "side_share": {
+        "A": 0.500338,
+        "B": 0.499658,
+        "N": 3e-06
+      },
+      "sessions": 25,
+      "big_threshold_contracts": 10.0,
+      "big_orders": 77848,
+      "footprint_files": [
+        2,
+        2333556,
+        1637017
+      ],
+      "instruments": [
+        42004177,
+        261401
+      ]
+    }
+  }
+}

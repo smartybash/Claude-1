@@ -100,3 +100,15 @@ committed any Databento price or volume data.
    (the current state). Rebuild from raw while the 30-day window lasts.
 3. Store the data somewhere private you control (for example a private repo or a
    drive), and I push it there.
+
+---
+
+## P4. RP-011 "zero null aggressor labels" — interpretation applied (review)
+
+Databento side N appears 83 times in discovery: 65 at the 18:00 ET Globex reopen
+auction, a few at 07:05 / 08:30 / 18:3x, and **one in RTH**. Read literally over
+the whole Globex session, the gate would fail 64 of 65 sessions because of the
+reopen auction, which RP-011 never reads. I applied it to the **RTH data RP-011
+reads**: a session with any RTH N print fails. This is an interpretation, not a
+waiver. Say if you want the literal whole-session reading instead (which would
+block RP-011).

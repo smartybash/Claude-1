@@ -122,3 +122,19 @@ separately, labelled **"never used for this hypothesis; read by other studies,
 incl. study (b)"**; 2021 → registration is reported as seen and not decisive;
 forward data after registration is the only true out-of-sample. The Power of 3
 holdout question (P1) is updated accordingly in `decisions_pending.md`.
+
+---
+
+## 8. Tick session exclusions — registered before any tick hypothesis, 2026-09-25
+
+Excluded from every tick hypothesis (RP-011 included): short or holiday sessions,
+and **roll-lag** sessions, defined as continuous-contract RTH print count below 50%
+of the window median. Discovery excludes 2026-03-16, 03-17 (roll lag), 04-03,
+05-25 → **61 sessions**. Holdout excludes 2026-09-07, 09-15 (roll lag) → **23
+sessions**. The holdout counts are session statistics only; no outcome was read.
+
+**RP-011 gate interpretation (not a waiver):** "aggressor labels with zero nulls"
+is applied to the **RTH** data RP-011 reads. Side N occurs almost only at the
+18:00 ET Globex reopen and pre-market releases; one discovery RTH print is N. A
+session with any RTH N print fails the gate. Recorded in `decisions_pending.md`
+for your review.
