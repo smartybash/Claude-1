@@ -1,0 +1,45 @@
+RP-011 STAGE 1 -- DATABENTO DISCOVERY, sessions already read by step-4 tape studies
+platform tests: PASS 139   FAIL 0  (exit 0)
+quality gate (amended volume check): 56 of 65 sessions pass (>= 50 required)
+sessions 56, warm-up 10, labelled 46; windows 34960; candidates 1496; retained 499 (10.85/session)
+
+=== RETAINED by block x state ===
+  state    ABSORPTION  INITIATIVE
+  block                          
+  opening          35          31
+  morning          70          61
+  midday           80          76
+  closing          74          72
+
+=== COUNTS GATE (all eight must hold before any outcome) ===
+  independent sessions per cell: block    state     ; closing  ABSORPTION    44;          INITIATIVE    44; midday   ABSORPTION    45;          INITIATIVE    45; morning  ABSORPTION    40;          INITIATIVE    39; opening  ABSORPTION    26;          INITIATIVE    25
+  [PASS] 1 all four blocks produce both states   missing: []
+  [PASS] 2 no block structurally empty   empty: []
+  [PASS] 3 no block over 40% of retained   opening 13.2%, morning 26.3%, midday 31.3%, closing 29.3%
+  [PASS] 4 buy and sell in every interpretable cell   one-sided: []
+  [PASS] 5 cap binds on <= 50% of sessions per cell   max 30.4%
+  [PASS] 6 >= 3 blocks with both states in >= 30 sessions   blocks: ['morning', 'midday', 'closing']
+  [PASS] 7 closing block among them   
+  [PASS] 8 no cell dominated by few sessions   few: []; dominated: []
+
+counts gate passes -> outcomes computed now (strictly after each window).
+
+=== OUTCOMES BY BLOCK (15-minute primary; NQ points, direction-adjusted) ===
+--- opening: INITIATIVE n 31 (25 sess) mean -9.59 | ABSORPTION n 35 (26 sess) mean +11.67 | D +5.19 t +0.21 p1 0.4192 Holm 1.0000
+    selectors: delta -5.68, progress -9.34, volume -5.88, loc_vol +6.54, impact +1.47 | matched times INI +6.15 ABS -14.15 | ctl2 INI -6.79 ABS +0.79 | ctl4 -2.15 | D w/o best3 -25.26 | best3 share 483% | INI cont300 55% | events/month 30.1
+    pass: [n]1 [n]2 [n]3 [n]4 [n]5 [n]6 [n]7 [n]8 [n]9 [n]10 [Y]11   (1 of 11)
+    kill: [FIRES]K1 [FIRES]K2 [FIRES]K3 [FIRES]K4 [FIRES]K5 [FIRES]K6 [-]K7 [FIRES]K8 [FIRES]K9 [FIRES]K10
+--- morning: INITIATIVE n 61 (39 sess) mean -2.50 | ABSORPTION n 70 (40 sess) mean -5.50 | D +7.89 t +0.89 p1 0.1913 Holm 0.7651
+    selectors: delta -3.91, progress -4.95, volume -4.88, loc_vol -0.15, impact -2.27 | matched times INI -1.68 ABS +1.57 | ctl2 INI -1.55 ABS +0.37 | ctl4 -5.74 | D w/o best3 -0.07 | best3 share 101% | INI cont300 56% | events/month 59.8
+    pass: [n]1 [n]2 [Y]3 [n]4 [n]5 [n]6 [n]7 [n]8 [n]9 [n]10 [Y]11   (2 of 11)
+    kill: [FIRES]K1 [FIRES]K2 [FIRES]K3 [FIRES]K4 [FIRES]K5 [FIRES]K6 [-]K7 [-]K8 [FIRES]K9 [FIRES]K10
+--- midday: INITIATIVE n 76 (45 sess) mean +3.12 | ABSORPTION n 80 (45 sess) mean +5.17 | D -5.51 t -0.89 p1 0.8107 Holm 1.0000
+    selectors: delta +1.18, progress -0.74, volume +0.11, loc_vol -0.34, impact +0.07 | matched times INI +3.87 ABS -9.52 | ctl2 INI -0.58 ABS -0.77 | ctl4 -1.35 | D w/o best3 -11.12 | best3 share nan% | INI cont300 50% | events/month 71.2
+    pass: [n]1 [n]2 [n]3 [n]4 [n]5 [n]6 [n]7 [n]8 [n]9 [n]10 [Y]11   (1 of 11)
+    kill: [-]K1 [-]K2 [-]K3 [FIRES]K4 [FIRES]K5 [FIRES]K6 [-]K7 [-]K8 [FIRES]K9 [FIRES]K10
+--- closing: INITIATIVE n 72 (44 sess) mean +5.07 | ABSORPTION n 74 (44 sess) mean +3.98 | D -1.55 t -0.38 p1 0.6452 Holm 1.0000
+    selectors: delta +0.74, progress -0.11, volume -0.73, loc_vol -0.19, impact -0.76 | matched times INI -1.80 ABS -3.66 | ctl2 INI +1.02 ABS +0.52 | ctl4 -1.54 | D w/o best3 -4.97 | best3 share nan% | INI cont300 53% | events/month 66.7
+    pass: [n]1 [Y]2 [n]3 [n]4 [n]5 [n]6 [n]7 [n]8 [n]9 [n]10 [Y]11   (2 of 11)
+    kill: [-]K1 [-]K2 [-]K3 [FIRES]K4 [FIRES]K5 [FIRES]K6 [-]K7 [-]K8 [FIRES]K9 [FIRES]K10
+
+VERDICT: REJECTED: kill condition(s) fire in every block: ['K4 only one side works', 'K5 best three sessions > 50% of D', 'K6 matched times match the treatment', 'K9 controls 2-4 match the treatment', 'K10 states not opposite'].
