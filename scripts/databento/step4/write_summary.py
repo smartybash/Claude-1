@@ -72,10 +72,12 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 
 - **P6** decides whether RP-011 runs (and on what footing, given the disclosure
   in its addendum). T18 (RP-010) waits for the same decision.
-- Remaining step-4 studies continue in the registered order; BH is computed once,
-  when the batch is complete.
-- Order-flow hypotheses on the discovery ticks (at most five, provisional) are
-  still to be registered.
+- Step 4 is complete except T18 (RP-010), held with P6; B03, B30, A13 not rerun
+  (reasons in the table); X01-X08 need depth, options or other instruments.
+- OF-1..OF-4 all failed discovery, so none goes to the holdout. The D2 holdout
+  is still unread; it is reserved for RP-011 if P6 lets RP-011 run.
+- **P7**: whether to register a forward-only test of the three multi-day daily
+  effects that replicate on NQ.
 - **P2** (early November): top-up of fresh sessions from 2026-09-25 as a
   confirmation-only holdout, within the cap.
 """
@@ -88,15 +90,24 @@ def fmtn(x, f):
 def main():
     d = pd.read_csv(C.RESULTS)
     trade = d[d.p_study.notna() & ~d.id.isin(["T08"])]
-    L = [f"Studies reported so far: **{len(d)}** of 63 portable. Trading claims "
-         f"with a p: **{len(trade)}**. Frozen pass bar met after NQ costs: "
-         f"**{int(d.pass_bar.fillna(False).astype(bool).sum())}**. BH is computed "
-         "once, when the batch is complete.", "",
-         "| id | study | old verdict | net pt/trade | Sharpe | study p (1-sided, Holm) | new verdict (before BH) |",
-         "|---|---|---|---|---|---|---|"]
+    nbh = int(d.get("in_bh", pd.Series(dtype=bool)).fillna(False).astype(bool).sum())
+    nrev = int(d.get("final_verdict", pd.Series(dtype=str)).astype(str).str.startswith("REVIVED").sum())
+    L = [f"**Result: {nrev} of {nbh} trading claims revived after Benjamini-Hochberg (q = 0.05). "
+         "Every closed study stays closed on NQ.** Rows reported: "
+         f"{len(d)} (tape, bar, archive, descriptive). The closest misses: B15 IB-by-rejection "
+         "(+4.6 NQ pt/trade after costs, daily-P&L p 0.054, fails its frozen t > 3) and B31 IB re-entry "
+         "(p 0.085). Descriptive replications on NQ: FOMC-afternoon volatility (B01), the opening "
+         "block's larger excursions (B02), and mean-reverting VWAP-displacement / cumulative-delta "
+         "correlations at 15 minutes (T09) that no frozen trade converts into profit. Archive "
+         "positives that replicate (A10 daily FVG, A11 compression breakout, A12 oversold bounce) are "
+         "unregistered multi-day effects and cannot be revived; see decision P7.", "",
+         "| id | study | old verdict | net pt/trade | Sharpe | study p | BH p | final verdict |",
+         "|---|---|---|---|---|---|---|---|"]
     for r in d.sort_values("id").itertuples():
+        fv = getattr(r, "final_verdict", r.new_verdict_pre_bh)
         L.append(f"| {r.id} | {r.study} | {r.old_verdict} | {fmtn(r.net_pts, '+.2f')} | "
-                 f"{fmtn(r.sharpe, '+.2f')} | {fmtn(r.p_study, '.4f')} | {r.new_verdict_pre_bh} |")
+                 f"{fmtn(r.sharpe, '+.2f')} | {fmtn(r.p_study, '.4f')} | "
+                 f"{fmtn(getattr(r, 'p_bh', float('nan')), '.3f')} | {fv} |")
     of = C.ROOT / "reports/of_h_discovery_results.csv"
     if of.exists():
         o = pd.read_csv(of)

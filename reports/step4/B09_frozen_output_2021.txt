@@ -1,0 +1,95 @@
+============================================================================================================
+  STAGE 1 — DOES EARLY SESSION INFORMATION PREDICT WHETHER THE REMAINDER TRENDS OR CHOPS?
+============================================================================================================
+  Descriptive. No rule is traded, no expectancy is computed. Stage 2 runs only if this passes.
+  Pass requires ALL THREE: |rho| >= 0.1, p < 0.00357 (Bonferroni/14), spread >= 0.02
+
+  sessions 1,411   2021-01-04 to 2026-08-31   rejected 49
+
+------------------------------------------------------------------------------------------------------------
+  OR_MIN 15: 1,411 sessions measured, median 285 post-decision bars
+  random-walk baseline for that length = 0.0473   |   observed median eff_later = 0.0591
+
+============================================================================================================
+  OUTCOME: EFFICIENCY RATIO AFTER D — THE REGIME, THE THING THE HYPOTHESIS NEEDS   |   DECISION TIMESTAMP D = open + 15 min
+============================================================================================================
+  predictor           n  Spearman           p   Pearson  bottom d1   top d10    spread   verdict
+  or_ratio        1,391    -0.005    8.47e-01    +0.004     0.0704    0.0672   -0.0032        --
+  rv_open         1,391    -0.021    4.27e-01    -0.011     0.0675    0.0698    0.0022        --
+  eff_open        1,411    +0.032    2.23e-01    +0.039     0.0701    0.0700   -0.0000        --
+  gap             1,390    -0.024    3.71e-01    -0.012     0.0700    0.0699   -0.0001        --
+  prior_range     1,390    -0.044    9.98e-02    -0.032     0.0709    0.0631   -0.0078        --
+  or_pos          1,411    +0.027    3.06e-01    +0.018     0.0625    0.0682    0.0057        --
+  vol_ratio       1,391    -0.011    6.86e-01    +0.008     0.0700    0.0661   -0.0039        --
+
+============================================================================================================
+  OUTCOME: REALISED VOL AFTER D (bps) — POSITIVE CONTROL, NOT PART OF THE HYPOTHESIS   |   DECISION TIMESTAMP D = open + 15 min
+============================================================================================================
+  predictor           n  Spearman           p   Pearson  bottom d1   top d10    spread   verdict
+  or_ratio        1,391    +0.359    1.21e-43    +0.392      61.11    114.14     53.03      PASS
+  rv_open         1,391    +0.394    5.66e-53    +0.463      61.85    122.75     60.91      PASS
+  eff_open        1,411    +0.021    4.39e-01    +0.001      81.13     79.87     -1.26        --
+  gap             1,390    +0.191    6.80e-13    +0.225      71.36     97.60     26.24      PASS
+  prior_range     1,390    +0.263    1.67e-23    +0.323      63.91    107.22     43.31      PASS
+  or_pos          1,411    +0.098    2.39e-04    +0.059      76.48     87.29     10.81        --
+  vol_ratio       1,391    +0.167    3.71e-10    +0.168      76.60     96.48     19.88      PASS
+
+------------------------------------------------------------------------------------------------------------
+  OR_MIN 30: 1,411 sessions measured, median 270 post-decision bars
+  random-walk baseline for that length = 0.0486   |   observed median eff_later = 0.0600
+
+============================================================================================================
+  OUTCOME: EFFICIENCY RATIO AFTER D — THE REGIME, THE THING THE HYPOTHESIS NEEDS   |   DECISION TIMESTAMP D = open + 30 min
+============================================================================================================
+  predictor           n  Spearman           p   Pearson  bottom d1   top d10    spread   verdict
+  or_ratio        1,391    -0.000    9.90e-01    -0.006     0.0671    0.0698    0.0027        --
+  rv_open         1,391    -0.016    5.47e-01    -0.008     0.0716    0.0684   -0.0032        --
+  eff_open        1,411    -0.004    8.86e-01    +0.005     0.0688    0.0732    0.0043        --
+  gap             1,390    -0.026    3.26e-01    -0.018     0.0721    0.0675   -0.0046        --
+  prior_range     1,390    -0.040    1.35e-01    -0.039     0.0678    0.0629   -0.0049        --
+  or_pos          1,411    -0.030    2.64e-01    -0.034     0.0772    0.0684   -0.0089        --
+  vol_ratio       1,391    +0.000    9.90e-01    +0.021     0.0671    0.0680    0.0009        --
+
+============================================================================================================
+  OUTCOME: REALISED VOL AFTER D (bps) — POSITIVE CONTROL, NOT PART OF THE HYPOTHESIS   |   DECISION TIMESTAMP D = open + 30 min
+============================================================================================================
+  predictor           n  Spearman           p   Pearson  bottom d1   top d10    spread   verdict
+  or_ratio        1,391    +0.351    1.59e-41    +0.405      56.00    105.20     49.19      PASS
+  rv_open         1,391    +0.416    3.25e-59    +0.484      55.28    116.65     61.37      PASS
+  eff_open        1,411    +0.011    6.67e-01    -0.003      72.41     70.73     -1.69        --
+  gap             1,390    +0.190    8.57e-13    +0.222      66.56     91.62     25.05      PASS
+  prior_range     1,390    +0.255    4.87e-22    +0.316      60.08    100.54     40.45      PASS
+  or_pos          1,411    +0.018    5.01e-01    +0.022      74.05     75.02      0.97        --
+  vol_ratio       1,391    +0.196    1.59e-13    +0.188      67.27     90.23     22.96      PASS
+
+============================================================================================================
+  VERDICT
+============================================================================================================
+  14 predictor-window combinations tested against eff_later.
+  cleared |rho| >= 0.1:         0 of 14
+  cleared p < 0.00357:        0 of 14
+  cleared spread >= 0.02:     0 of 14
+  cleared ALL THREE:             0 of 14
+
+  largest |rho| observed:    0.0442  (prior_range OR15)
+  largest |spread| observed: 0.0089  (or_pos OR30)   bar is 0.02
+
+  DECILE LADDER — or_pos at OR30, outcome eff_later   (spread -0.0089)
+    decile        1       2       3       4       5       6       7       8       9      10
+    mean     0.0772  0.0704  0.0632  0.0676  0.0703  0.0671  0.0696  0.0636  0.0670  0.0684
+    n           142     141     141     141     141     141     141     141     141     141
+
+  DECILE LADDER — prior_range at OR15, outcome eff_later   (spread -0.0078)
+    decile        1       2       3       4       5       6       7       8       9      10
+    mean     0.0709  0.0730  0.0698  0.0701  0.0702  0.0615  0.0643  0.0695  0.0701  0.0631
+    n           139     139     139     139     139     139     139     139     139     139
+
+============================================================================================================
+  NO CANDIDATE PREDICTS THE LATER REGIME. STOP.
+============================================================================================================
+  Stage 2 is NOT run. The pre-registered 6-variant budget is NOT spent.
+  A regime-conditional strategy is impossible if the regime is not forecastable,
+  and that is a complete answer to the hypothesis.
+
+  per-session values: reports/regime_forecast_OR{15,30}.csv
+  Sealed NQ days were not read.

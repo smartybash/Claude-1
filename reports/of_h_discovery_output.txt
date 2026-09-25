@@ -1,0 +1,7 @@
+OF-1..OF-4 -- DISCOVERY (PROVISIONAL; data-inspired; the holdout is not read)
+sessions 61 (first 10 are warm-up for OF-1..3); cost 2.0 pt round trip
+
+  OF-1 VWAP reversion          n 195 | net -4.16 pt/trade ($-83.2) | win 46.2% | PF 0.73 | Sharpe -3.34 | CAGR -12.91% | maxDD $19,380/NQ $1,938/MNQ | trade-sessions 37/61 daily-P&L t -1.64 p1 0.9473 (sess-mean t +0.34)  Holm p 1.0000  -> fails discovery
+  OF-2 CVD reversion           n 248 | net -0.45 pt/trade ($-9.1) | win 46.8% | PF 0.97 | Sharpe -0.38 | CAGR -0.87% | maxDD $17,675/NQ $1,768/MNQ | trade-sessions 37/61 daily-P&L t -0.19 p1 0.5738 (sess-mean t +2.29)  Holm p 1.0000  -> fails discovery
+  OF-3 sweep reversal          n 290 | net +2.84 pt/trade ($+56.8) | win 51.4% | PF 1.21 | Sharpe +2.61 | CAGR 12.79% | maxDD $10,930/NQ $1,093/MNQ | trade-sessions 51/61 daily-P&L t +1.28 p1 0.1023 (sess-mean t +0.77)  Holm p 0.4090  -> fails discovery
+  OF-4 opening flow, gap days  n 21 | net -21.52 pt/trade ($-430.5) | win 14.3% | PF 0.22 | Sharpe -5.96 | CAGR -7.18% | maxDD $9,600/NQ $960/MNQ | trade-sessions 21/61 daily-P&L t -2.93 p1 0.9976 (sess-mean t -3.39)  Holm p 1.0000  -> fails discovery
