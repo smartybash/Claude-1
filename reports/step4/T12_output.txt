@@ -1,0 +1,6 @@
+=== T12 range filter on structure break (magnitude) (Databento discovery sessions) ===
+  top range quartile             n 86 | net -19.73 pt/trade ($-394.7) | win 57.0% | PF 0.56 | Sharpe -3.69 | CAGR -22.62% | maxDD $51,800/NQ $5,180/MNQ | sessions 35 t -2.81 p 0.0081 p1 0.9960
+  bottom range quartile          n 86 | net -12.57 pt/trade ($-251.5) | win 38.4% | PF 0.44 | Sharpe -5.37 | CAGR -14.77% | maxDD $25,940/NQ $2,594/MNQ | sessions 31 t -2.59 p 0.0147 p1 0.9927
+  all breaks                     n 342 | net -7.35 pt/trade ($-147.0) | win 51.5% | PF 0.76 | Sharpe -2.84 | CAGR -33.71% | maxDD $64,410/NQ $6,441/MNQ | sessions 57 t -2.72 p 0.0087 p1 0.9957
+  PRIMARY: 1 cell(s), Holm on one-sided p; best = top range quartile, study p = 0.9960
+  pass bar (net > 0, p <= 0.05, top beats bottom quartile): NOT MET  -> stays closed

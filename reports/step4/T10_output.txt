@@ -1,0 +1,7 @@
+=== T10 VWAP displacement, three registered exits (Databento discovery sessions) ===
+  note: reconstructed from the registered text (no committed script)
+  exit 17:00 (13:00 ET)          n 61 | net -19.80 pt/trade ($-396.0) | win 45.9% | PF 0.62 | Sharpe -2.89 | CAGR -13.63% | maxDD $26,975/NQ $2,698/MNQ | sessions 61 t -1.42 p 0.1596 p1 0.9202
+  exit 19:00 (15:00 ET)          n 61 | net -5.63 pt/trade ($-112.5) | win 45.9% | PF 0.90 | Sharpe -0.67 | CAGR -0.32% | maxDD $25,925/NQ $2,592/MNQ | sessions 61 t -0.33 p 0.7424 p1 0.6288
+  exit close 20:00 (16:00 ET)    n 61 | net -11.84 pt/trade ($-236.8) | win 47.5% | PF 0.84 | Sharpe -1.15 | CAGR -7.32% | maxDD $31,185/NQ $3,118/MNQ | sessions 61 t -0.57 p 0.5737 p1 0.7131
+  PRIMARY: 3 cell(s), Holm on one-sided p; best = exit 19:00 (15:00 ET), study p = 1.0000
+  pass bar (net > 0, p <= 0.05; registered bar t >= 2.4 per exit): NOT MET  -> stays closed

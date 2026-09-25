@@ -1,0 +1,54 @@
+================================================================================================
+INFORMATION COEFFICIENT — 61 sessions, 23,790 one-minute bars
+================================================================================================
+  IC is the rank correlation between the feature now and the return
+  over the next h minutes. Computed PER SESSION, then a t-statistic
+  across sessions -- bars inside a day are not independent.
+
+  The NULL column is the same test against returns circularly
+  shifted within each session: the link is destroyed, the
+  autocorrelation is kept. It is how many features look this good
+  by chance, and it is the only thing that makes |t| interpretable.
+
+  ---- forward 1 minute(s) ----
+    feature               IC       t   sessions agreeing   null t
+    vwap_disp        -0.0671  -12.50                 95%    -0.46  *
+    cvd              -0.0741  -10.76                 89%    +0.83  *
+    cvd_share        -0.0564   -8.55                 90%    -0.34  *
+    pos_in_range     -0.0300   -4.65                 79%    -2.48  *
+    ext_up           -0.0275   -4.05                 70%    -1.85  *
+    ext_dn           +0.0233   +3.61                 72%    +1.64  *
+    clip             -0.0166   -2.58                 62%    +0.79
+    delta15          -0.0164   -2.47                 57%    +0.84
+
+  ---- forward 5 minute(s) ----
+    feature               IC       t   sessions agreeing   null t
+    vwap_disp        -0.1424  -13.46                 97%    -0.46  *
+    cvd              -0.1553  -11.67                 95%    +0.71  *
+    cvd_share        -0.1226   -8.65                 89%    -0.67  *
+    pos_in_range     -0.0552   -4.24                 70%    -2.23  *
+    ext_up           -0.0495   -3.90                 69%    -0.99  *
+    delta15          -0.0480   -3.60                 66%    -1.35  *
+    ext_dn           +0.0403   +3.11                 64%    +0.20  *
+    dshare15         -0.0382   -2.84                 61%    +0.05
+
+  ---- forward 15 minute(s) ----
+    feature               IC       t   sessions agreeing   null t
+    vwap_disp        -0.2550  -15.14                100%    +2.40  *
+    cvd              -0.2536  -12.46                 95%    -0.36  *
+    cvd_share        -0.1967   -8.50                 82%    +1.12  *
+    pos_in_range     -0.1133   -6.37                 82%    -0.34  *
+    ext_up           -0.0976   -5.63                 79%    -1.33  *
+    ext_dn           +0.1027   +5.58                 77%    +4.07  *
+    delta5           -0.0502   -3.73                 67%    -0.64  *
+    delta15          -0.0689   -3.58                 69%    -2.41  *
+
+================================================================================================
+HOW MANY CLEAR THE BAR, AND HOW MANY DO SO BY CHANCE
+================================================================================================
+  |t| >= 2:  real  36 of 60 feature-horizons     null   7
+  |t| >= 3:  real  23 of 60 feature-horizons     null   1
+
+  If the two columns are close, nothing here has been shown to
+  carry information -- the real column is just what this many
+  features produce against this many sessions.

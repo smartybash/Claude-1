@@ -1,0 +1,31 @@
+====================================================================================================
+ORDER SIZE AND SWEEP AS GATES ON THE STRUCTURE BREAK
+====================================================================================================
+  Only sessions whose cumulative stream actually aggregates are
+  used. Each gate is judged against the trades it refuses, inside
+  the same sessions; intervals resample sessions.
+
+  ---- 3-minute signals: 348 breaks, 57 sessions ----
+      25+ lot net delta with the trade             n=268  +0.149R  [-0.09, +0.41]
+      25+ lot net >= 2% of window volume           n=152  +0.031R  [-0.17, +0.23]
+      50+ lot net delta with the trade             n=204  -0.057R  [-0.33, +0.19]
+      50+ lot net >= 2% of window volume           n=98   -0.067R  [-0.31, +0.17]
+      sweep delta with the trade                   n=318  -0.604R  [-1.55, +0.22]
+      sweep net >= 2% of window volume             n=274  -0.192R  [-0.63, +0.18]
+
+    sign tally: 2/6 positive, median -0.062R
+
+  ---- 5-minute signals: 196 breaks, 54 sessions ----
+      25+ lot net delta with the trade             n=157  +0.063R  [-0.26, +0.36]
+      25+ lot net >= 2% of window volume           n=78   +0.047R  [-0.16, +0.27]
+      50+ lot net delta with the trade             n=132  +0.160R  [-0.11, +0.42]
+      50+ lot net >= 2% of window volume           n=58   -0.053R  [-0.30, +0.19]
+      sweep delta with the trade                   n=182  +0.027R  [-0.38, +0.45]
+      sweep net >= 2% of window volume             n=145  -0.002R  [-0.23, +0.23]
+
+    sign tally: 4/6 positive, median +0.037R
+
+====================================================================================================
+  A single cell clearing zero is what a handful of tests produces by
+  chance. What would matter is the same sign across both timeframes,
+  which is the pattern that made CVD change worth recording.

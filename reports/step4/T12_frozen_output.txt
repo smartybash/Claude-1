@@ -1,0 +1,40 @@
+================================================================================================
+DIRECTION vs MAGNITUDE — 61 sessions, 23,790 bars
+================================================================================================
+  Same features, same bars, same horizon. The only difference is
+  whether the sign of the next move is kept or thrown away.
+
+  feature            signed IC       t   |move| IC       t
+  clip                 -0.0589   -3.56     -0.1176   -8.40
+  ext_up               -0.0975   -5.62     -0.0910   -5.17
+  pos_in_range         -0.1133   -6.36     -0.0883   -4.85
+  vwap_disp            -0.2548  -15.14     -0.1130   -4.17
+  ext_dn               +0.1027   +5.57     +0.0694   +3.81
+  dshare15             -0.0642   -3.41     -0.0676   -3.61
+  delta15              -0.0688   -3.58     -0.0638   -3.44
+  cvd                  -0.2534  -12.46     -0.0926   -3.31
+  poc_shift            -0.0447   -2.06     -0.0587   -3.24
+  delta5               -0.0501   -3.72     -0.0427   -2.97
+
+  strongest |t| on DIRECTION: 15.14
+  strongest |t| on MAGNITUDE: 8.40
+
+  If magnitude is far more predictable than direction, the search
+  has been aimed at the harder half of the problem.
+
+================================================================================================
+DOES TAKING BREAKS ONLY WHEN THE EXPECTED MOVE IS LARGE HELP?
+================================================================================================
+  The structure trade loses to cost on a 30-point stop. It does not
+  need to know direction better -- it needs the move to be big
+  enough to pay. This is that filter, and nothing else changes.
+
+  342 breaks, 57 sessions
+
+    recent 20-bar range              n      pts        R     win
+    quartile 0 (<=  20.8 pts)          86   -12.57   -0.190   38.4%
+    quartile 1 (<=  28.1 pts)          85    +6.89   +0.062   58.8%
+    quartile 2 (<=  38.2 pts)          85    -3.78   -0.059   51.8%
+    quartile 3 (<=  85.6 pts)          86   -19.73   -0.208   57.0%
+
+    all breaks: -7.35 pts, per-session t -2.72
