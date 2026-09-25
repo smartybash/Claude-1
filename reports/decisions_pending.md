@@ -124,3 +124,29 @@ conditions), applied per time block. I added a 15-minute primary horizon, Holm
 across the four blocks, and a ±2% tolerance on the D3 volume reconciliation.
 Registered in `reports/rp011_stage1_preregistration.md` before any RP-011 window was
 built. Override any of it if you disagree; nothing has been read yet.
+
+---
+
+## P6. RP-011 stopped at the quality gate — volume reconciliation (decide)
+
+Details: `reports/rp011_stage1_result.md`. **27 of 65 discovery sessions pass;
+50 are needed.** 60 pass everything except the ±2% volume check. Tick volume is
+**always below** CME cleared volume (median −2.1%, never above; Good Friday
+−0.01%), which fits cleared volume including block and spread-leg trades that the
+outright feed does not carry. ATAS matched Databento to within 0.01%, so the
+original ATAS data would have failed this check too. No RP-011 window has been
+built.
+
+**Options:**
+1. **Accept the stop.** RP-011 stays frozen; no Databento-based Stage 1.
+2. **Amend the volume criterion, declared before any window is built** (my
+   recommendation): **one-sided** — trades ≤ cleared volume (no invented prints),
+   with a shortfall of at most 5%. 56 sessions pass, so the gate clears and Stage 1
+   runs unchanged otherwise. Caveat: the 5% figure is chosen after seeing the
+   deviation distribution (not any outcome). ±4% gives the same 56; ±3% gives 49,
+   which fails the gate.
+3. **Buy the NQ calendar-spread trades** for the discovery window, to subtract
+   spread-leg volume and keep ±2%. Needs a quote and your approval; block trades
+   would still be unexplained, so ±2% may fail anyway.
+
+RP-011 Stage 1 is on hold until you choose. The holdout is untouched.

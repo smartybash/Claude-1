@@ -87,7 +87,7 @@ def per_session(t):
         r = x[x.rth]
         mins = (r.ts_et.dt.hour * 60 + r.ts_et.dt.minute).unique()
         mono = all(np.all(np.diff(g.sort_values("sequence", kind="stable")
-                                  .ts_utc.to_numpy().astype("int64")) >= 0)
+                                  .ts_utc.values.view("int64")) >= 0)
                    for _, g in x.groupby("instrument_id"))
         gaps = r.ts_utc.diff().dt.total_seconds()
         front = x.groupby("instrument_id")["qty"].sum().idxmax()
