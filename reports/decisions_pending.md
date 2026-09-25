@@ -167,3 +167,25 @@ in bps and barrier outcomes, derived from Databento bars, no prices or volumes).
 They are now untracked and ignored, but remain in the public history. If you
 want them purged from history too, that needs a force-push rewrite, which I have
 not done.
+
+---
+
+## P7. Three multi-day daily effects replicate on NQ (decide whether to pursue)
+
+Step 4's archive reruns (verdict agreement only; nothing revived) show three
+**positive, never-registered daily effects** holding on 16 years of NQ:
+
+| effect | QQQ (repo, 27y) | NQ 2010–2026 (gross; daily risk makes costs negligible) |
+|---|---|---|
+| daily FVG continuation (3R) | +0.476R, t 5.14 | +0.542R, t 4.71, 286 trades |
+| 5-day compression breakout (3R) | positive | +0.366R, t 5.88, 927 trades |
+| oversold bounce (3+ down closes, next close) | the one real daily effect | +25 bp, t 3.19, positive in every 5-year block |
+
+They are **multi-day or overnight holds** — Topstep 50K bans overnight holds
+(RP-012C), so personal capital only. Every NQ day is already seen, so the only
+admissible test is **forward**: a fresh pre-registration, frozen specs, evaluated
+on sessions after its registration date (the P2 top-up would serve for daily bars
+too — daily OHLCV from the statistics/ohlcv schemas is cheap).
+
+**Options:** 1) pre-register a forward-only evaluation of the three (I draft,
+you approve); 2) leave them as context; 3) close them.

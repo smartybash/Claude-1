@@ -1,0 +1,12 @@
+=== DAILY FVG CONTINUATION — full history (~27y), 3-slot first-touch, trend=20SMA, stopK=5, maxStopATR=2.5 ===
+  QQQ continuation           n= 286  2R +0.416  3R +0.542 (t 4.71)  trail +3.758 (t 3.35)
+  SPY continuation           n= 420  2R +0.303  3R +0.430 (t 4.60)  trail +3.774 (t 2.42)
+  IWM continuation           n= 418  2R +0.288  3R +0.372 (t 4.01)  trail +2.724 (t 2.21)
+  POOL continuation          n=1124  2R +0.326  3R +0.437 (t 7.64)  trail +3.380 (t 4.25)
+    POOL long only           n= 704  2R +0.432  3R +0.588 (t 7.98)  trail +3.466 (t 3.02)
+    POOL short only          n= 420  2R +0.150  3R +0.183 (t 2.06)  trail +3.236 (t 3.54)
+  POOL FADE (against trend)  n= 501  2R -0.060  3R -0.018 (t -0.23)  trail +2.451 (t 2.53)
+
+  QQQ continuation by gamma regime (n=128 tagged):
+      NEG gamma              n=  65  2R +0.615  3R +0.924 (t 3.72)  trail +9.313 (t 2.09)
+      POS gamma              n=  63  2R +0.619  3R +0.714 (t 2.84)  trail +1.689 (t 2.35)

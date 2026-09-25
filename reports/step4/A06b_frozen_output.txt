@@ -1,0 +1,39 @@
+QQQ 5-min RTH — 4189 sessions, 2010-06-07 to 2026-09-24
+rejection bar closes -> limit rests AT the level for K bars
+
+=== stop 0.15% (44 NQ pts) ===
+  patience  1 bars                           n=1304  win  30%  mean -0.057R  PF 0.92  t=-1.16     fill  38%  1.6/wk
+  patience  2 bars                           n=1698  win  31%  mean -0.027R  PF 0.96  t=-0.61     fill  50%  2.0/wk
+  patience  3 bars                           n=1920  win  31%  mean -0.021R  PF 0.97  t=-0.49     fill  56%  2.3/wk
+  patience  6 bars                           n=2262  win  32%  mean -0.007R  PF 0.99  t=-0.18     fill  66%  2.7/wk
+  patience 12 bars                           n=2508  win  33%  mean +0.018R  PF 1.03  t=+0.48     fill  74%  3.0/wk
+  -- with trigger-bar delta >=10% --
+  patience  3 bars                           n=1250  win  33%  mean +0.069R  PF 1.10  t=+1.27     fill  42%  1.5/wk
+  patience  6 bars                           n=1619  win  34%  mean +0.092R  PF 1.14  t=+1.90     fill  54%  1.9/wk
+  patience 12 bars                           n=1899  win  35%  mean +0.113R  PF 1.18  t=+2.55     fill  64%  2.3/wk
+
+=== stop 0.25% (74 NQ pts) ===
+  patience  1 bars                           n=1304  win  40%  mean +0.004R  PF 1.01  t=+0.09     fill  38%  1.6/wk
+  patience  2 bars                           n=1698  win  42%  mean +0.027R  PF 1.05  t=+0.75     fill  50%  2.0/wk
+  patience  3 bars                           n=1920  win  41%  mean +0.017R  PF 1.03  t=+0.50     fill  56%  2.3/wk
+  patience  6 bars                           n=2262  win  42%  mean +0.015R  PF 1.03  t=+0.51     fill  66%  2.7/wk
+  patience 12 bars                           n=2508  win  43%  mean +0.031R  PF 1.06  t=+1.08     fill  74%  3.0/wk
+  -- with trigger-bar delta >=10% --
+  patience  3 bars                           n=1250  win  43%  mean +0.076R  PF 1.14  t=+1.77     fill  42%  1.5/wk
+  patience  6 bars                           n=1619  win  43%  mean +0.074R  PF 1.14  t=+1.97     fill  54%  1.9/wk
+  patience 12 bars                           n=1899  win  44%  mean +0.084R  PF 1.16  t=+2.48     fill  64%  2.3/wk
+
+=== detail: stop 0.25%, patience 6, bar delta >=10% ===
+  median -1.00R  max DD 34.9R  worst streak 10  best +10.7R
+  first half  to 2018-08-10                  n= 713  win  47%  mean +0.109R  PF 1.22  t=+2.04     fill  49%  1.7/wk
+  second half from 2018-08-10                n= 906  win  41%  mean +0.046R  PF 1.08  t=+0.88     fill  59%  2.2/wk
+
+  by level:
+    cVAH                                     n=  59  win  37%  mean -0.032R  PF 0.94  t=-0.19     fill  46%  0.1/wk
+    cVAL                                     n=  67  win  34%  mean +0.132R  PF 1.21  t=+0.60     fill  57%  0.1/wk
+    nPOCdn                                   n=  88  win  25%  mean +0.017R  PF 1.02  t=+0.07     fill  50%  0.1/wk
+    nPOCup                                   n=  82  win  33%  mean +0.158R  PF 1.26  t=+0.84     fill  51%  0.1/wk
+    pdHigh                                   n= 336  win  35%  mean -0.014R  PF 0.98  t=-0.16     fill  56%  0.4/wk
+    pdLow                                    n= 279  win  35%  mean +0.118R  PF 1.19  t=+1.10     fill  54%  0.3/wk
+    pdVAH                                    n= 395  win  56%  mean +0.041R  PF 1.10  t=+0.80     fill  56%  0.5/wk
+    pdVAL                                    n= 313  win  54%  mean +0.170R  PF 1.37  t=+2.32     fill  53%  0.4/wk

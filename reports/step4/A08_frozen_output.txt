@@ -1,0 +1,33 @@
+INVENTORY RETRACEMENT BAR (IRB) BACKTEST — pooled equity-index instruments
+def: body retraced >=45% vs trend (EMA20); enter break of trend-side extreme,
+stop = opposite extreme; symmetric +1R-before--1R = win; stop-first on ties.
+
+  TF | signals  fill% |       IRB win@1R |    NULL win@1R |   edge |  E[R]@1R/1.5R/2R (IRB)
+-------------------------------------------------------------------------------------------
+  5m |     376      — |    36% +/-  5% (n= 376) |   49% (n= 271) |  -13% |  -0.28 /  -0.22 /  -0.21
+ 15m |     201      — |    42% +/-  7% (n= 201) |   47% (n= 152) |   -6% |  -0.16 /  -0.19 /  -0.16
+ 30m |     161      — |    41% +/-  8% (n= 161) |   55% (n= 121) |  -14% |  -0.16 /  -0.12 /  -0.19
+  1h |      62      — |    53% +/- 12% (n=  62) |   63% (n=  35) |  -10% |  +0.05 /  +0.10 /  +0.00
+  1D |     503      — |    44% +/-  4% (n= 503) |   48% (n= 380) |   -4% |  -0.11 /  -0.10 /  -0.06
+-------------------------------------------------------------------------------------------
+ ALL |    1303      — |    42%         (n=1303) |   50% (n= 959) |   -8% |  -0.16 /  -0.13 /  -0.13
+
+read: 'win@1R' = P(reach +1R before -1R). null = same break-of-bar trade on random
+trend-aligned bars (no IRB shape). edge = IRB - null. E[R] = expectancy per trade in R.
+
+VERDICT:
+   5m: no edge  (IRB 36% vs null 49%, best E[R] -0.21 over n=376)
+  15m: no edge  (IRB 42% vs null 47%, best E[R] -0.16 over n=201)
+  30m: no edge  (IRB 41% vs null 55%, best E[R] -0.12 over n=161)
+   1h: no edge  (IRB 53% vs null 63%, best E[R] +0.10 over n=62)
+   1D: no edge  (IRB 44% vs null 48%, best E[R] -0.06 over n=503)
+  -> No timeframe clears the bar (edge>=+5pts vs null, n>=40, E[R]>+0.05). IRB adds little beyond trend + break-of-bar on this sample.
+
+chart -> /home/user/Claude-1/reports/step4/frozen/root_nq/reports/img/irb_backtest.png
+
+ROBUSTNESS — INVERSE-wick variant (long=big lower wick / short=big upper wick):
+   5m: win@1R 49% vs null 40% (edge +9%, E[R]@1.5R +0.01, n=528)
+  15m: win@1R 56% vs null 49% (edge +7%, E[R]@1.5R +0.13, n=236)
+  30m: win@1R 50% vs null 53% (edge -3%, E[R]@1.5R +0.05, n=246)
+   1h: win@1R 57% vs null 49% (edge +8%, E[R]@1.5R +0.03, n=114)
+   1D: win@1R 53% vs null 50% (edge +3%, E[R]@1.5R +0.12, n=926)

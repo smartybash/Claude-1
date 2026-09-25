@@ -1,0 +1,28 @@
+=== B10 mechanised discretionary pullback (8 variants) (NQ 1-minute; primary = full 2010-06-07 -> 2026-09-24) ===
+  note: T1 P1 f0.33: expR -0.094 PF 0.78 t -6.16 +yrs 2 win 48.7% vs RW 54.8% z -8.20 | T1 P1 f0.50: expR -0.100 PF 0.77 t -5.52 +yrs 1 win 48.5% vs RW 55.1% z -7.28 | T1 P2 f0.33: expR -0.093 PF 0.82 t -4.43 +yrs 2 win 40.2% vs RW 45.0% z -5.53 | T1 P2 f0.50: expR -0.100 PF 0.81 t -4.23 +yrs 3 win 40.0% vs RW 45.3% z -5.21 | T2 P1 f0.33: expR -0.100 PF 0.79 t -7.76 +yrs 2 win 47.7% vs RW 53.6% z -10.78 | T2 P1 f0.50: expR -0.119 PF 0.74 t -7.66 +yrs 1 win 47.1% vs RW 54.5% z -10.12 | T2 P2 f0.33: expR -0.092 PF 0.84 t -5.25 +yrs 5 win 37.2% vs RW 41.3% z -6.34 | T2 P2 f0.50: expR -0.115 PF 0.80 t -5.49 +yrs 3 win 36.8% vs RW 42.1% z -6.52
+  T1 P1 f0.33                FULL n 4544 | net -1.36 pt/trade ($-27.1) | win 48.7% | PF 0.87 | Sharpe -0.60 | CAGR -5.32% | maxDD $123,670/NQ $15,003/MNQ | trade-sessions 2722/4189 daily-P&L t -2.45 p1 0.9929 (sess-mean t -3.62)
+                             2021 n 1589 | net -1.64 pt/trade ($-32.7) | win 52.1% | PF 0.92 | Sharpe -0.46 | CAGR -2.50% | maxDD $57,021/NQ $6,034/MNQ | trade-sessions 957/1460 daily-P&L t -1.11 p1 0.8673 (sess-mean t -2.32)
+                             frozen pass bar (full, NQ costs): not met
+  T1 P1 f0.50                FULL n 2985 | net -1.30 pt/trade ($-26.0) | win 48.5% | PF 0.88 | Sharpe -0.50 | CAGR -3.92% | maxDD $100,470/NQ $11,666/MNQ | trade-sessions 2143/4189 daily-P&L t -2.04 p1 0.9793 (sess-mean t -3.17)
+                             2021 n 1025 | net -0.79 pt/trade ($-15.8) | win 51.5% | PF 0.96 | Sharpe -0.20 | CAGR -1.22% | maxDD $45,942/NQ $4,690/MNQ | trade-sessions 737/1460 daily-P&L t -0.47 p1 0.6810 (sess-mean t -1.56)
+                             frozen pass bar (full, NQ costs): not met
+  T1 P2 f0.33                FULL n 3360 | net -1.10 pt/trade ($-22.1) | win 40.2% | PF 0.92 | Sharpe -0.33 | CAGR -3.32% | maxDD $80,692/NQ $9,877/MNQ | trade-sessions 2722/4189 daily-P&L t -1.35 p1 0.9113 (sess-mean t -1.15)
+                             2021 n 1181 | net -1.24 pt/trade ($-24.7) | win 42.3% | PF 0.96 | Sharpe -0.24 | CAGR -1.54% | maxDD $46,157/NQ $4,722/MNQ | trade-sessions 957/1460 daily-P&L t -0.57 p1 0.7172 (sess-mean t -0.40)
+                             frozen pass bar (full, NQ costs): not met
+  T1 P2 f0.50                FULL n 2414 | net -1.00 pt/trade ($-20.1) | win 40.0% | PF 0.92 | Sharpe -0.28 | CAGR -2.74% | maxDD $98,526/NQ $11,162/MNQ | trade-sessions 2143/4189 daily-P&L t -1.15 p1 0.8740 (sess-mean t -0.80)
+                             2021 n 832 | net -0.07 pt/trade ($-1.4) | win 41.6% | PF 1.00 | Sharpe -0.01 | CAGR -0.60% | maxDD $57,432/NQ $5,819/MNQ | trade-sessions 737/1460 daily-P&L t -0.03 p1 0.5125 (sess-mean t +0.17)
+                             frozen pass bar (full, NQ costs): not met
+  T2 P1 f0.33                FULL n 8146 | net -1.23 pt/trade ($-24.6) | win 47.7% | PF 0.87 | Sharpe -0.78 | CAGR -8.43% | maxDD $200,706/NQ $24,762/MNQ | trade-sessions 3770/4189 daily-P&L t -3.18 p1 0.9993 (sess-mean t -1.10)
+                             2021 n 2864 | net -1.90 pt/trade ($-38.0) | win 51.6% | PF 0.90 | Sharpe -0.77 | CAGR -5.50% | maxDD $110,712/NQ $11,646/MNQ | trade-sessions 1329/1460 daily-P&L t -1.84 p1 0.9673 (sess-mean t -0.41)
+                             frozen pass bar (full, NQ costs): not met
+  T2 P1 f0.50                FULL n 4636 | net -1.35 pt/trade ($-27.0) | win 47.1% | PF 0.86 | Sharpe -0.74 | CAGR -6.11% | maxDD $135,288/NQ $16,238/MNQ | trade-sessions 2877/4189 daily-P&L t -3.00 p1 0.9986 (sess-mean t -2.49)
+                             2021 n 1576 | net -1.52 pt/trade ($-30.5) | win 51.1% | PF 0.92 | Sharpe -0.52 | CAGR -3.06% | maxDD $60,417/NQ $6,368/MNQ | trade-sessions 989/1460 daily-P&L t -1.25 p1 0.8946 (sess-mean t -1.04)
+                             frozen pass bar (full, NQ costs): not met
+  T2 P2 f0.33                FULL n 5907 | net -0.88 pt/trade ($-17.6) | win 37.2% | PF 0.93 | Sharpe -0.37 | CAGR -5.58% | maxDD $119,610/NQ $15,357/MNQ | trade-sessions 3770/4189 daily-P&L t -1.53 p1 0.9364 (sess-mean t +1.81)
+                             2021 n 2077 | net -1.30 pt/trade ($-26.1) | win 39.6% | PF 0.95 | Sharpe -0.35 | CAGR -3.31% | maxDD $77,614/NQ $8,175/MNQ | trade-sessions 1329/1460 daily-P&L t -0.85 p1 0.8026 (sess-mean t +1.74)
+                             frozen pass bar (full, NQ costs): not met
+  T2 P2 f0.50                FULL n 3694 | net -1.06 pt/trade ($-21.2) | win 36.8% | PF 0.91 | Sharpe -0.42 | CAGR -4.57% | maxDD $103,365/NQ $12,471/MNQ | trade-sessions 2877/4189 daily-P&L t -1.70 p1 0.9553 (sess-mean t +0.07)
+                             2021 n 1285 | net -0.73 pt/trade ($-14.7) | win 39.7% | PF 0.97 | Sharpe -0.19 | CAGR -1.50% | maxDD $47,013/NQ $4,958/MNQ | trade-sessions 989/1460 daily-P&L t -0.45 p1 0.6720 (sess-mean t +1.03)
+                             frozen pass bar (full, NQ costs): not met
+  PRIMARY: 8 cell(s), Holm on one-sided p (full sample); best = T1 P2 f0.50, study p = 1.0000
+  frozen pass bar for best cell: NOT MET -> stays closed

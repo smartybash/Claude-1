@@ -1,0 +1,28 @@
+=== B16 ORB + Fibonacci (8 variants) (NQ 1-minute; primary = full 2010-06-07 -> 2026-09-24) ===
+  note: continuation ORB15 band A: n 299 expR +0.110 PF 1.21 +yrs 8 conc -26.3 +50%c +0.077 win 45.5% vs RW 40.7% | reversal ORB15 band A: n 100 expR -0.095 PF 0.80 +yrs 9 conc -28.2 +50%c -0.117 win 41.0% vs RW 46.4% | continuation ORB15 band B: n 271 expR +0.019 PF 1.03 +yrs 8 conc -50.1 +50%c -0.018 win 40.6% vs RW 39.8% | reversal ORB15 band B: n 88 expR -0.004 PF 0.99 +yrs 7 conc -19.8 +50%c -0.030 win 42.0% vs RW 42.2% | continuation ORB30 band A: n 204 expR +0.095 PF 1.20 +yrs 11 conc -21.8 +50%c +0.070 win 46.1% vs RW 41.6% | reversal ORB30 band A: n 56 expR +0.017 PF 1.04 +yrs 9 conc -16.6 +50%c -0.004 win 46.4% vs RW 45.4% | continuation ORB30 band B: n 181 expR -0.002 PF 1.00 +yrs 10 conc -37.5 +50%c -0.032 win 40.3% vs RW 40.4% | reversal ORB30 band B: n 49 expR +0.054 PF 1.14 +yrs 7 conc -12.8 +50%c +0.029 win 46.9% vs RW 43.6%
+  continuation ORB15 band A  FULL n 299 | net +5.50 pt/trade ($+110.0) | win 45.5% | PF 1.30 | Sharpe +0.35 | CAGR 0.56% | maxDD $11,471/NQ $1,162/MNQ | trade-sessions 299/4189 daily-P&L t +1.45 p1 0.0741 (sess-mean t +1.45)
+                             2021 n 113 | net +6.69 pt/trade ($+133.7) | win 43.4% | PF 1.19 | Sharpe +0.30 | CAGR 0.55% | maxDD $11,471/NQ $1,162/MNQ | trade-sessions 113/1460 daily-P&L t +0.73 p1 0.2325 (sess-mean t +0.73)
+                             frozen pass bar (full, NQ costs): not met
+  reversal ORB15 band A      FULL n 100 | net +2.30 pt/trade ($+46.1) | win 41.0% | PF 1.12 | Sharpe +0.09 | CAGR -0.26% | maxDD $10,249/NQ $1,078/MNQ | trade-sessions 100/4189 daily-P&L t +0.37 p1 0.3540 (sess-mean t +0.37)
+                             2021 n 42 | net +8.40 pt/trade ($+167.9) | win 45.2% | PF 1.26 | Sharpe +0.25 | CAGR 0.18% | maxDD $8,818/NQ $890/MNQ | trade-sessions 42/1460 daily-P&L t +0.59 p1 0.2761 (sess-mean t +0.59)
+                             frozen pass bar (full, NQ costs): not met
+  continuation ORB15 band B  FULL n 271 | net +1.44 pt/trade ($+28.8) | win 40.6% | PF 1.08 | Sharpe +0.10 | CAGR -0.06% | maxDD $18,458/NQ $1,866/MNQ | trade-sessions 271/4189 daily-P&L t +0.41 p1 0.3427 (sess-mean t +0.40)
+                             2021 n 102 | net -0.91 pt/trade ($-18.3) | win 35.3% | PF 0.97 | Sharpe -0.04 | CAGR -0.44% | maxDD $18,458/NQ $1,866/MNQ | trade-sessions 102/1460 daily-P&L t -0.10 p1 0.5417 (sess-mean t -0.10)
+                             frozen pass bar (full, NQ costs): not met
+  reversal ORB15 band B      FULL n 88 | net +3.34 pt/trade ($+66.8) | win 42.0% | PF 1.19 | Sharpe +0.13 | CAGR -0.07% | maxDD $6,277/NQ $628/MNQ | trade-sessions 88/4189 daily-P&L t +0.52 p1 0.3005 (sess-mean t +0.52)
+                             2021 n 37 | net +8.09 pt/trade ($+161.8) | win 48.6% | PF 1.26 | Sharpe +0.23 | CAGR 0.26% | maxDD $6,277/NQ $628/MNQ | trade-sessions 37/1460 daily-P&L t +0.55 p1 0.2911 (sess-mean t +0.55)
+                             frozen pass bar (full, NQ costs): not met
+  continuation ORB30 band A  FULL n 204 | net +1.58 pt/trade ($+31.5) | win 46.1% | PF 1.09 | Sharpe +0.09 | CAGR 0.44% | maxDD $11,708/NQ $1,176/MNQ | trade-sessions 204/4189 daily-P&L t +0.36 p1 0.3592 (sess-mean t +0.36)
+                             2021 n 74 | net +6.36 pt/trade ($+127.2) | win 48.6% | PF 1.20 | Sharpe +0.25 | CAGR 0.51% | maxDD $10,256/NQ $1,026/MNQ | trade-sessions 74/1460 daily-P&L t +0.59 p1 0.2761 (sess-mean t +0.59)
+                             frozen pass bar (full, NQ costs): not met
+  reversal ORB30 band A      FULL n 56 | net +1.32 pt/trade ($+26.3) | win 46.4% | PF 1.09 | Sharpe +0.05 | CAGR 0.04% | maxDD $8,825/NQ $886/MNQ | trade-sessions 56/4189 daily-P&L t +0.21 p1 0.4164 (sess-mean t +0.21)
+                             2021 n 19 | net -2.56 pt/trade ($-51.1) | win 42.1% | PF 0.92 | Sharpe -0.06 | CAGR -0.16% | maxDD $8,825/NQ $886/MNQ | trade-sessions 19/1460 daily-P&L t -0.15 p1 0.5606 (sess-mean t -0.15)
+                             frozen pass bar (full, NQ costs): not met
+  continuation ORB30 band B  FULL n 181 | net -3.08 pt/trade ($-61.6) | win 40.3% | PF 0.82 | Sharpe -0.19 | CAGR -0.10% | maxDD $14,930/NQ $1,523/MNQ | trade-sessions 181/4189 daily-P&L t -0.79 p1 0.7842 (sess-mean t -0.79)
+                             2021 n 64 | net -2.94 pt/trade ($-58.7) | win 40.6% | PF 0.90 | Sharpe -0.12 | CAGR -0.21% | maxDD $8,581/NQ $858/MNQ | trade-sessions 64/1460 daily-P&L t -0.29 p1 0.6144 (sess-mean t -0.29)
+                             frozen pass bar (full, NQ costs): not met
+  reversal ORB30 band B      FULL n 49 | net +4.35 pt/trade ($+87.1) | win 46.9% | PF 1.36 | Sharpe +0.13 | CAGR 0.06% | maxDD $5,929/NQ $597/MNQ | trade-sessions 49/4189 daily-P&L t +0.53 p1 0.2996 (sess-mean t +0.52)
+                             2021 n 15 | net +9.02 pt/trade ($+180.3) | win 33.3% | PF 1.33 | Sharpe +0.14 | CAGR 0.06% | maxDD $5,929/NQ $597/MNQ | trade-sessions 15/1460 daily-P&L t +0.34 p1 0.3655 (sess-mean t +0.33)
+                             frozen pass bar (full, NQ costs): not met
+  PRIMARY: 8 cell(s), Holm on one-sided p (full sample); best = continuation ORB15 band A, study p = 0.5925
+  frozen pass bar for best cell: NOT MET -> stays closed

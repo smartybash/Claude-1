@@ -161,3 +161,10 @@ NQ 5-minute RTH bars (built from the NQ 1-minute file) and NQ daily RTH bars
 A script that needs data NQ does not have (gamma, breadth, VIX) runs without
 that input only if the script itself treats it as optional; otherwise it is
 marked not ported.
+
+## Erratum to the inventory (after G4 ran)
+
+A10 (daily FVG continuation, `0761d41`) and A11 (daily range / compression
+breakout, `2fed2b4`) were listed as "rejected". They were not: both were
+**positive, unregistered** daily results in this repository. They are reported
+as such in the results; the error was in my inventory, not in the studies.

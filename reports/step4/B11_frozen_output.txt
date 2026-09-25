@@ -1,0 +1,47 @@
+==========================================================================================================
+  DO PRIOR-DAY AND GAMMA LEVELS PREDICT THE NEXT SESSION? DESCRIPTIVE.
+==========================================================================================================
+  The containment test ('high stayed below the call wall 90%') is DEGENERATE and is NOT run.
+  At a fixed distance a wall, a random price and an arbitrary number score identically.
+
+  Pass: reaction >= 55%, p < 0.00208 (Bonferroni/24), >= 100 touches; clustering ratio <= 0.9
+
+  price-level sessions 3,954   2010-06-08 to 2026-09-24
+  gamma-level sessions 0
+
+==========================================================================================================
+  TEST A — REACTION AT TOUCH.  Counted only where price REACHED the level, so distance cannot
+  do the work. Null is 50%: from a walk started at the level either side is equally likely.
+==========================================================================================================
+  level       group      touched  touch%  react 30m          p  react 60m          p  verdict
+  PDH         price        1,539     39%      47.8%   8.77e-02      47.9%   9.98e-02       --
+  PDL         price        1,310     33%      50.0%   1.00e+00      50.9%   5.19e-01       --
+  VAH         price        1,762     45%      50.6%   6.34e-01      50.8%   5.00e-01       --
+  VAL         price        1,542     39%      52.3%   6.67e-02      52.2%   8.37e-02       --
+  POC         price        1,762     45%      51.1%   3.65e-01      53.0%   1.41e-02       --
+
+  touch% = share of sessions in which price reached the level at all.
+
+==========================================================================================================
+  TEST B — DO THE SESSION'S OWN HIGH AND LOW LAND NEARER THESE LEVELS THAN A STRANGER'S?
+==========================================================================================================
+  level set                   sessions   real bps  placebo bps    ratio   verdict
+  prior-day (PDH/PDL)            3,954       39.9         44.0    0.906        --
+  value area (VAH/VAL/POC)       3,954       38.7         41.6    0.930        --
+  all five price levels          3,954       23.7         25.8    0.918        --
+  ratio < 1 means the real levels sit CLOSER to the day's turning points than a stranger's.
+  Bar is 0.9.
+
+==========================================================================================================
+  VERDICT
+==========================================================================================================
+  Test A (reaction at touch):        0 of 5 levels pass
+  Test B (turning-point clustering): 0 of 3 sets pass
+
+  strongest reaction anywhere: POC 53.0%   bar is 55%, coin is 50%
+  best clustering ratio:       0.906 (prior-day (PDH/PDL))   bar is 0.9
+
+  NOTHING PASSES. These levels describe where the market has been.
+  They do not measurably move where it goes next.
+
+  Sealed NQ days were not read.

@@ -1,0 +1,90 @@
+QQQ / SPY split-adjusted daily — 4188 bars, 2010-06-08 to 2026-09-24  (~27 years)
+
+============================================================================================
+1  DOSE-RESPONSE ACROSS THE FULL HISTORY  (buy close -> sell next close)
+============================================================================================
+  --- QQQ ---
+    1+ consecutive down closes  n= 1858   +10.54bp  win  56%  t=+3.21  IR +0.074
+    2+ consecutive down closes  n=  822   +14.16bp  win  57%  t=+2.72  IR +0.095
+    3+ consecutive down closes  n=  355   +25.14bp  win  59%  t=+3.19  IR +0.169
+    4+ consecutive down closes  n=  147   +20.93bp  win  59%  t=+1.72  IR +0.142
+    5+ consecutive down closes  n=   61   +22.96bp  win  52%  t=+1.16  IR +0.148
+    every day (control)         n= 4187    +7.20bp  win  56%  t=+3.61  IR +0.056
+    NOT 3+ down (control)       n= 3832    +5.54bp  win  55%  t=+2.70  IR +0.044
+
+  --- SPY ---
+    1+ consecutive down closes  n= 3072    +8.07bp  win  56%  t=+3.29  IR +0.059
+    2+ consecutive down closes  n= 1359   +14.74bp  win  57%  t=+3.57  IR +0.097
+    3+ consecutive down closes  n=  579   +27.23bp  win  61%  t=+4.05  IR +0.168
+    4+ consecutive down closes  n=  227   +37.49bp  win  63%  t=+2.77  IR +0.184
+    5+ consecutive down closes  n=   83   +63.67bp  win  69%  t=+2.31  IR +0.253
+    every day (control)         n= 6754    +4.00bp  win  55%  t=+2.72  IR +0.033
+    NOT 3+ down (control)       n= 6175    +1.82bp  win  54%  t=+1.23  IR +0.016
+
+============================================================================================
+2  BY FIVE-YEAR BLOCK  (3+ down -> next close)
+============================================================================================
+  --- QQQ ---
+    2009-2013  n=  102   +22.53bp  win  54%  t=+1.75  IR +0.174
+    2014-2018  n=  100    +9.97bp  win  58%  t=+0.63  IR +0.063
+    2019-2023  n=  101   +33.68bp  win  61%  t=+2.00  IR +0.199
+    2024-2026  n=   52   +42.86bp  win  63%  t=+2.55  IR +0.354
+
+  --- SPY ---
+    1999-2003  n=   99   +44.86bp  win  68%  t=+2.66  IR +0.267
+    2004-2008  n=  106   +25.47bp  win  60%  t=+1.26  IR +0.123
+    2009-2013  n=  117   +21.88bp  win  56%  t=+1.68  IR +0.156
+    2014-2018  n=   94    +4.06bp  win  62%  t=+0.29  IR +0.030
+    2019-2023  n=  111   +28.27bp  win  57%  t=+2.09  IR +0.198
+    2024-2026  n=   52   +48.97bp  win  67%  t=+2.10  IR +0.291
+
+============================================================================================
+3  THE THREE CRASHES  (3+ down -> next close)
+============================================================================================
+  --- QQQ ---
+    dot-com unwind 2000-2002   n=    0  --
+    GFC 2008-2009              n=    0  --
+    COVID Feb-Apr 2020         n=    3  --
+    2022 bear                  n=   41   +43.94bp  win  59%  t=+1.46  IR +0.227
+
+  --- SPY ---
+    dot-com unwind 2000-2002   n=   80   +51.47bp  win  66%  t=+2.53  IR +0.283
+    GFC 2008-2009              n=   54   +36.79bp  win  54%  t=+0.90  IR +0.123
+    COVID Feb-Apr 2020         n=    6   +19.93bp  win  33%  t=+0.13  IR +0.051
+    2022 bear                  n=   44   +25.07bp  win  50%  t=+1.14  IR +0.173
+
+============================================================================================
+4  BULL YEARS vs BEAR YEARS  (does it need an uptrend?)
+============================================================================================
+  QQQ  down years [2018, 2022]
+  QQQ  in DOWN years  n=   61   +46.80bp  win  64%  t=+1.88  IR +0.240
+  QQQ  in UP years    n=  294   +20.65bp  win  57%  t=+2.58  IR +0.151
+  SPY  down years [2000, 2001, 2002, 2008, 2018, 2022]
+  SPY  in DOWN years  n=  188   +33.41bp  win  57%  t=+2.16  IR +0.157
+  SPY  in UP years    n=  391   +24.26bp  win  63%  t=+3.67  IR +0.186
+
+============================================================================================
+5  EXIT LEG: next open vs next close
+============================================================================================
+  QQQ  -> next OPEN   n=  355   +13.74bp  win  61%  t=+2.70  IR +0.144
+  QQQ  -> next CLOSE  n=  355   +25.14bp  win  59%  t=+3.19  IR +0.169
+  SPY  -> next OPEN   n=  579   +14.67bp  win  65%  t=+3.91  IR +0.163
+  SPY  -> next CLOSE  n=  579   +27.23bp  win  61%  t=+4.05  IR +0.168
+
+============================================================================================
+6  EQUITY / DRAWDOWN / EXPOSURE  (3+ down -> next close)
+============================================================================================
+  QQQ  total   +89.26%  maxDD 17.89%  trades/yr 21.8  in market  8.5% of days
+  QQQ  buy & hold over the same span +1336%  (the rule is in the market only 8.5% of the time)
+  QQQ  breakeven round-trip cost 25.14bp = 74 NQ pts
+  SPY  total  +157.67%  maxDD 19.10%  trades/yr 21.6  in market  8.6% of days
+  SPY  buy & hold over the same span +809%  (the rule is in the market only 8.6% of the time)
+  SPY  breakeven round-trip cost 27.23bp = 80 NQ pts
+
+============================================================================================
+7  RECENT-ONLY vs OLD  (is the 2021-2026 result the whole thing?)
+============================================================================================
+  QQQ  1999-2021 (out of the original sample)  n=  235   +17.33bp  win  57%  t=+1.77  IR +0.116
+  QQQ  2021-2026 (the original sample)         n=  120   +40.45bp  win  62%  t=+3.04  IR +0.277
+  SPY  1999-2021 (out of the original sample)  n=  456   +24.25bp  win  61%  t=+3.12  IR +0.146
+  SPY  2021-2026 (the original sample)         n=  123   +38.27bp  win  61%  t=+2.94  IR +0.265

@@ -1,0 +1,29 @@
+
+######## window full
+
+  NQ (full): 4,061 sessions   high-first 49.3%   unresolvable/no-break 168
+  bucket         n  mean EZ  RW base  observed           95% CI   excess       z         p      
+  0-25%      2,046     11.6    88.4%     89.8%     [88.4, 91.1]     +1.4   +2.03  4.27e-02      
+  25-50%     1,109     35.9    64.1%     63.2%     [60.3, 66.0]     -0.9   -0.60  5.48e-01      
+  50-75%       566     60.8    39.2%     38.7%     [34.8, 42.8]     -0.5   -0.26  7.93e-01      
+  75-100%      172     82.8    17.2%     19.2%     [14.0, 25.7]     +2.0   +0.69  4.93e-01      
+
+  NQ (full): 1,838 trades from 1,838 qualifying sessions
+  target    trades    win%  RW win%   excess     expR     PF      ttime-exit  med risk      
+  PASS requires the standing bar t > 3. The RW win% column is CONTEXT ONLY where
+  time-exit is high: 1/(1+M) assumes a barrier resolution and does not apply then.
+  1R         1,838   54.6%    50.0%     +4.6   +0.040   1.14  +2.38      58%     76.3b      
+  2R         1,838   52.9%    33.3%    +19.6   +0.049   1.16  +2.57      74%     76.3b      
+  3R         1,838   52.8%    25.0%    +27.8   +0.045   1.15  +2.33      78%     76.3b      
+  Close      1,838   52.8%    49.4%     +3.3   +0.044   1.14  +2.29      78%     76.3b      
+
+######## window 2021
+
+  NQ (2021): 688 trades from 688 qualifying sessions
+  target    trades    win%  RW win%   excess     expR     PF      ttime-exit  med risk      
+  PASS requires the standing bar t > 3. The RW win% column is CONTEXT ONLY where
+  time-exit is high: 1/(1+M) assumes a barrier resolution and does not apply then.
+  1R           688   57.1%    50.0%     +7.1   +0.078   1.29  +2.91      61%     88.9b      
+  2R           688   55.7%    33.3%    +22.3   +0.088   1.32  +2.94      78%     88.9b      
+  3R           688   55.7%    25.0%    +30.7   +0.086   1.31  +2.85      81%     88.9b      
+  Close        688   55.7%    49.0%     +6.7   +0.086   1.31  +2.85      81%     88.9b      
