@@ -1,0 +1,30 @@
+================================================================================================
+FAMILIES A, B, E — DIAGONAL, STACKED, EXTREME ABSORPTION
+================================================================================================
+  sessions (61): 0302 0303 0304 0305 0306 0309 0310 0311 0312 0313 0318 0319 0320 0323 0324 0325 0326 0327 0330 0331 0401 0402 0406 0407 0408 0409 0410 0413 0414 0415 0416 0417 0420 0421 0422 0423 0424 0427 0428 0429 0430 0501 0504 0505 0506 0507 0508 0511 0512 0513 0514 0515 0518 0519 0520 0521 0522 0526 0527 0528 0529
+  resolution 0.25   bars 5min   horizon 15min
+  3:1 diagonal, >= 10 contracts, 3+ for a stack (pre-registered)
+
+  --- can the shapes form at all now? ---
+  bars: 4,758
+  bars with any diagonal imbalance :  92.6%
+  bars with a 3+ stack             :  23.6%   (was 0.00% on the 5-point grid)
+  longest run seen                 : 6
+
+  feature                               IC       t   null t   sess
+  A1        diag imbalance         -0.0415   -2.74    +0.15     61
+  A2        diag at extremes       -0.0061   -0.41    -0.17     61
+  B1        stacked 3+             -0.0154   -1.04    -0.92     61
+  B2        stack run len          -0.0264   -1.63    +0.82     61
+  E1        absorb net             +0.0046   +0.35    -0.23     61
+  E2        unfinished net         +0.0170   +1.32    -0.30     61
+
+  bar: |t| >= 3.0.  clearing it: 0 of 6
+
+  --- priced, top/bottom quintile, after cost ---
+  A1        diag imbalance         -2.57 pts  t -2.20  sessions positive 20/61
+  A2        diag at extremes       -2.28 pts  t -1.96  sessions positive 26/61
+  B1        stacked 3+           too few distinct values to quintile
+  B2        stack run len          -1.53 pts  t -1.33  sessions positive 31/61
+  E1        absorb net             -1.77 pts  t -0.61  sessions positive 36/61
+  E2        unfinished net       too few distinct values to quintile

@@ -1,0 +1,10 @@
+=== T15 order-flow batch A B C E (registered bar) (Databento discovery sessions) ===
+  note: A1: IC -0.0415 t -2.74 null t +0.15 gates nYn; A2: IC -0.0061 t -0.41 null t -0.17 gates nYn; B2: IC -0.0264 t -1.63 null t +0.82 gates nYn; C1: IC -0.0636 t -5.17 null t -0.68 gates YYn; C2: IC -0.0737 t -5.15 null t -1.21 gates YYn; E1: IC +0.0046 t +0.35 null t +0.20 gates nYn
+  A1                             n 1830 | net -2.57 pt/trade ($-51.3) | win 46.4% | PF 0.84 | Sharpe -5.57 | CAGR -51.37% | maxDD $97,445/NQ $9,744/MNQ | sessions 61 t -2.20 p 0.0320 p1 0.9840
+  A2                             n 1830 | net -2.28 pt/trade ($-45.5) | win 47.9% | PF 0.86 | Sharpe -4.96 | CAGR -44.77% | maxDD $96,695/NQ $9,669/MNQ | sessions 61 t -1.96 p 0.0541 p1 0.9729
+  B2                             n 1830 | net -1.53 pt/trade ($-30.6) | win 49.0% | PF 0.91 | Sharpe -2.57 | CAGR -38.17% | maxDD $76,960/NQ $7,696/MNQ | sessions 61 t -1.33 p 0.1878 p1 0.9061
+  C1                             n 1830 | net -4.23 pt/trade ($-84.6) | win 46.2% | PF 0.76 | Sharpe -10.18 | CAGR -67.78% | maxDD $145,750/NQ $14,575/MNQ | sessions 61 t -5.17 p 0.0000 p1 1.0000
+  C2                             n 1830 | net -3.91 pt/trade ($-78.3) | win 46.6% | PF 0.79 | Sharpe -7.92 | CAGR -67.70% | maxDD $142,645/NQ $14,264/MNQ | sessions 61 t -4.03 p 0.0002 p1 0.9999
+  E1                             n 1830 | net -1.77 pt/trade ($-35.3) | win 47.5% | PF 0.90 | Sharpe -2.43 | CAGR -36.45% | maxDD $91,925/NQ $9,193/MNQ | sessions 61 t -0.61 p 0.5414 p1 0.7293
+  PRIMARY: 6 cell(s), Holm on one-sided p; best = E1, study p = 1.0000
+  pass bar (net > 0, p <= 0.05, all three registered gates): NOT MET  -> stays closed

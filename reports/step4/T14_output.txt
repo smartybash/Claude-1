@@ -1,0 +1,7 @@
+=== T14 footprint levels (revisit) + placebo (Databento discovery sessions) ===
+  note: heavy levels, +15m: vs ordinary +nan [+nan, +nan]; heavy levels, +30m: vs ordinary +nan [+nan, +nan]; heavy levels, +60m: vs ordinary +nan [+nan, +nan]; placebo @15m net: real -3.93, +25 -3.20, -25 +8.41
+  heavy levels, +15m             n 520 | net -3.93 pt/trade ($-78.5) | win 50.8% | PF 0.80 | Sharpe -2.69 | CAGR -26.19% | maxDD $42,100/NQ $4,210/MNQ | sessions 59 t -1.27 p 0.2074 p1 0.8963
+  heavy levels, +30m             n 520 | net -4.29 pt/trade ($-85.9) | win 45.4% | PF 0.84 | Sharpe -2.23 | CAGR -27.10% | maxDD $48,190/NQ $4,819/MNQ | sessions 59 t -1.02 p 0.3100 p1 0.8450
+  heavy levels, +60m             n 520 | net -1.06 pt/trade ($-21.2) | win 51.2% | PF 0.97 | Sharpe -0.39 | CAGR -7.67% | maxDD $71,550/NQ $7,155/MNQ | sessions 59 t -0.61 p 0.5470 p1 0.7265
+  PRIMARY: 3 cell(s), Holm on one-sided p; best = heavy levels, +60m, study p = 1.0000
+  pass bar (net > 0, p <= 0.05, beats ordinary rungs and both placebos): NOT MET  -> stays closed
