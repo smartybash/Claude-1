@@ -114,3 +114,18 @@ feed small p-values into BH and loosen the threshold for every other study.
 This is stricter than the two-sided reading and changes no verdict of T01–T03:
 all three lose after costs. Non-trading studies keep their own registered test.
 CAGR for the tape studies uses the NQ RTH close from the daily table as notional.
+
+## Clarification 2 — declared before any BH computation (after G1, before G2)
+
+Benjamini-Hochberg runs over **studies with a trading claim** only. Studies
+with no trading claim — descriptive, forecastability or correlation studies
+(T09, B01 FOMC, B03, B09, B13 and any like them) — are judged against their own
+registered test and reported, but kept out of the BH family. So is T08, whose
+frozen design has lookahead and cannot be traded. Reason: a large descriptive
+effect (for example FOMC-afternoon volatility) would enter BH with a tiny p and
+loosen the threshold for every trading rule. This makes the batch stricter, not
+looser.
+
+**Bar-study windows.** The primary sample is the full NQ file (2010-06-07 →
+2026-09-24). The like-for-like secondary is 2021-01-04 → 2026-08-31, QQQ's
+window; each is written as its own file in the QQQ_1m schema.
