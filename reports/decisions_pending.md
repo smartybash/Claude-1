@@ -280,3 +280,14 @@ Until you decide, nothing is committed. If the container is reset before 25 Oct,
 - **D3P: FAIL, closed** (p 0.068). `reports/d3p_result.md`.
 - **Fills:** waiting for the pasted CSV; it will go to `data/trades/` and run with
   `--tz Asia/Dubai`, falling back to the best-fit zone.
+- **Audit for "all market data out of git" (P3 change):** no Databento bars, ticks,
+  footprints or big orders are tracked. Still tracked:
+  - data-quality summaries (`data/clean/build_notes_*.json` and two
+    `session_quality.csv` files: per-session counts and total volume, no prices);
+  - the **older, non-Databento datasets** committed by earlier programmes
+    (`data/intraday_long/QQQ_1m*.parquet`, `data/parquet/*`, `data/related/*`,
+    `data/events/*`).
+
+  Untracking them would not remove them from history without a force-push, which
+  is ruled out. **P10:** say if you want them untracked (`git rm --cached`) from
+  now on. Until then they stay as they are.
