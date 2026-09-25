@@ -101,3 +101,16 @@ trip), the stricter one applies.
 Per study: raw output in `reports/step4/<id>_output.txt`. Summary table (old
 verdict, new verdict, agreement, statistics, BH-adjusted p) in
 `results/databento_rerun.md`.
+
+---
+
+## Clarification 1 — declared after T01–T03 ran, before any BH computation
+
+§6 did not say whether the study p is one- or two-sided. For trading rules, the
+p that enters Benjamini-Hochberg is **one-sided in the profitable direction**
+(H1: net mean > 0), and a grid study's best cell is the one with the smallest
+one-sided Holm-adjusted p. A two-sided p would let significantly losing rules
+feed small p-values into BH and loosen the threshold for every other study.
+This is stricter than the two-sided reading and changes no verdict of T01–T03:
+all three lose after costs. Non-trading studies keep their own registered test.
+CAGR for the tape studies uses the NQ RTH close from the daily table as notional.

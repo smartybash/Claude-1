@@ -39,9 +39,11 @@ def clustered(session, x):
     s = pd.Series(np.asarray(x, float), index=pd.Index(session)).dropna()
     m = s.groupby(level=0).mean()
     if len(m) < 3 or m.std(ddof=1) == 0:
-        return dict(n_sessions=len(m), t=np.nan, p=np.nan, mean_session=float(m.mean()))
+        return dict(n_sessions=len(m), t=np.nan, p=np.nan, p_one=np.nan,
+                    mean_session=float(m.mean()))
     t = m.mean() / (m.std(ddof=1) / np.sqrt(len(m)))
     return dict(n_sessions=len(m), t=float(t), p=float(2 * stats.t.sf(abs(t), len(m) - 1)),
+                p_one=float(stats.t.sf(t, len(m) - 1)),
                 mean_session=float(m.mean()), pos_sessions=int((m > 0).sum()))
 
 
@@ -138,4 +140,9 @@ def fmt(r):
             f"PF {r.get('pf', np.nan):.2f} | Sharpe {r.get('sharpe', np.nan):+.2f} | "
             f"CAGR {100*r.get('cagr', np.nan):.2f}% | maxDD ${r.get('dd_NQ', np.nan):,.0f}/NQ "
             f"${r.get('dd_MNQ', np.nan):,.0f}/MNQ | sessions {r.get('n_sessions')} "
-            f"t {r.get('t', np.nan):+.2f} p {r.get('p', np.nan):.4f}")
+            f"t {r.get('t', np.nan):+.2f} p {r.get('p', np.nan):.4f} p1 {r.get('p_one', np.nan):.4f}")
+
+
+def nq_close():
+    d = pd.read_parquet(ROOT / "data/clean/daily/NQ_daily.parquet")
+    return pd.Series(d.close.to_numpy(), index=pd.to_datetime(d.session))

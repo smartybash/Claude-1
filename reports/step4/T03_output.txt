@@ -1,0 +1,5 @@
+=== T03 CVD divergence audit (61 Databento discovery sessions) ===
+  divergence_dedup             n 848 | net -2.79 pt/trade ($-55.8) | win 44.2% | PF 0.72 | Sharpe -7.26 | CAGR -31.67% | maxDD $51,845/NQ $5,184/MNQ | sessions 61 t -3.24 p 0.0019 p1 0.9990
+  control_no_cvd               n 1093 | net -2.15 pt/trade ($-43.1) | win 45.5% | PF 0.78 | Sharpe -6.59 | CAGR -31.40% | maxDD $49,680/NQ $4,968/MNQ | sessions 61 t -3.11 p 0.0029 p1 0.9986
+  PRIMARY: 1 cell(s), Holm on one-sided p; best = divergence_dedup, study p = 0.9990
+  pass bar (net > 0, p <= 0.05, beats control): NOT MET  -> stays closed

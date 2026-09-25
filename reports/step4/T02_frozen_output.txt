@@ -1,0 +1,252 @@
+========================================================================================
+SWEEP OVER THE RECORDED TAPE
+61 RTH sessions: 20260302, 20260303, 20260304, 20260305, 20260306, 20260309, 20260310, 20260311, 20260312, 20260313, 20260318, 20260319, 20260320, 20260323, 20260324, 20260325, 20260326, 20260327, 20260330, 20260331, 20260401, 20260402, 20260406, 20260407, 20260408, 20260409, 20260410, 20260413, 20260414, 20260415, 20260416, 20260417, 20260420, 20260421, 20260422, 20260423, 20260424, 20260427, 20260428, 20260429, 20260430, 20260501, 20260504, 20260505, 20260506, 20260507, 20260508, 20260511, 20260512, 20260513, 20260514, 20260515, 20260518, 20260519, 20260520, 20260521, 20260522, 20260526, 20260527, 20260528, 20260529   cost 2.0 pts   bar for significance |t| >= 3.0
+========================================================================================
+
+HOW SELECTIVE WAS THE 'NO PROGRESS' FILTER?
+  On a 5-point grid a flat window may be the common case, in which
+  case the filter selected nothing in particular.
+
+  20260302  |move| <= 5pt on 53% of 30s windows;  move == 0 on 1%
+  20260303  |move| <= 5pt on 41% of 30s windows;  move == 0 on 1%
+  20260304  |move| <= 5pt on 63% of 30s windows;  move == 0 on 2%
+  20260305  |move| <= 5pt on 42% of 30s windows;  move == 0 on 1%
+  20260306  |move| <= 5pt on 43% of 30s windows;  move == 0 on 1%
+  20260309  |move| <= 5pt on 51% of 30s windows;  move == 0 on 1%
+  20260310  |move| <= 5pt on 50% of 30s windows;  move == 0 on 2%
+  20260311  |move| <= 5pt on 51% of 30s windows;  move == 0 on 1%
+  20260312  |move| <= 5pt on 49% of 30s windows;  move == 0 on 2%
+  20260313  |move| <= 5pt on 47% of 30s windows;  move == 0 on 1%
+  20260318  |move| <= 5pt on 54% of 30s windows;  move == 0 on 2%
+  20260319  |move| <= 5pt on 45% of 30s windows;  move == 0 on 1%
+  20260320  |move| <= 5pt on 49% of 30s windows;  move == 0 on 1%
+  20260323  |move| <= 5pt on 48% of 30s windows;  move == 0 on 2%
+  20260324  |move| <= 5pt on 46% of 30s windows;  move == 0 on 1%
+  20260325  |move| <= 5pt on 54% of 30s windows;  move == 0 on 1%
+  20260326  |move| <= 5pt on 62% of 30s windows;  move == 0 on 2%
+  20260327  |move| <= 5pt on 60% of 30s windows;  move == 0 on 2%
+  20260330  |move| <= 5pt on 57% of 30s windows;  move == 0 on 1%
+  20260331  |move| <= 5pt on 45% of 30s windows;  move == 0 on 1%
+  20260401  |move| <= 5pt on 63% of 30s windows;  move == 0 on 2%
+  20260402  |move| <= 5pt on 52% of 30s windows;  move == 0 on 2%
+  20260406  |move| <= 5pt on 60% of 30s windows;  move == 0 on 3%
+  20260407  |move| <= 5pt on 53% of 30s windows;  move == 0 on 3%
+  20260408  |move| <= 5pt on 63% of 30s windows;  move == 0 on 3%
+  20260409  |move| <= 5pt on 65% of 30s windows;  move == 0 on 2%
+  20260410  |move| <= 5pt on 71% of 30s windows;  move == 0 on 3%
+  20260413  |move| <= 5pt on 71% of 30s windows;  move == 0 on 3%
+  20260414  |move| <= 5pt on 83% of 30s windows;  move == 0 on 3%
+  20260415  |move| <= 5pt on 73% of 30s windows;  move == 0 on 1%
+  20260416  |move| <= 5pt on 63% of 30s windows;  move == 0 on 2%
+  20260417  |move| <= 5pt on 63% of 30s windows;  move == 0 on 2%
+  20260420  |move| <= 5pt on 72% of 30s windows;  move == 0 on 2%
+  20260421  |move| <= 5pt on 56% of 30s windows;  move == 0 on 2%
+  20260422  |move| <= 5pt on 71% of 30s windows;  move == 0 on 3%
+  20260423  |move| <= 5pt on 54% of 30s windows;  move == 0 on 2%
+  20260424  |move| <= 5pt on 68% of 30s windows;  move == 0 on 3%
+  20260427  |move| <= 5pt on 77% of 30s windows;  move == 0 on 1%
+  20260428  |move| <= 5pt on 63% of 30s windows;  move == 0 on 2%
+  20260429  |move| <= 5pt on 61% of 30s windows;  move == 0 on 2%
+  20260430  |move| <= 5pt on 61% of 30s windows;  move == 0 on 2%
+  20260501  |move| <= 5pt on 65% of 30s windows;  move == 0 on 3%
+  20260504  |move| <= 5pt on 60% of 30s windows;  move == 0 on 1%
+  20260505  |move| <= 5pt on 80% of 30s windows;  move == 0 on 2%
+  20260506  |move| <= 5pt on 73% of 30s windows;  move == 0 on 3%
+  20260507  |move| <= 5pt on 47% of 30s windows;  move == 0 on 1%
+  20260508  |move| <= 5pt on 67% of 30s windows;  move == 0 on 2%
+  20260511  |move| <= 5pt on 64% of 30s windows;  move == 0 on 2%
+  20260512  |move| <= 5pt on 46% of 30s windows;  move == 0 on 1%
+  20260513  |move| <= 5pt on 59% of 30s windows;  move == 0 on 2%
+  20260514  |move| <= 5pt on 58% of 30s windows;  move == 0 on 2%
+  20260515  |move| <= 5pt on 45% of 30s windows;  move == 0 on 1%
+  20260518  |move| <= 5pt on 34% of 30s windows;  move == 0 on 1%
+  20260519  |move| <= 5pt on 42% of 30s windows;  move == 0 on 1%
+  20260520  |move| <= 5pt on 52% of 30s windows;  move == 0 on 1%
+  20260521  |move| <= 5pt on 45% of 30s windows;  move == 0 on 1%
+  20260522  |move| <= 5pt on 62% of 30s windows;  move == 0 on 2%
+  20260526  |move| <= 5pt on 64% of 30s windows;  move == 0 on 2%
+  20260527  |move| <= 5pt on 53% of 30s windows;  move == 0 on 2%
+  20260528  |move| <= 5pt on 69% of 30s windows;  move == 0 on 2%
+  20260529  |move| <= 5pt on 58% of 30s windows;  move == 0 on 2%
+
+========================================================================================
+H0  IS THERE ANY LINEAR PREDICTABILITY AT ALL?
+========================================================================================
+  Sign of the last window's move, held forward. Momentum if positive,
+  mean reversion if negative, nothing if flat.
+
+    30s window, hold 30s                   n=47519  -0.08pt       -2$  win  48%  t=-1.91
+    30s window, hold 1m                    n=47458  -0.05pt       -1$  win  48%  t=-0.88
+    30s window, hold 2m                    n=47336  -0.09pt       -2$  win  48%  t=-1.10
+    60s window, hold 1m                    n=23729  +0.08pt       +2$  win  49%  t=+1.03
+    60s window, hold 2m                    n=23668  +0.04pt       +1$  win  49%  t=+0.35
+    60s window, hold 4m                    n=23546  -0.13pt       -3$  win  49%  t=-0.82
+   300s window, hold 5m                    n=4697   +0.57pt      +11$  win  51%  t=+1.49
+   300s window, hold 10m                   n=4636   -0.19pt       -4$  win  49%  t=-0.35
+   300s window, hold 20m                   n=4514   -0.96pt      -19$  win  49%  t=-1.29
+
+========================================================================================
+H1  ABSORPTION AT LONGER HORIZONS
+========================================================================================
+  Heavy buying (top 20% delta) that did not move price, held longer.
+
+  30s win, hold 2m  [both days same sign]  n=3184   -2.08pt      -42$  win  42%  t=-7.37 **
+  30s win, hold 5m  [both days same sign]  n=3150   -3.05pt      -61$  win  43%  t=-6.97 **
+  30s win, hold 10m  [days disagree]       n=3104   -3.87pt      -77$  win  44%  t=-6.36 **
+  30s win, hold 30m  [both days same sign] n=2955   -7.64pt     -153$  win  42%  t=-7.54 **
+  60s win, hold 2m  [days disagree]        n=972    -2.02pt      -40$  win  42%  t=-4.13 **
+  60s win, hold 5m  [days disagree]        n=962    -1.98pt      -40$  win  44%  t=-2.48
+  60s win, hold 10m  [both days same sign] n=952    -2.63pt      -53$  win  45%  t=-2.35
+  60s win, hold 30m  [both days same sign] n=911    -6.33pt     -127$  win  44%  t=-3.35 **
+
+========================================================================================
+H2  BLOCK PRINTS — is size informative where count is not?
+========================================================================================
+  20260302  top 1.0%: size >= 5, 5,308 prints, 10% of volume
+  20260302  top 0.1%: size >= 15, 294 prints, 3% of volume
+  20260303  top 1.0%: size >= 5, 3,936 prints, 7% of volume
+  20260303  top 0.1%: size >= 12, 400 prints, 2% of volume
+  20260304  top 1.0%: size >= 6, 2,737 prints, 7% of volume
+  20260304  top 0.1%: size >= 13, 271 prints, 2% of volume
+  20260305  top 1.0%: size >= 5, 4,412 prints, 7% of volume
+  20260305  top 0.1%: size >= 11, 371 prints, 2% of volume
+  20260306  top 1.0%: size >= 5, 3,755 prints, 7% of volume
+  20260306  top 0.1%: size >= 12, 336 prints, 2% of volume
+  20260309  top 1.0%: size >= 5, 3,553 prints, 7% of volume
+  20260309  top 0.1%: size >= 14, 333 prints, 3% of volume
+  20260310  top 1.0%: size >= 5, 3,675 prints, 7% of volume
+  20260310  top 0.1%: size >= 12, 327 prints, 2% of volume
+  20260311  top 1.0%: size >= 5, 4,249 prints, 8% of volume
+  20260311  top 0.1%: size >= 13, 265 prints, 2% of volume
+  20260312  top 1.0%: size >= 5, 4,026 prints, 8% of volume
+  20260312  top 0.1%: size >= 12, 327 prints, 3% of volume
+  20260313  top 1.0%: size >= 5, 4,174 prints, 8% of volume
+  20260313  top 0.1%: size >= 13, 312 prints, 2% of volume
+  20260318  top 1.0%: size >= 5, 3,430 prints, 8% of volume
+  20260318  top 0.1%: size >= 12, 244 prints, 2% of volume
+  20260319  top 1.0%: size >= 5, 4,227 prints, 8% of volume
+  20260319  top 0.1%: size >= 11, 317 prints, 2% of volume
+  20260320  top 1.0%: size >= 5, 4,957 prints, 8% of volume
+  20260320  top 0.1%: size >= 11, 319 prints, 2% of volume
+  20260323  top 1.0%: size >= 5, 3,530 prints, 7% of volume
+  20260323  top 0.1%: size >= 12, 298 prints, 2% of volume
+  20260324  top 1.0%: size >= 5, 4,171 prints, 9% of volume
+  20260324  top 0.1%: size >= 12, 305 prints, 2% of volume
+  20260325  top 1.0%: size >= 6, 2,690 prints, 7% of volume
+  20260325  top 0.1%: size >= 13, 259 prints, 2% of volume
+  20260326  top 1.0%: size >= 6, 3,056 prints, 7% of volume
+  20260326  top 0.1%: size >= 13, 258 prints, 2% of volume
+  20260327  top 1.0%: size >= 6, 2,745 prints, 6% of volume
+  20260327  top 0.1%: size >= 12, 308 prints, 2% of volume
+  20260330  top 1.0%: size >= 6, 3,084 prints, 7% of volume
+  20260330  top 0.1%: size >= 12, 283 prints, 2% of volume
+  20260331  top 1.0%: size >= 5, 6,669 prints, 9% of volume
+  20260331  top 0.1%: size >= 11, 471 prints, 2% of volume
+  20260401  top 1.0%: size >= 6, 3,082 prints, 7% of volume
+  20260401  top 0.1%: size >= 14, 275 prints, 2% of volume
+  20260402  top 1.0%: size >= 5, 4,480 prints, 8% of volume
+  20260402  top 0.1%: size >= 13, 294 prints, 2% of volume
+  20260406  top 1.0%: size >= 5, 3,106 prints, 7% of volume
+  20260406  top 0.1%: size >= 11, 231 prints, 1% of volume
+  20260407  top 1.0%: size >= 5, 5,683 prints, 10% of volume
+  20260407  top 0.1%: size >= 13, 280 prints, 2% of volume
+  20260408  top 1.0%: size >= 6, 3,206 prints, 7% of volume
+  20260408  top 0.1%: size >= 14, 305 prints, 2% of volume
+  20260409  top 1.0%: size >= 6, 3,309 prints, 8% of volume
+  20260409  top 0.1%: size >= 14, 285 prints, 2% of volume
+  20260410  top 1.0%: size >= 6, 3,367 prints, 9% of volume
+  20260410  top 0.1%: size >= 14, 236 prints, 2% of volume
+  20260413  top 1.0%: size >= 6, 3,653 prints, 9% of volume
+  20260413  top 0.1%: size >= 14, 268 prints, 2% of volume
+  20260414  top 1.0%: size >= 7, 2,964 prints, 8% of volume
+  20260414  top 0.1%: size >= 16, 228 prints, 2% of volume
+  20260415  top 1.0%: size >= 7, 2,820 prints, 8% of volume
+  20260415  top 0.1%: size >= 15, 258 prints, 2% of volume
+  20260416  top 1.0%: size >= 7, 3,051 prints, 6% of volume
+  20260416  top 0.1%: size >= 13, 332 prints, 2% of volume
+  20260417  top 1.0%: size >= 7, 2,913 prints, 7% of volume
+  20260417  top 0.1%: size >= 16, 277 prints, 2% of volume
+  20260420  top 1.0%: size >= 6, 3,426 prints, 8% of volume
+  20260420  top 0.1%: size >= 12, 239 prints, 1% of volume
+  20260421  top 1.0%: size >= 6, 4,750 prints, 8% of volume
+  20260421  top 0.1%: size >= 13, 318 prints, 2% of volume
+  20260422  top 1.0%: size >= 6, 3,994 prints, 9% of volume
+  20260422  top 0.1%: size >= 13, 264 prints, 1% of volume
+  20260423  top 1.0%: size >= 6, 4,219 prints, 7% of volume
+  20260423  top 0.1%: size >= 12, 399 prints, 2% of volume
+  20260424  top 1.0%: size >= 6, 3,438 prints, 8% of volume
+  20260424  top 0.1%: size >= 12, 287 prints, 2% of volume
+  20260427  top 1.0%: size >= 6, 2,517 prints, 7% of volume
+  20260427  top 0.1%: size >= 12, 228 prints, 2% of volume
+  20260428  top 1.0%: size >= 6, 3,511 prints, 7% of volume
+  20260428  top 0.1%: size >= 12, 338 prints, 2% of volume
+  20260429  top 1.0%: size >= 6, 3,229 prints, 8% of volume
+  20260429  top 0.1%: size >= 13, 262 prints, 2% of volume
+  20260430  top 1.0%: size >= 6, 4,321 prints, 7% of volume
+  20260430  top 0.1%: size >= 11, 402 prints, 1% of volume
+  20260501  top 1.0%: size >= 6, 3,998 prints, 8% of volume
+  20260501  top 0.1%: size >= 13, 266 prints, 2% of volume
+  20260504  top 1.0%: size >= 6, 2,849 prints, 6% of volume
+  20260504  top 0.1%: size >= 13, 270 prints, 2% of volume
+  20260505  top 1.0%: size >= 6, 3,672 prints, 9% of volume
+  20260505  top 0.1%: size >= 14, 221 prints, 1% of volume
+  20260506  top 1.0%: size >= 6, 3,487 prints, 8% of volume
+  20260506  top 0.1%: size >= 14, 273 prints, 2% of volume
+  20260507  top 1.0%: size >= 6, 4,329 prints, 8% of volume
+  20260507  top 0.1%: size >= 14, 374 prints, 2% of volume
+  20260508  top 1.0%: size >= 7, 2,696 prints, 7% of volume
+  20260508  top 0.1%: size >= 15, 296 prints, 2% of volume
+  20260511  top 1.0%: size >= 6, 3,083 prints, 7% of volume
+  20260511  top 0.1%: size >= 14, 284 prints, 2% of volume
+  20260512  top 1.0%: size >= 6, 3,914 prints, 7% of volume
+  20260512  top 0.1%: size >= 15, 382 prints, 2% of volume
+  20260513  top 1.0%: size >= 6, 3,539 prints, 8% of volume
+  20260513  top 0.1%: size >= 14, 290 prints, 2% of volume
+  20260514  top 1.0%: size >= 6, 4,507 prints, 9% of volume
+  20260514  top 0.1%: size >= 17, 320 prints, 2% of volume
+  20260515  top 1.0%: size >= 5, 5,869 prints, 8% of volume
+  20260515  top 0.1%: size >= 12, 369 prints, 2% of volume
+  20260518  top 1.0%: size >= 5, 5,786 prints, 7% of volume
+  20260518  top 0.1%: size >= 11, 450 prints, 2% of volume
+  20260519  top 1.0%: size >= 5, 5,761 prints, 8% of volume
+  20260519  top 0.1%: size >= 11, 432 prints, 2% of volume
+  20260520  top 1.0%: size >= 5, 4,939 prints, 9% of volume
+  20260520  top 0.1%: size >= 14, 306 prints, 2% of volume
+  20260521  top 1.0%: size >= 5, 4,833 prints, 7% of volume
+  20260521  top 0.1%: size >= 11, 372 prints, 2% of volume
+  20260522  top 1.0%: size >= 5, 4,709 prints, 9% of volume
+  20260522  top 0.1%: size >= 12, 246 prints, 2% of volume
+  20260526  top 1.0%: size >= 6, 4,413 prints, 9% of volume
+  20260526  top 0.1%: size >= 15, 275 prints, 2% of volume
+  20260527  top 1.0%: size >= 5, 6,110 prints, 10% of volume
+  20260527  top 0.1%: size >= 14, 324 prints, 3% of volume
+  20260528  top 1.0%: size >= 6, 3,376 prints, 7% of volume
+  20260528  top 0.1%: size >= 12, 307 prints, 1% of volume
+  20260529  top 1.0%: size >= 6, 3,658 prints, 7% of volume
+  20260529  top 0.1%: size >= 13, 320 prints, 2% of volume
+
+  blocks q0.99 go-with, hold 2m [disagree] n=4723   -2.30pt      -46$  win  43%  t=-7.67 **
+  blocks q0.99 fade,    hold 2m            n=4723   -1.70pt      -34$  win  45%  t=-5.70 **
+  blocks q0.99 go-with, hold 10m [disagree] n=4551   -2.59pt      -52$  win  46%  t=-4.20 **
+  blocks q0.99 fade,    hold 10m           n=4551   -1.41pt      -28$  win  48%  t=-2.29
+  blocks q0.999 go-with, hold 2m [agree]   n=4802   -1.69pt      -34$  win  45%  t=-5.66 **
+  blocks q0.999 fade,    hold 2m           n=4802   -2.31pt      -46$  win  44%  t=-7.70 **
+  blocks q0.999 go-with, hold 10m [agree]  n=4648   -2.37pt      -47$  win  46%  t=-3.91 **
+  blocks q0.999 fade,    hold 10m          n=4648   -1.63pt      -33$  win  49%  t=-2.69
+
+========================================================================================
+H3  CVD DIVERGENCE AT LOCAL EXTREMES
+========================================================================================
+  Price makes a new high over the lookback while cumulative delta
+  does not confirm it. The classic read, isolated at last.
+
+  divergence 15m look, hold 5m [disagree]  n=4398   -1.54pt      -31$  win  45%  t=-3.96 **
+  divergence 15m look, hold 15m [disagree] n=4240   +0.35pt       +7$  win  48%  t=+0.53
+  divergence 30m look, hold 5m [agree]     n=3146   -2.20pt      -44$  win  43%  t=-5.07 **
+  divergence 30m look, hold 15m [agree]    n=3009   -0.01pt       -0$  win  47%  t=-0.01
+  divergence 60m look, hold 5m [disagree]  n=2212   -1.90pt      -38$  win  45%  t=-3.87 **
+  divergence 60m look, hold 15m [agree]    n=2097   +0.10pt       +2$  win  48%  t=+0.12
+
+========================================================================================
+Anything marked ** cleared the multiple-testing bar on both counts.
+========================================================================================

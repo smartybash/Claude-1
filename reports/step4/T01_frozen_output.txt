@@ -1,0 +1,528 @@
+====================================================================================
+ABSORPTION TEST — 30s windows, hold 4 windows (120s), RTH only
+cost assumed 2.0 pts round trip ($40); price grid is 5 pts
+====================================================================================
+  20260302: 780 windows, median 389 contracts, delta p10/p90 -114/+90
+  20260303: 780 windows, median 481 contracts, delta p10/p90 -96/+91
+  20260304: 780 windows, median 344 contracts, delta p10/p90 -83/+72
+  20260305: 780 windows, median 493 contracts, delta p10/p90 -94/+102
+  20260306: 780 windows, median 438 contracts, delta p10/p90 -86/+83
+  20260309: 780 windows, median 408 contracts, delta p10/p90 -74/+89
+  20260310: 780 windows, median 410 contracts, delta p10/p90 -79/+87
+  20260311: 780 windows, median 342 contracts, delta p10/p90 -88/+82
+  20260312: 780 windows, median 388 contracts, delta p10/p90 -104/+94
+  20260313: 780 windows, median 406 contracts, delta p10/p90 -111/+92
+  20260318: 780 windows, median 307 contracts, delta p10/p90 -72/+81
+  20260319: 780 windows, median 391 contracts, delta p10/p90 -90/+101
+  20260320: 780 windows, median 410 contracts, delta p10/p90 -113/+91
+  20260323: 780 windows, median 401 contracts, delta p10/p90 -79/+79
+  20260324: 780 windows, median 347 contracts, delta p10/p90 -94/+91
+  20260325: 780 windows, median 358 contracts, delta p10/p90 -97/+102
+  20260326: 780 windows, median 362 contracts, delta p10/p90 -109/+104
+  20260327: 780 windows, median 389 contracts, delta p10/p90 -92/+100
+  20260330: 780 windows, median 396 contracts, delta p10/p90 -108/+95
+  20260331: 780 windows, median 502 contracts, delta p10/p90 -110/+117
+  20260401: 780 windows, median 390 contracts, delta p10/p90 -105/+97
+  20260402: 780 windows, median 348 contracts, delta p10/p90 -85/+85
+  20260406: 780 windows, median 274 contracts, delta p10/p90 -79/+89
+  20260407: 780 windows, median 371 contracts, delta p10/p90 -97/+100
+  20260408: 780 windows, median 385 contracts, delta p10/p90 -93/+95
+  20260409: 780 windows, median 387 contracts, delta p10/p90 -102/+107
+  20260410: 780 windows, median 318 contracts, delta p10/p90 -94/+94
+  20260413: 780 windows, median 301 contracts, delta p10/p90 -82/+105
+  20260414: 780 windows, median 361 contracts, delta p10/p90 -97/+114
+  20260415: 780 windows, median 390 contracts, delta p10/p90 -88/+121
+  20260416: 780 windows, median 490 contracts, delta p10/p90 -119/+123
+  20260417: 780 windows, median 424 contracts, delta p10/p90 -100/+122
+  20260420: 780 windows, median 318 contracts, delta p10/p90 -90/+92
+  20260421: 780 windows, median 478 contracts, delta p10/p90 -137/+119
+  20260422: 780 windows, median 340 contracts, delta p10/p90 -101/+99
+  20260423: 780 windows, median 470 contracts, delta p10/p90 -132/+120
+  20260424: 780 windows, median 361 contracts, delta p10/p90 -101/+101
+  20260427: 780 windows, median 262 contracts, delta p10/p90 -79/+76
+  20260428: 780 windows, median 384 contracts, delta p10/p90 -99/+105
+  20260429: 780 windows, median 367 contracts, delta p10/p90 -92/+99
+  20260430: 780 windows, median 452 contracts, delta p10/p90 -87/+108
+  20260501: 780 windows, median 374 contracts, delta p10/p90 -91/+97
+  20260504: 780 windows, median 386 contracts, delta p10/p90 -100/+90
+  20260505: 780 windows, median 278 contracts, delta p10/p90 -76/+93
+  20260506: 780 windows, median 334 contracts, delta p10/p90 -80/+91
+  20260507: 780 windows, median 542 contracts, delta p10/p90 -123/+116
+  20260508: 780 windows, median 380 contracts, delta p10/p90 -99/+92
+  20260511: 780 windows, median 350 contracts, delta p10/p90 -90/+88
+  20260512: 780 windows, median 562 contracts, delta p10/p90 -119/+115
+  20260513: 780 windows, median 381 contracts, delta p10/p90 -100/+89
+  20260514: 780 windows, median 440 contracts, delta p10/p90 -117/+108
+  20260515: 780 windows, median 464 contracts, delta p10/p90 -102/+104
+  20260518: 780 windows, median 576 contracts, delta p10/p90 -125/+111
+  20260519: 780 windows, median 502 contracts, delta p10/p90 -113/+115
+  20260520: 780 windows, median 349 contracts, delta p10/p90 -87/+105
+  20260521: 780 windows, median 433 contracts, delta p10/p90 -98/+92
+  20260522: 780 windows, median 334 contracts, delta p10/p90 -98/+78
+  20260526: 780 windows, median 400 contracts, delta p10/p90 -102/+96
+  20260527: 780 windows, median 408 contracts, delta p10/p90 -125/+101
+  20260528: 780 windows, median 344 contracts, delta p10/p90 -96/+98
+  20260529: 780 windows, median 396 contracts, delta p10/p90 -112/+113
+
+====================================================================================
+1  BASELINE — what a random entry earns
+====================================================================================
+  20260302 long every window         n=776    +1.78pt   +35.52$  win  53%  t=+2.64
+  20260303 long every window         n=776    +0.86pt   +17.24$  win  50%  t=+1.01
+  20260304 long every window         n=776    +1.05pt   +21.07$  win  52%  t=+1.88
+  20260305 long every window         n=776    +0.09pt    +1.76$  win  51%  t=+0.12
+  20260306 long every window         n=776    -0.07pt    -1.48$  win  48%  t=-0.09
+  20260309 long every window         n=776    +2.63pt   +52.55$  win  54%  t=+3.27
+  20260310 long every window         n=776    -0.42pt    -8.38$  win  49%  t=-0.62
+  20260311 long every window         n=776    -0.44pt    -8.76$  win  51%  t=-0.67
+  20260312 long every window         n=776    -1.10pt   -22.06$  win  47%  t=-1.47
+  20260313 long every window         n=776    -1.35pt   -27.08$  win  49%  t=-2.05
+  20260318 long every window         n=776    -1.43pt   -28.54$  win  47%  t=-2.67
+  20260319 long every window         n=776    +1.14pt   +22.89$  win  50%  t=+1.56
+  20260320 long every window         n=776    -1.67pt   -33.48$  win  47%  t=-2.72
+  20260323 long every window         n=776    -0.34pt    -6.78$  win  49%  t=-0.51
+  20260324 long every window         n=776    -0.39pt    -7.76$  win  49%  t=-0.52
+  20260325 long every window         n=776    -0.47pt    -9.43$  win  48%  t=-0.78
+  20260326 long every window         n=776    -1.65pt   -33.00$  win  42%  t=-3.22
+  20260327 long every window         n=776    -1.54pt   -30.88$  win  42%  t=-2.73
+  20260330 long every window         n=776    -1.93pt   -38.57$  win  43%  t=-3.37
+  20260331 long every window         n=776    +2.54pt   +50.85$  win  52%  t=+2.97
+  20260401 long every window         n=776    +0.70pt   +14.05$  win  49%  t=+1.31
+  20260402 long every window         n=776    +2.14pt   +42.83$  win  51%  t=+2.52
+  20260406 long every window         n=776    +0.15pt    +3.06$  win  54%  t=+0.27
+  20260407 long every window         n=776    +0.59pt   +11.84$  win  47%  t=+0.86
+  20260408 long every window         n=776    -0.57pt   -11.40$  win  49%  t=-1.20
+  20260409 long every window         n=776    +0.89pt   +17.75$  win  52%  t=+1.85
+  20260410 long every window         n=776    -0.28pt    -5.55$  win  48%  t=-0.73
+  20260413 long every window         n=776    +1.63pt   +32.60$  win  52%  t=+3.46
+  20260414 long every window         n=776    +1.55pt   +31.05$  win  59%  t=+5.10
+  20260415 long every window         n=776    +1.85pt   +37.01$  win  60%  t=+4.84
+  20260416 long every window         n=776    +0.54pt   +10.85$  win  55%  t=+1.14
+  20260417 long every window         n=776    +0.69pt   +13.74$  win  51%  t=+1.44
+  20260420 long every window         n=776    -0.19pt    -3.89$  win  51%  t=-0.44
+  20260421 long every window         n=776    -0.75pt   -14.94$  win  51%  t=-1.20
+  20260422 long every window         n=776    +1.11pt   +22.12$  win  53%  t=+2.80
+  20260423 long every window         n=776    -0.29pt    -5.88$  win  51%  t=-0.43
+  20260424 long every window         n=776    +1.24pt   +24.88$  win  53%  t=+2.77
+  20260427 long every window         n=776    +0.30pt    +5.90$  win  52%  t=+0.79
+  20260428 long every window         n=776    +0.44pt    +8.73$  win  51%  t=+0.87
+  20260429 long every window         n=776    +0.76pt   +15.12$  win  54%  t=+1.62
+  20260430 long every window         n=776    +0.88pt   +17.65$  win  53%  t=+1.42
+  20260501 long every window         n=776    +0.84pt   +16.77$  win  52%  t=+1.79
+  20260504 long every window         n=776    -0.33pt    -6.60$  win  49%  t=-0.62
+  20260505 long every window         n=776    +0.69pt   +13.89$  win  53%  t=+1.93
+  20260506 long every window         n=776    +1.80pt   +36.02$  win  56%  t=+4.06
+  20260507 long every window         n=776    -0.30pt    -5.97$  win  50%  t=-0.47
+  20260508 long every window         n=776    +2.24pt   +44.73$  win  56%  t=+4.98
+  20260511 long every window         n=776    +0.36pt    +7.12$  win  54%  t=+0.71
+  20260512 long every window         n=776    +0.03pt    +0.53$  win  51%  t=+0.04
+  20260513 long every window         n=776    +1.21pt   +24.20$  win  55%  t=+2.00
+  20260514 long every window         n=776    +1.03pt   +20.62$  win  54%  t=+1.85
+  20260515 long every window         n=776    -0.06pt    -1.26$  win  52%  t=-0.08
+  20260518 long every window         n=776    -1.19pt   -23.78$  win  46%  t=-1.15
+  20260519 long every window         n=776    -0.03pt    -0.52$  win  49%  t=-0.03
+  20260520 long every window         n=776    +1.44pt   +28.71$  win  53%  t=+1.87
+  20260521 long every window         n=776    +1.28pt   +25.53$  win  52%  t=+1.69
+  20260522 long every window         n=776    -0.23pt    -4.70$  win  50%  t=-0.48
+  20260526 long every window         n=776    +0.92pt   +18.37$  win  55%  t=+2.00
+  20260527 long every window         n=776    -0.49pt    -9.70$  win  53%  t=-0.73
+  20260528 long every window         n=776    +1.13pt   +22.68$  win  52%  t=+1.94
+  20260529 long every window         n=776    +0.02pt    +0.48$  win  52%  t=+0.04
+  pooled                             n=47336  +0.34pt    +6.89$  win  51%  t=+4.36
+
+====================================================================================
+2  DOSE-RESPONSE — forward move by delta decile
+====================================================================================
+  If aggression predicts continuation, this rises left to right.
+  If it predicts reversal, it falls. If it is noise, it is flat.
+
+  20260302    +4.1   +5.4   +0.7   +1.4   +1.0   +2.9   +0.2   -1.8   -1.2   +5.2
+  20260303    +1.5   +2.1   +3.8   +0.9   -0.6   +1.0   +3.0   +0.0   -3.9   +0.9
+  20260304    +6.7   +1.3   +0.7   -0.1   -2.8   +1.7   +0.4   +2.5   -2.2   +2.1
+  20260305    -1.9   +1.8   -0.6   +4.2   -0.5   +3.8   -2.6   +0.3   -6.9   +3.1
+  20260306    +1.5   +3.5   +1.9   -0.9   -3.6   -3.1   -0.5   -0.7   +0.5   +0.4
+  20260309    +1.7   +6.9   +1.9   +0.2   +4.5   +4.4   +0.7   +0.7   -2.4   +7.6
+  20260310    -0.8   +2.3   +1.7   +0.3   -1.5   +1.3   -1.9   -2.0   -0.4   -3.4
+  20260311    -0.9   -5.4   -0.5   -0.4   +3.0   -1.8   -0.2   +2.7   +0.8   -1.1
+  20260312    -4.2   -1.5   +0.4   -2.6   -3.2   -0.8   -0.4   +0.2   -0.6   +1.9
+  20260313    -2.7   -3.5   -1.9   -0.6   +2.0   +2.8   -2.7   -2.5   -3.7   -0.9
+  20260318    -2.4   -0.3   -1.3   -0.5   -2.3   +0.7   -3.1   -2.5   -0.8   -2.1
+  20260319    +4.1   -1.3   +0.0   -0.0   +2.5   -1.5   -0.1   +3.3   +4.1   +0.8
+  20260320    +0.1   -4.8   -0.6   +0.2   -1.2   -2.8   -1.0   -1.3   -2.3   -3.0
+  20260323    +1.4   -1.1   +2.2   -2.7   +0.0   -1.8   -1.0   -0.7   -0.5   +0.9
+  20260324    +4.1   -0.6   -2.4   +2.7   -2.2   -0.7   -0.3   -3.7   -3.1   +2.6
+  20260325    +1.4   +2.0   +0.8   -3.3   +0.4   -1.2   -1.9   -4.6   +1.0   +0.2
+  20260326    +2.2   -3.5   -3.2   -2.3   -1.0   -2.6   -2.3   -3.8   +0.1   -0.0
+  20260327    +0.2   -0.7   -3.1   -2.3   -0.5   -1.3   -5.5   -1.4   +0.7   -1.2
+  20260330    -3.9   -2.3   -4.6   -2.1   +0.7   +0.9   -3.1   -0.7   -2.7   -1.7
+  20260331    +0.5   -0.3   +3.4   +1.2   +3.4   +2.4   +2.2   +2.8   +4.2   +5.7
+  20260401    +1.0   +0.3   +0.6   +0.4   +1.0   +1.7   +1.8   +2.3   -1.0   -1.1
+  20260402    +1.0   +1.5   +2.4   -0.0   +4.3   +2.9   +1.0   +1.0   +3.6   +3.8
+  20260406    +1.5   +2.1   +1.1   -1.1   +0.5   -0.5   -0.3   -2.0   +1.6   -1.3
+  20260407    -1.7   -1.8   +2.0   +7.6   +3.5   -3.8   -2.7   -1.0   +3.3   -0.0
+  20260408    -1.6   +1.8   -1.3   -0.1   -0.7   -0.6   -1.5   -2.0   +0.2   +0.1
+  20260409    +0.1   +1.2   +0.6   +0.4   +0.4   +1.6   +3.8   -0.6   +0.5   +0.9
+  20260410    +2.6   +0.5   +1.0   -1.8   -0.3   -0.8   -1.2   -0.3   -1.6   -1.0
+  20260413    +0.8   +1.3   +1.6   +3.8   +2.5   +0.6   +0.5   +2.1   +0.8   +2.5
+  20260414    +1.6   +0.0   +2.5   +1.0   +1.8   +0.3   +0.8   +1.8   +3.2   +2.5
+  20260415    +1.9   +0.1   +2.0   +2.9   -0.8   +4.2   +2.2   +1.3   +2.7   +2.1
+  20260416    -1.6   +1.6   +1.6   +1.4   +2.1   -0.5   -2.5   +1.6   +1.1   +0.7
+  20260417    +2.5   +1.3   -0.1   +0.6   +0.7   -0.2   +1.9   -1.1   +0.9   +0.4
+  20260420    +0.3   -0.2   +0.1   +2.4   +0.2   +1.2   +1.3   -2.3   -2.6   -2.6
+  20260421    -4.3   +0.2   -0.8   +0.8   +0.1   -1.4   -2.3   +1.6   -3.0   +1.7
+  20260422    +3.2   +1.5   +1.1   +2.5   +0.0   +1.7   +1.5   -0.4   +0.3   -0.3
+  20260423    +1.2   -1.9   +0.3   +3.0   +1.6   -0.5   -1.6   -2.8   +1.6   -4.0
+  20260424    +3.5   +4.0   +1.3   -0.5   +1.5   -0.6   +1.0   +0.5   +2.8   -1.0
+  20260427    -0.1   +1.7   +0.9   +1.8   +0.6   +0.1   +0.8   -1.4   -1.3   -0.2
+  20260428    +1.8   -1.1   -0.7   +1.4   +1.0   +1.9   +0.0   +2.0   -1.4   -0.6
+  20260429    +1.5   +1.6   +0.2   +0.4   -0.1   +1.9   -0.6   +0.6   -0.1   +2.1
+  20260430    -3.8   +0.3   +3.2   +1.9   +0.3   -1.1   +0.5   +2.1   +2.7   +2.9
+  20260501    +3.2   +4.7   +1.6   -2.3   +0.8   +0.8   +0.1   -0.2   -1.1   +0.8
+  20260504    +1.5   -3.1   +1.8   -0.7   -1.9   +1.1   -2.1   -0.4   +1.5   -0.9
+  20260505    +1.7   +2.2   +1.6   -0.3   +2.2   -2.0   +1.1   +0.3   +1.9   -2.1
+  20260506    +2.3   +2.0   +2.7   +1.1   +2.6   -0.0   +0.7   +1.6   -0.0   +5.0
+  20260507    +1.6   -1.7   -2.4   -3.0   +0.9   -0.1   +1.0   +2.0   -1.5   -0.0
+  20260508    +3.3   +3.7   +2.2   +3.6   +2.5   +1.1   -0.6   +0.2   +3.0   +3.4
+  20260511    -0.2   -0.9   +1.3   -0.8   +0.6   +2.6   +1.0   -1.5   -0.4   +1.7
+  20260512    -5.2   +2.4   -3.5   -0.1   +0.9   +0.5   -1.0   +0.9   -0.2   +5.4
+  20260513    +2.3   +0.0   -1.3   +0.2   +0.1   +1.9   +2.4   +1.5   -0.3   +5.6
+  20260514    +2.5   -0.6   +1.3   -0.4   +0.7   +1.5   +1.5   -1.0   +1.9   +2.8
+  20260515    +0.9   -3.4   -1.8   +2.9   +0.8   -0.9   +2.1   -4.9   -0.9   +4.8
+  20260518    -2.2   -6.1   -0.4   -0.6   -3.4   -4.3   +0.3   +0.9   +6.2   -2.1
+  20260519    +0.7   -4.0   +0.4   +3.2   +1.0   -4.1   +3.2   -1.9   +1.4   -0.2
+  20260520    +2.5   +1.3   +0.8   +2.1   -0.1   +1.7   +0.7   +4.0   +0.9   +0.3
+  20260521    +6.3   +0.4   +2.7   +3.3   +1.9   -3.8   +1.1   +0.9   -1.4   +1.7
+  20260522    +2.4   +1.6   +0.8   -0.5   -2.0   -0.6   -2.4   -0.1   -0.2   -1.4
+  20260526    +2.4   -0.5   +0.8   +0.5   +4.2   -0.8   +1.8   -0.8   -0.1   +1.7
+  20260527    +1.5   +2.6   +0.8   -1.5   +0.4   -2.7   -0.6   -0.6   -0.2   -4.8
+  20260528    +1.7   +1.6   +3.8   -1.1   -0.5   +2.6   -0.2   +1.0   +0.8   +1.5
+  20260529    -1.3   -0.2   +1.6   +1.4   -0.5   -1.3   -1.8   +0.2   +1.6   +0.4
+     decile        1      2      3      4      5      6      7      8      9     10
+
+====================================================================================
+3  THE 2x2 — aggression crossed with price response
+====================================================================================
+  'heavy' = top/bottom 20% of delta. 'no progress' = price ended the
+  window within one 5-point bin of where it started.
+  Sign convention: the number shown is what the FADE earns, so a
+  positive absorption cell means selling into heavy buying paid.
+
+  --- 20260302 ---
+  buying absorbed -> short           n=42     +0.54pt   +10.83$  win  50%  t=+0.23
+  selling absorbed -> long           n=53     +2.11pt   +42.26$  win  57%  t=+0.99
+  buying working -> long (go with)   n=108    +2.76pt   +55.14$  win  54%  t=+1.28
+  selling working -> short (go with) n=98     -6.21pt  -124.23$  win  35%  t=-2.27
+  --- 20260303 ---
+  buying absorbed -> short           n=46     +1.61pt   +32.17$  win  57%  t=+0.41
+  selling absorbed -> long           n=39     -4.32pt   -86.41$  win  33%  t=-1.35
+  buying working -> long (go with)   n=99     -2.53pt   -50.61$  win  46%  t=-0.89
+  selling working -> short (go with) n=106    -2.77pt   -55.33$  win  46%  t=-1.25
+  --- 20260304 ---
+  buying absorbed -> short           n=62     +2.21pt   +44.19$  win  61%  t=+1.25
+  selling absorbed -> long           n=76     +2.33pt   +46.51$  win  53%  t=+1.35
+  buying working -> long (go with)   n=86     +2.23pt   +44.59$  win  60%  t=+1.19
+  selling working -> short (go with) n=78     -4.64pt   -92.82$  win  49%  t=-1.89
+  --- 20260305 ---
+  buying absorbed -> short           n=40     +4.24pt   +84.75$  win  57%  t=+1.49
+  selling absorbed -> long           n=38     -1.61pt   -32.11$  win  50%  t=-0.42
+  buying working -> long (go with)   n=110    -1.08pt   -21.55$  win  46%  t=-0.50
+  selling working -> short (go with) n=113    -0.19pt    -3.85$  win  50%  t=-0.10
+  --- 20260306 ---
+  buying absorbed -> short           n=35     -3.12pt   -62.43$  win  49%  t=-0.72
+  selling absorbed -> long           n=47     +0.11pt    +2.13$  win  49%  t=+0.02
+  buying working -> long (go with)   n=116    +0.48pt    +9.53$  win  42%  t=+0.21
+  selling working -> short (go with) n=104    -3.72pt   -74.33$  win  38%  t=-1.58
+  --- 20260309 ---
+  buying absorbed -> short           n=47     +0.23pt    +4.57$  win  53%  t=+0.07
+  selling absorbed -> long           n=48     +0.25pt    +5.00$  win  50%  t=+0.11
+  buying working -> long (go with)   n=98     +2.94pt   +58.88$  win  57%  t=+1.07
+  selling working -> short (go with) n=98     -6.56pt  -131.12$  win  42%  t=-2.32
+  --- 20260310 ---
+  buying absorbed -> short           n=52     +0.75pt   +15.10$  win  44%  t=+0.21
+  selling absorbed -> long           n=51     +1.89pt   +37.75$  win  59%  t=+0.76
+  buying working -> long (go with)   n=97     -3.01pt   -60.15$  win  46%  t=-1.65
+  selling working -> short (go with) n=104    -0.32pt    -6.44$  win  52%  t=-0.17
+  --- 20260311 ---
+  buying absorbed -> short           n=41     -1.44pt   -28.78$  win  44%  t=-0.62
+  selling absorbed -> long           n=50     -7.80pt  -156.10$  win  38%  t=-2.75
+  buying working -> long (go with)   n=108    -0.53pt   -10.60$  win  47%  t=-0.29
+  selling working -> short (go with) n=94     +0.66pt   +13.24$  win  49%  t=+0.26
+  --- 20260312 ---
+  buying absorbed -> short           n=50     +0.26pt    +5.10$  win  52%  t=+0.08
+  selling absorbed -> long           n=36     +1.21pt   +24.17$  win  47%  t=+0.34
+  buying working -> long (go with)   n=96     +1.39pt   +27.71$  win  47%  t=+0.58
+  selling working -> short (go with) n=108    +4.48pt   +89.68$  win  51%  t=+1.98
+  --- 20260313 ---
+  buying absorbed -> short           n=52     +2.66pt   +53.27$  win  44%  t=+1.02
+  selling absorbed -> long           n=42     -0.84pt   -16.79$  win  48%  t=-0.37
+  buying working -> long (go with)   n=95     -2.36pt   -47.26$  win  40%  t=-1.14
+  selling working -> short (go with) n=107    +3.77pt   +75.37$  win  57%  t=+1.93
+  --- 20260318 ---
+  buying absorbed -> short           n=48     -2.32pt   -46.46$  win  48%  t=-1.02
+  selling absorbed -> long           n=41     -3.84pt   -76.71$  win  34%  t=-1.53
+  buying working -> long (go with)   n=107    -3.13pt   -62.52$  win  41%  t=-1.98
+  selling working -> short (go with) n=117    +0.45pt    +8.93$  win  47%  t=+0.34
+  --- 20260319 ---
+  buying absorbed -> short           n=35     -5.21pt  -104.14$  win  37%  t=-1.37
+  selling absorbed -> long           n=37     -2.84pt   -56.76$  win  41%  t=-0.89
+  buying working -> long (go with)   n=115    +2.09pt   +41.83$  win  48%  t=+0.92
+  selling working -> short (go with) n=118    -2.79pt   -55.72$  win  42%  t=-1.53
+  --- 20260320 ---
+  buying absorbed -> short           n=43     +4.86pt   +97.21$  win  65%  t=+2.11
+  selling absorbed -> long           n=34     -3.93pt   -78.68$  win  38%  t=-1.16
+  buying working -> long (go with)   n=111    -1.56pt   -31.17$  win  54%  t=-0.95
+  selling working -> short (go with) n=117    +1.50pt   +30.04$  win  50%  t=+0.87
+  --- 20260323 ---
+  buying absorbed -> short           n=44     +1.44pt   +28.86$  win  59%  t=+0.60
+  selling absorbed -> long           n=44     -3.17pt   -63.41$  win  45%  t=-1.37
+  buying working -> long (go with)   n=110    +0.88pt   +17.64$  win  50%  t=+0.47
+  selling working -> short (go with) n=108    -1.48pt   -29.68$  win  50%  t=-0.70
+  --- 20260324 ---
+  buying absorbed -> short           n=39     -5.69pt  -113.85$  win  44%  t=-1.75
+  selling absorbed -> long           n=35     +2.90pt   +58.00$  win  66%  t=+1.05
+  buying working -> long (go with)   n=110    -3.24pt   -64.86$  win  39%  t=-1.68
+  selling working -> short (go with) n=117    -1.32pt   -26.50$  win  49%  t=-0.57
+  --- 20260325 ---
+  buying absorbed -> short           n=37     -2.32pt   -46.49$  win  54%  t=-1.25
+  selling absorbed -> long           n=43     +2.27pt   +45.47$  win  51%  t=+0.88
+  buying working -> long (go with)   n=112    -0.53pt   -10.58$  win  46%  t=-0.38
+  selling working -> short (go with) n=109    -1.36pt   -27.25$  win  44%  t=-0.78
+  --- 20260326 ---
+  buying absorbed -> short           n=57     -0.18pt    -3.51$  win  53%  t=-0.08
+  selling absorbed -> long           n=46     -3.26pt   -65.11$  win  37%  t=-1.83
+  buying working -> long (go with)   n=93     -0.38pt    -7.58$  win  47%  t=-0.20
+  selling working -> short (go with) n=107    -0.48pt    -9.53$  win  53%  t=-0.29
+  --- 20260327 ---
+  buying absorbed -> short           n=63     +0.43pt    +8.65$  win  52%  t=+0.24
+  selling absorbed -> long           n=58     +0.97pt   +19.31$  win  45%  t=+0.54
+  buying working -> long (go with)   n=89     +0.27pt    +5.34$  win  49%  t=+0.12
+  selling working -> short (go with) n=95     +1.11pt   +22.16$  win  56%  t=+0.59
+  --- 20260330 ---
+  buying absorbed -> short           n=58     +4.12pt   +82.41$  win  60%  t=+1.67
+  selling absorbed -> long           n=45     -4.76pt   -95.11$  win  40%  t=-2.29
+  buying working -> long (go with)   n=94     -0.66pt   -13.24$  win  45%  t=-0.46
+  selling working -> short (go with) n=107    +3.06pt   +61.21$  win  55%  t=+1.70
+  --- 20260331 ---
+  buying absorbed -> short           n=30     +1.27pt   +25.50$  win  57%  t=+0.43
+  selling absorbed -> long           n=39     +0.94pt   +18.72$  win  41%  t=+0.24
+  buying working -> long (go with)   n=125    +5.98pt  +119.64$  win  59%  t=+1.96
+  selling working -> short (go with) n=114    +0.67pt   +13.46$  win  54%  t=+0.29
+  --- 20260401 ---
+  buying absorbed -> short           n=64     +3.89pt   +77.89$  win  67%  t=+1.82
+  selling absorbed -> long           n=54     -2.68pt   -53.61$  win  41%  t=-1.20
+  buying working -> long (go with)   n=93     +0.28pt    +5.54$  win  49%  t=+0.17
+  selling working -> short (go with) n=98     -2.54pt   -50.71$  win  44%  t=-1.38
+  --- 20260402 ---
+  buying absorbed -> short           n=46     -3.66pt   -73.15$  win  35%  t=-1.13
+  selling absorbed -> long           n=42     +0.31pt    +6.19$  win  40%  t=+0.07
+  buying working -> long (go with)   n=106    +3.27pt   +65.42$  win  52%  t=+0.97
+  selling working -> short (go with) n=108    -2.07pt   -41.34$  win  54%  t=-0.77
+  --- 20260406 ---
+  buying absorbed -> short           n=49     +1.33pt   +26.53$  win  53%  t=+0.62
+  selling absorbed -> long           n=61     +2.05pt   +40.98$  win  48%  t=+0.99
+  buying working -> long (go with)   n=107    -0.10pt    -2.06$  win  54%  t=-0.06
+  selling working -> short (go with) n=96     -1.87pt   -37.34$  win  40%  t=-0.91
+  --- 20260407 ---
+  buying absorbed -> short           n=59     -2.01pt   -40.17$  win  46%  t=-0.72
+  selling absorbed -> long           n=50     -3.50pt   -70.10$  win  46%  t=-1.12
+  buying working -> long (go with)   n=94     +1.54pt   +30.74$  win  47%  t=+0.72
+  selling working -> short (go with) n=102    +0.87pt   +17.35$  win  48%  t=+0.47
+  --- 20260408 ---
+  buying absorbed -> short           n=58     -0.23pt    -4.66$  win  41%  t=-0.14
+  selling absorbed -> long           n=67     -1.29pt   -25.75$  win  42%  t=-0.89
+  buying working -> long (go with)   n=92     -0.17pt    -3.37$  win  52%  t=-0.11
+  selling working -> short (go with) n=87     -0.72pt   -14.48$  win  44%  t=-0.40
+  --- 20260409 ---
+  buying absorbed -> short           n=48     +0.74pt   +14.79$  win  52%  t=+0.34
+  selling absorbed -> long           n=72     +2.19pt   +43.89$  win  61%  t=+1.47
+  buying working -> long (go with)   n=99     +1.22pt   +24.39$  win  53%  t=+0.85
+  selling working -> short (go with) n=79     +0.41pt    +8.10$  win  47%  t=+0.26
+  --- 20260410 ---
+  buying absorbed -> short           n=75     +0.65pt   +12.93$  win  49%  t=+0.54
+  selling absorbed -> long           n=73     +1.27pt   +25.34$  win  55%  t=+1.04
+  buying working -> long (go with)   n=78     -2.07pt   -41.41$  win  44%  t=-1.39
+  selling working -> short (go with) n=83     -1.77pt   -35.36$  win  47%  t=-1.28
+  --- 20260413 ---
+  buying absorbed -> short           n=58     -2.78pt   -55.52$  win  52%  t=-1.69
+  selling absorbed -> long           n=76     -1.83pt   -36.64$  win  41%  t=-1.27
+  buying working -> long (go with)   n=96     +0.82pt   +16.35$  win  45%  t=+0.42
+  selling working -> short (go with) n=78     -3.68pt   -73.59$  win  49%  t=-1.91
+  --- 20260414 ---
+  buying absorbed -> short           n=94     -2.65pt   -52.93$  win  31%  t=-3.02
+  selling absorbed -> long           n=108    +0.19pt    +3.84$  win  48%  t=+0.23
+  buying working -> long (go with)   n=61     +2.91pt   +58.28$  win  62%  t=+2.04
+  selling working -> short (go with) n=49     -2.17pt   -43.47$  win  45%  t=-1.35
+  --- 20260415 ---
+  buying absorbed -> short           n=68     -1.03pt   -20.51$  win  43%  t=-0.83
+  selling absorbed -> long           n=83     +0.23pt    +4.70$  win  55%  t=+0.19
+  buying working -> long (go with)   n=88     +2.78pt   +55.51$  win  58%  t=+2.42
+  selling working -> short (go with) n=73     -1.84pt   -36.85$  win  47%  t=-1.03
+  --- 20260416 ---
+  buying absorbed -> short           n=56     -1.23pt   -24.64$  win  46%  t=-0.71
+  selling absorbed -> long           n=48     +1.74pt   +34.79$  win  56%  t=+0.97
+  buying working -> long (go with)   n=98     +0.97pt   +19.44$  win  59%  t=+0.75
+  selling working -> short (go with) n=106    +0.42pt    +8.35$  win  45%  t=+0.28
+  --- 20260417 ---
+  buying absorbed -> short           n=44     -1.24pt   -24.77$  win  39%  t=-0.71
+  selling absorbed -> long           n=61     -0.15pt    -2.95$  win  48%  t=-0.09
+  buying working -> long (go with)   n=108    +0.19pt    +3.70$  win  50%  t=+0.13
+  selling working -> short (go with) n=93     -3.48pt   -69.52$  win  41%  t=-2.07
+  --- 20260420 ---
+  buying absorbed -> short           n=66     +2.39pt   +47.80$  win  64%  t=+1.99
+  selling absorbed -> long           n=78     +1.40pt   +27.95$  win  55%  t=+0.95
+  buying working -> long (go with)   n=84     -3.10pt   -61.90$  win  40%  t=-1.93
+  selling working -> short (go with) n=76     +1.55pt   +31.05$  win  57%  t=+0.94
+  --- 20260421 ---
+  buying absorbed -> short           n=58     +2.25pt   +45.09$  win  45%  t=+0.98
+  selling absorbed -> long           n=44     -0.17pt    -3.41$  win  52%  t=-0.06
+  buying working -> long (go with)   n=97     +0.40pt    +7.99$  win  52%  t=+0.23
+  selling working -> short (go with) n=108    +2.38pt   +47.55$  win  46%  t=+1.13
+  --- 20260422 ---
+  buying absorbed -> short           n=71     +0.31pt    +6.13$  win  55%  t=+0.22
+  selling absorbed -> long           n=78     +2.08pt   +41.67$  win  58%  t=+1.69
+  buying working -> long (go with)   n=82     +0.23pt    +4.70$  win  48%  t=+0.17
+  selling working -> short (go with) n=81     -2.46pt   -49.26$  win  41%  t=-1.56
+  --- 20260423 ---
+  buying absorbed -> short           n=49     -0.11pt    -2.14$  win  47%  t=-0.07
+  selling absorbed -> long           n=48     -4.95pt   -98.96$  win  44%  t=-1.60
+  buying working -> long (go with)   n=103    -1.53pt   -30.63$  win  50%  t=-0.86
+  selling working -> short (go with) n=104    -1.26pt   -25.29$  win  41%  t=-0.59
+  --- 20260424 ---
+  buying absorbed -> short           n=63     +0.08pt    +1.59$  win  51%  t=+0.06
+  selling absorbed -> long           n=71     +1.88pt   +37.61$  win  55%  t=+1.26
+  buying working -> long (go with)   n=93     +0.83pt   +16.51$  win  56%  t=+0.54
+  selling working -> short (go with) n=82     -5.44pt  -108.78$  win  37%  t=-2.89
+  --- 20260427 ---
+  buying absorbed -> short           n=83     +1.44pt   +28.73$  win  51%  t=+1.41
+  selling absorbed -> long           n=86     +1.47pt   +29.48$  win  55%  t=+1.20
+  buying working -> long (go with)   n=68     -0.51pt   -10.29$  win  44%  t=-0.33
+  selling working -> short (go with) n=71     +0.35pt    +6.90$  win  42%  t=+0.23
+  --- 20260428 ---
+  buying absorbed -> short           n=55     +1.45pt   +29.00$  win  49%  t=+0.86
+  selling absorbed -> long           n=59     +0.49pt    +9.83$  win  47%  t=+0.24
+  buying working -> long (go with)   n=99     -0.34pt    -6.87$  win  46%  t=-0.23
+  selling working -> short (go with) n=95     -0.41pt    -8.21$  win  51%  t=-0.21
+  --- 20260429 ---
+  buying absorbed -> short           n=72     -0.57pt   -11.46$  win  44%  t=-0.39
+  selling absorbed -> long           n=60     +1.72pt   +34.42$  win  57%  t=+0.86
+  buying working -> long (go with)   n=82     +1.00pt   +20.00$  win  52%  t=+0.81
+  selling working -> short (go with) n=97     -1.41pt   -28.25$  win  42%  t=-0.89
+  --- 20260430 ---
+  buying absorbed -> short           n=54     -0.80pt   -16.02$  win  41%  t=-0.36
+  selling absorbed -> long           n=61     +0.04pt    +0.74$  win  51%  t=+0.02
+  buying working -> long (go with)   n=103    +4.07pt   +81.46$  win  57%  t=+2.19
+  selling working -> short (go with) n=97     +2.86pt   +57.27$  win  53%  t=+1.36
+  --- 20260501 ---
+  buying absorbed -> short           n=59     +1.19pt   +23.90$  win  58%  t=+0.71
+  selling absorbed -> long           n=66     +6.88pt  +137.58$  win  74%  t=+3.77
+  buying working -> long (go with)   n=93     +0.42pt    +8.39$  win  51%  t=+0.27
+  selling working -> short (go with) n=87     -1.81pt   -36.21$  win  43%  t=-1.30
+  --- 20260504 ---
+  buying absorbed -> short           n=43     +2.08pt   +41.51$  win  47%  t=+0.68
+  selling absorbed -> long           n=60     -2.55pt   -50.92$  win  43%  t=-1.24
+  buying working -> long (go with)   n=109    +1.14pt   +22.80$  win  54%  t=+0.82
+  selling working -> short (go with) n=93     -0.02pt    -0.32$  win  49%  t=-0.01
+  --- 20260505 ---
+  buying absorbed -> short           n=89     +0.24pt    +4.72$  win  51%  t=+0.26
+  selling absorbed -> long           n=104    +0.28pt    +5.67$  win  49%  t=+0.30
+  buying working -> long (go with)   n=63     +0.52pt   +10.32$  win  54%  t=+0.28
+  selling working -> short (go with) n=58     -4.93pt   -98.62$  win  31%  t=-2.70
+  --- 20260506 ---
+  buying absorbed -> short           n=68     -1.66pt   -33.24$  win  41%  t=-1.18
+  selling absorbed -> long           n=92     +2.04pt   +40.71$  win  63%  t=+1.85
+  buying working -> long (go with)   n=87     +2.11pt   +42.24$  win  59%  t=+1.17
+  selling working -> short (go with) n=61     -2.57pt   -51.48$  win  41%  t=-1.16
+  --- 20260507 ---
+  buying absorbed -> short           n=29     -2.72pt   -54.31$  win  48%  t=-0.77
+  selling absorbed -> long           n=28     +3.19pt   +63.75$  win  57%  t=+1.15
+  buying working -> long (go with)   n=125    -1.62pt   -32.48$  win  46%  t=-0.87
+  selling working -> short (go with) n=120    -0.38pt    -7.54$  win  48%  t=-0.24
+  --- 20260508 ---
+  buying absorbed -> short           n=65     -4.55pt   -91.08$  win  31%  t=-3.07
+  selling absorbed -> long           n=74     +3.38pt   +67.57$  win  61%  t=+2.64
+  buying working -> long (go with)   n=89     +1.57pt   +31.46$  win  52%  t=+1.00
+  selling working -> short (go with) n=81     -3.58pt   -71.67$  win  36%  t=-2.33
+  --- 20260511 ---
+  buying absorbed -> short           n=70     +1.19pt   +23.86$  win  57%  t=+0.94
+  selling absorbed -> long           n=57     -0.39pt    -7.89$  win  61%  t=-0.20
+  buying working -> long (go with)   n=84     +2.30pt   +45.95$  win  52%  t=+1.11
+  selling working -> short (go with) n=98     +0.47pt    +9.39$  win  47%  t=+0.27
+  --- 20260512 ---
+  buying absorbed -> short           n=40     +1.39pt   +27.75$  win  50%  t=+0.42
+  selling absorbed -> long           n=33     +1.99pt   +39.85$  win  52%  t=+0.71
+  buying working -> long (go with)   n=117    +4.92pt   +98.33$  win  64%  t=+3.04
+  selling working -> short (go with) n=118    +2.43pt   +48.52$  win  55%  t=+1.12
+  --- 20260513 ---
+  buying absorbed -> short           n=47     -1.24pt   -24.79$  win  40%  t=-0.46
+  selling absorbed -> long           n=51     +0.66pt   +13.14$  win  57%  t=+0.28
+  buying working -> long (go with)   n=106    +3.13pt   +62.69$  win  57%  t=+1.71
+  selling working -> short (go with) n=102    -1.22pt   -24.46$  win  42%  t=-0.54
+  --- 20260514 ---
+  buying absorbed -> short           n=50     -2.17pt   -43.40$  win  38%  t=-1.10
+  selling absorbed -> long           n=67     +3.24pt   +64.85$  win  61%  t=+2.05
+  buying working -> long (go with)   n=102    +2.59pt   +51.72$  win  56%  t=+1.75
+  selling working -> short (go with) n=87     +0.19pt    +3.79$  win  51%  t=+0.08
+  --- 20260515 ---
+  buying absorbed -> short           n=36     +1.47pt   +29.44$  win  42%  t=+0.37
+  selling absorbed -> long           n=31    -11.73pt  -234.68$  win  32%  t=-2.85
+  buying working -> long (go with)   n=110    +2.85pt   +56.95$  win  51%  t=+1.15
+  selling working -> short (go with) n=121    -1.37pt   -27.40$  win  51%  t=-0.56
+  --- 20260518 ---
+  buying absorbed -> short           n=17    too few
+  selling absorbed -> long           n=22    too few
+  buying working -> long (go with)   n=133    +1.59pt   +31.77$  win  50%  t=+0.45
+  selling working -> short (go with) n=133    +4.62pt   +92.37$  win  61%  t=+1.90
+  --- 20260519 ---
+  buying absorbed -> short           n=31     +3.75pt   +75.00$  win  48%  t=+1.04
+  selling absorbed -> long           n=45     -1.40pt   -28.00$  win  40%  t=-0.32
+  buying working -> long (go with)   n=119    +1.99pt   +39.75$  win  55%  t=+0.85
+  selling working -> short (go with) n=110    +1.35pt   +27.05$  win  52%  t=+0.53
+  --- 20260520 ---
+  buying absorbed -> short           n=43     -0.03pt    -0.58$  win  53%  t=-0.01
+  selling absorbed -> long           n=51     -1.68pt   -33.63$  win  51%  t=-0.59
+  buying working -> long (go with)   n=104    -0.06pt    -1.15$  win  41%  t=-0.02
+  selling working -> short (go with) n=99     -3.78pt   -75.61$  win  43%  t=-1.37
+  --- 20260521 ---
+  buying absorbed -> short           n=30     -2.27pt   -45.50$  win  53%  t=-0.68
+  selling absorbed -> long           n=32     +2.23pt   +44.53$  win  50%  t=+0.67
+  buying working -> long (go with)   n=124    -0.34pt    -6.73$  win  48%  t=-0.16
+  selling working -> short (go with) n=119    -3.26pt   -65.25$  win  45%  t=-1.70
+  --- 20260522 ---
+  buying absorbed -> short           n=54     +0.69pt   +13.70$  win  54%  t=+0.39
+  selling absorbed -> long           n=57     +2.31pt   +46.14$  win  61%  t=+1.46
+  buying working -> long (go with)   n=97     -1.01pt   -20.26$  win  51%  t=-0.63
+  selling working -> short (go with) n=97     -2.07pt   -41.44$  win  45%  t=-1.15
+  --- 20260526 ---
+  buying absorbed -> short           n=59     -2.15pt   -43.05$  win  36%  t=-1.61
+  selling absorbed -> long           n=65     +0.86pt   +17.23$  win  57%  t=+0.63
+  buying working -> long (go with)   n=96     +0.08pt    +1.61$  win  51%  t=+0.06
+  selling working -> short (go with) n=90     -0.21pt    -4.22$  win  52%  t=-0.14
+  --- 20260527 ---
+  buying absorbed -> short           n=46     +0.10pt    +2.07$  win  48%  t=+0.05
+  selling absorbed -> long           n=29     +0.51pt   +10.17$  win  48%  t=+0.16
+  buying working -> long (go with)   n=108    -3.82pt   -76.48$  win  48%  t=-1.80
+  selling working -> short (go with) n=125    -2.30pt   -46.00$  win  42%  t=-1.17
+  --- 20260528 ---
+  buying absorbed -> short           n=55     +0.17pt    +3.36$  win  42%  t=+0.09
+  selling absorbed -> long           n=72     +1.51pt   +30.28$  win  50%  t=+0.96
+  buying working -> long (go with)   n=99     +1.87pt   +37.37$  win  60%  t=+0.81
+  selling working -> short (go with) n=85     -2.35pt   -47.06$  win  47%  t=-0.94
+  --- 20260529 ---
+  buying absorbed -> short           n=42     -0.80pt   -16.07$  win  43%  t=-0.31
+  selling absorbed -> long           n=49     -4.27pt   -85.41$  win  43%  t=-2.18
+  buying working -> long (go with)   n=112    +1.10pt   +22.01$  win  56%  t=+0.75
+  selling working -> short (go with) n=103    -0.82pt   -16.31$  win  48%  t=-0.41
+
+  --- pooled, net of cost ---
+  buying absorbed -> short           n=3184   -2.08pt   -41.51$  win  42%  t=-7.37
+  selling absorbed -> long           n=3367   -1.91pt   -38.16$  win  44%  t=-6.90
+  buying working -> long             n=6087   -1.42pt   -28.42$  win  45%  t=-5.42
+  selling working -> short           n=5969   -2.84pt   -56.75$  win  42%  t=-10.65
+
+====================================================================================
+4  ROBUSTNESS — does the best cell survive a change of clock?
+====================================================================================
+   15s window, hold 120s             n=9806   -2.23pt   -44.63$  win  42%  t=-13.73
+   30s window, hold 120s             n=3184   -2.08pt   -41.51$  win  42%  t=-7.37
+   60s window, hold 120s             n=972    -2.02pt   -40.37$  win  42%  t=-4.13
+  120s window, hold 120s             n=280    -1.18pt   -23.70$  win  43%  t=-1.28

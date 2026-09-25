@@ -57,7 +57,7 @@ def cell_eval(rows, frozen_rt, all_sessions):
     g = np.concatenate([v for _, v in rows]) if rows else np.array([])
     ok = np.isfinite(g)
     return C.evaluate(pd.Index(s)[ok], g[ok], [sess(k) for k in all_sessions],
-                      frozen_rt_pts=frozen_rt)
+                      close_by_session=C.nq_close(), frozen_rt_pts=frozen_rt)
 
 
 def t01(D):
@@ -136,13 +136,14 @@ def t03(D):
 def report(tid, name, res, primary, extra_ok=True, old="dead"):
     L = [f"=== {tid} {name} (61 Databento discovery sessions) ==="]
     keys = list(primary)
-    ph = C.holm([res[k]["p"] if np.isfinite(res[k]["p"]) else 1.0 for k in keys])
+    ph = C.holm([res[k]["p_one"] if np.isfinite(res[k]["p_one"]) else 1.0 for k in keys])
     for k in res:
         L.append(f"  {k:<28} {C.fmt(res[k])}")
-    best = keys[int(np.argmin(ph))]
+    raw = [res[k]["p_one"] if np.isfinite(res[k]["p_one"]) else 1.0 for k in keys]
+    best = keys[min(range(len(keys)), key=lambda i: (ph[i], raw[i]))]
     pstudy = float(ph.min())
     ok = res[best]["net_pts_mean"] > 0 and pstudy <= 0.05 and extra_ok
-    L.append(f"  PRIMARY: {len(keys)} cell(s), Holm; best = {best}, study p = {pstudy:.4f}")
+    L.append(f"  PRIMARY: {len(keys)} cell(s), Holm on one-sided p; best = {best}, study p = {pstudy:.4f}")
     L.append(f"  pass bar (net > 0, p <= 0.05{', beats control' if tid == 'T03' else ''}): "
              f"{'MET' if ok else 'NOT MET'}  -> {'candidate for BH' if ok else 'stays closed'}")
     txt = "\n".join(L)
@@ -152,7 +153,7 @@ def report(tid, name, res, primary, extra_ok=True, old="dead"):
     C.record(dict(id=tid, study=name, primary=best, n=r["n"], sessions=r["n_sessions"],
                   net_pts=r["net_pts_mean"], usd_trade=r["usd_per_trade"], sharpe=r["sharpe"],
                   cagr=r["cagr"], dd_nq=r["dd_NQ"], dd_mnq=r["dd_MNQ"], pf=r["pf"],
-                  t=r["t"], p_raw=r["p"], p_study=pstudy, pass_bar=ok,
+                  t=r["t"], p_raw=r["p"], p_one=r["p_one"], p_study=pstudy, pass_bar=ok,
                   old_verdict=old, new_verdict_pre_bh="pass bar met" if ok else "stays closed"))
 
 

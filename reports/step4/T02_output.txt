@@ -1,0 +1,25 @@
+=== T02 tape hypothesis sweep (61 Databento discovery sessions) ===
+  H1 30s hold 2m               n 3184 | net -2.08 pt/trade ($-41.5) | win 41.6% | PF 0.69 | Sharpe -14.64 | CAGR -63.91% | maxDD $132,625/NQ $13,262/MNQ | sessions 61 t -6.35 p 0.0000 p1 1.0000
+  H1 30s hold 5m               n 3150 | net -3.05 pt/trade ($-60.9) | win 42.7% | PF 0.71 | Sharpe -12.04 | CAGR -77.31% | maxDD $192,180/NQ $19,218/MNQ | sessions 61 t -4.55 p 0.0000 p1 1.0000
+  H1 30s hold 10m              n 3104 | net -3.87 pt/trade ($-77.4) | win 44.2% | PF 0.73 | Sharpe -9.55 | CAGR -85.06% | maxDD $246,645/NQ $24,664/MNQ | sessions 61 t -4.23 p 0.0001 p1 1.0000
+  H1 30s hold 30m              n 2955 | net -7.64 pt/trade ($-152.7) | win 42.2% | PF 0.69 | Sharpe -6.86 | CAGR -97.14% | maxDD $502,355/NQ $50,236/MNQ | sessions 61 t -3.22 p 0.0020 p1 0.9990
+  H1 60s hold 2m               n 972 | net -2.02 pt/trade ($-40.4) | win 41.6% | PF 0.69 | Sharpe -9.40 | CAGR -26.16% | maxDD $38,985/NQ $3,898/MNQ | sessions 61 t -4.17 p 0.0001 p1 0.9999
+  H1 60s hold 5m               n 962 | net -1.98 pt/trade ($-39.7) | win 44.4% | PF 0.80 | Sharpe -4.86 | CAGR -25.91% | maxDD $41,035/NQ $4,104/MNQ | sessions 61 t -1.85 p 0.0698 p1 0.9651
+  H1 60s hold 10m              n 952 | net -2.63 pt/trade ($-52.6) | win 45.1% | PF 0.81 | Sharpe -4.41 | CAGR -31.61% | maxDD $58,685/NQ $5,868/MNQ | sessions 61 t -1.77 p 0.0813 p1 0.9594
+  H1 60s hold 30m              n 911 | net -6.33 pt/trade ($-126.5) | win 43.7% | PF 0.73 | Sharpe -4.38 | CAGR -59.05% | maxDD $144,205/NQ $14,420/MNQ | sessions 61 t -2.23 p 0.0298 p1 0.9851
+  H2 q0.99 go hold 2m          n 4723 | net -2.30 pt/trade ($-45.9) | win 43.1% | PF 0.73 | Sharpe -16.98 | CAGR -80.97% | maxDD $209,975/NQ $20,998/MNQ | sessions 61 t -8.36 p 0.0000 p1 1.0000
+  H2 q0.99 fade hold 2m        n 4723 | net -1.70 pt/trade ($-34.1) | win 45.2% | PF 0.79 | Sharpe -12.73 | CAGR -72.00% | maxDD $162,835/NQ $16,284/MNQ | sessions 61 t -6.28 p 0.0000 p1 1.0000
+  H2 q0.99 go hold 10m         n 4551 | net -2.59 pt/trade ($-51.8) | win 45.8% | PF 0.84 | Sharpe -7.10 | CAGR -83.53% | maxDD $246,050/NQ $24,605/MNQ | sessions 61 t -3.50 p 0.0009 p1 0.9996
+  H2 q0.99 fade hold 10m       n 4551 | net -1.41 pt/trade ($-28.2) | win 48.2% | PF 0.91 | Sharpe -3.86 | CAGR -65.86% | maxDD $145,805/NQ $14,580/MNQ | sessions 61 t -1.92 p 0.0598 p1 0.9701
+  H2 q0.999 go hold 2m         n 4802 | net -1.69 pt/trade ($-33.9) | win 44.8% | PF 0.79 | Sharpe -12.10 | CAGR -70.64% | maxDD $157,775/NQ $15,778/MNQ | sessions 61 t -5.94 p 0.0000 p1 1.0000
+  H2 q0.999 fade hold 2m       n 4802 | net -2.31 pt/trade ($-46.1) | win 43.7% | PF 0.73 | Sharpe -16.29 | CAGR -82.76% | maxDD $223,465/NQ $22,346/MNQ | sessions 61 t -7.97 p 0.0000 p1 1.0000
+  H2 q0.999 go hold 10m        n 4648 | net -2.37 pt/trade ($-47.4) | win 46.1% | PF 0.86 | Sharpe -7.16 | CAGR -79.56% | maxDD $209,065/NQ $20,906/MNQ | sessions 61 t -3.52 p 0.0008 p1 0.9996
+  H2 q0.999 fade hold 10m      n 4648 | net -1.63 pt/trade ($-32.6) | win 48.7% | PF 0.90 | Sharpe -4.93 | CAGR -73.77% | maxDD $186,195/NQ $18,620/MNQ | sessions 61 t -2.39 p 0.0200 p1 0.9900
+  H3 look 15m hold 5m          n 4398 | net -1.54 pt/trade ($-30.8) | win 44.6% | PF 0.84 | Sharpe -4.32 | CAGR -65.87% | maxDD $149,920/NQ $14,992/MNQ | sessions 61 t -1.67 p 0.1003 p1 0.9498
+  H3 look 15m hold 15m         n 4240 | net +0.35 pt/trade ($+6.9) | win 48.3% | PF 1.02 | Sharpe +0.57 | CAGR 10.56% | maxDD $148,315/NQ $14,832/MNQ | sessions 61 t +0.47 p 0.6393 p1 0.3197
+  H3 look 30m hold 5m          n 3146 | net -2.20 pt/trade ($-44.0) | win 43.4% | PF 0.78 | Sharpe -6.17 | CAGR -65.66% | maxDD $130,135/NQ $13,014/MNQ | sessions 61 t -2.43 p 0.0183 p1 0.9909
+  H3 look 30m hold 15m         n 3009 | net -0.01 pt/trade ($-0.2) | win 46.9% | PF 1.00 | Sharpe -0.02 | CAGR -12.77% | maxDD $108,010/NQ $10,801/MNQ | sessions 61 t +0.44 p 0.6621 p1 0.3311
+  H3 look 60m hold 5m          n 2212 | net -1.90 pt/trade ($-37.9) | win 44.8% | PF 0.79 | Sharpe -5.86 | CAGR -49.33% | maxDD $86,245/NQ $8,624/MNQ | sessions 61 t -2.07 p 0.0428 p1 0.9786
+  H3 look 60m hold 15m         n 2097 | net +0.10 pt/trade ($+2.0) | win 48.4% | PF 1.01 | Sharpe +0.15 | CAGR -7.88% | maxDD $62,220/NQ $6,222/MNQ | sessions 61 t +1.31 p 0.1961 p1 0.0981
+  PRIMARY: 22 cell(s), Holm on one-sided p; best = H3 look 60m hold 15m, study p = 1.0000
+  pass bar (net > 0, p <= 0.05): NOT MET  -> stays closed
