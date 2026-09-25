@@ -97,6 +97,18 @@ def main():
     for r in d.sort_values("id").itertuples():
         L.append(f"| {r.id} | {r.study} | {r.old_verdict} | {fmtn(r.net_pts, '+.2f')} | "
                  f"{fmtn(r.sharpe, '+.2f')} | {fmtn(r.p_study, '.4f')} | {r.new_verdict_pre_bh} |")
+    of = C.ROOT / "reports/of_h_discovery_results.csv"
+    if of.exists():
+        o = pd.read_csv(of)
+        L += ["", "## 4b. Order-flow hypotheses OF-1..OF-4 — discovery (provisional)", "",
+              "Pre-registered at `665c1e4` (`reports/orderflow_h_preregistration.md`). Data-inspired "
+              "by the step-4 tape reruns, so discovery is a development set; the holdout (read once, "
+              "at the very end) and the P2 top-up are the real tests.", "",
+              "| hypothesis | trades | net pt/trade | Sharpe | daily-P&L t | Holm p | discovery |",
+              "|---|---|---|---|---|---|---|"]
+        for r in o.itertuples():
+            L.append(f"| {r.hypothesis} | {r.n} | {r.net_pts:+.2f} | {r.sharpe:+.2f} | {r.t_daily:+.2f} | "
+                     f"{r.p_holm:.4f} | {'passes (to holdout)' if r.passes else 'fails'} |")
     out = C.ROOT / "results/databento_rerun.md"
     out.parent.mkdir(exist_ok=True)
     out.write_text(HEAD + "\n".join(L) + "\n" + TAIL)
