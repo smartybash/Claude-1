@@ -48,3 +48,8 @@ reports/rp13_*.parquet
 .env
 data/raw/
 data/databento_ledger.tmp
+# Databento-derived bars/ticks: NOT pushed -- the repository is public and the data
+# is licensed. Pending the user's decision (reports/decisions_pending.md, P3).
+# Rebuild from data/raw/ with scripts/databento/build_derived.py.
+data/clean/**/*.parquet
+data/clean/rolls/

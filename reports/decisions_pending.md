@@ -71,3 +71,28 @@ alternative is forward data from registration only.
 
 Once 30+ fresh sessions exist after 2026-09-25, propose a confirmation-only
 holdout top-up within the USD 125 cap. Not due yet.
+
+---
+
+## P3. Committing Databento-derived data — held, because this repository is PUBLIC
+
+You asked for the derived datasets (1-min, 5-min, daily bars; footprints; big
+orders) to be committed. `smartybash/Claude-1` is **public**. Pushing them would
+publish licensed Databento market data, which their licence almost certainly does
+not permit, and a public push cannot be undone once it is cached. I have **not**
+committed any Databento price or volume data.
+
+- **Built and kept locally:** `data/clean/` — bars_1m 261 MB (392 monthly files,
+  each < 1 MB), bars_5m 42 MB, daily bars, roll tables.
+- **Committed:** only summary statistics (`data/clean/build_notes_*.json`, the
+  data-quality note), which are not market data.
+- **Nothing is at risk meanwhile.** The raw batch files re-download free until
+  about 2026-10-25, and `scripts/databento/build_derived.py` rebuilds everything
+  in minutes.
+
+**Options:**
+1. **Make the repository private**, then I commit the data as you asked, split by month.
+2. Keep it public and commit **only** the scripts, results and summary statistics
+   (the current state). Rebuild from raw while the 30-day window lasts.
+3. Store the data somewhere private you control (for example a private repo or a
+   drive), and I push it there.

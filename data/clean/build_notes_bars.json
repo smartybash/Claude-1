@@ -1,0 +1,52 @@
+{
+  "bars": {
+    "NQ": {
+      "rows": 5524493,
+      "first": "2010-06-07 00:00:00+00:00",
+      "last": "2026-09-24 20:29:00+00:00",
+      "duplicates": 0,
+      "bad_ohlc": 0,
+      "off_tick_share": 0.0,
+      "range_spikes_gt20x_median": 1864,
+      "zero_volume_bars": 0,
+      "rolls": 66,
+      "rolls_ratio_invalid": 1,
+      "files_1m": [
+        196,
+        137573591,
+        859761
+      ],
+      "files_5m": [
+        196,
+        22170682,
+        147141
+      ],
+      "sessions": 4199,
+      "half_days": 128
+    },
+    "ES": {
+      "rows": 5699283,
+      "first": "2010-06-07 00:00:00+00:00",
+      "last": "2026-09-24 20:29:00+00:00",
+      "duplicates": 0,
+      "bad_ohlc": 0,
+      "off_tick_share": 0.0,
+      "range_spikes_gt20x_median": 661,
+      "zero_volume_bars": 0,
+      "rolls": 66,
+      "rolls_ratio_invalid": 0,
+      "files_1m": [
+        196,
+        135032212,
+        791348
+      ],
+      "files_5m": [
+        196,
+        20489062,
+        128070
+      ],
+      "sessions": 4199,
+      "half_days": 128
+    }
+  }
+}
