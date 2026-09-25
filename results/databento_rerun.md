@@ -144,5 +144,15 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 - OF-1..OF-4 and RP-011 all failed discovery; **the D2 tick holdout stays unread.**
 - Paper-track the three daily effects (P7); forward bars await **P8**.
 - The trade harness for your Tradovate fills is ready for the CSV
-  (`scripts/trades/`).
+  (`scripts/trades/`). Drop the export in `data/trades/` and run
+  `python3 scripts/trades/tradovate_harness.py data/trades/<file>.csv --tz <account time zone>`.
+  It reads Orders/Fills or Performance exports, matches each fill to its NQ 1-minute
+  bar, applies the step-4 cost rule, tests against an exposure-matched random-entry
+  null (same direction, time of day, sessions held, costs) and a shuffled-side null,
+  and breaks results down by setup, time of day, hold length, weekday and contract.
+  It was checked on synthetic exports built from the real bars: FIFO, costs, time zone,
+  both export shapes, perfect-foresight trades flagged (p 0.0005), and calibration
+  (5.0% of 60 no-edge sets below p 0.05). Your fills and the reports on them are
+  gitignored while the repository is public. Bars end 2026-09-24; later fills need a
+  forward pull (P8).
 - P2 top-up cancelled (your decision).

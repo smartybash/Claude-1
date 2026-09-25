@@ -61,3 +61,8 @@ reports/step4/frozen/root_nq/
 reports/step4/frozen/*.pkl
 reports/step4/frozen/*.json
 reports/step4/frozen/*.csv
+
+# the user's own Tradovate fills and the harness reports on them: local only while the
+# repository is public (scripts/trades/tradovate_harness.py writes to reports/trades/)
+data/trades/
+reports/trades/

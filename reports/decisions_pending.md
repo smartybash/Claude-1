@@ -220,3 +220,16 @@ the entry-day paths). Lifetime spend is $84.54 of $125.
 **Options:** 1) standing approval for monthly pulls at ≤ $0.20 each (quote,
 ledger and billed-vs-estimate check every time, stop if billed > estimate); 2) one
 pull at the 12-month review (≈ $1.30); 3) no pulls.
+
+---
+
+## Status notes (2026-09-25, after the harness)
+
+- **P3 held:** the repository was re-checked after the harness was built and is
+  still **public** (`private: false`). No Databento-derived data has been
+  committed. The data commit (monthly files, nothing over 1 GB, no force-push) runs
+  as soon as the repository shows as private.
+- **Trade harness:** built and tested (`scripts/trades/`). Your fills
+  (`data/trades/`) and the reports on them (`reports/trades/`) are gitignored for the
+  same reason. Fills after 2026-09-24 have no bars until a forward pull (P8); the
+  harness counts them and leaves them out of the bar checks and the random-entry null.
