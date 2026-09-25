@@ -46,6 +46,8 @@ def rec(tid, study, old, txt):
 
 
 def main():
+    if "--rest" in sys.argv:
+        return rest()
     import levels_predictive as LP
     LP.SRC = BL.NQ_FULL
     LP.gamma_map = lambda days: {}
@@ -82,15 +84,28 @@ def main():
     _, t = C.run_frozen("rp005_stage1", [], "B22_frozen_output.txt")
     rec("B22", "RP-005 close auction flow (descriptive)", "closed", t)
 
+
+def rest():
+
+    import json, pickle
     import rp007_stage1a1 as R7
     R7.RTH, R7.ETH = BL.NQ_FULL, BL.NQ_ETH_FULL
-    _, t1 = C.run_frozen("rp007_stage1a1", [], "B23_frozen_stage_output.txt")
+    R7.OUT = C.OUT / "frozen"
+    R, Cx, pools, meta = R7.run(limit=None)          # the script's __main__ block, verbatim
+    R.to_parquet(R7.OUT / "rp007_1a1_genuine.parquet")
+    Cx.to_parquet(R7.OUT / "rp007_1a1_shifted.parquet")
+    with open(R7.OUT / "rp007_1a1_pools.pkl", "wb") as fh:
+        pickle.dump(pools, fh)
+    (R7.OUT / "rp007_1a1_meta.json").write_text(json.dumps(meta, indent=1, default=str))
     _, t = C.run_frozen("rp007_stage1a1_report", [], "B23_frozen_output.txt")
     rec("B23", "RP-007 1A1 level validity (descriptive)", "a precisely measured zero", t)
 
     import rp008_stage1 as R8
     R8.RTH = BL.NQ_FULL
-    _, t1 = C.run_frozen("rp008_stage1", [], "B24_frozen_stage_output.txt")
+    R8.OUT = C.OUT / "frozen"
+    R, P = R8.build()                                   # the script's __main__ block, verbatim
+    R.to_parquet(R8.OUT / "rp008_stage1_obs.parquet")
+    P.to_parquet(R8.OUT / "rp008_stage1_states.parquet")
     _, t = C.run_frozen("rp008_stage1_report", [], "B24_frozen_output.txt")
     rec("B24", "RP-008 regime validity (descriptive)", "closed", t)
 

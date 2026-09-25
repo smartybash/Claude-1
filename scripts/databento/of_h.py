@@ -77,7 +77,7 @@ def fade_trades(D, series, keys):
             x, _ = last_before(tm, px, t + HOLD)
             if not (np.isfinite(e) and np.isfinite(x)):
                 continue
-            rows.append((k, side * (x - e)))
+            rows.append((k, [side * (x - e)]))
             busy = t + HOLD
     return rows
 
@@ -119,7 +119,7 @@ def of4(D, keys):
         if out is None:
             x, _ = last_before(tm, px, t16)
             out = (x - e) if up else (e - x)
-        rows.append((b, out))
+        rows.append((b, [out]))
     return rows
 
 

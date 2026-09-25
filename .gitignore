@@ -58,3 +58,5 @@ data/clean/rolls/
 reports/step4/frozen/*.parquet
 reports/step4/frozen/root/
 reports/step4/frozen/root_nq/
+reports/step4/frozen/*.pkl
+reports/step4/frozen/*.json

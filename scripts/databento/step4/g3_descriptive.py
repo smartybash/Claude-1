@@ -43,7 +43,8 @@ def main():
     for window, src in (("full", BL.NQ_FULL), ("2021", BL.NQ_2021)):
         RF.SRC = src
         _, txt = C.run_frozen("regime_forecast", [], f"B09_frozen_output_{window}.txt")
-        out.append(f"{window}: cleared all three {grab(txt, r'cleared ALL THREE:\s+(\d+ of 14)')}")
+        pat = r"cleared ALL THREE:\s+(\d+ of 14)"
+        out.append(f"{window}: cleared all three " + grab(txt, pat))
     print("B09", out)
     C.record(dict(id="B09", study="regime forecastability (descriptive)", primary="14 tests, all three bars",
                   pass_bar=False, old_verdict="0 of 14",

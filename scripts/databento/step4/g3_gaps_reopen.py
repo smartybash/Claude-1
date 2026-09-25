@@ -110,7 +110,7 @@ def b31():
             px = T.day.map(pxm)
             cost = px * RS.COST_F
             gross = T.R * T.risk + cost
-            day = pd.to_datetime(T.day.astype(str))
+            day = pd.DatetimeIndex(pd.to_datetime(T.day.astype(str)))
             res.setdefault(k, {})[window] = BL.evaluate_adj(day, gross, window, cost)
             if window == "full":
                 fac = BL.factor().reindex(day).to_numpy()
