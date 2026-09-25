@@ -51,3 +51,29 @@ fresh sessions, and the seven-condition counts gate before any outcome.
 Per the user's rule: **any date already used by a QQQ or NQ study in this
 repository counts as seen**, because QQQ and NQ track the same index. This applies
 across resolutions: a date read at daily resolution is seen for daily studies.
+
+---
+
+## 5. Decision logged 2026-09-25 — the 2010–2020 block for studies (a) and (b)
+
+**Option 1 chosen.** 2010–2020 is used as the best available out-of-sample block
+for the overnight-drift overlay (a) and the regime switch (b), and is reported
+**separately**, labelled:
+
+> **never used for this hypothesis; read by other daily studies, incl. overnight
+> gap base rates**
+
+Basis: QQQ daily 1999–2026 was read by the oversold bounce (`5a5051a`), gap-fill
+base rates (`e6e42c4`), daily FVG (`0761d41`) and the daily range breakout
+(`2fed2b4`); QQQ 1-minute 2016–2020 by the IB-pullback holdout and RP-13. The
+strict reading of §4 would leave (a) and (b) with no historical block; it was
+considered and not chosen.
+
+**The only true out-of-sample data for (a) is data after its registration date**,
+evaluated later. **Nothing is promoted on backtest alone.**
+
+**(b) is a strict one-shot replication.** Its prior is this repository's closed
+result — regime forecastability 0 of 14, and `reports/trend_regime_study.md`
+(daily ADX / efficiency ratio do not predict trend vs chop). If (b) fails it is
+closed permanently with no re-tuning. If it passes, the conflict with
+`trend_regime_study.md` must be explained before anything else is done with it.
