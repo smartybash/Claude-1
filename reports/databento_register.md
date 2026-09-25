@@ -77,3 +77,32 @@ result — regime forecastability 0 of 14, and `reports/trend_regime_study.md`
 (daily ADX / efficiency ratio do not predict trend vs chop). If (b) fails it is
 closed permanently with no re-tuning. If it passes, the conflict with
 `trend_regime_study.md` must be explained before anything else is done with it.
+
+---
+
+## 6. Approved pull plan — logged 2026-09-25, before submission
+
+Approved with one change to B: trimmed to the discovery window, the holdout window
+(2026-08-21 session onward) and five RTH sessions from the excluded window for the
+ATAS aggressor cross-check (spread June → 08-20, including the busiest, 2026-07-29,
+539,648 ATAS RTH prints). Re-quoted total ≤ USD 95, so it runs without a further
+approval, as instructed. **The ~USD 27 saved stays unspent.**
+
+| job | schema | symbols | start (UTC) | end (UTC) | GB | est. USD |
+|---|---|---|---|---|---|---|
+| A | `ohlcv-1m` | `NQ.v.0,ES.v.0` | 2010-06-06 | 2026-09-24T20:30:00Z | 0.628 | 40.9756 |
+| B1 | `trades` | `NQ.v.0` | 2026-03-01T23:00:00Z | 2026-05-29T21:00:00Z | 1.193 | 31.1119 |
+| B2 | `trades` | `NQ.v.0` | 2026-08-20T22:00:00Z | 2026-09-24T20:30:00Z | 0.399 | 10.4055 |
+| B3-06-24 | `trades` | `NQ.v.0` | 2026-06-24T13:30:00Z | 2026-06-24T20:00:00Z | 0.017 | 0.4361 |
+| B3-07-09 | `trades` | `NQ.v.0` | 2026-07-09T13:30:00Z | 2026-07-09T20:00:00Z | 0.011 | 0.2884 |
+| B3-07-29 | `trades` | `NQ.v.0` | 2026-07-29T13:30:00Z | 2026-07-29T20:00:00Z | 0.021 | 0.5572 |
+| B3-08-06 | `trades` | `NQ.v.0` | 2026-08-06T13:30:00Z | 2026-08-06T20:00:00Z | 0.015 | 0.3785 |
+| B3-08-19 | `trades` | `NQ.v.0` | 2026-08-19T13:30:00Z | 2026-08-19T20:00:00Z | 0.014 | 0.3555 |
+| C | `statistics` | `NQ.v.0` | 2026-03-01 | 2026-09-24T20:30:00Z | 0.032 | 0.0300 |
+| | | | | | **total** | **84.5386** |
+
+B3 sessions are **data-quality only** (Databento side vs ATAS aggressor label on the
+same prints). They enter no test, hypothesis or feature.
+
+**Top-up, noted for later:** once 30+ fresh sessions exist after 2026-09-25 (early
+November), propose a second, confirmation-only holdout within the USD 125 cap.

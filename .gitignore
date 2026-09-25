@@ -46,3 +46,4 @@ reports/rp13_*.parquet
 
 # secrets
 .env
+data/raw/
