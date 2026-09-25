@@ -1,0 +1,10 @@
+THREE DAILY EFFECTS -- SEEN-DATA CONTEXT (NOT A TEST), NQ 2010-06-07 -> 2026-09-24
+Pre-registered 3390a46. Costs NQ $2.25 + 1 tick per side (+1 round trip per roll crossed).
+Null: 5,000 exposure-matched random-entry lists (same direction, hold, minute-of-day, cost).
+
+  D1 daily FVG continuation [archived]         n  280 (17/yr, long 182) | $+1,782/trade | win 39.3% | PF 2.12 | Sharpe +0.78 | maxDD $53,391/NQ $5,346/MNQ | total $499,007 vs null 95th $382,500, p 0.0066
+  D2 5-day compression breakout [archived]     n  891 (55/yr, long 536) | $+1,807/trade | win 33.0% | PF 1.55 | Sharpe +0.81 | maxDD $255,580/NQ $25,611/MNQ | total $1,610,086 vs null 95th $1,531,653, p 0.0310
+  D3 oversold bounce [archived]                n  336 (21/yr, long 336) | $+636/trade | win 58.0% | PF 1.92 | Sharpe +0.88 | maxDD $19,009/NQ $1,903/MNQ | total $213,576 vs null 95th $135,081, p 0.0014
+  D1 daily FVG continuation [repaired]         n  240 (15/yr, long 153) | $+1,309/trade | win 31.2% | PF 1.61 | Sharpe +0.48 | maxDD $63,720/NQ $6,389/MNQ | total $314,246 vs null 95th $342,599, p 0.0776
+  D2 5-day compression breakout [repaired]     n  867 (53/yr, long 550) | $+1,534/trade | win 32.3% | PF 1.41 | Sharpe +0.64 | maxDD $345,423/NQ $34,598/MNQ | total $1,330,219 vs null 95th $1,720,245, p 0.2767
+  D3 oversold bounce [repaired]                n  339 (21/yr, long 339) | $+622/trade | win 57.8% | PF 1.86 | Sharpe +0.84 | maxDD $23,728/NQ $2,375/MNQ | total $210,852 vs null 95th $132,126, p 0.0016

@@ -203,3 +203,20 @@ you approve); 2) leave them as context; 3) close them.
 | P6 | Amendment accepted: volume check one-sided, shortfall ≤ 5%. Run RP-011 discovery labelled "sessions already read by step-4 tape studies", then T18. Holdout read once, only for anything that passes discovery. |
 | P7 | Pre-register the three daily effects now; frozen rules; they must beat an exposure-matched random-entry null, not just be positive. Paper-track from the registration date; first review in 12 months. |
 | new | Build a harness for the user's own Tradovate fills (CSV to be uploaded). |
+
+---
+
+## P8. Forward bars for paper-tracking (decide: standing approval?)
+
+P7's paper-tracking needs NQ 1-minute bars from 2026-09-25 onward
+(`ohlcv-1m`, `NQ.v.0`, continuous). Quote taken 2026-09-25: **$0.1062 per month**
+(about $1.30 a year; daily bars alone would be $0.0003 a month but cannot resolve
+the entry-day paths). Lifetime spend is $84.54 of $125.
+
+| pull | schema | window | est. |
+|---|---|---|---|
+| monthly (or at review) | ohlcv-1m | previous month | ≈ $0.11 each |
+
+**Options:** 1) standing approval for monthly pulls at ≤ $0.20 each (quote,
+ledger and billed-vs-estimate check every time, stop if billed > estimate); 2) one
+pull at the 12-month review (≈ $1.30); 3) no pulls.
