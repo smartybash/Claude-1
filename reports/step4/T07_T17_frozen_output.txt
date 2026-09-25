@@ -1,0 +1,154 @@
+================================================================================================
+CVD GATE ON THE STRUCTURE BREAK — 61 recorded sessions, 57 pairs
+================================================================================================
+  Real signed volume. Eighteen sessions is the whole of the
+  available evidence, so treat every number here as a direction.
+
+  ---- 3-minute signals, every break ----
+    every break, no flow gate                n=348   -0.096R     -7.3pt  win 52.0%  t=-1.58
+
+    gate on CONTRACTS of delta in the trade's direction:
+          delta with the trade >= 0          n=168   -0.112R     -7.6pt  win 57.7%  t=-1.75
+          delta with the trade >= 1,000      n=117   -0.118R     -5.6pt  win 54.7%  t=-1.47
+          delta with the trade >= 2,000      n=76    -0.105R     -8.1pt  win 52.6%  t=-0.95
+          delta with the trade >= 4,000      n=18    -0.183R    -10.9pt  win 55.6%  t=-1.00
+
+    gate on delta as a SHARE of session volume:
+          share with the trade >= 0.0%       n=168   -0.112R     -7.6pt  win 57.7%  t=-1.75
+          share with the trade >= 0.5%       n=114   -0.085R     -5.2pt  win 58.8%  t=-1.04
+          share with the trade >= 1.0%       n=75    -0.037R     -2.4pt  win 62.7%  t=-0.37
+          share with the trade >= 2.0%       n=22    -0.304R    -32.1pt  win 50.0%  t=-1.86
+
+    CVD CHANGE over the last N bars of this timeframe,
+    in contracts, agreeing with the trade:
+          last 1 bar(s), delta >= 0          n=321   -0.095R     -7.2pt  win 51.7%  t=-1.47
+          last 1 bar(s), delta >= 500        n=66    -0.222R    -17.8pt  win 50.0%  t=-2.24
+          last 1 bar(s), delta >= 1,000      n=7     too few
+
+          last 2 bar(s), delta >= 0          n=327   -0.085R     -6.5pt  win 52.3%  t=-1.34
+          last 2 bar(s), delta >= 500        n=107   -0.136R     -9.4pt  win 56.1%  t=-1.90
+          last 2 bar(s), delta >= 1,000      n=17    -0.322R    -35.2pt  win 47.1%  t=-2.03
+
+          last 3 bar(s), delta >= 0          n=320   -0.102R     -7.0pt  win 51.9%  t=-1.60
+          last 3 bar(s), delta >= 500        n=127   -0.057R     -1.7pt  win 58.3%  t=-0.75
+          last 3 bar(s), delta >= 1,000      n=26    -0.127R    -18.7pt  win 61.5%  t=-0.85
+
+          last 5 bar(s), delta >= 0          n=314   -0.067R     -5.7pt  win 53.2%  t=-1.02
+          last 5 bar(s), delta >= 500        n=148   -0.137R     -9.3pt  win 53.4%  t=-1.96
+          last 5 bar(s), delta >= 1,000      n=44    -0.060R     -9.0pt  win 61.4%  t=-0.54
+
+    the same change as a SHARE of the volume in that window --
+    scale-free, so it means the same thing in any hour:
+          last 1 bar(s), 0%+ of window volume n=321   -0.095R     -7.2pt  win 51.7%  t=-1.47
+          last 1 bar(s), 5%+ of window volume n=242   -0.113R     -6.4pt  win 52.5%  t=-1.73
+          last 1 bar(s), 10%+ of window volume n=136   -0.219R    -12.9pt  win 47.8%  t=-2.93
+          last 1 bar(s), 20%+ of window volume n=9     too few
+
+          last 2 bar(s), 0%+ of window volume n=327   -0.085R     -6.5pt  win 52.3%  t=-1.34
+          last 2 bar(s), 5%+ of window volume n=217   -0.083R     -3.6pt  win 55.8%  t=-1.31
+          last 2 bar(s), 10%+ of window volume n=75    -0.253R    -18.6pt  win 42.7%  t=-2.46
+          last 2 bar(s), 20%+ of window volume n=1     too few
+
+          last 3 bar(s), 0%+ of window volume n=320   -0.102R     -7.0pt  win 51.9%  t=-1.60
+          last 3 bar(s), 5%+ of window volume n=183   -0.124R     -5.6pt  win 53.0%  t=-1.80
+          last 3 bar(s), 10%+ of window volume n=33    -0.183R    -13.5pt  win 42.4%  t=-1.04
+          last 3 bar(s), 20%+ of window volume n=0     too few
+
+    and the trades a change-gate would have refused:
+          3-bar delta under +500 with the trade n=221   -0.118R    -10.5pt  win 48.4%  t=-1.39
+
+  ---- 5-minute signals, every break ----
+    every break, no flow gate                n=196   -0.073R     -2.3pt  win 57.7%  t=-1.27
+
+    gate on CONTRACTS of delta in the trade's direction:
+          delta with the trade >= 0          n=102   -0.094R     -6.3pt  win 59.8%  t=-1.30
+          delta with the trade >= 1,000      n=72    -0.067R     -6.1pt  win 59.7%  t=-0.75
+          delta with the trade >= 2,000      n=41    +0.027R     -3.4pt  win 65.9%  t=+0.22
+          delta with the trade >= 4,000      n=11    -0.136R    -31.2pt  win 63.6%  t=-0.63
+
+    gate on delta as a SHARE of session volume:
+          share with the trade >= 0.0%       n=102   -0.094R     -6.3pt  win 59.8%  t=-1.30
+          share with the trade >= 0.5%       n=63    -0.037R     -6.9pt  win 63.5%  t=-0.37
+          share with the trade >= 1.0%       n=39    +0.007R     -4.4pt  win 66.7%  t=+0.06
+          share with the trade >= 2.0%       n=9     too few
+
+    CVD CHANGE over the last N bars of this timeframe,
+    in contracts, agreeing with the trade:
+          last 1 bar(s), delta >= 0          n=179   -0.062R     -2.7pt  win 58.7%  t=-1.02
+          last 1 bar(s), delta >= 500        n=53    -0.020R     +2.5pt  win 67.9%  t=-0.22
+          last 1 bar(s), delta >= 1,000      n=10    -0.288R    -34.8pt  win 50.0%  t=-1.41
+
+          last 2 bar(s), delta >= 0          n=186   -0.070R     -2.2pt  win 58.1%  t=-1.19
+          last 2 bar(s), delta >= 500        n=83    -0.025R     +1.1pt  win 62.7%  t=-0.32
+          last 2 bar(s), delta >= 1,000      n=25    -0.197R    -25.9pt  win 52.0%  t=-1.55
+
+          last 3 bar(s), delta >= 0          n=177   -0.076R     -2.7pt  win 57.6%  t=-1.24
+          last 3 bar(s), delta >= 500        n=98    -0.057R     -1.2pt  win 60.2%  t=-0.74
+          last 3 bar(s), delta >= 1,000      n=34    +0.005R     -0.4pt  win 64.7%  t=+0.05
+
+          last 5 bar(s), delta >= 0          n=174   -0.053R     -1.7pt  win 59.2%  t=-0.87
+          last 5 bar(s), delta >= 500        n=101   -0.070R     -3.6pt  win 59.4%  t=-0.92
+          last 5 bar(s), delta >= 1,000      n=44    -0.026R     +0.2pt  win 65.9%  t=-0.28
+
+    the same change as a SHARE of the volume in that window --
+    scale-free, so it means the same thing in any hour:
+          last 1 bar(s), 0%+ of window volume n=179   -0.062R     -2.7pt  win 58.7%  t=-1.02
+          last 1 bar(s), 5%+ of window volume n=118   -0.044R     -2.4pt  win 60.2%  t=-0.58
+          last 1 bar(s), 10%+ of window volume n=47    -0.134R     -2.9pt  win 61.7%  t=-1.26
+          last 1 bar(s), 20%+ of window volume n=1     too few
+
+          last 2 bar(s), 0%+ of window volume n=186   -0.070R     -2.2pt  win 58.1%  t=-1.19
+          last 2 bar(s), 5%+ of window volume n=101   -0.101R     -6.5pt  win 57.4%  t=-1.23
+          last 2 bar(s), 10%+ of window volume n=20    -0.204R    -15.7pt  win 50.0%  t=-0.91
+          last 2 bar(s), 20%+ of window volume n=0     too few
+
+          last 3 bar(s), 0%+ of window volume n=177   -0.076R     -2.7pt  win 57.6%  t=-1.24
+          last 3 bar(s), 5%+ of window volume n=81    -0.053R     +0.5pt  win 60.5%  t=-0.58
+          last 3 bar(s), 10%+ of window volume n=4     too few
+          last 3 bar(s), 20%+ of window volume n=0     too few
+
+    and the trades a change-gate would have refused:
+          3-bar delta under +500 with the trade n=98    -0.088R     -3.5pt  win 55.1%  t=-1.05
+
+================================================================================================
+EACH GATE AGAINST THE TRADES IT REFUSES, SAME SESSIONS
+================================================================================================
+  Level gates test 'who has won the session'. Change gates test
+  'who is winning right now'. The second is the one a break should
+  care about, and it was missing from the first pass.
+
+  ---- 3-minute signals (348 breaks, 57 sessions) ----
+    LEVEL: session delta >= +1,000             n=117  -0.033R   [-0.33, +0.24]
+    LEVEL: session delta >= 1% of volume       n=75   +0.075R   [-0.22, +0.37]
+    CHANGE: breaking bar delta positive        n=321  +0.006R   [-0.26, +0.30]
+    CHANGE: breaking bar 5%+ of its volume     n=242  -0.057R   [-0.35, +0.21]
+    CHANGE: breaking bar 10%+ of its volume    n=136  -0.203R   [-0.45, +0.01]
+    CHANGE: last 2 bars 10%+ of volume         n=75   -0.200R   [-0.46, +0.03]
+    CHANGE: last 3 bars 5%+ of volume          n=183  -0.059R   [-0.24, +0.12]
+    CHANGE: last 5 bars delta >= +1,000        n=44   +0.041R   [-0.19, +0.26]
+
+  ---- 5-minute signals (196 breaks, 54 sessions) ----
+    LEVEL: session delta >= +1,000             n=72   +0.008R   [-0.23, +0.25]
+    LEVEL: session delta >= 1% of volume       n=39   +0.100R   [-0.16, +0.35]
+    CHANGE: breaking bar delta positive        n=179  +0.125R   [-0.29, +0.53]
+    CHANGE: breaking bar 5%+ of its volume     n=118  +0.072R   [-0.15, +0.30]
+    CHANGE: breaking bar 10%+ of its volume    n=47   -0.080R   [-0.33, +0.14]
+    CHANGE: last 2 bars 10%+ of volume         n=20   -0.146R   [-0.55, +0.34]
+    CHANGE: last 3 bars 5%+ of volume          n=81   +0.034R   [-0.20, +0.26]
+    CHANGE: last 5 bars delta >= +1,000        n=44   +0.061R   [-0.20, +0.28]
+
+  LEVEL gates:     3/4 positive   median +0.041R
+  CHANGE gates:    6/12 positive   median -0.025R
+
+  That split is the result, not any single cell. Sixteen tests were
+  run, so one interval clearing 5% is what chance hands you; every
+  change gate landing on one side and every level gate on the other
+  is not. The gates overlap heavily, though, so this is suggestive
+  rather than a p-value -- and it is fifteen sessions.
+
+  Each interval is a 95% range from resampling SESSIONS, which
+  keeps signals inside a day together instead of treating one good
+  day as many independent wins. An interval containing zero means
+  the gate has not been shown to separate -- and with fifteen
+  sessions most of them will contain zero whatever the truth is.
+================================================================================================

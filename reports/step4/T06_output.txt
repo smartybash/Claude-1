@@ -1,0 +1,6 @@
+=== T06 weight rule + 1.5% CVD filter (Databento discovery sessions) ===
+  rule + CVD filter              n 529 | net +0.57 pt/trade ($+11.5) | win 54.1% | PF 1.04 | Sharpe +0.98 | CAGR 4.48% | maxDD $7,280/NQ $728/MNQ | sessions 45 t +1.04 p 0.3018 p1 0.1509
+  removed by filter              n 137 | net -2.01 pt/trade ($-40.2) | win 49.6% | PF 0.87 | Sharpe -1.48 | CAGR -4.08% | maxDD $8,070/NQ $807/MNQ | sessions 37 t +0.26 p 0.7938 p1 0.3969
+  rule alone                     n 569 | net -0.77 pt/trade ($-15.4) | win 51.8% | PF 0.95 | Sharpe -1.42 | CAGR -6.95% | maxDD $13,420/NQ $1,342/MNQ | sessions 46 t +0.85 p 0.3977 p1 0.1988
+  PRIMARY: 1 cell(s), Holm on one-sided p; best = rule + CVD filter, study p = 0.1509
+  pass bar (net > 0, p <= 0.05, kept beats removed): NOT MET  -> stays closed

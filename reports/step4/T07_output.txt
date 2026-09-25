@@ -1,0 +1,6 @@
+=== T07 CVD CHANGE gate on structure break (Databento discovery sessions) ===
+  note: 3-min breaking bar 5%+ of volume: paired diff -0.057R [-0.345, +0.215]; 5-min breaking bar 5%+ of volume: paired diff +0.072R [-0.155, +0.300]
+  3-min breaking bar 5%+ of volume n 242 | net -6.43 pt/trade ($-128.6) | win 52.5% | PF 0.79 | Sharpe -2.05 | CAGR -23.12% | maxDD $48,745/NQ $4,874/MNQ | sessions 56 t -2.15 p 0.0359 p1 0.9820
+  5-min breaking bar 5%+ of volume n 118 | net -2.45 pt/trade ($-49.0) | win 60.2% | PF 0.91 | Sharpe -0.74 | CAGR -5.06% | maxDD $21,015/NQ $2,102/MNQ | sessions 49 t -1.27 p 0.2086 p1 0.8957
+  PRIMARY: 2 cell(s), Holm on one-sided p; best = 5-min breaking bar 5%+ of volume, study p = 1.0000
+  pass bar (net > 0, p <= 0.05, paired interval above 0): NOT MET  -> stays closed
