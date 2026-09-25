@@ -106,6 +106,12 @@ def run_frozen(module_name, patches, out_name, argv=None):
     """Import a frozen study module, apply attribute patches, run main() and
     save everything it prints. Returns (module, text)."""
     mod = importlib.import_module(module_name)
+    safe = OUT / "frozen"
+    safe.mkdir(parents=True, exist_ok=True)
+    for attr in ("OUT", "REPORTS", "OUTDIR", "OUT_DIR"):
+        v = getattr(mod, attr, None)
+        if isinstance(v, Path) and str(v.resolve()).startswith(str((ROOT / "reports").resolve())):
+            setattr(mod, attr, safe)          # never overwrite an earlier result
     for target, attr, value in patches:
         setattr(importlib.import_module(target) if isinstance(target, str) else target, attr, value)
         if isinstance(target, str) and target != module_name and hasattr(mod, attr):
