@@ -45,6 +45,21 @@ exposure-matched random-entry null on forward data, first review 2027-09-25.
 Seen-data context (not a test): D1 daily FVG p 0.078, D2 compression breakout
 p 0.277, D3 oversold bounce p 0.002 against the null. `reports/daily3_context_result.md`.
 
+Paper-tracking runs from 2026-09-25. Forward NQ 1-minute bars are pulled monthly
+under the P8 standing approval (≤ $1 per pull, about $0.11 quoted), by
+`scripts/databento/forward_pull.py` on the 2nd of each month. Then
+`daily3.py --forward` updates `reports/daily3_paper_ledger.csv` and
+`reports/daily3_paper_status.md`. The first pull is on 2 Oct, for 25–30 Sep.
+
+## 3c. D3P, prop-compatible D3 — FAIL, closed
+
+After a D3 signal: long from the next RTH open to that session's close, flat
+overnight. Pre-registered `ebb6680`; seen data, 2010-06 to 2026-09. 339 trades,
++$228 per trade, total +$77,229. The exposure-matched null's 95th percentile is
+$83,525, so **p 0.068 → fail, closed**. Most of D3's edge is the overnight leg
+(+19.8 pt, against +12.1 pt for the day leg), and 2010–2018 was flat.
+`reports/d3p_result.md`.
+
 ## 4. The repository's closed studies on NQ (step 4)
 
 Pre-registered at `reports/step4_preregistration.md` (inventory
@@ -142,7 +157,9 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 - Step 4 is complete; B03, B30, A13 not rerun
   (reasons in the table); X01-X08 need depth, options or other instruments.
 - OF-1..OF-4 and RP-011 all failed discovery; **the D2 tick holdout stays unread.**
-- Paper-track the three daily effects (P7); forward bars await **P8**.
+- Paper-track the three daily effects (P7); forward bars monthly under P8 (first pull 2 Oct).
+- D3P closed (p 0.068).
+- **P9: decide before about 25 Oct** how the bought history survives a container reset.
 - The trade harness for your Tradovate fills is ready for the CSV
   (`scripts/trades/`). Drop the export in `data/trades/` and run
   `python3 scripts/trades/tradovate_harness.py data/trades/<file>.csv --tz <account time zone>`.
@@ -153,6 +170,6 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
   It was checked on synthetic exports built from the real bars: FIFO, costs, time zone,
   both export shapes, perfect-foresight trades flagged (p 0.0005), and calibration
   (5.0% of 60 no-edge sets below p 0.05). Your fills and the reports on them are
-  gitignored while the repository is public. Bars end 2026-09-24; later fills need a
-  forward pull (P8).
+  gitignored while the repository is public. Bars end 2026-09-24; later fills get bars
+  from the monthly P8 pulls.
 - P2 top-up cancelled (your decision).

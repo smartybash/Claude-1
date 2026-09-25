@@ -66,3 +66,5 @@ reports/step4/frozen/*.csv
 # repository is public (scripts/trades/tradovate_harness.py writes to reports/trades/)
 data/trades/
 reports/trades/
+# P7 paper ledger with price levels (Databento-derived); the committed ledger has none
+reports/daily3_paper_ledger_full.csv

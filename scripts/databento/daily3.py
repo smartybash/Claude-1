@@ -3,8 +3,9 @@
 
   --context   seen-data context run, 2010-06-07 -> 2026-09-24, archived and
               repaired rules, exposure-matched null (context only, not a test)
-  --forward   paper-tracking from 2026-09-25 (needs forward 1-minute bars;
-              every pull follows the budget rule -- see decision P8)
+  --forward   paper-tracking from 2026-09-25 on the forward bars pulled monthly
+              by forward_pull.py (P8 standing approval); add --review at the
+              first review (2027-09-25) for the registered null test
 
 IMPLEMENTATION (fixed before the first run):
   * bars: data/clean/step4/NQ_1m.parquet (RTH 09:30-15:59, naive ET, ratio
@@ -335,17 +336,74 @@ def context():
     pd.DataFrame(rows).to_csv(OUT / "daily3_context_results.csv", index=False)
 
 
-def forward():
-    fwd = C.ROOT / "data/clean/forward"
-    if not any(fwd.glob("NQ_*.parquet")) if fwd.exists() else True:
-        print("No forward bars yet. Paper-tracking starts 2026-09-25; the first forward pull "
-              "awaits decision P8 (quote, plan, approval).")
-        return
-    raise SystemExit("forward mode: implement bar merge when the first forward pull lands")
+FWD0 = pd.Timestamp("2026-09-25")          # paper-tracking starts (registration date)
+
+
+def forward(since=FWD0, out=OUT, review=False):
+    """Paper-track the three repaired rules from `since`: every trade whose entry
+    session is on or after it. Open trades are marked to market and flagged.
+    Writes out/daily3_paper_ledger.csv (no price levels; committed) and
+    out/daily3_paper_ledger_full.csv (with prices; Databento-derived, gitignored),
+    plus out/daily3_paper_status.md. --review adds the registered null test."""
+    d, D, days, start, end, arr, P = load()
+    if days[-1] < since:
+        print(f"No forward sessions yet: bars end {days[-1].date()}, paper-tracking starts {since.date()}. "
+              "Forward bars come from scripts/databento/forward_pull.py (P8, monthly).")
+        return None
+    res = {k: v for k, v in build_all(D, days, start, end, arr).items() if k[1] == "repaired"}
+    c, c58 = D.c.to_numpy(), D.c58.to_numpy()
+    rows = []
+    for (name, _), T in res.items():
+        T = T[T.day >= since]
+        for r in T.itertuples():
+            rows.append(dict(rule=name.split()[0], day=r.day.date(), side=int(r.side),
+                             entry_time=(r.day + pd.Timedelta(minutes=570 + int(r.m_in))).strftime("%H:%M"),
+                             exit_date=r.xdate.date(),
+                             exit_time=(pd.Timedelta(minutes=570 + int(r.m_out)) + r.xdate).strftime("%H:%M"),
+                             status="OPEN, marked to market" if r.why == "open" else r.why,
+                             rolls=int(r.rolls), gross_pts=round(float(r.gross), 2),
+                             net_usd_NQ=round(float(r.net_usd), 2), entry_adj=r.entry, exit_adj=r.exit))
+    i = len(D) - 1                               # D3 signal on the last session: entered, exit pending
+    if days[i] >= since and c58[i] < c[i - 1] and c[i - 1] < c[i - 2] and c[i - 2] < c[i - 3]:
+        rows.append(dict(rule="D3", day=days[i].date(), side=1, entry_time="15:59", exit_date=None,
+                         exit_time="15:59", status="OPEN, exits next session", rolls=0, gross_pts=0.0,
+                         net_usd_NQ=round(-RT * 20.0, 2), entry_adj=c[i], exit_adj=np.nan))
+    L = pd.DataFrame(rows, columns=["rule", "day", "side", "entry_time", "exit_date", "exit_time", "status",
+                                    "rolls", "gross_pts", "net_usd_NQ", "entry_adj", "exit_adj"])
+    L = L.sort_values(["day", "rule"], kind="stable").reset_index(drop=True)
+    L.to_csv(out / "daily3_paper_ledger_full.csv", index=False)
+    L.drop(columns=["entry_adj", "exit_adj"]).to_csv(out / "daily3_paper_ledger.csv", index=False)
+    M = [f"# Three daily effects: paper-tracking status", "",
+         f"Registered 3390a46. Window {since.date()} to {days[-1].date()} ({int((days >= since).sum())} sessions). "
+         "Costs NQ $2.25 + 1 tick per side. First review 2027-09-25.", "",
+         "| rule | trades | closed | open | net $ NQ (closed) | net $ NQ incl. open |", "|---|---|---|---|---|---|"]
+    for k in ("D1", "D2", "D3"):
+        x = L[L.rule == k]
+        op = x.status.str.startswith("OPEN")
+        M.append(f"| {k} | {len(x)} | {int((~op).sum())} | {int(op.sum())} | "
+                 f"{x.net_usd_NQ[~op].sum():+,.0f} | {x.net_usd_NQ.sum():+,.0f} |")
+    if review:
+        rng = np.random.default_rng(SEED)
+        M += ["", "## Review: exposure-matched null (registered test)", ""]
+        ps = {}
+        for (name, _), T in res.items():
+            line, r = summarise(T, D, days, since, days[-1], P, rng, name)
+            M.append("    " + line.strip())
+            if r:
+                ps[name] = r["p"] if r["total"] > 0 else 1.0
+        if ps:
+            adj = C.holm(list(ps.values()))
+            M.append("")
+            M += [f"- {k}: p {p:.4f}, Holm {a:.4f} -> {'PASS' if a <= 0.05 else 'not demonstrated'}"
+                  for (k, p), a in zip(ps.items(), adj)]
+    txt = "\n".join(M)
+    (out / "daily3_paper_status.md").write_text(txt + "\n")
+    print(txt)
+    return L
 
 
 if __name__ == "__main__":
     if "--forward" in sys.argv:
-        forward()
+        forward(review="--review" in sys.argv)
     else:
         context()

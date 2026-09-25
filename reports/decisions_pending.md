@@ -265,3 +265,18 @@ Options, any one is enough:
 Until you decide, nothing is committed. If the container is reset before 25 Oct,
 `scripts/databento/download.py` fetches everything again for free and
 `build_derived.py` rebuilds the bars.
+
+## Status notes (2026-09-25, second batch done)
+
+- **P8 in place.** `scripts/databento/forward_pull.py` pulls whole months only. It
+  checks Databento's available range, quotes (the last full month quoted $0.1063),
+  stops above $1 or above the lifetime cap, logs the job, stops if billed >
+  estimate, then merges the bars and rebuilds rolls and the RTH series. The merge
+  path was tested in a sandbox: removing and re-adding 18–24 Sep reproduced the
+  bars, rolls, RTH series and factors exactly. A routine
+  (`trig_01NoDHcraPmug6wVfT2jeV71`) runs it into this session on the 2nd of each
+  month at 07:47 UTC, then `daily3.py --forward`. First run: 2 Oct 2026 (bars for
+  25–30 Sep). Nothing is bought until then.
+- **D3P: FAIL, closed** (p 0.068). `reports/d3p_result.md`.
+- **Fills:** waiting for the pasted CSV; it will go to `data/trades/` and run with
+  `--tz Asia/Dubai`, falling back to the best-fit zone.
