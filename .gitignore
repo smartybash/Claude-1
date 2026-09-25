@@ -47,3 +47,4 @@ reports/rp13_*.parquet
 # secrets
 .env
 data/raw/
+data/databento_ledger.tmp
