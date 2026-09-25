@@ -43,3 +43,6 @@ reports/rp010_thresholds_desealed.parquet
 reports/rp012a_stage1_windows.parquet
 reports/rp012c_*.parquet
 reports/rp13_*.parquet
+
+# secrets
+.env
