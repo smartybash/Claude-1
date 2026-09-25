@@ -1,3 +1,45 @@
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+data/*.jsonl.bak
+
+# parsed-tape cache: derived from data/tape, rebuilt in seconds
+data/cache/
+
+# RP-007 Stage 1A1 intermediates: derived from a committed script with a fixed
+# seed and a committed input (QQQ_1m.parquet), rebuilt in ~20 seconds by
+# scripts/orderflow/rp007_stage1a1.py. 33 MB of reproducible interim state.
+# The evidence itself -- rp007_1a1_output.txt, the family summary and the meta
+# funnel -- is committed.
+reports/rp007_1a1_genuine.parquet
+reports/rp007_1a1_shifted.parquet
+reports/rp007_1a1_pools.pkl
+
+# RP-008 Stage 1 intermediates: deterministic output of a committed script over
+# a committed input, rebuilt in ~7 seconds by scripts/orderflow/rp008_stage1.py.
+# The reported evidence -- rp008_stage1_output.txt and the summary -- is tracked.
+reports/rp008_stage1_obs.parquet
+reports/rp008_stage1_states.parquet
+
+# RP-009 Stage 1 interim parquet: deterministic output of a committed script
+# over committed inputs, rebuilt in ~90 seconds.
+reports/rp009_qqq_exc.parquet
+reports/rp009_qqq_bar.parquet
+reports/rp009_nq_exc.parquet
+reports/rp009_nq_bar.parquet
+reports/rp009_nq_tick.parquet
+
+# RP-010 Stage 1 interim parquet: deterministic output of a committed script
+# over committed inputs, rebuilt in ~2 minutes by scripts/orderflow/rp010_stage1.py.
+# The reported evidence -- rp010_stage1_output.txt and the result -- is tracked.
+reports/rp010_windows.parquet
+reports/rp010_events.parquet
+reports/rp010_dataquality.parquet
+reports/rp010_thresholds.parquet
+reports/rp010_windows_desealed.parquet
+reports/rp010_events_desealed.parquet
+reports/rp010_dataquality_desealed.parquet
+reports/rp010_thresholds_desealed.parquet
+reports/rp012a_stage1_windows.parquet
+reports/rp012c_*.parquet
+reports/rp13_*.parquet

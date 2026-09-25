@@ -1,0 +1,58 @@
+RP-012C STAGE 0 -- DAILY DATA INVENTORY (no signed returns)
+
+=== 1. FILES ===
+  QQQ raw  data/qqq_daily_full.json   6736 days  1999-11-01 -> 2026-08-13
+  QQQ adj  data/daily_long/QQQ.csv           6756 days  1999-11-01 -> 2026-09-11  pre-2016 4068
+  SPY raw  data/spy_daily_full.json   6736 days  1999-11-01 -> 2026-08-13
+  SPY adj  data/daily_long/SPY.csv           6756 days  1999-11-01 -> 2026-09-11  pre-2016 4068
+  IWM raw  data/iwm_daily_full.json   6592 days  2000-05-26 -> 2026-08-13
+  IJH, EFA: no daily file. Daily bars derivable only from 1-minute RTH
+            files, 2021-01-04 -> 2025-12-31.
+  nq_daily_3m.json       61 days 2026-04-07 -> 2026-07-02 -- a three-month live-chart cache, not a research series
+  es_daily_3m.json       61 days 2026-04-07 -> 2026-07-02 -- a three-month live-chart cache, not a research series
+  NQ_daily.parquet: 61 rows with 1970 timestamps -- unusable
+
+=== 2. ADJUSTMENT, SPLITS, DIVIDENDS (measured) ===
+  QQQ raw: split-like jumps [(datetime.date(2000, 3, 20), 2.058)]
+  QQQ adjusted/raw factor: 0.4218 at start -> 1.0000 at end; 89 factor steps (1 split-sized)
+       open and close share the same factor on 100.00% of days -> CONSISTENT
+       dividend-sized steps per year: median 4 (quarterly payer = 4)
+       => daily_long is split AND dividend adjusted (total-return basis)
+  SPY raw: split-like jumps none
+  SPY adjusted/raw factor: 0.6246 at start -> 1.0000 at end; 108 factor steps (0 split-sized)
+       open and close share the same factor on 100.00% of days -> CONSISTENT
+       dividend-sized steps per year: median 4 (quarterly payer = 4)
+       => daily_long is split AND dividend adjusted (total-return basis)
+  IWM raw: split-like jumps [(datetime.date(2005, 6, 9), 1.981)]
+  IWM: no adjusted file on disk -- dividends CANNOT be verified;
+       raw only, so a raw overnight return on an ex-date omits the dividend
+
+=== 3. MISSING AND BAD DATES ===
+  QQQ vs SPY raw date sets differ on 0 dates
+  dates in QQQ but missing from IWM (after IWM start): 0
+  QQQ: calendar gaps > 4 days: 3 (max 7, 2001-09-17); flat bars (O=H=L=C) 0; zero/NaN open 0
+  SPY: calendar gaps > 4 days: 3 (max 7, 2001-09-17); flat bars (O=H=L=C) 0; zero/NaN open 0
+  IWM: calendar gaps > 4 days: 3 (max 7, 2001-09-17); flat bars (O=H=L=C) 0; zero/NaN open 0
+  2001-09-11..14 closure and 2012-10-29..30 (Sandy) appear as the long gaps
+
+=== 4. IS THE DAILY OPEN THE 09:30 CASH OPEN? (2021+, where 1m exists) ===
+  QQQ: 1408 common days; |daily open - 09:30 bar open| median 0.00 bps, p95 0.81, >5 bps on 0.0% of days
+  SPY: 1254 common days; |daily open - 09:30 bar open| median 0.00 bps, p95 0.45, >5 bps on 0.0% of days
+  IWM: 1254 common days; |daily open - 09:30 bar open| median 0.00 bps, p95 1.57, >5 bps on 0.2% of days
+  The daily 'open' is the official opening print, which for ETFs is the
+  opening auction; the 09:30 bar's open is the first print in that minute.
+
+=== 5. OVERNIGHT GAP MAGNITUDE -- risk sizing only, |gap| never signed ===
+  gap = |open_t / close_{t-1} - 1| (adjusted series where it exists)
+  ATR20 = trailing 20-day mean true range, prior days only
+  instr period        days med |gap|     p95     p99     max  >0.5ATR   >1ATR   >2ATR wkend/wkday
+  QQQ   1999-2015     4047     38.0b    189b    339b    968b    13.8%    1.8%    0.1%        0.99
+  QQQ   2016-2020     1259     34.9b    161b    341b    946b    21.9%    3.8%    0.6%        1.21
+  QQQ   2021-2026     1429     42.0b    169b    283b    536b    23.0%    3.5%    0.2%        0.97
+  SPY   1999-2015     4047     28.9b    133b    257b    832b    16.1%    2.3%    0.1%        1.03
+  SPY   2016-2020     1259     26.8b    146b    309b   1045b    23.7%    4.4%    0.6%        1.19
+  SPY   2021-2026     1429     31.1b    123b    225b    399b    22.3%    3.6%    0.3%        1.05
+  IWM   1999-2015     3903     34.0b    155b    282b   5004b    13.0%    1.7%    0.1%        1.07
+  IWM   2016-2020     1259     32.8b    162b    415b    908b    16.4%    3.0%    0.5%        1.03
+  IWM   2021-2026     1409     45.5b    157b    285b    551b    19.4%    2.7%    0.2%        1.13
+  IWM is raw, so its ex-dividend dates add a dividend-sized spurious gap

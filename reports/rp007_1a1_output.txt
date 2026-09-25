@@ -1,0 +1,194 @@
+RP-007 STAGE 1A1 -- QQQ price-level screen. DESCRIPTIVE. NO P&L.
+  sessions 1421 | used 1419 | months 68 | alpha 0.001667
+
+=== 0. THE HEADLINE, POOLED OVER ALL FIFTEEN FAMILIES ===
+  genuine levels   n= 12893  reclaim-10 76.98%
+  shifted controls n= 43903  reclaim-10 77.23%
+  difference -0.25 pts   p=0.556   MDE at this n = +/-1.40 pts
+  A precisely measured zero, not an underpowered null.
+
+=== 1. COUNTS, BEFORE ANY OUTCOME ===
+  sessions available                         1421
+  excluded: no usable prior session          1
+  excluded: fewer than 300 bars              1
+  sessions used                              1419
+  sessions with no extended-hours data       24   (families XH/XL/XM only)
+  clusters: isolated 21071 | two-level 1113 | three-or-more 119
+  CROSSED events (gapped through, not tested) 23
+  shifted controls generated 54932 | excluded for overlapping a genuine level 6903 (12.6%)
+  matched random control: 8921 of 13733 first interactions (65.0%)
+  first interactions 13733 | repeated 88143 | total 101876
+
+  family    lvl obs   first  iso 1st  repeat   supp resist  1st/mo  iso/mo
+  PDH          1419     656      584    3892    234    422     9.6     8.6
+  PDL          1419     551      506    3391    414    137     8.1     7.4
+  PDC          1419     838      595    5734    460    378    12.3     8.8
+  PDVWAP       1419     773      677    4451    436    337    11.4    10.0
+  VAH          1419     771      653    4753    320    451    11.3     9.6
+  VAL          1419     673      576    4314    456    217     9.9     8.5
+  POC          1419     798      513    5403    443    355    11.7     7.5
+  XH           1395     657      591    3844     63    594     9.7     8.7
+  XL           1395     471      423    2875    441     30     6.9     6.2
+  XM           1395     672      581    4351    360    312     9.9     8.5
+  IBH          1419     874      784    4968     71    803    12.9    11.5
+  IBL          1419     784      712    4539    733     51    11.5    10.5
+  IBM          1419     988      866    5890    521    467    14.5    12.7
+  VWAP         1419    1403     1403   14366    689    714    20.6    20.6
+  ROUND        3862    3741     3429   21397   1992   1749    55.0    50.4
+
+  PRIMARY PER-FAMILY SAMPLE = ISOLATED FIRST INTERACTIONS. A cluster's
+  outcome cannot be attributed to one member, and the selection rule
+  requires a family to pass ALONE before any cluster may qualify.
+
+=== 2. LEVEL-FAMILY RESULTS -- isolated first interactions ===
+  reclaim = penetrated the zone and closed back through it within 10 min
+
+  family       n   rec10   pen% sh-6.6667 sh-3.3333 sh+3.3333 sh+6.6667     rand   cov  p(best)
+  PDH        584    74.7   98.3     -1.5      +0.4      -1.0      +0.6     -1.6    76%   0.8731
+  PDL        506    74.5   98.8     +0.3      +1.6      +1.9      +1.3     -0.3    82%   0.9184
+  PDC        595    77.6   98.2     +0.0      -2.7      +2.1      +4.1     -1.1    73%   0.9969
+  PDVWAP     677    79.9   99.0     -0.3      +1.1      -0.6      +2.0     -1.4    78%   0.8813
+  VAH        653    77.9   97.7     +0.9      -1.4      +0.1      +2.3     -0.7    77%   0.9760
+  VAL        576    76.9   98.3     -2.0      +0.9      -2.6      -1.0     -2.1    80%   0.7479
+  POC        513    78.2   98.6     +0.0      -2.6      -1.2      +2.6     -0.5    75%   0.9964
+  XH         591    74.6   99.2     +0.3      -0.8      +1.2      -3.2     -0.5    77%   0.9004
+  XL         423    78.0   98.8     -0.2      -1.7      -0.5      -1.3     -0.9    82%   0.9400
+  XM         581    74.9   98.8     -3.3      -4.4      -1.6      -0.1     -4.5    70%   0.9614
+  IBH        784    72.8   99.0     -1.2      +1.7      +3.4      +2.3     -0.3    73%   0.6135
+  IBL        712    76.5   98.3     -3.3      -0.3      +1.3      +1.3     -0.9    75%   0.8919
+  IBM        866    76.3   96.5     -0.0      +1.6      -2.1      +1.4         -    0%   0.9978
+  VWAP      1403    82.0   98.6     -4.5      -0.5      -0.7      -3.2    +18.8     3%   0.7181
+  ROUND     3429    76.5   98.1     -0.5      -0.3      -0.8      +1.3     -1.9    83%   0.7690
+
+  'rand' is the true rate minus the mean of 200 matched-random repetitions.
+  'p(best)' is the LEAST significant of the four shifted comparisons: a family
+  must beat all four, so the weakest one governs.
+
+=== 3. SUPPORT AND RESISTANCE, NEVER POOLED ===
+  family    n supp   rec10   vs sh  |   n res   rec10   vs sh   both+
+  PDH          207    78.3    +0.4  |     377    72.7    -0.8      no
+  PDL          379    72.6    +0.7  |     127    80.3    +2.6     YES
+  PDC          324    79.9    +1.0  |     271    74.9    +0.8     YES
+  PDVWAP       385    81.0    +1.0  |     292    78.4    -0.1      no
+  VAH          273    85.3    +4.6  |     380    72.6    -2.5      no
+  VAL          400    77.2    -0.5  |     176    76.1    -2.9      no
+  POC          304    79.6    -0.4  |     209    76.1    -0.1      no
+  XH            52    80.8    -1.2  |     539    74.0    -0.5      no
+  XL           399    77.7    -1.2  |      24    83.3    +4.3      no
+  XM           315    74.6    -3.8  |     266    75.2    -0.6      no
+  IBH           63    82.5    +3.6  |     721    72.0    +1.6     YES
+  IBL          669    76.2    -0.2  |      43    81.4    +0.9      no
+  IBM          451    78.9    +1.7  |     415    73.5    -1.4      no
+  VWAP         689    85.1    +0.7  |     714    79.0    -5.1      no
+  ROUND       1836    77.8    -0.5  |    1593    75.0    +0.4      no
+
+=== 4. ROTATION AFTER RECLAIM, MFE AND MAE (ATR units) ===
+  economic reference: 3x MNQ round turn = 0.2871 ATR
+  family    n rec    rot5   rot10   rot15   rot30 ctl rot30    MFE    MAE   vs 3x
+  PDH         436  +0.970  +0.991  +1.076  +1.084    +1.014  4.228  4.771  +0.797
+  PDL         377  +1.004  +0.798  +0.685  +0.910    +0.732  4.682  5.522  +0.623
+  PDC         462  +0.566  +0.580  +0.514  +0.426    +0.378  4.432  4.962  +0.139
+  PDVWAP      541  +1.031  +1.008  +1.095  +0.769    +0.558  4.605  5.134  +0.482
+  VAH         509  +0.671  +0.692  +0.571  +0.509    +0.533  4.104  4.839  +0.222
+  VAL         443  +0.947  +0.886  +0.965  +1.050    +1.012  4.716  5.181  +0.762
+  POC         401  +0.749  +0.764  +0.929  +0.297    +0.318  4.385  5.355  +0.010
+  XH          441  +0.917  +0.848  +0.895  +0.631    +0.553  4.142  3.984  +0.344
+  XL          330  +0.682  +0.791  +0.885  +0.878    +0.594  4.594  5.480  +0.591
+  XM          435  +0.750  +0.736  +0.723  +0.810    +0.695  4.532  5.067  +0.523
+  IBH         571  +0.624  +0.642  +0.645  +0.693    +0.412  3.155  3.062  +0.406
+  IBL         545  +0.892  +0.942  +0.912  +0.850    +0.747  3.794  4.361  +0.563
+  IBM         661  +0.802  +0.868  +0.887  +0.839    +0.770  3.484  3.815  +0.552
+  VWAP       1150  +0.557  +0.409  +0.433  +0.515    +0.621  4.877  4.852  +0.228
+  ROUND      2623  +1.386  +1.376  +1.349  +1.389    +1.283  4.413  5.145  +1.102
+
+=== 5. FIRST VERSUS REPEATED INTERACTIONS ===
+  The same comparison is run on the SHIFTED control, because a condition that
+  every family passes is a structural artefact until something arbitrary fails it.
+  family     n 1st   rec10   n rpt   rec10  1st-rpt  CONTROL  correct
+  PDH          584    74.7    3401    74.7     +0.0     +0.8      YES
+  PDL          506    74.5    3086    74.2     +0.3     -1.1      YES
+  PDC          595    77.6    3981    73.8     +3.8     +1.8      YES
+  PDVWAP       677    79.9    3945    75.0     +5.0     +4.8      YES
+  VAH          653    77.9    3967    74.1     +3.9     +3.2      YES
+  VAL          576    76.9    3690    74.3     +2.7     +2.8      YES
+  POC          513    78.2    3365    74.4     +3.8     +3.9      YES
+  XH           591    74.6    3506    73.3     +1.3     +1.8      YES
+  XL           423    78.0    2565    75.2     +2.8     +2.9      YES
+  XM           581    74.9    3689    74.6     +0.2     +2.3      YES
+  IBH          784    72.8    4386    72.2     +0.6     -0.5      YES
+  IBL          712    76.5    4075    74.4     +2.2     +3.1      YES
+  IBM          866    76.3    5115    74.2     +2.1     +2.7      YES
+  VWAP        1403    82.0   14366    75.1     +6.9     +8.6      YES
+  ROUND       3429    76.5   19586    74.2     +2.3     +1.8      YES
+
+=== 6. BY CALENDAR YEAR -- advantage over the pooled shifted control ===
+  family       2021     2022     2023     2024     2025     2026   yrs +
+  PDH          +2.6     +3.2     -5.5     -0.9     +2.2     -3.4       3
+  PDL          +1.2     +0.3     +2.5     +8.4     -3.8     -2.1       4
+  PDC          +3.3     +0.4     -3.2     -3.7     +5.2     +5.5       4
+  PDVWAP       +3.8     -0.5     -0.8     +6.3     -3.2     -5.2       2
+  VAH          +3.8     -3.1     +5.6     -1.3     +0.3     -5.7       3
+  VAL          +3.6     +0.2     -1.2     -7.7     -0.5     -2.3       2
+  POC          +1.6     +0.8     +2.2     -5.0     +2.8     -5.4       4
+  XH           -3.9     -1.8     -3.4     +2.8     +5.8     +1.5       3
+  XL           -1.3     -0.8     -1.6     +5.0     -3.3        -       1
+  XM           -2.2     -3.5     -3.6     +3.0     -3.5     +0.4       2
+  IBH          -7.2     -0.1     +5.0     +6.9     +3.3     +0.8       4
+  IBL          -2.5     +1.4     -4.1     +0.9     +1.7     +2.6       4
+  IBM          -3.3     -1.7     +0.4     +3.1     +0.6     +3.3       4
+  VWAP         -4.2     +1.5     -6.0     -4.8     +1.5     -1.0       2
+  ROUND        -0.6     +0.2     -0.5     -0.7     -0.1     +0.9       2
+
+=== 7. MATCHED GEOMETRIC STRATA (binding) ===
+  Direct standardisation of the shifted control onto the genuine mix of
+  (range-location x time-of-day x volatility) terciles.
+  family    pooled adv   std adv  coverage  survives
+  PDH             -0.4      -0.8       99%        no
+  PDL             +1.3      -0.8      100%        no
+  PDC             +0.9      +1.1      100%       YES
+  PDVWAP          +0.5      +0.0       98%       YES
+  VAH             +0.5      +0.1       99%       YES
+  VAL             -1.2      +0.2      100%        no
+  POC             -0.3      -0.1       99%        no
+  XH              -0.6      -0.3       99%        no
+  XL              -0.9      -0.5       99%        no
+  XM              -2.4      -4.2      100%        no
+  IBH             +1.5      +1.2      100%       YES
+  IBL             -0.2      -0.4      100%        no
+  IBM             +0.2      -1.8      100%        no
+  VWAP            -2.2      -0.8      100%        no
+  ROUND           -0.1      -0.5      100%        no
+
+=== 8. SELECTION RULE -- all eight conditions ===
+  family    1 sh  2 rnd  3 geo  4 s/r  5 1>r  6 yrs  7 frq  8 new   PASS
+  PDH          .      .      .      .      Y      .      .      .   fail
+  PDL          .      .      .      Y      Y      Y      .      .   fail
+  PDC          .      .      Y      Y      Y      Y      Y      Y   fail
+  PDVWAP       .      .      Y      .      Y      .      .      Y   fail
+  VAH          .      .      Y      .      Y      .      .      .   fail
+  VAL          .      .      .      .      Y      .      .      .   fail
+  POC          .      .      .      .      Y      Y      .      .   fail
+  XH           .      .      .      .      Y      .      .      Y   fail
+  XL           .      .      .      .      Y      .      .      Y   fail
+  XM           .      .      .      .      Y      .      .      Y   fail
+  IBH          .      .      Y      Y      Y      Y      Y      Y   fail
+  IBL          .      .      .      .      Y      Y      .      Y   fail
+  IBM          .      .      .      .      Y      Y      Y      Y   fail
+  VWAP         .      Y      .      .      Y      .      Y      Y   fail
+  ROUND        .      .      .      .      Y      .      Y      Y   fail
+
+  FAMILIES PASSING ALL EIGHT CONDITIONS: NONE
+
+=== 9. CONFLUENCE -- descriptive only ===
+  isolated         n= 12893  rec10  77.0%  rot30 +0.887  MFE 4.299  MAE 4.792
+  two-level        n=   765  rec10  74.8%  rot30 +0.968  MFE 4.011  MAE 4.206
+  three-or-more    n=    75  rec10  70.7%  rot30 -0.132  MFE 4.117  MAE 4.633
+  No cluster may qualify unless a member family passes alone. No family passed alone, so nothing is claimed from confluence.
+
+=== 10. RECONCILIATION WITH THE 1,414-SESSION QQQ NULL ===
+  family    2021-26 earlier  now rec10  now vs shift  now vs rand  adds info
+  PDH                 44.8%      74.7%         +0.6        -1.6         no
+  PDL                 48.1%      74.5%         +1.9        -0.3         no
+  VAH                 47.2%      77.9%         +2.3        -0.7        YES
+  VAL                 51.5%      76.9%         +0.9        -2.1         no
+  POC                 49.0%      78.2%         +2.6        -0.5         no

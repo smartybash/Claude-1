@@ -1,0 +1,25 @@
+symbol,level,price,side,color,note
+MNQ,VAH,30285.29,resistance,red,prior VAH — fade-short zone (2nd tag)
+MNQ,POC,30232.25,pivot,yellow,prior POC — T1 for fades / magnet
+MNQ,VAL,30121.75,support,green,prior VAL — fade-long zone / T2
+MNQ,CALL_WALL,30096.00,resistance,red,dealer call wall — upper magnet / breakout trigger
+MNQ,GAMMA_FLIP,29893.00,pivot,white,"regime pivot — above=range/fade, below=trend/go-with"
+MNQ,PUT_WALL,28859.00,support,green,dealer put wall — lower magnet / breakdown trigger
+QQQ,VAH,733.04,resistance,red,prior VAH — fade-short zone (2nd tag)
+QQQ,CALL_WALL,730.00,resistance,red,dealer call wall — upper magnet / breakout trigger
+QQQ,POC,729.96,pivot,yellow,prior POC — T1 for fades / magnet
+QQQ,VAL,729.32,support,green,prior VAL — fade-long zone / T2
+QQQ,GAMMA_FLIP,725.08,pivot,white,"regime pivot — above=range/fade, below=trend/go-with"
+QQQ,PUT_WALL,700.00,support,green,dealer put wall — lower magnet / breakdown trigger
+MES,CALL_WALL,7841.42,resistance,red,dealer call wall — upper magnet / breakout trigger
+MES,VAH,7809.07,resistance,red,prior VAH — fade-short zone (2nd tag)
+MES,POC,7793.50,pivot,yellow,prior POC — T1 for fades / magnet
+MES,GAMMA_FLIP,7777.38,pivot,white,"regime pivot — above=range/fade, below=trend/go-with"
+MES,VAL,7776.20,support,green,prior VAL — fade-long zone / T2
+MES,PUT_WALL,7690.62,support,green,dealer put wall — lower magnet / breakdown trigger
+SPY,CALL_WALL,780.00,resistance,red,dealer call wall — upper magnet / breakout trigger
+SPY,VAH,775.20,resistance,red,prior VAH — fade-short zone (2nd tag)
+SPY,GAMMA_FLIP,773.63,pivot,white,"regime pivot — above=range/fade, below=trend/go-with"
+SPY,POC,773.32,pivot,yellow,prior POC — T1 for fades / magnet
+SPY,VAL,772.55,support,green,prior VAL — fade-long zone / T2
+SPY,PUT_WALL,765.00,support,green,dealer put wall — lower magnet / breakdown trigger

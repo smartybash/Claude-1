@@ -1,0 +1,94 @@
+================================================================================================================================
+  ORB + FIBONACCI CONTINUATION — INSTRUMENT EXTENSION
+================================================================================================================================
+  Frozen rule from 5612140 / c9196d1, unchanged. 1-minute bars, 2021-2025.
+  ORB15 band A and ORB30 band A only -- bands A and B share 86-90% of sessions
+  and are not independent tests.
+  SE clustered by date. 2016-2020 unread; sealed NQ days not read.
+
+  instrument    sessions         first          last
+  SPY              1,253    2021-01-04    2025-12-31
+  IWM              1,249    2021-01-04    2025-12-31
+  IJH              1,161    2021-01-04    2025-12-31
+  EFA              1,244    2021-01-04    2025-12-31
+  QQQ (disc)       1,396    2021-01-04    2026-08-31
+
+================================================================================================================================
+  COUNTS FIRST
+================================================================================================================================
+  variant       instrument    sessions   trades    rate  lookahead  ambiguous
+  ORB15  band A   SPY              1,253      105    8.4%          0       2.9%
+  ORB15  band A   IWM              1,249       89    7.1%          0       1.1%
+  ORB15  band A   IJH              1,161      113    9.7%          0       0.0%
+  ORB15  band A   EFA              1,244      142   11.4%          0       1.4%
+  ORB15  band A   QQQ              1,396      112    8.0%          0       0.0%
+  ORB30  band A   SPY              1,253       73    5.8%          0       1.4%
+  ORB30  band A   IWM              1,249       47    3.8%          0       0.0%
+  ORB30  band A   IJH              1,161       65    5.6%          0       1.5%
+  ORB30  band A   EFA              1,244       95    7.6%          0       0.0%
+  ORB30  band A   QQQ              1,396       76    5.4%          0       2.6%
+
+================================================================================================================================
+  PER-INSTRUMENT BREAKDOWN
+================================================================================================================================
+  'drop strict' = the STANDING CHANGE: remove max(10, top decile).
+  'ex-1%' is the OLD rule, shown once so the change is visible.
+
+  variant       inst        n   mean R  clus SE      t     PF   win%    RW%    gap    ex-1%  drop strict    k    +50%c
+  ORB15  band A   SPY       105  +0.0287   0.1110  +0.26   1.06   39.0   37.7   +1.4  -0.0094      -0.1988   11  +0.0115
+  ORB15  band A   IWM        89  -0.2647   0.1415  -1.87   0.59   31.5   43.8  -12.3  -0.2903      -0.5314   10  -0.2758
+  ORB15  band A   IJH       113  +0.0217   0.1119  +0.19   1.04   40.7   39.7   +1.0  -0.0138      -0.2107   12  +0.0097
+  ORB15  band A   EFA       142  -0.0587   0.1046  -0.56   0.90   37.3   39.9   -2.5  -0.0878      -0.2968   15  -0.0953
+  ORB15  band A   QQQ       112  +0.1154   0.1162  +0.99   1.23   44.6   39.6   +5.0  +0.0814      -0.1084   12  +0.1044 <- discovery
+  ORB30  band A   SPY        73  +0.1400   0.1341  +1.04   1.32   41.1   34.5   +6.6  +0.1143      -0.1486   10  +0.1231
+  ORB30  band A   IWM        47  +0.0253   0.1655  +0.15   1.05   42.6   41.3   +1.2  -0.0174      -0.4530   10  +0.0179
+  ORB30  band A   IJH        65  -0.0861   0.1999  -0.43   0.86   43.1   46.7   -3.6  -0.1184      -0.4606   10  -0.1026
+  ORB30  band A   EFA        95  +0.0081   0.1131  +0.07   1.02   44.2   43.8   +0.4  -0.0129      -0.2108   10  -0.0087
+  ORB30  band A   QQQ        76  +0.2071   0.1302  +1.59   1.53   50.0   39.6  +10.4  +0.1834      -0.0616   10  +0.1948 <- discovery
+
+================================================================================================================================
+  POOLED NON-QQQ ESTIMATE — SPY + IWM + IJH + EFA
+================================================================================================================================
+  SE clustered by date. The 95% interval is the one the decision rule refers to;
+  the Bonferroni interval at alpha = 0.025 over 2 variants is shown beside it.
+
+  variant         trades  dates   mean R      sd  clus SE      t                  95% CI             Bonferroni CI
+  ORB15  band A        449    314  -0.0589  1.2270   0.0658  -0.90   [-0.1878, +0.0700]   [-0.2062, +0.0885]
+  ORB30  band A        280    196  +0.0235  1.2500   0.0865  +0.27   [-0.1460, +0.1930]   [-0.1703, +0.2173]
+  BOTH VARIANTS      729    423  -0.0272  1.2357   0.0588  -0.46   [-0.1424, +0.0880]   [-0.1590, +0.1045]
+
+================================================================================================================================
+  THE STRENGTHENED CONCENTRATION TEST, ON THE POOLED ESTIMATE
+================================================================================================================================
+  Remove max(10, top decile), whichever is stricter. Applied to every variant.
+
+  set                       n   mean R   median  k removed  after removal  survives
+  ORB15  band A             449  -0.0589  -0.3761         45        -0.2849        NO
+  ORB30  band A             280  +0.0235  -0.3602         28        -0.1928        NO
+  BOTH VARIANTS           729  -0.0272  -0.3665         73        -0.2496        NO
+
+================================================================================================================================
+  MDE AGAINST THE OBSERVED EFFECT
+================================================================================================================================
+  MDE = (2.241 + 0.8416) x clustered SE, at alpha = 0.025, 80% power.
+
+  variant             n   clus SE       MDE   observed   QQQ disc  detectable?
+  ORB15  band A       449    0.0658   +0.2027    -0.0589    +0.1154           no
+  ORB30  band A       280    0.0865   +0.2665    +0.0235    +0.2071           no
+  BOTH VARIANTS     729    0.0588   +0.1812    -0.0272         --           no
+
+================================================================================================================================
+  THE DECLARED DECISION RULE
+================================================================================================================================
+  Stays open only if the pooled non-QQQ estimate is POSITIVE, its
+  interval EXCLUDES ZERO, and it SURVIVES the strengthened
+  concentration test. Otherwise the family closes.
+
+  variant           positive   CI excl 0  survives conc     verdict
+  ORB15  band A             no          NO             NO       CLOSE
+  ORB30  band A            yes          NO             NO       CLOSE
+  BOTH VARIANTS           no          NO             NO       CLOSE
+
+  RESULT: the family CLOSES.
+
+  Sealed NQ days were not read. 2016-2020 remains sealed and unspent.

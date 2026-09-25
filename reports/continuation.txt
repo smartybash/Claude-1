@@ -1,0 +1,46 @@
+QQQ 5-min RTH — 523 sessions, 2024-07-01 to 2026-07-31
+break of a fixed level, taken WITH the break · entry at the bar's close · no lookahead
+
+=== target sweep (stop 0.15% inside the level = 44 NQ pts) ===
+  target level                             n= 357  win  56%  mean -0.099R  PF 0.76  t=-2.15     fill 100%  3.6/wk
+  target 1R                                n= 412  win  47%  mean -0.050R  PF 0.90  t=-1.08     fill 100%  4.1/wk
+  target 2R                                n= 412  win  37%  mean -0.133R  PF 0.76  t=-2.43     fill 100%  4.1/wk
+  target 3R                                n= 412  win  36%  mean -0.120R  PF 0.79  t=-2.02     fill 100%  4.1/wk
+  target close                             n= 412  win  35%  mean -0.092R  PF 0.84  t=-1.31     fill 100%  4.1/wk
+
+=== stop sweep (target 2R) ===
+  stop 0.10% (29 NQ pts)                   n= 435  win  37%  mean -0.055R  PF 0.91  t=-0.92     fill 100%  4.3/wk
+  stop 0.15% (44 NQ pts)                   n= 412  win  37%  mean -0.133R  PF 0.76  t=-2.43     fill 100%  4.1/wk
+  stop 0.20% (59 NQ pts)                   n= 384  win  38%  mean -0.137R  PF 0.74  t=-2.57     fill 100%  3.8/wk
+  stop 0.30% (88 NQ pts)                   n=  14  win  57%  mean +0.029R  PF 1.08  t=+0.11     fill 100%  0.1/wk
+  stop 0.50% (147 NQ pts)                  n=0
+
+=== entry: break close vs retest limit (stop 0.15%, target 2R) ===
+  enter at break close                     n= 412  win  37%  mean -0.133R  PF 0.76  t=-2.43     fill 100%  4.1/wk
+  retest limit, patience 3                 n=  68  win  26%  mean -0.234R  PF 0.68  t=-1.48     fill  14%  0.7/wk
+  retest limit, patience 6                 n= 106  win  27%  mean -0.210R  PF 0.71  t=-1.65     fill  21%  1.1/wk
+  retest limit, patience 12                n= 147  win  30%  mean -0.135R  PF 0.81  t=-1.22     fill  30%  1.5/wk
+
+=== best-guess config + flow filter ===
+  no filter                                n= 412  win  37%  mean -0.133R  PF 0.76  t=-2.43     fill 100%  4.1/wk
+  break-bar delta agrees >=10%             n= 380  win  38%  mean -0.069R  PF 0.87  t=-1.17     fill 100%  3.8/wk
+  break-bar delta agrees >=20%             n= 374  win  39%  mean -0.063R  PF 0.88  t=-1.06     fill 100%  3.7/wk
+
+=== detail: stop 0.15%, target 2R, no filter ===
+  median -1.00R  max DD 64.9R  worst streak 9  best +2.0R
+  first half  to 2025-07-17                n= 195  win  35%  mean -0.185R  PF 0.69  t=-2.35     fill 100%  3.9/wk
+  second half from 2025-07-17              n= 217  win  38%  mean -0.087R  PF 0.84  t=-1.13     fill 100%  4.3/wk
+
+  by level:
+    cVAH                                   n=  30  win  40%  mean -0.225R  PF 0.57  t=-1.36     fill 100%  0.3/wk
+    cVAL                                   n=  15  win  20%  mean -0.571R  PF 0.29  t=-2.36     fill 100%  0.1/wk
+    nPOCdn                                 n=  54  win  31%  mean -0.230R  PF 0.62  t=-1.52     fill 100%  0.5/wk
+    nPOCup                                 n=  66  win  36%  mean -0.161R  PF 0.70  t=-1.25     fill 100%  0.7/wk
+    pdHigh                                 n=  32  win  34%  mean -0.259R  PF 0.56  t=-1.50     fill 100%  0.3/wk
+    pdLow                                  n=  24  win  29%  mean -0.207R  PF 0.69  t=-0.81     fill 100%  0.2/wk
+    pdVAH                                  n= 113  win  42%  mean -0.053R  PF 0.90  t=-0.52     fill 100%  1.1/wk
+    pdVAL                                  n=  78  win  40%  mean +0.036R  PF 1.06  t=+0.24     fill 100%  0.8/wk
+
+  by side:
+    break down                             n= 171  win  34%  mean -0.136R  PF 0.78  t=-1.46     fill 100%  1.7/wk
+    break up                               n= 241  win  39%  mean -0.131R  PF 0.75  t=-1.96     fill 100%  2.4/wk

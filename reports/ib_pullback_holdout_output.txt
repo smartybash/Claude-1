@@ -1,0 +1,40 @@
+==============================================================================================================
+  HOLDOUT — 2016-2020 QQQ, FROZEN NATIVE SPECIFICATION, ONE RUN
+==============================================================================================================
+  sessions                 1248
+  qualifying at 10:30      632  (50.6%)
+  reached midpoint zone    284
+  trades                   132
+  trades per month         2.20
+
+  win rate                 43.2%
+  average winner           +1.373 R
+  average loser            -1.043 R
+  EXPECTANCY               +0.0002 R
+  profit factor            1.000
+  max drawdown             16.5 R
+  max losing streak        7
+  median risk              17.61 bps   (2.77 x ATR1m)
+  median cost as % of risk 5.23%
+  exit mix                 {'stop': 73, 'target': 53, 'close': 6}
+  ambiguous bars           0.0%
+
+  LONG    n   74   +0.0049 R   PF 1.01
+  SHORT   n   58   -0.0060 R   PF 0.99
+
+  BY YEAR
+    year      n      expR      PF    win%
+    2016     15   -0.3787    0.50    26.7
+    2017     16   +0.5576    2.67    68.8
+    2018     34   -0.3267    0.56    29.4
+    2019     27   +0.2519    1.55    55.6
+    2020     40   +0.0272    1.05    42.5
+
+  after removing best 5    -0.0581 R
+  after removing best 10   -0.1207 R
+  with 50% higher costs    -0.0277 R
+  top 5 share of gross profit   9.5%
+  top 10 share of gross profit  18.8%
+
+  APPENDIX: SE 0.1057  t +0.00  p(single) 0.9988
+  top-decile diagnostic (drop 14): -0.1743

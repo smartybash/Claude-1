@@ -1,0 +1,33 @@
+strategy,block,LO,MID,HI,all
+ORB OR15 R3,open 09:30-10:00,532,443,518,1534
+ORB OR15 R3,morning 10:00-11:30,392,265,300,994
+ORB OR15 R3,midday 11:30-14:00,37,32,21,91
+ORB OR15 R4,open 09:30-10:00,531,442,517,1531
+ORB OR15 R4,morning 10:00-11:30,385,257,294,973
+ORB OR15 R4,midday 11:30-14:00,38,36,21,96
+ORB OR30 R3,morning 10:00-11:30,852,672,763,2362
+ORB OR30 R3,midday 11:30-14:00,91,56,64,215
+ORB OR30 R4,morning 10:00-11:30,838,668,753,2333
+ORB OR30 R4,midday 11:30-14:00,95,55,69,223
+pullback OR15 R3,open 09:30-10:00,92,75,72,249
+pullback OR15 R3,morning 10:00-11:30,492,364,438,1335
+pullback OR15 R3,midday 11:30-14:00,162,161,146,481
+pullback OR30 R3,morning 10:00-11:30,312,227,287,848
+pullback OR30 R3,midday 11:30-14:00,205,183,172,575
+IB 1R single,morning 10:00-11:30,222,178,204,631
+IB 1R single,midday 11:30-14:00,14,10,17,43
+IB 1R single,close 14:00-16:00,3,6,2,11
+IB 1R re-entry,morning 10:00-11:30,223,179,204,633
+IB 1R re-entry,midday 11:30-14:00,23,17,20,62
+IB 1R re-entry,close 14:00-16:00,13,17,11,41
+ORB-Fib cont ORB15 A,open 09:30-10:00,1,2,2,5
+ORB-Fib cont ORB15 A,morning 10:00-11:30,36,27,29,99
+ORB-Fib cont ORB15 A,midday 11:30-14:00,3,1,1,6
+ORB-Fib cont ORB15 A,close 14:00-16:00,2,0,0,2
+ORB-Fib cont ORB30 A,morning 10:00-11:30,30,17,14,65
+ORB-Fib cont ORB30 A,midday 11:30-14:00,6,1,1,8
+ORB-Fib cont ORB30 A,close 14:00-16:00,2,0,1,3
+Compression D=10:00 flat,morning 10:00-11:30,72,65,56,200
+Compression D=10:30 flat,morning 10:00-11:30,79,64,56,208
+IB-mid pullback R2 (QQQ native),morning 10:00-11:30,58,41,49,157
+IB-mid pullback R2 (QQQ native),midday 11:30-14:00,26,21,25,76

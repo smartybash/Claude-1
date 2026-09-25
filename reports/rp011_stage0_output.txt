@@ -1,0 +1,72 @@
+RP-011 STAGE 0 -- TIME-STRATIFIED ORDER-FLOW STATE STUDY
+  COUNTS ONLY. No forward outcome is read anywhere in this script.
+  Estimates come from RP-010's own sessions, which are CONTAMINATED
+  for RP-011 evidence and usable only for frequency arithmetic.
+
+  estimate base: 25 de-sealed labelled sessions, 19000 windows, 710 candidates
+
+=== CANDIDATES by state x block, RP-010 thresholds unchanged ===
+  state                ABSORPTION  INITIATIVE
+  block                                      
+  opening 09:35-10:00           3           0
+  morning 10:00-11:30          59          21
+  midday 11:30-14:00          187         154
+  closing 14:00-15:55         177         109
+
+=== RETAINED under the frozen RP-011 rule (2 per state per block) ===
+  241 of 710 candidates retained, 66.1% discarded
+  state                ABSORPTION  INITIATIVE
+  block                                      
+  opening 09:35-10:00           3           0
+  morning 10:00-11:30          33          18
+  midday 11:30-14:00           49          46
+  closing 14:00-15:55          48          44
+
+  RP-010's chronological six-event cap, for comparison:
+    6.00 events/session, cap bound on 100% of sessions, CLOSING BLOCK EMPTY
+    RP-011 rule: 9.64 events/session, 60.2% of the theoretical 16
+
+=== INDEPENDENT SESSIONS per cell (gate: >=5; target: 30) ===
+  state                ABSORPTION  INITIATIVE
+  block                                      
+  opening 09:35-10:00           3           0
+  morning 10:00-11:30          21          15
+  midday 11:30-14:00           25          24
+  closing 14:00-15:55          25          23
+
+=== BUY / SELL BALANCE of retained events ===
+  side        buy  sell
+  state                
+  ABSORPTION   66    67
+  INITIATIVE   48    60
+
+=== WHY THE OPENING BLOCK IS NEARLY EMPTY -- distributions, not outcomes ===
+  The aggression gate is a percentile POOLED over the whole session.
+  Opening windows carry the most volume and the LEAST one-sidedness,
+  so they almost never clear a pooled p90 imbalance.
+
+  block                   windows   /sess   med imb   own p90   med vol   clears pooled p90
+  opening 09:35-10:00        1250      50    0.0755    0.1678      1038                3.5%
+  morning 10:00-11:30        4500     180    0.0861    0.2091       626                7.2%
+  midday 11:30-14:00         7500     300    0.1091    0.2605       299               15.1%
+  closing 14:00-15:55        5750     230    0.1126    0.2670       270               16.5%
+
+  This is RP-008's pooled-tercile defect in a new place: a threshold
+  pooled across the session partly encodes TIME OF DAY, which is the
+  very axis RP-011 sets out to stratify on.
+
+=== CALENDAR TIME ===
+  assumed 21 sessions/month
+  cell                                    rate   sessions for 30   months
+  opening 09:35-10:00 / ABSORPTION       0.120               250     11.9
+  opening 09:35-10:00 / INITIATIVE       0.000    never observed       --
+  morning 10:00-11:30 / ABSORPTION       0.840                36      1.7
+  morning 10:00-11:30 / INITIATIVE       0.600                50      2.4
+  midday 11:30-14:00 / ABSORPTION        1.000                30      1.4
+  midday 11:30-14:00 / INITIATIVE        0.960                31      1.5
+  closing 14:00-15:55 / ABSORPTION       1.000                30      1.4
+  closing 14:00-15:55 / INITIATIVE       0.920                33      1.6
+
+  30 independent sessions in every NON-OPENING cell: 50 sessions = 2.4 months
+  150 final trades at 9.64 events/session and one-third retention (3.21/session): 47 sessions = 2.2 months
+  monthly event frequency: 202 retained, 67 post-confirmation

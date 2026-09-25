@@ -1,0 +1,64 @@
+QQQ 15-minute bars built from the 5-minute set — 523 sessions, 2024-07-01 to 2026-07-31
+assumed round-trip cost 0.7bp (~2.1 NQ points)
+
+==================================================================================================
+1  GROSS, AND NET OF COST
+==================================================================================================
+  --- exit 1 bar(s) later --- control n=13075   +0.06bp  win  51%  t=+0.35    +0.2NQpt
+    k=3 gross  n= 1281   +0.80bp  win  54%  t=+1.37    +2.3NQpt
+    k=3 net    n= 1281   +0.10bp  win  51%  t=+0.17    +0.3NQpt   2.45 trades/day
+    k=4 gross  n=  560   +1.46bp  win  54%  t=+1.54    +4.3NQpt
+    k=4 net    n=  560   +0.76bp  win  51%  t=+0.80    +2.2NQpt   1.07 trades/day
+    k=5 gross  n=  249   +2.83bp  win  57%  t=+1.87    +8.3NQpt
+    k=5 net    n=  249   +2.13bp  win  55%  t=+1.40    +6.3NQpt   0.48 trades/day
+    k=6 gross  n=  106   +1.66bp  win  51%  t=+0.71    +4.9NQpt
+    k=6 net    n=  106   +0.96bp  win  50%  t=+0.41    +2.8NQpt   0.20 trades/day
+
+  --- exit 2 bar(s) later --- control n=12552   +0.04bp  win  51%  t=+0.15    +0.1NQpt
+    k=3 gross  n= 1221   +0.67bp  win  54%  t=+0.83    +2.0NQpt
+    k=3 net    n= 1221   -0.03bp  win  52%  t=-0.03    -0.1NQpt   2.33 trades/day
+    k=4 gross  n=  534   +1.26bp  win  54%  t=+0.97    +3.7NQpt
+    k=4 net    n=  534   +0.56bp  win  52%  t=+0.43    +1.6NQpt   1.02 trades/day
+    k=5 gross  n=  239   +0.64bp  win  55%  t=+0.28    +1.9NQpt
+    k=5 net    n=  239   -0.06bp  win  53%  t=-0.03    -0.2NQpt   0.46 trades/day
+    k=6 gross  n=  100   +0.41bp  win  55%  t=+0.13    +1.2NQpt
+    k=6 net    n=  100   -0.29bp  win  53%  t=-0.09    -0.9NQpt   0.19 trades/day
+
+  --- exit 3 bar(s) later --- control n=12029   +0.00bp  win  52%  t=+0.00    +0.0NQpt
+    k=3 gross  n= 1161   +0.82bp  win  54%  t=+0.82    +2.4NQpt
+    k=3 net    n= 1161   +0.12bp  win  53%  t=+0.12    +0.3NQpt   2.22 trades/day
+    k=4 gross  n=  510   +0.87bp  win  52%  t=+0.53    +2.6NQpt
+    k=4 net    n=  510   +0.17bp  win  51%  t=+0.10    +0.5NQpt   0.98 trades/day
+    k=5 gross  n=  223   +0.36bp  win  55%  t=+0.15    +1.1NQpt
+    k=5 net    n=  223   -0.34bp  win  54%  t=-0.14    -1.0NQpt   0.43 trades/day
+    k=6 gross  n=   95   -0.50bp  win  49%  t=-0.17    -1.5NQpt
+    k=6 net    n=   95   -1.20bp  win  48%  t=-0.42    -3.5NQpt   0.18 trades/day
+
+==================================================================================================
+2  OUT OF SAMPLE  (k=4, exit 1 bar later)
+==================================================================================================
+  first half  to 2025-07-17   gross n=  255   +0.05bp  win  54%  t=+0.03    +0.1NQpt
+  second half from 2025-07-17  gross n=  305   +2.64bp  win  54%  t=+2.64    +7.8NQpt
+  first half   net  n=  255   -0.65bp  win  51%  t=-0.38    -1.9NQpt
+  second half  net  n=  305   +1.94bp  win  51%  t=+1.94    +5.7NQpt
+
+==================================================================================================
+3  BY TIME OF DAY  (k=4, exit 1 bar later, net of cost)
+==================================================================================================
+  09:30-10:59    n=   64   +0.64bp  win  48%  t=+0.21    +1.9NQpt
+  11:00-11:59    n=  108   -0.18bp  win  47%  t=-0.09    -0.5NQpt
+  12:00-13:59    n=  204   +1.14bp  win  51%  t=+0.74    +3.4NQpt
+  14:00-14:59    n=  106   -0.46bp  win  57%  t=-0.23    -1.3NQpt
+  15:00-15:59    n=   78   +2.81bp  win  54%  t=+0.96    +8.3NQpt
+
+==================================================================================================
+4  DOSE-RESPONSE, BOTH SIDES  (exit 1 bar, net of cost)
+==================================================================================================
+  k=3  buy after down  n= 1281   +0.10bp  win  51%  t=+0.17    +0.3NQpt
+        sell after up   n= 1501   -1.04bp  win  47%  t=-2.05    -3.1NQpt
+  k=4  buy after down  n=  560   +0.76bp  win  51%  t=+0.80    +2.2NQpt
+        sell after up   n=  725   -0.61bp  win  47%  t=-0.98    -1.8NQpt
+  k=5  buy after down  n=  249   +2.13bp  win  55%  t=+1.40    +6.3NQpt
+        sell after up   n=  350   -1.16bp  win  47%  t=-1.29    -3.4NQpt
+  k=6  buy after down  n=  106   +0.96bp  win  50%  t=+0.41    +2.8NQpt
+        sell after up   n=  167   +0.25bp  win  50%  t=+0.25    +0.7NQpt

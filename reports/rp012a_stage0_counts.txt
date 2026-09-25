@@ -1,0 +1,121 @@
+RP-012A STAGE 0 -- EVENT COUNTS, DISCOVERY BLOCK ONLY
+  2021-01-04 .. 2023-12-29. No forward return is computed.
+  Internal validation is NOT counted.
+
+=== 1. SESSIONS AND WINDOWS ===
+  instr  sessions  half days  warm-up  labelled  windows   valid  feat ok
+  QQQ         749          4       35       714    56175   56164    55039
+  SPY         749          4       35       714    56175   56162    55037
+  IWM         749          4       35       714    56175   56162    55037
+  EFA         749          4       35       714    56175   56159    55034
+  warm-up = 15 sessions before a same-bucket median exists (it needs 15
+  of its 20 observations) + 20 sessions of features for the percentile
+  thresholds = 35 sessions, all inside discovery. Half days are excluded
+  from events AND from every lookback.
+
+=== 2. FROZEN THRESHOLDS, BLOCK-SPECIFIC (median over sessions) ===
+  instr block       RV p90   RV p25   RV p75   RD p80   RD p50
+  QQQ   opening      1.551    0.801    1.247    1.969    0.992
+  QQQ   morning      1.758    0.765    1.322    2.044    0.973
+  QQQ   midday       1.916    0.727    1.398    2.077    0.972
+  QQQ   closing      1.992    0.723    1.397    2.064    0.980
+  SPY   opening      1.570    0.777    1.283    2.057    0.978
+  SPY   morning      1.783    0.763    1.333    2.136    0.964
+  SPY   midday       1.895    0.747    1.387    2.074    0.968
+  SPY   closing      1.900    0.743    1.370    2.105    0.980
+  IWM   opening      1.661    0.764    1.321    1.942    1.009
+  IWM   morning      1.945    0.709    1.392    2.033    0.995
+  IWM   midday       2.108    0.682    1.456    2.022    0.973
+  IWM   closing      2.084    0.699    1.452    2.080    0.983
+  EFA   opening      2.137    0.644    1.483    2.104    0.991
+  EFA   morning      2.442    0.635    1.586    2.047    0.982
+  EFA   midday       2.658    0.606    1.637    2.066    0.984
+  EFA   closing      2.589    0.621    1.591    2.061    0.994
+  RV = window volume / trailing-20-session median of the same clock bucket
+  RD = |window displacement| / trailing-20-session median |displacement|,
+       same bucket
+
+=== 3. CANDIDATES AND EVENTS ===
+  instr   A cand  B cand  ABN mid   C pool  flat  cooldown   A ev   B ev  ev/sess
+  QQQ       3413    1640     1568    24438    32      2346   1830    845     3.75
+  SPY       3545    1488     1553    24410    25      2406   1830    772     3.64
+  IWM       2931    1806     1669    24943    62      2056   1568   1051     3.67
+  EFA       2372    2108     1681    25185   236      1521   1430   1293     3.81
+  ABN mid = abnormal volume, displacement between p50 and p80: no state.
+  No session cap. The only filter is the 15-minute cooldown.
+
+=== 4. INDEPENDENT SESSIONS, BUY/SELL BALANCE ===
+  instr state   events  sessions    buy   sell   buy %
+  QQQ   A         1830       491    846    984   46.2%
+  QQQ   B          845       405    423    422   50.1%
+  SPY   A         1830       494    864    966   47.2%
+  SPY   B          772       380    388    384   50.3%
+  IWM   A         1568       483    744    824   47.4%
+  IWM   B         1051       448    522    529   49.7%
+  EFA   A         1430       471    690    740   48.3%
+  EFA   B         1293       541    638    655   49.3%
+
+=== 5. EVENTS BY TIME BLOCK ===
+  block      opening  morning  midday  closing
+  sym state                                   
+  EFA A           94      333     581      422
+      B          111      316     511      355
+  IWM A          125      348     629      466
+      B           88      280     427      256
+  QQQ A          114      443     775      498
+      B           94      209     318      224
+  SPY A          137      435     746      512
+      B           76      169     311      216
+
+  abnormal-volume RATE by block (share of valid windows with RV >= p90):
+    QQQ   overall  12.4%   relative: opening 1.08x  morning 0.99x  midday 1.00x  closing 0.99x
+    SPY   overall  12.3%   relative: opening 1.05x  morning 1.00x  midday 0.99x  closing 1.00x
+    IWM   overall  12.0%   relative: opening 1.04x  morning 0.97x  midday 1.01x  closing 1.01x
+    EFA   overall  11.5%   relative: opening 1.03x  morning 1.00x  midday 0.99x  closing 1.01x
+
+=== 6. EVENTS BY YEAR ===
+  year       2021  2022  2023
+  sym state                  
+  EFA A       453   525   452
+      B       312   433   548
+  IWM A       478   562   528
+      B       232   393   426
+  QQQ A       571   693   566
+      B       206   257   382
+  SPY A       570   680   580
+      B       173   265   334
+
+=== 7. CO-EVENTS ACROSS PRIMARY INSTRUMENTS ===
+  primary events 7896; distinct (day, window) slots 6239; slots shared by 2 instruments 1125, by all 3 266
+  share of primary events that are co-events: 38.6%
+  Pooled inference therefore clusters by DATE, never by event.
+
+=== 8. COOLDOWN AS A SAMPLING FILTER (dataquality.cap_diagnostics) ===
+  QQQ   candidates 5021  retained 2675  discarded 46.7%  blocks emptied none
+        before {'closing': 1488, 'midday': 1996, 'morning': 1194, 'opening': 343}
+        after  {'closing': 722, 'midday': 1093, 'morning': 652, 'opening': 208}
+  SPY   candidates 5008  retained 2602  discarded 48.0%  blocks emptied none
+        before {'closing': 1502, 'midday': 1983, 'morning': 1179, 'opening': 344}
+        after  {'closing': 728, 'midday': 1057, 'morning': 604, 'opening': 213}
+  IWM   candidates 4675  retained 2619  discarded 44.0%  blocks emptied none
+        before {'closing': 1391, 'midday': 1886, 'morning': 1075, 'opening': 323}
+        after  {'closing': 722, 'midday': 1056, 'morning': 628, 'opening': 213}
+  EFA   candidates 4244  retained 2723  discarded 35.8%  blocks emptied none
+        before {'closing': 1292, 'midday': 1685, 'morning': 984, 'opening': 283}
+        after  {'closing': 777, 'midday': 1092, 'morning': 649, 'opening': 205}
+
+=== 9. FREQUENCY AND CALENDAR ===
+  QQQ   3.75 events/session (2.56 A, 1.18 B)  79/month  after one confirmation filter 26/month  -> 150 trades in 120 sessions = 5.7 months
+  SPY   3.64 events/session (2.56 A, 1.08 B)  77/month  after one confirmation filter 26/month  -> 150 trades in 123 sessions = 5.9 months
+  IWM   3.67 events/session (2.20 A, 1.47 B)  77/month  after one confirmation filter 26/month  -> 150 trades in 123 sessions = 5.8 months
+  NQ proxy (QQQ, state A only, one-third retention): 17.9 trades/month; 150 in 8.4 months
+
+=== 10. PRE-OUTCOME COUNT CONDITIONS ===
+  [PASS] 1 A and B each in >= 30 sessions per primary instrument min 380
+  [PASS] 2 block event share within 0.5x-2.0x of window share    range 0.92x-1.23x
+  [PASS] 3 every block produces both A and B                     empty: []
+  [PASS] 4 buy share within 40-60% in every cell                 range 46.2%-50.3%
+  [PASS] 5 abnormal rate per block within 0.5x-2.0x              range 0.97x-1.08x
+  [PASS] 6 every year contributes to every cell                  missing: []
+
+  VERDICT ON THE CONSTRUCTION: ALL CONDITIONS PASS

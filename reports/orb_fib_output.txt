@@ -1,0 +1,182 @@
+==============================================================================================================================
+  ORB + FIBONACCI — CONTINUATION AND REVERSAL
+==============================================================================================================================
+  Pre-registered at 5612140. X = 1.00 x ORB height, Y = 30 bars, Z = 5 bars, swing fractal k = 2.
+  Bands A (0.382, 0.618) and B (0.5, 0.786). 1-minute bars. Nothing swept. 8 variants of a permitted 12.
+  Continuation and reversal are NEVER pooled and are corrected separately at alpha = 0.0125.
+
+  sessions after sealing: 1,396   2021-01-04 .. 2026-08-31
+  Sealed NQ days were not read. 2016-2020 is unreachable by this script.
+
+==============================================================================================================================
+  AMENDMENT 1 — the literal 50% rule against the amended one
+==============================================================================================================================
+  The literal rule measures the retracement against the run-so-far,
+  which is a few cents at the break bar, so the next bar's ordinary
+  range kills the attempt mechanically. 99% die within 3 bars.
+  The amendment measures it against the REQUIRED leg, X x ORB height.
+  Made on counts alone, before any expectancy was displayed.
+
+  variant           outburst lit  outburst amd  CONT lit  CONT amd  REV lit  REV amd
+  ORB15  band A                6           126         6       112        2       39
+  ORB15  band B                6           126         6       101        1       34
+  ORB30  band A               11            82        11        76        2       17
+  ORB30  band B               11            82        10        65        1       13
+
+==============================================================================================================================
+  COUNTS FIRST — NO PERFORMANCE NUMBER APPEARS UNTIL AFTER THIS
+==============================================================================================================================
+  The funnel, per variant. Each column is a strict subset of the one before it.
+
+  variant           ORB ok   broke  outburst  CONT setup  CONT trade  Fib fail   shift  opp burst  REV setup  REV trade
+  ORB15  band A      1,396   1,395       126         112         112        81      52         49         39         39
+  ORB15  band B      1,396   1,395       126         101         101        70      48         48         34         34
+  ORB30  band A      1,396   1,391        82          76          76        50      33         24         17         17
+  ORB30  band B      1,396   1,391        82          65          65        43      28         24         13         13
+
+  ENTRY LOOKAHEAD (must be 0) and trades vs sessions:
+  variant           lookahead  CONT trades  CONT sessions  REV trades  REV sessions
+  ORB15  band A             0          112            112          39            39
+  ORB15  band B             0          101            101          34            34
+  ORB30  band A             0           76             76          17            17
+  ORB30  band B             0           65             65          13            13
+  One trade per session per variant by construction, so there is no
+  within-variant date clustering to correct. Trades = sessions above.
+
+==============================================================================================================================
+  THE REVERSAL RESOLVABILITY GATE — declared in advance at 150 sessions
+==============================================================================================================================
+  ORB15  band A     reversal fires on   39 sessions   BELOW FLOOR
+  ORB15  band B     reversal fires on   34 sessions   BELOW FLOOR
+  ORB30  band A     reversal fires on   17 sessions   BELOW FLOOR
+  ORB30  band B     reversal fires on   13 sessions   BELOW FLOOR
+
+  *** THE REVERSAL FAMILY CANNOT BE RESOLVED. Best variant fires on 39 sessions, floor is 150. ***
+  Its expectancy is reported below as DESCRIPTIVE ONLY and is NOT evidence either way.
+
+==============================================================================================================================
+  MINIMUM DETECTABLE EFFECT, BEFORE ANY EXPECTANCY IS SHOWN
+==============================================================================================================================
+  MDE = (2.498 + 0.8416) x sd / sqrt(n) at alpha = 0.0125, 80% power.
+
+  variant         family              n       sd     MDE R                              note
+  ORB15  band A   continuation      112   1.2297   +0.3881                                  
+  ORB15  band A   reversal           39   0.9969   +0.5331         UNDERPOWERED, below floor
+  ORB15  band B   continuation      101   1.8771   +0.6238                                  
+  ORB15  band B   reversal           34   1.0883   +0.6233         UNDERPOWERED, below floor
+  ORB30  band A   continuation       76   1.1349   +0.4347                                  
+  ORB30  band A   reversal           17   0.8945   +0.7245         UNDERPOWERED, below floor
+  ORB30  band B   continuation       65   1.1208   +0.4643                                  
+  ORB30  band B   reversal           13   1.0002   +0.9264         UNDERPOWERED, below floor
+
+==============================================================================================================================
+  CONTINUATION — 4 variants, Bonferroni alpha = 0.0125
+==============================================================================================================================
+  variant              n     expR      t     PF   win%     RR    RW%     GAP   yrs+  ex-top1%    +50%c    naive   amb         
+  ORB15  band A      112  +0.1154  +0.99   1.23   44.6   1.52   39.6    +5.0  5/6       9.0  +0.1044  +0.0903  0.0% SURVIVES
+  ORB15  band B      101  -0.1335  -0.71   0.81   37.6   1.35   42.6    -5.0  2/6     -17.5  -0.1465  -0.0096  1.0%         
+  ORB30  band A       76  +0.2071  +1.59   1.53   50.0   1.53   39.6   +10.4  5/6      13.8  +0.1948  +0.1220  2.6% SURVIVES
+  ORB30  band B       65  +0.0982  +0.71   1.22   46.2   1.42   41.2    +4.9  3/6       4.4  +0.0838  +0.0137  3.1% beats RW
+
+  REJECTION RULES, all five must hold
+  variant            expR>0  PF>1.15  4/6 yrs  ex-top1%  +50% cost  beats RW            
+  ORB15  band A        PASS     PASS     PASS      PASS       PASS      PASS    SURVIVES
+  ORB15  band B        FAIL     FAIL     FAIL      FAIL       FAIL      FAIL    rejected
+  ORB30  band A        PASS     PASS     PASS      PASS       PASS      PASS    SURVIVES
+  ORB30  band B        PASS     PASS     FAIL      PASS       PASS      PASS    rejected
+
+  TARGET STRUCTURE — context only, NOT variants, NO verdict drawn
+  variant            hit 1R   hit 2R   hit 3R   whole@1R   whole@2R   whole@3R   med risk  cost/R
+  ORB15  band A       49.1%    30.4%    17.0%    +0.0232    +0.1464    +0.1768      33.4b   1.99%
+  ORB15  band B       41.6%    29.7%    19.8%    -0.1361    -0.1954    -0.0690      27.9b   2.39%
+  ORB30  band A       51.3%    31.6%    15.8%    +0.1860    +0.2351    +0.2003      34.8b   1.92%
+  ORB30  band B       50.8%    29.2%    13.8%    +0.1049    +0.1632    +0.0266      27.7b   2.40%
+
+  BY YEAR — mean R
+  variant                2021       2022       2023       2024       2025       2026
+  ORB15  band A       +0.0556    +0.1996    -0.1451    +0.1246    +0.0134    +0.7400
+  ORB15  band B       -0.1775    -0.0932    -0.2882    -0.4976    +0.0933    +0.5281
+  ORB30  band A       +0.1831    +0.4690    +0.2933    +0.1634    +0.2020    -0.3147
+  ORB30  band B       -0.0386    +0.2717    +0.2221    -0.0413    +0.3579    -0.2826
+
+==============================================================================================================================
+  REVERSAL — 4 variants, Bonferroni alpha = 0.0125
+  DESCRIPTIVE ONLY — the family is below the declared 150-session floor and cannot be resolved.
+==============================================================================================================================
+  variant              n     expR      t     PF   win%     RR    RW%     GAP   yrs+  ex-top1%    +50%c    naive   amb         
+  ORB15  band A       39  -0.0584  -0.37   0.87   38.5   1.40   41.7    -3.3  1/6      -4.3  -0.0669  -0.0579  0.0%         
+  ORB15  band B       34  +0.0382  +0.20   1.08   41.2   1.55   39.2    +2.0  4/6      -0.7  +0.0289  +0.0382  0.0% beats RW
+  ORB30  band A       17  -0.1274  -0.59   0.71   41.2   1.02   49.6    -8.4  3/6      -4.1  -0.1357  -0.1257  0.0%         
+  ORB30  band B       13  -0.0571  -0.21   0.87   30.8   1.96   33.8    -3.0  2/4      -2.7  -0.0670  -0.0570  0.0%         
+
+  REJECTION RULES, all five must hold
+  variant            expR>0  PF>1.15  4/6 yrs  ex-top1%  +50% cost  beats RW            
+  ORB15  band A        FAIL     FAIL     FAIL      FAIL       FAIL      FAIL    rejected
+  ORB15  band B        PASS     FAIL     PASS      FAIL       PASS      PASS    rejected
+  ORB30  band A        FAIL     FAIL     FAIL      FAIL       FAIL      FAIL    rejected
+  ORB30  band B        FAIL     FAIL     FAIL      FAIL       FAIL      FAIL    rejected
+
+  TARGET STRUCTURE — context only, NOT variants, NO verdict drawn
+  variant            hit 1R   hit 2R   hit 3R   whole@1R   whole@2R   whole@3R   med risk  cost/R
+  ORB15  band A       38.5%    10.3%     7.7%    -0.0313    -0.1101    -0.0338      42.0b   1.59%
+  ORB15  band B       50.0%    20.6%     8.8%    +0.0902    -0.0036    +0.0279      38.9b   1.71%
+  ORB30  band A       41.2%     5.9%     5.9%    +0.0450    -0.2430    -0.1842      42.4b   1.57%
+  ORB30  band B       38.5%    15.4%     7.7%    +0.0500    -0.1286    -0.0928      33.6b   1.99%
+
+  BY YEAR — mean R
+  variant                2021       2022       2023       2024       2025       2026
+  ORB15  band A       -0.1379    -0.0013    -0.3038    -0.2091    +0.5808    -1.0336
+  ORB15  band B       +0.0643    +0.2242    -0.3433    +0.1581    +0.5174    -1.0077
+  ORB30  band A       +0.9882    -0.6363    -0.5721    -0.1697    +0.0581    +0.5726
+  ORB30  band B            --    -0.5508    -0.2399    +0.0413    +0.5818         --
+
+==============================================================================================================================
+  DIAGNOSTIC 1 — HOW CONCENTRATED IS EACH RESULT?
+==============================================================================================================================
+  The pre-registered rule removes the best 1%, which at n~100 is one
+  or two trades. Deeper removals are shown because they are not the
+  declared test and cannot reject anything -- they only show how much
+  of each result rests on a handful of trades.
+
+  family        variant              n     mean   median  top3 % of total  drop best 5  drop best 10
+  continuation  ORB15  band A        112  +0.1154  -0.3513              46%      +0.0281       -0.0675
+  continuation  ORB15  band B        101  -0.1335  -1.0111             -44%      -0.2438       -0.3657
+  continuation  ORB30  band A         76  +0.2071  +0.0412              38%      +0.0819       -0.0616
+  continuation  ORB30  band B         65  +0.0982  -0.3224              93%      -0.0582       -0.2348
+  reversal      ORB15  band A         39  -0.0584  -0.3468            -260%      -0.3229       -0.5485
+  reversal      ORB15  band B         34  +0.0382  -0.3456             456%      -0.2768       -0.5752
+  reversal      ORB30  band A         17  -0.1274  -0.3519            -183%      -0.6056       -0.9152
+
+==============================================================================================================================
+  DIAGNOSTIC 2 — THE FOUR VARIANTS ARE NOT FOUR INDEPENDENT TESTS
+==============================================================================================================================
+  Session overlap (Jaccard) between continuation variants. Two variants that
+  share most of their sessions are one test in two geometries, not two tests.
+
+                         ORB15/A     ORB15/B     ORB30/A     ORB30/B
+  ORB15  band A               1.00        0.90        0.13        0.13
+  ORB15  band B               0.90        1.00        0.12        0.13
+  ORB30  band A               0.13        0.12        1.00        0.86
+  ORB30  band B               0.13        0.13        0.86        1.00
+
+==============================================================================================================================
+  THE CLAIM, AGAINST THE RIGHT BENCHMARK
+==============================================================================================================================
+  Claimed: 59.13% at 1.43 RR. A driftless walk at 1.43 RR gives 41.15%.
+  The claimed gap is +17.98 points.
+
+  family          variant             win%     RR     RW%     gap          
+  continuation    ORB15  band A         44.6   1.52    39.6    +5.0     above
+  continuation    ORB15  band B         37.6   1.35    42.6    -5.0     below
+  continuation    ORB30  band A         50.0   1.53    39.6   +10.4     above
+  continuation    ORB30  band B         46.2   1.42    41.2    +4.9     above
+  reversal        ORB15  band A         38.5   1.40    41.7    -3.3     below
+  reversal        ORB15  band B         41.2   1.55    39.2    +2.0     above
+  reversal        ORB30  band A         41.2   1.02    49.6    -8.4     below
+  reversal        ORB30  band B         30.8   1.96    33.8    -3.0     below
+
+  continuation survivors: 2 of 4
+  reversal survivors:     0 of 4   (and the family is below the 150-session floor regardless)
+
+  The two families were never pooled at any point in this script.
+  Sealed NQ days were not read. 2016-2020 remains sealed.

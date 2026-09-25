@@ -1,0 +1,447 @@
+RP-009 STAGE 1 -- TIME-OF-DAY OPPORTUNITY MAP. BARRIER GEOMETRY ONLY.
+  No strategy P&L, expectancy, profit factor, drawdown, allocator,
+  entry pattern, directional rule or prop-evaluation simulation.
+
+  QQQ provides the PRIMARY long-sample evidence.
+  NQ provides EXPLORATORY instrument-native confirmation only.
+  44 NQ sessions cannot support a standalone commercial verdict.
+  QQQ results cannot validate an MNQ strategy.
+
+=== 1. DATA AND SAMPLE COUNTS ===
+  QQQ calendar sessions 1421 | excluded: <300 bars 1, no prior session 1 | USED 1419
+  QQQ observations: timestamps 14 x sessions 1419 = 19866
+  QQQ excursion rows 178749 | barrier rows 714996
+  NQ full 0.25 sessions 44 | excursion rows 5544 | barrier rows 22176 | tick-calibration rows 22176
+
+  HORIZON AVAILABILITY -- horizons past the cash close are marked
+  unavailable, never substituted with a shorter window.
+  timestamp   avail min      h15      h30      h60     h120  to close
+  09:30             389     1418     1418     1418     1418      1418
+  09:45             374     1418     1418     1418     1418      1418
+  10:00             359     1418     1418     1418     1418      1418
+  10:30             329     1419     1419     1419     1419      1419
+  11:00             299     1419     1419     1419     1419      1419
+  11:30             269     1419     1419     1419     1419      1419
+  12:00             239     1419     1419     1419     1419      1419
+  12:30             209     1419     1419     1419     1419      1419
+  13:00             179     1419     1419     1419     1419      1419
+  13:30             149     1419     1419     1419     1418      1419
+  14:00             119     1418     1418     1418        0      1418
+  14:30              89     1419     1419     1418        0      1419
+  15:00              59     1418     1418        0        0      1418
+  15:30              29     1419        0        0        0      1419
+
+=== 2. ABSOLUTE EXCURSION GRADIENT (bps) -- medians, [p25, p75] ===
+  Long and short measured symmetrically. Long MFE = short MAE by
+  construction, so the pooled geometry is one distribution seen twice.
+
+  horizon 30:
+  timestamp       n   MFE med    [p25    p75]   MAE med    [p25    p75]    range
+  09:30        1418     26.13   11.94   46.57     26.52   12.26   50.43    60.95
+  09:45        1418     22.04   10.14   42.12     24.38    9.52   44.36    55.09
+  10:00        1418     20.32   10.02   36.85     21.36    9.17   41.00    48.88
+  10:30        1419     17.62    7.82   30.70     17.55    7.76   35.60    41.43
+  11:00        1419     15.62    7.27   28.10     15.51    6.81   29.19    36.21
+  11:30        1419     13.98    6.45   25.80     13.64    6.42   25.79    32.44
+  12:00        1419     12.08    5.77   23.15     12.75    5.27   24.80    28.87
+  12:30        1419     11.63    5.39   20.37     11.59    5.31   22.46    26.93
+  13:00        1419     11.67    5.11   21.47     12.16    5.05   23.88    28.43
+  13:30        1419     10.78    5.05   20.73     11.67    4.59   23.40    27.43
+  14:00        1418     10.91    5.01   21.72     11.74    4.68   23.53    26.75
+  14:30        1419     11.16    5.06   21.40     11.24    4.42   21.92    25.92
+  15:00        1418     11.58    4.50   20.75     11.45    5.22   22.84    25.64
+  15:30                   -- unavailable --
+
+  horizon 60:
+  timestamp       n   MFE med    [p25    p75]   MAE med    [p25    p75]    range
+  09:30        1418     33.44   15.10   59.92     35.56   15.44   67.34    80.30
+  09:45        1418     29.21   13.75   53.33     31.02   13.08   59.87    71.59
+  10:00        1418     27.68   13.33   49.55     28.25   11.64   54.95    64.59
+  10:30        1419     22.56   10.60   40.48     23.50   10.79   46.58    54.95
+  11:00        1419     21.33   10.21   38.10     20.26    8.98   39.23    48.55
+  11:30        1419     18.40    9.26   34.59     18.42    8.15   34.45    44.48
+  12:00        1419     16.59    7.84   30.79     17.55    7.21   33.87    39.89
+  12:30        1419     16.54    7.86   29.81     17.14    7.48   33.85    39.79
+  13:00        1419     17.35    7.95   30.79     16.83    7.05   34.20    40.86
+  13:30        1419     15.46    6.98   29.74     17.62    6.55   33.48    39.22
+  14:00        1418     15.57    7.20   30.35     15.94    6.49   32.21    37.34
+  14:30        1418     15.40    7.21   31.61     15.51    6.73   31.83    38.01
+  15:00                   -- unavailable --
+  15:30                   -- unavailable --
+
+  horizon close:
+  timestamp       n   MFE med    [p25    p75]   MAE med    [p25    p75]    range
+  09:30        1418     58.31   25.95  103.94     60.38   25.98  115.98   136.78
+  09:45        1418     55.15   24.22   97.05     55.86   23.83  104.97   128.03
+  10:00        1418     50.76   24.52   93.00     52.69   22.73  101.97   121.11
+  10:30        1419     45.74   20.64   83.54     47.71   19.48   89.35   108.56
+  11:00        1419     42.12   20.64   75.29     41.11   17.85   81.77    98.68
+  11:30        1419     38.41   18.60   72.20     36.35   15.95   76.53    91.04
+  12:00        1419     35.96   17.49   65.42     35.16   15.32   71.47    85.46
+  12:30        1419     32.23   15.95   62.68     33.43   13.00   66.08    79.09
+  13:00        1419     29.68   15.55   57.09     28.93   11.88   60.83    71.98
+  13:30        1419     27.73   12.30   50.24     26.18   11.80   53.72    63.84
+  14:00        1418     24.90   11.52   46.66     23.99   10.15   48.35    57.40
+  14:30        1419     21.00    9.76   41.25     20.58    8.87   42.05    50.50
+  15:00        1418     17.60    8.28   33.02     17.73    8.50   36.69    42.52
+  15:30        1419     13.50    6.63   26.16     14.25    6.21   27.78    33.49
+
+=== 3. ATR-NORMALISED EXCURSION GRADIENT (ATR1m units) ===
+  THE CONTROL THAT MATTERS: if the day's gradient is pure scale, these
+  numbers are flat where section 2's are not.
+
+  horizon 30:
+  timestamp       n   MFE med    [p25    p75]   MAE med    range   ATR bps
+  09:30        1418     4.187   1.889   7.113     4.301    9.540      6.19
+  09:45        1418     3.688   1.696   6.333     3.769    8.432      6.19
+  10:00        1418     3.261   1.603   5.521     3.386    7.530      6.19
+  10:30        1419     2.828   1.337   4.631     2.781    6.451      6.19
+  11:00        1419     2.423   1.186   4.305     2.439    5.566      6.19
+  11:30        1419     2.245   1.068   3.904     2.190    5.015      6.19
+  12:00        1419     1.966   0.925   3.415     2.075    4.547      6.19
+  12:30        1419     1.841   0.905   3.197     1.840    4.206      6.19
+  13:00        1419     1.901   0.879   3.337     1.841    4.421      6.19
+  13:30        1419     1.776   0.839   3.179     1.815    4.204      6.19
+  14:00        1418     1.765   0.844   3.182     1.827    4.137      6.19
+  14:30        1419     1.817   0.848   3.202     1.737    4.083      6.19
+  15:00        1418     1.834   0.797   3.086     1.916    4.148      6.19
+  15:30                   -- unavailable --
+
+  horizon 60:
+  timestamp       n   MFE med    [p25    p75]   MAE med    range   ATR bps
+  09:30        1418     5.288   2.453   8.971     5.580   12.259      6.19
+  09:45        1418     4.628   2.181   8.209     4.863   10.876      6.19
+  10:00        1418     4.387   2.114   7.317     4.497   10.031      6.19
+  10:30        1419     3.654   1.778   6.161     3.752    8.431      6.19
+  11:00        1419     3.465   1.681   5.590     3.312    7.656      6.19
+  11:30        1419     3.092   1.504   5.175     2.956    6.892      6.19
+  12:00        1419     2.706   1.305   4.667     2.736    6.317      6.19
+  12:30        1419     2.638   1.270   4.671     2.749    6.305      6.19
+  13:00        1419     2.740   1.301   4.629     2.512    6.231      6.19
+  13:30        1419     2.590   1.205   4.503     2.666    6.025      6.19
+  14:00        1418     2.505   1.188   4.654     2.473    5.904      6.19
+  14:30        1418     2.603   1.176   4.681     2.529    5.970      6.19
+  15:00                   -- unavailable --
+  15:30                   -- unavailable --
+
+  horizon close:
+  timestamp       n   MFE med    [p25    p75]   MAE med    range   ATR bps
+  09:30        1418     9.128   4.471  15.475     9.404   21.272      6.19
+  09:45        1418     8.849   4.109  14.607     8.796   19.961      6.19
+  10:00        1418     8.357   3.873  13.632     8.237   18.908      6.19
+  10:30        1419     7.184   3.450  12.367     7.316   17.107      6.19
+  11:00        1419     6.841   3.486  11.563     6.607   15.684      6.19
+  11:30        1419     6.272   3.226  10.617     5.961   14.418      6.19
+  12:00        1419     5.746   2.830  10.162     5.546   13.436      6.19
+  12:30        1419     5.323   2.622   9.265     5.099   12.271      6.19
+  13:00        1419     4.864   2.397   8.560     4.613   11.230      6.19
+  13:30        1419     4.509   2.058   7.804     4.116   10.012      6.19
+  14:00        1418     3.897   1.824   7.045     3.802    9.125      6.19
+  14:30        1419     3.400   1.623   6.107     3.366    7.912      6.19
+  15:00        1418     2.746   1.340   5.155     2.968    6.640      6.19
+  15:30        1419     2.189   1.017   4.090     2.347    5.234      6.19
+
+  *** A DEFECT IN MY OWN FROZEN UNIT, AND THE FIX ***
+  ATR1m as pre-registered is the PRIOR SESSION'S MEAN 1-minute true
+  range -- ONE NUMBER PER SESSION. Dividing all fourteen timestamps by
+  the same constant cannot flatten an intraday gradient; it rescales
+  every timestamp identically. The frozen unit is therefore
+  MATHEMATICALLY INCAPABLE of answering 'does ATR normalisation remove
+  the opening's advantage'. That is a logical fact, not a data-dependent
+  one, and I should have seen it before running.
+
+  The arm below normalises by the PRIOR SESSION'S ATR MEASURED OVER THE
+  SAME CLOCK BLOCK -- causal, and the construction RP-008 already used.
+  It is a diagnostic added after the fact and it can only REDUCE the
+  opening's apparent advantage, never inflate it, because the open is
+  the block with the largest local ATR.
+
+  BLOCK-LOCAL ATR NORMALISATION -- 60-minute horizon
+  block           n  local ATR bps  MFE/localATR  MAE/localATR  ratio vs open
+  open         2836         10.510         2.901         3.064          1.000
+  morning      4256          7.676         3.112         3.122          1.073
+  midday       7095          5.108         3.321         3.346          1.145
+  close        2836          5.180         3.063         2.988          1.056
+
+  BLOCK SUMMARY -- 60-minute horizon
+  block           n   MFE bps   MAE bps   MFE ATR   MAE ATR  ratio vs open (bps)  ratio vs open (ATR)
+  open         2836     31.44     33.15     4.974     5.170                1.000                1.000
+  morning      4256     23.61     23.71     3.804     3.752                0.751                0.765
+  midday       7095     16.99     17.45     2.738     2.713                0.540                0.550
+  close        2836     15.52     15.73     2.577     2.506                0.494                0.518
+
+=== 4. TIME TO EXCURSION, and reach rates to the cash close ===
+  timestamp    level      n  med min up    p75  %up first  %up ever  %dn ever
+  09:30          0.5   1418           1      2       27.6      97.4      96.0
+  09:30          1.0   1418           1      5       43.5      94.1      92.4
+  09:30          1.5   1418           2      9       48.0      90.8      89.6
+  09:30          2.0   1418           4     16       49.8      88.6      87.0
+  09:45          0.5   1418           1      2       36.9      96.3      95.5
+  09:45          1.0   1418           2      7       48.0      93.7      92.2
+  09:45          1.5   1418           4     14       50.7      90.0      88.7
+  09:45          2.0   1418           6     21       51.0      87.0      84.8
+  10:00          0.5   1418           1      3       36.7      96.0      95.7
+  10:00          1.0   1418           3      8       46.7      92.0      91.7
+  10:00          1.5   1418           5     14       47.5      89.6      88.9
+  10:00          2.0   1418           8     24       49.4      87.4      85.7
+  10:30          0.5   1419           1      4       43.1      96.6      95.7
+  10:30          1.0   1419           3     11       49.5      93.4      91.7
+  10:30          1.5   1419           6     22       50.8      89.6      87.9
+  10:30          2.0   1419          10     34       50.1      85.8      83.9
+  11:00          0.5   1419           2      5       44.8      96.5      95.3
+  11:00          1.0   1419           5     13       50.1      92.8      90.1
+  11:00          1.5   1419           9     27       50.3      89.4      86.0
+  11:00          2.0   1419          14     44       49.5      85.3      81.7
+  11:30          0.5   1419           2      6       45.7      95.5      94.8
+  11:30          1.0   1419           6     18       50.0      92.6      89.8
+  11:30          1.5   1419          12     33       49.5      88.4      84.7
+  11:30          2.0   1419          18     47       50.5      84.8      80.7
+  12:00          0.5   1419           2      8       48.0      96.3      92.8
+  12:00          1.0   1419           7     23       49.4      92.4      88.7
+  12:00          1.5   1419          13     40       49.6      87.2      83.9
+  12:00          2.0   1419          21     60       48.6      82.7      80.1
+  12:30          0.5   1419           3      8       47.4      95.5      93.8
+  12:30          1.0   1419           7     23       50.0      90.3      87.0
+  12:30          1.5   1419          16     39       51.7      86.3      81.3
+  12:30          2.0   1419          26     59       50.5      81.0      77.1
+  13:00          0.5   1419           2      8       44.9      94.7      93.8
+  13:00          1.0   1419           6     23       48.2      90.9      86.7
+  13:00          1.5   1419          13     39       49.5      85.3      80.8
+  13:00          2.0   1419          22     55       51.0      79.7      73.6
+  13:30          0.5   1419           3      9       48.3      93.6      93.2
+  13:30          1.0   1419           8     23       51.2      87.9      86.0
+  13:30          1.5   1419          15     38       50.3      81.5      79.3
+  13:30          2.0   1419          23     54       50.2      76.0      73.0
+  14:00          0.5   1418           2      7       49.5      93.7      91.7
+  14:00          1.0   1418           7     22       49.9      86.8      84.1
+  14:00          1.5   1418          13     37       49.5      80.0      77.6
+  14:00          2.0   1418          21     48       47.2      71.9      70.7
+  14:30          0.5   1419           2      9       48.7      91.6      90.3
+  14:30          1.0   1419           7     20       50.0      83.9      82.8
+  14:30          1.5   1419          14     30       50.4      77.0      74.3
+  14:30          2.0   1419          20     38       50.2      69.4      66.2
+  15:00          0.5   1418           2      7       46.4      90.2      90.9
+  15:00          1.0   1418           6     16       48.7      81.1      81.7
+  15:00          1.5   1418          11     25       47.9      72.5      72.3
+  15:00          2.0   1418          16     34       46.0      63.7      65.2
+  15:30          0.5   1419           2      6       49.2      87.1      88.0
+  15:30          1.0   1419           5     13       49.5      75.5      76.8
+  15:30          1.5   1419          10     19       47.1      63.4      65.6
+  15:30          2.0   1419          13     20       42.6      53.1      55.0
+
+=== 5. BARRIER GEOMETRY BY RISK CONTAINER ===
+  Driftless baseline P(+MR before -1R) = 1/(1+M):
+    M=1.0 -> 50.0%   M=1.5 -> 40.0%   M=2.0 -> 33.3%
+  MATCHING OR BEATING THE BASELINE IS NOT EVIDENCE OF DIRECTIONAL EDGE.
+  It is geometry. A directional entry rule would still be required.
+
+  target 1.0R   (baseline 50.0%)
+  block     container       n  cost%risk  P(tgt 1st)  excl amb   amb%  med min +  med min -   %unres
+  open      10NQpt       5672       20.0        33.4      50.0   33.3          1          1      0.0
+  open      20NQpt       5672       10.0        45.6      50.0    8.8          1          1      0.0
+  open      30NQpt       5672        6.7        48.7      50.0    2.5          2          2      0.0
+  open      0.5ATR       5672       21.9        31.6      50.0   36.8          1          1      0.0
+  open      1.0ATR       5672       11.0        45.8      50.0    8.3          1          1      0.0
+  open      1.5ATR       5672        7.3        49.1      50.0    1.8          2          2      0.0
+  morning   10NQpt       8512       20.0        41.4      50.0   17.2          1          1      0.0
+  morning   20NQpt       8512       10.0        48.4      50.0    3.2          2          2      0.0
+  morning   30NQpt       8512        6.7        49.7      50.0    0.7          3          3      0.0
+  morning   0.5ATR       8512       21.9        40.8      50.0   18.3          1          1      0.0
+  morning   1.0ATR       8512       11.0        49.1      50.0    1.9          2          1      0.0
+  morning   1.5ATR       8512        7.3        49.7      50.0    0.6          3          3      0.0
+  midday    10NQpt      14190       20.0        46.7      50.0    6.6          1          1      0.0
+  midday    20NQpt      14190       10.0        49.5      50.0    0.9          3          3      0.0
+  midday    30NQpt      14190        6.7        49.9      50.0    0.2          7          7      0.2
+  midday    0.5ATR      14190       21.9        47.1      50.0    5.9          1          1      0.0
+  midday    1.0ATR      14190       11.0        49.7      50.0    0.5          3          3      0.0
+  midday    1.5ATR      14190        7.3        50.0      50.0    0.1          6          6      0.0
+  close     10NQpt      11348       20.0        46.4      50.0    7.1          1          1      0.1
+  close     20NQpt      11348       10.0        49.5      50.0    1.0          4          3      0.5
+  close     30NQpt      11348        6.7        49.8      50.0    0.4          7          7      3.1
+  close     0.5ATR      11348       21.9        47.3      50.0    5.4          1          1      0.0
+  close     1.0ATR      11348       11.0        49.5      50.0    1.0          3          3      0.3
+  close     1.5ATR      11348        7.3        49.8      50.0    0.4          7          7      1.1
+
+  target 1.5R   (baseline 40.0%)
+  block     container       n  cost%risk  P(tgt 1st)  excl amb   amb%  med min +  med min -   %unres
+  open      10NQpt       5672       20.0        31.3      40.9   23.5          1          1      0.0
+  open      20NQpt       5672       10.0        38.7      40.6    4.7          1          1      0.0
+  open      30NQpt       5672        6.7        40.0      40.5    1.2          3          2      0.0
+  open      0.5ATR       5672       21.9        30.3      40.9   25.8          1          1      0.0
+  open      1.0ATR       5672       11.0        38.8      40.4    3.9          1          1      0.0
+  open      1.5ATR       5672        7.3        39.5      39.7    0.5          2          2      0.0
+  morning   10NQpt       8512       20.0        36.1      40.5   10.7          1          1      0.0
+  morning   20NQpt       8512       10.0        40.0      40.6    1.5          3          2      0.0
+  morning   30NQpt       8512        6.7        39.7      39.9    0.4          6          4      0.0
+  morning   0.5ATR       8512       21.9        36.5      40.9   10.8          1          1      0.0
+  morning   1.0ATR       8512       11.0        39.7      40.1    1.0          2          2      0.0
+  morning   1.5ATR       8512        7.3        39.7      39.8    0.2          5          4      0.0
+  midday    10NQpt      14190       20.0        39.1      40.7    3.9          2          1      0.0
+  midday    20NQpt      14190       10.0        40.1      40.3    0.4          6          4      0.1
+  midday    30NQpt      14190        6.7        40.0      40.0    0.1         12          8      0.5
+  midday    0.5ATR      14190       21.9        39.8      40.9    2.8          2          1      0.0
+  midday    1.0ATR      14190       11.0        39.6      39.7    0.3          5          4      0.0
+  midday    1.5ATR      14190        7.3        39.8      39.9    0.1         11          8      0.2
+  close     10NQpt      11348       20.0        39.4      41.2    4.3          2          1      0.1
+  close     20NQpt      11348       10.0        40.0      40.3    0.6          6          4      1.2
+  close     30NQpt      11348        6.7        38.9      39.0    0.3         12          9      6.5
+  close     0.5ATR      11348       21.9        39.6      40.9    3.2          2          1      0.0
+  close     1.0ATR      11348       11.0        40.1      40.3    0.6          6          4      0.5
+  close     1.5ATR      11348        7.3        39.6      39.7    0.2         12          8      3.1
+
+  target 2.0R   (baseline 33.3%)
+  block     container       n  cost%risk  P(tgt 1st)  excl amb   amb%  med min +  med min -   %unres
+  open      10NQpt       5672       20.0        28.6      34.5   17.1          1          1      0.0
+  open      20NQpt       5672       10.0        33.5      34.3    2.5          2          1      0.0
+  open      30NQpt       5672        6.7        33.5      33.6    0.5          4          2      0.0
+  open      0.5ATR       5672       21.9        28.4      34.7   18.3          1          1      0.0
+  open      1.0ATR       5672       11.0        32.7      33.2    1.6          2          1      0.0
+  open      1.5ATR       5672        7.3        34.2      34.3    0.1          4          2      0.0
+  morning   10NQpt       8512       20.0        32.0      34.4    7.2          1          1      0.0
+  morning   20NQpt       8512       10.0        33.6      33.9    0.8          4          2      0.0
+  morning   30NQpt       8512        6.7        33.1      33.1    0.2          8          4      0.1
+  morning   0.5ATR       8512       21.9        32.0      34.1    6.3          1          1      0.0
+  morning   1.0ATR       8512       11.0        33.7      33.9    0.6          4          2      0.0
+  morning   1.5ATR       8512        7.3        33.3      33.3    0.1          8          4      0.0
+  midday    10NQpt      14190       20.0        33.1      34.0    2.5          2          1      0.0
+  midday    20NQpt      14190       10.0        33.4      33.5    0.3          8          5      0.1
+  midday    30NQpt      14190        6.7        33.2      33.2    0.1         19         10      1.3
+  midday    0.5ATR      14190       21.9        34.0      34.5    1.5          2          1      0.0
+  midday    1.0ATR      14190       11.0        33.0      33.0    0.1          7          4      0.1
+  midday    1.5ATR      14190        7.3        33.3      33.3    0.1         17          9      0.4
+  close     10NQpt      11348       20.0        33.6      34.6    2.7          3          2      0.2
+  close     20NQpt      11348       10.0        33.0      33.2    0.5          9          5      2.5
+  close     30NQpt      11348        6.7        31.4      31.4    0.2         17         10     10.2
+  close     0.5ATR      11348       21.9        33.6      34.3    2.0          2          1      0.1
+  close     1.0ATR      11348       11.0        33.4      33.6    0.4          8          4      1.1
+  close     1.5ATR      11348        7.3        32.4      32.4    0.2         17          9      5.8
+
+=== 6. COST VIABILITY -- NQ cost 0.68 bps, 2.0 NQ points ===
+  block     container   risk bps  cost%risk  med MFE60  cost%MFE  med resolved  cost%resolved  min gross edge
+  open      10NQpt          3.39       20.0      31.44       2.2          3.39           20.0           0.68b
+  open      20NQpt          6.79       10.0      31.44       2.2          6.79           10.0           0.68b
+  open      30NQpt         10.18        6.7      31.44       2.2         10.18            6.7           0.68b
+  open      0.5ATR          3.10       21.9      31.44       2.2          3.10           21.9           0.68b
+  open      1.0ATR          6.19       11.0      31.44       2.2          6.19           11.0           0.68b
+  open      1.5ATR          9.29        7.3      31.44       2.2          9.29            7.3           0.68b
+  morning   10NQpt          3.39       20.0      23.61       2.9          3.39           20.0           0.68b
+  morning   20NQpt          6.79       10.0      23.61       2.9          6.79           10.0           0.68b
+  morning   30NQpt         10.18        6.7      23.61       2.9         10.18            6.7           0.68b
+  morning   0.5ATR          3.10       21.9      23.61       2.9          3.10           21.9           0.68b
+  morning   1.0ATR          6.19       11.0      23.61       2.9          6.19           11.0           0.68b
+  morning   1.5ATR          9.29        7.3      23.61       2.9          9.29            7.3           0.68b
+  midday    10NQpt          3.39       20.0      16.99       4.0          3.39           20.0           0.68b
+  midday    20NQpt          6.79       10.0      16.99       4.0          6.79           10.0           0.68b
+  midday    30NQpt         10.18        6.7      16.99       4.0         10.18            6.7           0.68b
+  midday    0.5ATR          3.10       21.9      16.99       4.0          3.10           21.9           0.68b
+  midday    1.0ATR          6.19       11.0      16.99       4.0          6.19           11.0           0.68b
+  midday    1.5ATR          9.29        7.3      16.99       4.0          9.29            7.3           0.68b
+  close     10NQpt          3.39       20.0      15.52       4.4          3.39           20.0           0.68b
+  close     20NQpt          6.79       10.0      15.52       4.4          6.79           10.0           0.68b
+  close     30NQpt         10.18        6.7      15.52       4.4         10.18            6.7           0.68b
+  close     0.5ATR          3.10       21.9      15.52       4.4          3.10           21.9           0.68b
+  close     1.0ATR          6.19       11.0      15.52       4.4          6.19           11.0           0.68b
+  close     1.5ATR          9.29        7.3      15.52       4.4          9.29            7.3           0.68b
+
+  'min gross edge' is the gross movement, in bps, a round turn must
+  recover before anything is left. It is 0.68 bps everywhere by
+  construction; what changes is what fraction of the available
+  excursion that represents.
+
+=== 7. HOLDING-TIME TRUNCATION ===
+  block     container     M  %unresolved at close  med min to resolve
+  open      1.0ATR      1.0                   0.0                   1
+  open      1.0ATR      1.5                   0.0                   1
+  open      1.0ATR      2.0                   0.0                   1
+  open      1.5ATR      1.0                   0.0                   2
+  open      1.5ATR      1.5                   0.0                   2
+  open      1.5ATR      2.0                   0.0                   3
+  open      30NQpt      1.0                   0.0                   2
+  open      30NQpt      1.5                   0.0                   2
+  open      30NQpt      2.0                   0.0                   3
+  morning   1.0ATR      1.0                   0.0                   2
+  morning   1.0ATR      1.5                   0.0                   2
+  morning   1.0ATR      2.0                   0.0                   2
+  morning   1.5ATR      1.0                   0.0                   3
+  morning   1.5ATR      1.5                   0.0                   4
+  morning   1.5ATR      2.0                   0.0                   5
+  morning   30NQpt      1.0                   0.0                   3
+  morning   30NQpt      1.5                   0.0                   5
+  morning   30NQpt      2.0                   0.1                   6
+  midday    1.0ATR      1.0                   0.0                   3
+  midday    1.0ATR      1.5                   0.0                   4
+  midday    1.0ATR      2.0                   0.1                   5
+  midday    1.5ATR      1.0                   0.0                   6
+  midday    1.5ATR      1.5                   0.2                   9
+  midday    1.5ATR      2.0                   0.4                  11
+  midday    30NQpt      1.0                   0.2                   7
+  midday    30NQpt      1.5                   0.5                  10
+  midday    30NQpt      2.0                   1.3                  12
+  close     1.0ATR      1.0                   0.3                   3
+  close     1.0ATR      1.5                   0.5                   5
+  close     1.0ATR      2.0                   1.1                   6
+  close     1.5ATR      1.0                   1.1                   7
+  close     1.5ATR      1.5                   3.1                  10
+  close     1.5ATR      2.0                   5.8                  12
+  close     30NQpt      1.0                   3.1                   7
+  close     30NQpt      1.5                   6.5                  10
+  close     30NQpt      2.0                  10.2                  12
+
+=== 8. TICK-ORDER CALIBRATION -- 44 NQ sessions, EXPLORATORY ===
+  The same dates resolved two ways: true tick order from the tape, and
+  the one-minute adverse-first convention. The 44 sessions do not
+  overturn the QQQ map; they calibrate what the convention costs.
+
+      M       n  bar P(tgt)  tick P(tgt)  difference    amb%  disagree%
+    1.0    7392        46.8         50.0        +3.2     6.4        3.2
+    1.5    7392        39.0         40.4        +1.4     3.7        1.4
+    2.0    7392        32.7         33.2        +0.6     2.4        0.6
+
+  on AMBIGUOUS bars only -- where the convention actually binds:
+    n=920  the convention calls 100.0% of them adverse; the
+    tape says 40.9% were actually the target.
+
+  NQ native excursion, 60-minute horizon (exploratory):
+  block          n   MFE pts   MAE pts   MFE ATR   MAE ATR
+  open          88      92.7     130.4     5.094     7.471
+  morning      132      68.3     106.6     3.460     4.816
+  midday       220      45.5      51.1     2.034     2.604
+  close         88      32.4      47.2     1.960     2.229
+
+=== 9. YEARLY STABILITY -- median MFE, 60-minute horizon ===
+  block          2021     2022     2023     2024     2025     2026   units
+  open          28.21    49.36    32.79    23.89    28.08    34.04   bps
+                5.150    4.793    5.174    4.567    4.845    5.314   ATR
+  morning       19.90    36.08    25.33    21.02    19.68    26.03   bps
+                3.787    3.559    3.972    3.977    3.736    4.047   ATR
+  midday        14.23    26.75    18.01    15.03    15.59    16.28   bps
+                2.636    2.621    2.949    2.858    2.800    2.583   ATR
+  close         13.56    30.63    18.19    13.45    13.66    11.28   bps
+                2.819    2.923    2.870    2.596    2.362    1.800   ATR
+
+  ratio of close-block to open-block median MFE, by year:
+                 2021     2022     2023     2024     2025     2026
+  bps           0.481    0.621    0.555    0.563    0.487    0.331
+  ATR           0.547    0.610    0.555    0.568    0.488    0.339
+
+=== APPENDIX -- formal detail ===
+  Long/short symmetry check (should be exact by construction):
+    h30     long MFE median 14.2326 == short MAE median 14.2326   max abs diff 0.00e+00
+    h60     long MFE median 19.8604 == short MAE median 19.8604   max abs diff 0.00e+00
+    hclose  long MFE median 32.1423 == short MAE median 32.1423   max abs diff 0.00e+00
+
+  Directional imbalance (diagnostic only, NOT a strategy):
+  block           n   med MFE   med MAE   MFE-MAE  % MFE>MAE
+  open         2836     31.44     33.15     -1.70       49.2
+  morning      4256     23.61     23.71     -0.09       50.5
+  midday       7095     16.99     17.45     -0.46       49.8
+  close        2836     15.52     15.73     -0.21       50.3
+
+  Ambiguous-bar rate by container and target (QQQ):
+  container     M=1.0    M=1.5    M=2.0
+  10NQpt        12.83     8.23     5.64
+  20NQpt         2.57     1.33     0.76
+  30NQpt         0.71     0.39     0.19
+  0.5ATR        12.82     7.92     5.06
+  1.0ATR         2.04     1.05     0.51
+  1.5ATR         0.55     0.22     0.13

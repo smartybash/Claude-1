@@ -1,0 +1,167 @@
+RP-008 STAGE 1 -- REGIME VALIDITY. THE MARKET, NOT THE STRATEGIES.
+  No strategy P&L, no trade, no allocator, no pairing, no Monte Carlo.
+  QQQ 1-minute, 1294 sessions, 62 months, 2586 labelled classification observations.
+
+=== 1. COUNTS, BEFORE ANY FORWARD OUTCOME ===
+  classification observations built      5673
+  at the two PRIMARY instants            2837
+  labelled after the 250-observation warm-up  2586
+  sessions 1294 | months 62 | years 2021-2026
+
+  POOLED terciles (the frozen primary):
+vol       LO  NORMAL   HI   all
+instant                        
+09:30    578     355  359  1292
+11:30    347     426  521  1294
+
+  *** The two instants do NOT draw from the same RV60 distribution. ***
+  RV60 at 09:30 (prior session 15:00-16:00): mean 4.47 bps, median 3.78
+  RV60 at 11:30 (same session 10:30-11:30) : mean 5.10 bps, median 4.50
+  A pooled tercile label therefore partly encodes WHICH INSTANT, which is
+  the confound the pre-registration named. The block-relative labels
+  below were added at this counts stage, before any forward outcome was
+  computed, and both are carried through every table.
+
+  BLOCK-RELATIVE terciles (declared diagnostic):
+volrel    LO  NORMAL   HI   all
+instant                        
+09:30    495     377  420  1292
+11:30    470     367  457  1294
+
+  days per month, by state (pooled):
+    09:30 LO         578    9.32/mo   22.4% of sample
+    09:30 NORMAL     355    5.73/mo   13.7% of sample
+    09:30 HI         359    5.79/mo   13.9% of sample
+    11:30 LO         347    5.60/mo   13.4% of sample
+    11:30 NORMAL     426    6.87/mo   16.5% of sample
+    11:30 HI         521    8.40/mo   20.1% of sample
+
+  Each observation classifies a 60-minute forward window, so one state
+  occurrence = 60 forward minutes. Duration is fixed by construction and
+  carries no information; it is reported for completeness only.
+
+=== 2. FORWARD ENVIRONMENT BY STATE (pooled terciles, frozen primary) ===
+  All scaled quantities in ATR1m units. Forward window is 60 minutes,
+  strictly after the classification bar.
+
+  state             n    RV60  fwd RV  fwd rng  MFE med  MAE med  fwd eff to close
+  09:30 LO        578    2.86    5.88   14.189    5.373    5.791    0.136      390
+  09:30 NORMAL    355    4.22    6.86   13.314    5.596    5.273    0.155      390
+  09:30 HI        359    7.31    9.31   11.905    4.509    5.362    0.134      390
+  11:30 LO        347    3.21    2.80    6.533    2.566    2.623    0.118      270
+  11:30 NORMAL    426    4.42    3.71    7.507    2.802    2.985    0.129      270
+  11:30 HI        521    6.92    5.48    8.652    3.542    3.348    0.132      270
+
+  STOP-OUT PROBABILITY -- P(adverse excursion >= d), %
+  state            dn 0.5   dn 1.0   dn 1.5   dn 2.0  either 0.5  either 1.0  either 1.5  either 2.0
+  09:30 LO           94.5     90.3     86.0     81.8       100.0       100.0       100.0       100.0
+  09:30 NORMAL       92.4     84.8     80.6     75.8       100.0       100.0       100.0       100.0
+  09:30 HI           96.1     90.8     85.8     81.3       100.0       100.0       100.0       100.0
+  11:30 LO           88.5     78.1     67.7     61.7       100.0       100.0        99.4        95.7
+  11:30 NORMAL       91.1     82.2     72.8     64.6       100.0       100.0        99.8        97.2
+  11:30 HI           89.3     82.3     73.9     66.4       100.0       100.0        99.8        99.0
+
+=== 3. THE DECISIVE SEPARATION TEST ===
+  At matched volatility, does the INSTANT matter?
+  At matched instant, does the VOLATILITY tercile matter?
+
+  (a) MATCHED VOLATILITY, 11:30 vs 09:30
+  vol        fwd RV 09:30  fwd RV 11:30   ratio  MAE 09:30  MAE 11:30   ratio
+  LO                 5.88          2.80    0.48      5.791      2.623    0.45
+  NORMAL             6.86          3.71    0.54      5.273      2.985    0.57
+  HI                 9.31          5.48    0.59      5.362      3.348    0.62
+
+  (b) MATCHED INSTANT, HI vs LO tercile
+  instant     fwd RV LO   fwd RV HI   ratio    MAE LO    MAE HI   ratio  overlap
+  09:30            5.88        9.31    1.58     5.791     5.362    0.93    0.836
+  11:30            2.80        5.48    1.96     2.623     3.348    1.28    0.796
+
+  (c) SAME, on the BLOCK-RELATIVE labels
+  instant     fwd RV LO   fwd RV HI   ratio    MAE LO    MAE HI   ratio  overlap
+  09:30            5.54        9.19    1.66     5.733     5.350    0.93    0.809
+  11:30            2.79        5.87    2.10     2.546     3.413    1.34    0.792
+
+  (d) STOP-OUT SPREAD -- the economically binding comparison
+  comparison                             d=0.5     d=1.0     d=1.5     d=2.0
+  09:30  HI minus LO (pooled)             +1.6      +0.5      -0.2      -0.5
+  11:30  HI minus LO (pooled)             +0.8      +4.2      +6.2      +4.7
+  LO     11:30 minus 09:30                -6.0     -12.2     -18.3     -20.2
+  NORMAL 11:30 minus 09:30                -1.3      -2.6      -7.8     -11.2
+  HI     11:30 minus 09:30                -6.8      -8.5     -11.9     -14.9
+
+=== 4. PERSISTENCE CONTROL -- is the state a lookup table for RV60? ===
+  R2 of a linear fit on RV60 alone               0.3480
+  R2 of the six state means alone                0.3653
+  extra R2 the states add ON TOP of RV60         0.4227
+  If the third number is near zero the state labels are a coarse lookup
+  table for RV60 and carry no independent forward information.
+
+  That third figure is inflated by the INSTANT, which the state label
+  carries and a linear fit on RV60 cannot. Decomposed properly:
+
+  target                  instant     RV60     both  +tercile  tercile adds
+  forward RV (bps)         0.2062   0.3480   0.6271    0.6286       +0.0014
+    (block-relative)                         0.6271    0.6275       +0.0004
+  forward MAE (ATR)        0.0848   0.0037   0.0855    0.0856       +0.0001
+    (block-relative)                         0.0855    0.0868       +0.0014
+  forward efficiency       0.0047   0.0002   0.0047    0.0083       +0.0036
+    (block-relative)                         0.0047    0.0097       +0.0050
+
+  correlation of RV60 with the forward outcome, WITHIN each instant:
+    09:30   vs forward RV (bps) +0.674   vs forward MAE (ATR) -0.091
+    11:30   vs forward RV (bps) +0.862   vs forward MAE (ATR) +0.079
+
+=== 5. STABILITY BY YEAR ===
+  HI/LO forward-RV ratio at each instant, per year (bar: ordering holds in >=5 of 6)
+  instant       2021     2022     2023     2024     2025     2026   yrs>1
+  09:30         1.74     1.22     1.26     1.57     2.15     1.47       6
+  11:30         2.19     1.73     1.59     1.86     2.63     1.96       6
+
+  state frequency by year (pooled terciles), % of that year's observations
+state  09:30 LO  09:30 NORMAL  09:30 HI  11:30 LO  11:30 NORMAL  11:30 HI
+year                                                                     
+2021       17.9          18.3      13.5      12.7          17.9      19.5
+2022       17.4          12.0      20.4      11.4          16.4      22.2
+2023       32.2          11.0       6.8      17.8          18.8      13.4
+2024       21.2          13.3      15.5      13.1          16.7      20.2
+2025       22.6          13.4      14.0      16.8          13.4      19.8
+2026       19.6          18.1      12.3       5.7          16.3      28.0
+
+=== 6. TRANSITION MATRIX ===
+next          09:30 LO  09:30 NORMAL  09:30 HI  11:30 LO  11:30 NORMAL  11:30 HI
+state                                                                           
+09:30 LO           0.0           0.0       0.0      43.8          34.9      21.3
+09:30 NORMAL       0.0           0.0       0.0      21.7          39.2      39.2
+09:30 HI           0.0           0.0       0.0       4.5          23.4      72.1
+11:30 LO          74.9          17.3       7.5       0.3           0.0       0.0
+11:30 NORMAL      51.3          31.3      17.4       0.0           0.0       0.0
+11:30 HI          19.2          31.1      49.7       0.0           0.0       0.0
+
+  Transitions alternate 09:30 -> 11:30 within a session and
+  11:30 -> 09:30 across sessions, so the instant half of the transition
+  is deterministic. Only the volatility half carries information.
+
+  volatility-only transition, per year (% staying in the same tercile):
+    2021   stay  48.2%   n=251
+    2022   stay  58.5%   n=499
+    2023   stay  45.4%   n=500
+    2024   stay  48.4%   n=504
+    2025   stay  57.6%   n=500
+    2026   stay  39.9%   n=331
+
+=== 7. NEIGHBOURING THRESHOLDS ===
+  cut       instant    fwd RV ratio HI/LO   MAE ratio  dn1.0 spread
+  33/67     09:30                    1.58        0.93          +0.5
+  33/67     11:30                    1.96        1.28          +4.2
+  30/70     09:30                    1.63        0.92          +0.2
+  30/70     11:30                    2.00        1.26          +3.1
+  40/60     09:30                    1.51        0.94          -0.2
+  40/60     11:30                    1.83        1.29          +5.5
+
+=== 8. SECONDARY DESCRIPTIVE PANEL -- all four blocks, no pass weight ===
+            n   rv60   f_rv   f_rng    mae    mfe    eff   dn0.5   dn1.0   dn1.5   dn2.0
+instant                                                                                 
+09:30    1418  4.472  7.047  13.345  5.561  5.285  0.140  94.076  88.364  83.850  79.690
+10:00    1418  7.448  5.865  11.100  4.500  4.365  0.136  92.948  85.966  80.465  74.471
+11:30    1419  5.060  4.140   7.728  2.952  3.094  0.129  89.359  80.902  71.670  64.341
+14:00    1418  3.693  3.957   7.261  2.485  2.503  0.127  86.812  76.023  66.502  57.969
