@@ -50,7 +50,7 @@ def main():
             cost = T.day.map(lambda d: S[d]["cost"])
             risk = T.risk_bps * px / 1e4
             gross = T.R * risk + cost
-            day = pd.to_datetime(T.day.astype(str))
+            day = pd.DatetimeIndex(pd.to_datetime(T.day.astype(str)))
             w = T.day.isin(wide).to_numpy()
             res.setdefault(k, {})[window] = BL.evaluate_adj(day[w], gross[w], window, cost[w])
             if window == "full":

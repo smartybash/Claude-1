@@ -44,7 +44,7 @@ def to_trades(T, SS):
     risk = T.risk_bps * px / 1e4
     cost = T.cost_pct / 100.0 * risk
     gross = T.R * risk + cost
-    return pd.to_datetime(T.day.astype(str)), gross, risk, cost
+    return pd.DatetimeIndex(pd.to_datetime(T.day.astype(str))), gross, risk, cost
 
 
 def R_nq(day, gross, risk, cost, cmul=1.0):
