@@ -129,3 +129,19 @@ looser.
 **Bar-study windows.** The primary sample is the full NQ file (2010-06-07 →
 2026-09-24). The like-for-like secondary is 2021-01-04 → 2026-08-31, QQQ's
 window; each is written as its own file in the QQQ_1m schema.
+
+## Clarification 3 — declared before any BH computation (after B07 exposed it)
+
+The session-clustered p used so far was the t of **per-session mean** net points
+over sessions with a trade. When the number of trades in a session depends on
+their outcome — at most two trades, the second only after the first closes, so a
+quick loser invites a second trade and a big winner does not — the mean of
+session means can be positive while the rule loses money. B07's OR15 SATR1.0 R4.0
+showed exactly that: t +5.8 with a pooled −0.54 pt per trade.
+
+From here on, and recomputed for every study already reported, the p for a
+trading rule is the **one-sided t-test of daily net P&L** — the per-session sum,
+zero on sessions without a trade, over every session in the sample. That is the
+test behind the Sharpe ratio, and it is what the repository's own frozen
+criteria use ("zero-trade sessions count as zero"). The per-session-mean
+statistic stays in the output as a diagnostic only. No BH has been computed.

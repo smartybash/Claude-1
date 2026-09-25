@@ -79,7 +79,18 @@ def evaluate(session, gross_pts, all_sessions, close_by_session=None, frozen_rt_
             else:
                 out["cagr"] = np.nan
             out["total_usd"] = float(daily.sum())
-            out.update(clustered(session, net))
+            cl = clustered(session, net)            # diagnostic only (Clarification 3)
+            out["n_sessions"] = cl["n_sessions"]
+            out["t_sessmean"] = cl.get("t", np.nan)
+            out["mean_session"] = cl.get("mean_session", np.nan)
+            out["pos_sessions"] = cl.get("pos_sessions", np.nan)
+            nd = len(daily)
+            if nd > 2 and sd > 0:
+                td = float(daily.mean() / (sd / np.sqrt(nd)))
+                out.update(t=td, p=float(2 * stats.t.sf(abs(td), nd - 1)),
+                           p_one=float(stats.t.sf(td, nd - 1)), n_days=nd)
+            else:
+                out.update(t=np.nan, p=np.nan, p_one=np.nan, n_days=nd)
     return out
 
 
@@ -150,8 +161,8 @@ def fmt(r):
             f"(${r.get('usd_per_trade', np.nan):+.1f}) | win {100*r.get('win', np.nan):.1f}% | "
             f"PF {r.get('pf', np.nan):.2f} | Sharpe {r.get('sharpe', np.nan):+.2f} | "
             f"CAGR {100*r.get('cagr', np.nan):.2f}% | maxDD ${r.get('dd_NQ', np.nan):,.0f}/NQ "
-            f"${r.get('dd_MNQ', np.nan):,.0f}/MNQ | sessions {r.get('n_sessions')} "
-            f"t {r.get('t', np.nan):+.2f} p {r.get('p', np.nan):.4f} p1 {r.get('p_one', np.nan):.4f}")
+            f"${r.get('dd_MNQ', np.nan):,.0f}/MNQ | trade-sessions {r.get('n_sessions')}/{r.get('n_days')} "
+            f"daily-P&L t {r.get('t', np.nan):+.2f} p1 {r.get('p_one', np.nan):.4f} (sess-mean t {r.get('t_sessmean', np.nan):+.2f})")
 
 
 def nq_close():
