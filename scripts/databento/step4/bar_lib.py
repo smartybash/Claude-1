@@ -87,3 +87,25 @@ def report_bar(tid, name, res, primary, pass_flags, old, note="", window_note=""
                   sharpe_2021=r21.get("sharpe"), net_pts_2021=r21.get("net_pts_mean"),
                   old_verdict=old, new_verdict_pre_bh="pass bar met" if ok else "stays closed"))
     return ok
+
+
+def criteria_screen(days, gross_adj, risk_adj, frozen_cost_adj, window, t_bar=3.0,
+                    pf_bar=1.15, min_pos_years=4):
+    """The QQQ-era screens' five rejection criteria (pre-registration section 7
+    of qqq_screen / orb_vwap and their successors), recomputed after NQ costs:
+    expectancy > 0 in R; t > t_bar across ALL sessions of the window (zero-trade
+    sessions count as zero); PF >= pf_bar; total R > 0 without the top 1% of
+    trades; positive in >= min_pos_years calendar years."""
+    d = pd.to_datetime(pd.Index(days))
+    fac = factor().reindex(d).to_numpy()
+    cost = np.maximum(np.asarray(frozen_cost_adj, float) / fac, C.RT_STD_PTS["NQ"])
+    R = pd.Series((np.asarray(gross_adj, float) / fac - cost) / (np.asarray(risk_adj, float) / fac))
+    per = R.groupby(d.to_numpy()).sum().reindex(sessions_in(window)).fillna(0.0)
+    t = per.mean() / (per.std(ddof=1) / np.sqrt(len(per)))
+    w, l = R[R > 0], R[R <= 0]
+    pf = w.sum() / abs(l.sum()) if len(l) and l.sum() != 0 else np.inf
+    ex1 = R.sum() - R.sort_values(ascending=False).head(int(np.ceil(0.01 * len(R)))).sum()
+    pos_y = int((R.groupby(d.year.to_numpy()).sum() > 0).sum())
+    ok = bool(len(R) and R.mean() > 0 and t > t_bar and pf >= pf_bar and ex1 > 0
+              and pos_y >= min_pos_years)
+    return ok, f"expR {R.mean():+.3f} t {t:+.2f} PF {pf:.2f} ex1 {ex1:+.1f} +yrs {pos_y}"
