@@ -1,0 +1,40 @@
+STUDIES (c) AND (d) -- pre-registered e68b18c. Costs per side: NQ/ES $2.25 + 1 tick,
+MNQ/MES $0.62 + 1 tick. Entry next bar open; honest stop fills; stop first.
+
+=== (c) NOISE-BOUNDARY INTRADAY MOMENTUM (Zarattini, Aziz & Barbon 2024) ===
+  (c) ES | 2010-2020 [never used for this hypothesis; read by other studies, incl. study (b)] -- DECISIVE
+    Sharpe -0.24  CAGR -2.76%  PF 0.95  trades 2538  win 30.7%  maxDD $36,248/ES $5,093/MES  total $-18,734
+    random-direction null: 95th pct -0.42, p = 0.0118
+    per year $: 2010:-3,375  2011:+1,220  2012:-1,596  2013:-5,283  2014:-4,436  2015:+805  2016:-10,904  2017:-10,548  2018:+16,440  2019:-2,231  2020:+1,174
+  (c) ES | 2021-registration [seen; not decisive]
+    Sharpe +0.47  CAGR 4.11%  PF 1.10  trades 1388  win 39.2%  maxDD $39,864/ES $4,257/MES  total $42,266
+    random-direction null: 95th pct +0.24, p = 0.0118
+    per year $: 2021:+15,167  2022:+24,384  2023:+18,856  2024:+3,430  2025:-654  2026:-18,916
+  (c) NQ | 2010-2020 [never used for this hypothesis; read by other studies, incl. study (b)] -- DECISIVE
+    Sharpe +0.61  CAGR 3.23%  PF 1.16  trades 2451  win 35.5%  maxDD $14,661/NQ $1,520/MNQ  total $59,420
+    random-direction null: 95th pct +0.16, p = 0.0006
+    per year $: 2010:-5,060  2011:-308  2012:+4,024  2013:-669  2014:+2,452  2015:+4,529  2016:-2,394  2017:+1,362  2018:+37,942  2019:-503  2020:+18,044
+  (c) NQ | 2021-registration [seen; not decisive]
+    Sharpe +1.17  CAGR 10.85%  PF 1.27  trades 1349  win 41.7%  maxDD $33,504/NQ $3,495/MNQ  total $204,414
+    random-direction null: 95th pct +0.57, p = 0.0014
+    per year $: 2021:+17,935  2022:+43,665  2023:+40,872  2024:+35,392  2025:+43,410  2026:+23,141
+
+=== (d) LIQUIDITY SWEEP -- PDH/PDL/ONH/ONL, fade the reclaim, 2R ===
+  (d) NQ | 2010-2020 [never used for this hypothesis; read by other studies, incl. study (b)] -- DECISIVE
+    Sharpe -0.69  CAGR -4.02%  PF 0.89  trades 3709  win 34.7%  maxDD $33,002/NQ $6,001/MNQ  total $-26,740
+    random-direction null: 95th pct -1.04, p = 0.0008
+    per year $: 2010:-3,220  2011:-2,518  2012:-3,028  2013:-2,344  2014:-5,590  2015:-1,670  2016:-6,917  2017:-1,272  2018:+5,426  2019:-8,938  2020:+3,331
+  (d) NQ | 2021-registration [seen; not decisive]
+    Sharpe +0.04  CAGR -0.15%  PF 1.01  trades 2049  win 32.9%  maxDD $44,168/NQ $5,194/MNQ  total $3,280
+    random-direction null: 95th pct +0.25, p = 0.1824
+    per year $: 2021:+3,404  2022:+9,132  2023:-14,976  2024:-5,270  2025:-8,117  2026:+19,106
+  (d) by level, decisive block, $ per NQ trade after costs:
+    ONH: n 1221  mean $-3.6  win 35.7%
+    ONL: n 1134  mean $-0.9  win 34.7%
+    PDH: n 759  mean $-18.9  win 32.0%
+    PDL: n 595  mean $-11.7  win 36.0%
+
+=== KILL CRITERIA, 2010-2020 block (Sharpe >= 0.8, PF >= 1.3, null Holm p <= 0.05) ===
+  (c) ES: Sharpe -0.24 FAIL | PF 0.95 FAIL | Holm p 0.0118 PASS  => KILLED
+  (c) NQ: Sharpe +0.61 FAIL | PF 1.16 FAIL | Holm p 0.0012 PASS  => KILLED
+  (d) NQ: Sharpe -0.69 FAIL | PF 0.89 FAIL | p 0.0008 PASS  => KILLED
