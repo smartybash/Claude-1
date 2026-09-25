@@ -9,12 +9,12 @@ GAP + CVD — 61 recorded sessions, 57 usable pairs
     the gap trade, no flow filter                  n=53     -1.43pt      -29$  win 50.9%  t=-0.34
 
   EARLY CVD — first 30 minutes, known before the trade is held:
-      flow agrees with the trade                   n=28     +8.71pt     +174$  win 67.9%  t=+1.62
-      flow against the trade                       n=25    -12.80pt     -256$  win 32.0%  t=-2.24
+      flow agrees with the trade                   n=29     +7.31pt     +146$  win 65.5%  t=+1.36
+      flow against the trade                       n=24    -12.00pt     -240$  win 33.3%  t=-2.03
 
   WHOLE-SESSION CVD — not actionable, shown to size the ceiling:
-      flow agrees with the trade                   n=25     +1.60pt      +32$  win 56.0%  t=+0.26
-      flow against the trade                       n=28     -4.14pt      -83$  win 46.4%  t=-0.72
+      flow agrees with the trade                   n=26     +0.31pt       +6$  win 53.8%  t=+0.05
+      flow against the trade                       n=27     -3.11pt      -62$  win 48.1%  t=-0.53
 
   per session:
     day             gap   early CVD    result
@@ -50,7 +50,7 @@ GAP + CVD — 61 recorded sessions, 57 usable pairs
     20260422     +238.8       1.73%     +28.0
     20260423      -65.2      -2.16%     -32.0
     20260424     +283.5       2.00%     +28.0
-    20260427      -23.2      -2.34%     -32.0
+    20260427      -23.2       1.20%     -32.0
     20260428     -284.0      -0.41%     -32.0
     20260429      +37.5      -0.41%     +28.0
     20260430     +152.5       3.26%     +28.0
@@ -75,10 +75,10 @@ GAP + CVD — 61 recorded sessions, 57 usable pairs
 ==============================================================================================
 IS THE SPLIT REAL, OR IS IT FIFTEEN COIN FLIPS?
 ==============================================================================================
-  observed gap: +21.5 points (28 sessions with flow agreeing, 25 against)
-  permutation p-value: 0.0138  (survives at 5%)
+  observed gap: +19.3 points (29 sessions with flow agreeing, 24 against)
+  permutation p-value: 0.0283  (survives at 5%)
 
-  The agreeing group is 19/28. A perfect
+  The agreeing group is 19/29. A perfect
   record on six observations is the exact shape that killed four
   earlier findings in this project: lookahead, overlap inflation,
   an impossible fill, and an overfit threshold. The permutation

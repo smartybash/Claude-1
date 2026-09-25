@@ -1,5 +1,5 @@
 === T05 weight rule (fade light levels) (Databento discovery sessions) ===
-  fade LIGHT (the rule)          n 571 | net -0.88 pt/trade ($-17.6) | win 51.7% | PF 0.94 | Sharpe -1.63 | CAGR -7.84% | maxDD $13,500/NQ $1,350/MNQ | sessions 46 t +0.87 p 0.3885 p1 0.1943
-  fade heavy (avoid)             n 153 | net -3.11 pt/trade ($-62.1) | win 48.4% | PF 0.81 | Sharpe -2.65 | CAGR -6.97% | maxDD $9,905/NQ $990/MNQ | sessions 28 t -0.60 p 0.5523 p1 0.7239
-  PRIMARY: 1 cell(s), Holm on one-sided p; best = fade LIGHT (the rule), study p = 0.1943
+  fade LIGHT (the rule)          n 571 | net -0.88 pt/trade ($-17.6) | win 51.7% | PF 0.94 | Sharpe -1.63 | CAGR -7.84% | maxDD $13,500/NQ $1,350/MNQ | trade-sessions 46/61 daily-P&L t -0.80 p1 0.7865 (sess-mean t +0.87)
+  fade heavy (avoid)             n 153 | net -3.11 pt/trade ($-62.1) | win 48.4% | PF 0.81 | Sharpe -2.65 | CAGR -6.97% | maxDD $9,905/NQ $990/MNQ | trade-sessions 28/61 daily-P&L t -1.30 p1 0.9014 (sess-mean t -0.60)
+  PRIMARY: 1 cell(s), Holm on one-sided p; best = fade LIGHT (the rule), study p = 0.7865
   pass bar (net > 0, p <= 0.05): NOT MET  -> stays closed

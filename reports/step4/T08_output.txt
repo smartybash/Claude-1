@@ -2,6 +2,6 @@
   frozen permutation test, agree minus against: +21.51 pt, one-sided p = 0.0095
   CAVEAT: entry at the open, filter on the first 30 minutes (lookahead in the frozen design).
   Direction question only; cannot be a trading candidate.
-  gap trade, flow agrees       n 28 | net +8.71 pt/trade ($+174.3) | win 67.9% | PF 1.85 | Sharpe +3.23 | CAGR 3.76% | maxDD $2,160/NQ $216/MNQ | sessions 28 t +1.62 p 0.1177 p1 0.0589
-  gap trade, flow against      n 25 | net -12.80 pt/trade ($-256.0) | win 32.0% | PF 0.41 | Sharpe -4.35 | CAGR -4.82% | maxDD $6,400/NQ $640/MNQ | sessions 25 t -2.24 p 0.0346 p1 0.9827
-  gap trade, no filter         n 53 | net -1.43 pt/trade ($-28.7) | win 50.9% | PF 0.91 | Sharpe -0.70 | CAGR -1.23% | maxDD $4,400/NQ $440/MNQ | sessions 53 t -0.34 p 0.7317 p1 0.6342
+  gap trade, flow agrees       n 28 | net +8.71 pt/trade ($+174.3) | win 67.9% | PF 1.85 | Sharpe +3.23 | CAGR 3.76% | maxDD $2,160/NQ $216/MNQ | trade-sessions 28/61 daily-P&L t +1.59 p1 0.0584 (sess-mean t +1.62)
+  gap trade, flow against      n 25 | net -12.80 pt/trade ($-256.0) | win 32.0% | PF 0.41 | Sharpe -4.35 | CAGR -4.82% | maxDD $6,400/NQ $640/MNQ | trade-sessions 25/61 daily-P&L t -2.14 p1 0.9818 (sess-mean t -2.24)
+  gap trade, no filter         n 53 | net -1.43 pt/trade ($-28.7) | win 50.9% | PF 0.91 | Sharpe -0.70 | CAGR -1.23% | maxDD $4,400/NQ $440/MNQ | trade-sessions 53/61 daily-P&L t -0.35 p1 0.6344 (sess-mean t -0.34)

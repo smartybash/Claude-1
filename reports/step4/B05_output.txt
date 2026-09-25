@@ -1,16 +1,16 @@
 === B05 pullback grid 2 (52b925d) (Databento discovery sessions) ===
   note: frozen five-criteria survivors: 0 of 12
-  OR15 SATR0.5 R1.0              n 99 | net -0.71 pt/trade ($-14.3) | win 54.5% | PF 0.89 | Sharpe -1.00 | CAGR -0.89% | maxDD $3,798/NQ $380/MNQ | sessions 52 t -0.78 p 0.4407 p1 0.7796
-  OR15 SATR0.5 R1.5              n 98 | net -0.02 pt/trade ($-0.3) | win 45.9% | PF 1.00 | Sharpe -0.02 | CAGR 0.26% | maxDD $1,801/NQ $180/MNQ | sessions 52 t -0.39 p 0.6949 p1 0.6526
-  OR15 SATR0.5 R2.0              n 97 | net +0.55 pt/trade ($+11.0) | win 39.2% | PF 1.06 | Sharpe +0.53 | CAGR 1.09% | maxDD $3,131/NQ $313/MNQ | sessions 52 t +0.12 p 0.9086 p1 0.4543
-  OR15 SATR1.0 R1.0              n 96 | net +1.28 pt/trade ($+25.5) | win 56.2% | PF 1.11 | Sharpe +1.07 | CAGR 2.12% | maxDD $2,709/NQ $271/MNQ | sessions 52 t +0.20 p 0.8397 p1 0.4198
-  OR15 SATR1.0 R1.5              n 96 | net -0.78 pt/trade ($-15.7) | win 42.7% | PF 0.95 | Sharpe -0.53 | CAGR -0.56% | maxDD $4,965/NQ $496/MNQ | sessions 52 t -0.43 p 0.6680 p1 0.6660
-  OR15 SATR1.0 R2.0              n 96 | net -1.18 pt/trade ($-23.6) | win 36.5% | PF 0.93 | Sharpe -0.67 | CAGR -1.53% | maxDD $6,093/NQ $609/MNQ | sessions 52 t -0.39 p 0.6945 p1 0.6527
-  OR30 SATR0.5 R1.0              n 66 | net +0.38 pt/trade ($+7.6) | win 63.6% | PF 1.08 | Sharpe +0.56 | CAGR 0.35% | maxDD $1,473/NQ $147/MNQ | sessions 39 t +0.42 p 0.6776 p1 0.3388
-  OR30 SATR0.5 R1.5              n 66 | net +0.96 pt/trade ($+19.2) | win 50.0% | PF 1.15 | Sharpe +1.09 | CAGR 1.07% | maxDD $1,387/NQ $139/MNQ | sessions 39 t +0.64 p 0.5246 p1 0.2623
-  OR30 SATR0.5 R2.0              n 66 | net -0.06 pt/trade ($-1.2) | win 39.4% | PF 0.99 | Sharpe -0.06 | CAGR -0.06% | maxDD $2,118/NQ $212/MNQ | sessions 39 t +0.34 p 0.7355 p1 0.3678
-  OR30 SATR1.0 R1.0              n 66 | net -1.24 pt/trade ($-24.8) | win 54.5% | PF 0.89 | Sharpe -0.84 | CAGR -1.46% | maxDD $4,233/NQ $423/MNQ | sessions 39 t -0.15 p 0.8781 p1 0.5609
-  OR30 SATR1.0 R1.5              n 67 | net +0.51 pt/trade ($+10.2) | win 46.3% | PF 1.04 | Sharpe +0.31 | CAGR 0.72% | maxDD $3,949/NQ $395/MNQ | sessions 39 t +0.05 p 0.9621 p1 0.4811
-  OR30 SATR1.0 R2.0              n 67 | net +0.67 pt/trade ($+13.5) | win 38.8% | PF 1.05 | Sharpe +0.34 | CAGR 0.69% | maxDD $3,455/NQ $345/MNQ | sessions 39 t -0.19 p 0.8525 p1 0.5738
+  OR15 SATR0.5 R1.0              n 99 | net -0.71 pt/trade ($-14.3) | win 54.5% | PF 0.89 | Sharpe -1.00 | CAGR -0.89% | maxDD $3,798/NQ $380/MNQ | trade-sessions 52/61 daily-P&L t -0.49 p1 0.6880 (sess-mean t -0.78)
+  OR15 SATR0.5 R1.5              n 98 | net -0.02 pt/trade ($-0.3) | win 45.9% | PF 1.00 | Sharpe -0.02 | CAGR 0.26% | maxDD $1,801/NQ $180/MNQ | trade-sessions 52/61 daily-P&L t -0.01 p1 0.5040 (sess-mean t -0.39)
+  OR15 SATR0.5 R2.0              n 97 | net +0.55 pt/trade ($+11.0) | win 39.2% | PF 1.06 | Sharpe +0.53 | CAGR 1.09% | maxDD $3,131/NQ $313/MNQ | trade-sessions 52/61 daily-P&L t +0.26 p1 0.3967 (sess-mean t +0.12)
+  OR15 SATR1.0 R1.0              n 96 | net +1.28 pt/trade ($+25.5) | win 56.2% | PF 1.11 | Sharpe +1.07 | CAGR 2.12% | maxDD $2,709/NQ $271/MNQ | trade-sessions 52/61 daily-P&L t +0.53 p1 0.3004 (sess-mean t +0.20)
+  OR15 SATR1.0 R1.5              n 96 | net -0.78 pt/trade ($-15.7) | win 42.7% | PF 0.95 | Sharpe -0.53 | CAGR -0.56% | maxDD $4,965/NQ $496/MNQ | trade-sessions 52/61 daily-P&L t -0.26 p1 0.6024 (sess-mean t -0.43)
+  OR15 SATR1.0 R2.0              n 96 | net -1.18 pt/trade ($-23.6) | win 36.5% | PF 0.93 | Sharpe -0.67 | CAGR -1.53% | maxDD $6,093/NQ $609/MNQ | trade-sessions 52/61 daily-P&L t -0.33 p1 0.6280 (sess-mean t -0.39)
+  OR30 SATR0.5 R1.0              n 66 | net +0.38 pt/trade ($+7.6) | win 63.6% | PF 1.08 | Sharpe +0.56 | CAGR 0.35% | maxDD $1,473/NQ $147/MNQ | trade-sessions 39/61 daily-P&L t +0.27 p1 0.3927 (sess-mean t +0.42)
+  OR30 SATR0.5 R1.5              n 66 | net +0.96 pt/trade ($+19.2) | win 50.0% | PF 1.15 | Sharpe +1.09 | CAGR 1.07% | maxDD $1,387/NQ $139/MNQ | trade-sessions 39/61 daily-P&L t +0.54 p1 0.2960 (sess-mean t +0.64)
+  OR30 SATR0.5 R2.0              n 66 | net -0.06 pt/trade ($-1.2) | win 39.4% | PF 0.99 | Sharpe -0.06 | CAGR -0.06% | maxDD $2,118/NQ $212/MNQ | trade-sessions 39/61 daily-P&L t -0.03 p1 0.5113 (sess-mean t +0.34)
+  OR30 SATR1.0 R1.0              n 66 | net -1.24 pt/trade ($-24.8) | win 54.5% | PF 0.89 | Sharpe -0.84 | CAGR -1.46% | maxDD $4,233/NQ $423/MNQ | trade-sessions 39/61 daily-P&L t -0.42 p1 0.6603 (sess-mean t -0.15)
+  OR30 SATR1.0 R1.5              n 67 | net +0.51 pt/trade ($+10.2) | win 46.3% | PF 1.04 | Sharpe +0.31 | CAGR 0.72% | maxDD $3,949/NQ $395/MNQ | trade-sessions 39/61 daily-P&L t +0.15 p1 0.4388 (sess-mean t +0.05)
+  OR30 SATR1.0 R2.0              n 67 | net +0.67 pt/trade ($+13.5) | win 38.8% | PF 1.05 | Sharpe +0.34 | CAGR 0.69% | maxDD $3,455/NQ $345/MNQ | trade-sessions 39/61 daily-P&L t +0.17 p1 0.4341 (sess-mean t -0.19)
   PRIMARY: 12 cell(s), Holm on one-sided p; best = OR30 SATR0.5 R1.5, study p = 1.0000
   pass bar (net > 0, p <= 0.05, five registered criteria): NOT MET  -> stays closed

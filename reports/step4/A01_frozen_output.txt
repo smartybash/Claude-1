@@ -1,0 +1,27 @@
+=== ICT/Tempa liquidity-sweep reversal — QQQ 5-min, 4189 sessions 2010-06-07..2026-09-24 ===
+prior-day High/Low swept then reclaimed; long sweeps of low (discount), short sweeps of high (premium)
+
+--- their window 09:30-11:00: 2035 trades (0.49/day) ---
+   reach mid 37%  reach opposite 14%  stopped 61%
+   target 50% mid : n=2035  win  41%  mean -0.013R  t=-0.40
+   target opposite: n=2035  win  31%  mean -0.031R  t=-0.82
+   fixed 2R       : n=2035  win  37%  mean -0.021R  t=-0.74
+   [gamma] POS target mid: n= 453  win  41%  mean -0.065R  t=-1.12
+   [gamma] NEG target mid: n= 385  win  38%  mean -0.009R  t=-0.10
+
+--- our window 10:30-16:00 (skip 1st hr): 2321 trades (0.55/day) ---
+   reach mid 27%  reach opposite 9%  stopped 51%
+   target 50% mid : n=2321  win  39%  mean -0.008R  t=-0.26
+   target opposite: n=2321  win  34%  mean +0.002R  t=+0.06
+   fixed 2R       : n=2321  win  39%  mean -0.001R  t=-0.04
+   [gamma] POS target mid: n= 502  win  35%  mean -0.067R  t=-0.98
+   [gamma] NEG target mid: n= 446  win  36%  mean -0.029R  t=-0.40
+
+--- full RTH 09:30-16:00: 2820 trades (0.67/day) ---
+   reach mid 33%  reach opposite 12%  stopped 55%
+   target 50% mid : n=2820  win  41%  mean -0.009R  t=-0.34
+   target opposite: n=2820  win  33%  mean -0.021R  t=-0.65
+   fixed 2R       : n=2820  win  38%  mean -0.018R  t=-0.80
+   [gamma] POS target mid: n= 618  win  40%  mean -0.004R  t=-0.06
+   [gamma] NEG target mid: n= 542  win  38%  mean -0.037R  t=-0.57
+

@@ -1,8 +1,8 @@
 === T17 CVD LEVEL gates on structure break (Databento discovery sessions) ===
   note: 3-min session delta >= +1,000: paired diff -0.033R [-0.331, +0.240]; 3-min session delta >= 1% of volume: paired diff +0.075R [-0.217, +0.368]; 5-min session delta >= +1,000: paired diff +0.008R [-0.230, +0.245]; 5-min session delta >= 1% of volume: paired diff +0.100R [-0.162, +0.352]
-  3-min session delta >= +1,000  n 117 | net -5.65 pt/trade ($-113.0) | win 54.7% | PF 0.81 | Sharpe -1.71 | CAGR -9.14% | maxDD $23,210/NQ $2,321/MNQ | sessions 37 t -0.77 p 0.4461 p1 0.7769
-  3-min session delta >= 1% of volume n 75 | net -2.38 pt/trade ($-47.7) | win 62.7% | PF 0.92 | Sharpe -0.53 | CAGR -2.17% | maxDD $13,635/NQ $1,364/MNQ | sessions 29 t +0.21 p 0.8322 p1 0.4161
-  5-min session delta >= +1,000  n 72 | net -6.07 pt/trade ($-121.5) | win 59.7% | PF 0.80 | Sharpe -1.42 | CAGR -6.74% | maxDD $14,010/NQ $1,401/MNQ | sessions 35 t -2.08 p 0.0451 p1 0.9774
-  5-min session delta >= 1% of volume n 39 | net -4.40 pt/trade ($-87.9) | win 66.7% | PF 0.87 | Sharpe -0.74 | CAGR -2.76% | maxDD $6,825/NQ $682/MNQ | sessions 22 t -0.18 p 0.8605 p1 0.5697
+  3-min session delta >= +1,000  n 117 | net -5.65 pt/trade ($-113.0) | win 54.7% | PF 0.81 | Sharpe -1.71 | CAGR -9.14% | maxDD $23,210/NQ $2,321/MNQ | trade-sessions 37/61 daily-P&L t -0.84 p1 0.7986 (sess-mean t -0.77)
+  3-min session delta >= 1% of volume n 75 | net -2.38 pt/trade ($-47.7) | win 62.7% | PF 0.92 | Sharpe -0.53 | CAGR -2.17% | maxDD $13,635/NQ $1,364/MNQ | trade-sessions 29/61 daily-P&L t -0.26 p1 0.6030 (sess-mean t +0.21)
+  5-min session delta >= +1,000  n 72 | net -6.07 pt/trade ($-121.5) | win 59.7% | PF 0.80 | Sharpe -1.42 | CAGR -6.74% | maxDD $14,010/NQ $1,401/MNQ | trade-sessions 35/61 daily-P&L t -0.70 p1 0.7560 (sess-mean t -2.08)
+  5-min session delta >= 1% of volume n 39 | net -4.40 pt/trade ($-87.9) | win 66.7% | PF 0.87 | Sharpe -0.74 | CAGR -2.76% | maxDD $6,825/NQ $682/MNQ | trade-sessions 22/61 daily-P&L t -0.36 p1 0.6418 (sess-mean t -0.18)
   PRIMARY: 4 cell(s), Holm on one-sided p; best = 3-min session delta >= 1% of volume, study p = 1.0000
   pass bar (net > 0, p <= 0.05, paired interval above 0): NOT MET  -> stays closed

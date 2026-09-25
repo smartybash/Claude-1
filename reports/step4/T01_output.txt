@@ -1,5 +1,5 @@
 === T01 absorption 2x2 (61 Databento discovery sessions) ===
-  buy_absorbed_short           n 3184 | net -2.08 pt/trade ($-41.5) | win 41.6% | PF 0.69 | Sharpe -14.64 | CAGR -63.91% | maxDD $132,625/NQ $13,262/MNQ | sessions 61 t -6.35 p 0.0000 p1 1.0000
-  sell_absorbed_long           n 3367 | net -1.91 pt/trade ($-38.2) | win 43.8% | PF 0.71 | Sharpe -12.21 | CAGR -64.37% | maxDD $128,590/NQ $12,859/MNQ | sessions 61 t -5.80 p 0.0000 p1 1.0000
+  buy_absorbed_short           n 3184 | net -2.08 pt/trade ($-41.5) | win 41.6% | PF 0.69 | Sharpe -14.64 | CAGR -63.91% | maxDD $132,625/NQ $13,262/MNQ | trade-sessions 61/61 daily-P&L t -7.21 p1 1.0000 (sess-mean t -6.35)
+  sell_absorbed_long           n 3367 | net -1.91 pt/trade ($-38.2) | win 43.8% | PF 0.71 | Sharpe -12.21 | CAGR -64.37% | maxDD $128,590/NQ $12,859/MNQ | trade-sessions 61/61 daily-P&L t -6.01 p1 1.0000 (sess-mean t -5.80)
   PRIMARY: 2 cell(s), Holm on one-sided p; best = sell_absorbed_long, study p = 1.0000
   pass bar (net > 0, p <= 0.05): NOT MET  -> stays closed

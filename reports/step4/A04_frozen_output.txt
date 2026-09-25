@@ -1,0 +1,18 @@
+=== INITIAL BALANCE (09:30-10:30) breakout — QQQ 5-min, 4176 sessions 2010-06-07..2026-09-24 ===
+
+IB width vs 14d ATR: median 0.48x  p25 0.36  p75 0.62
+
+IB class                  n  break rate  median ext   trade (stop=IB mid, tgt=+100%)
+NARROW  <0.5x ATR      2286         96%       0.70x   n=2186  win  48%  mean +0.048R  PF 1.10  t=+2.09
+normal  0.5-1.0x       1743         90%       0.51x   n=1563  win  48%  mean +0.031R  PF 1.08  t=+1.27
+WIDE    >1.0x ATR       147         78%       0.36x   n= 114  win  39%  mean -0.096R  PF 0.75  t=-1.25
+
+ALL days            : break 93%   median ext 0.60x   n=3863  win  48%  mean +0.037R  PF 1.08  t=+2.24
+longs               : n=2132  win  51%  mean +0.064R  PF 1.16  t=+2.98
+shorts              : n=1731  win  44%  mean +0.003R  PF 1.01  t=+0.12
+POS gamma           : n= 847  win  46%  mean -0.006R  PF 0.99  t=-0.16
+NEG gamma           : n= 761  win  51%  mean +0.068R  PF 1.16  t=+1.81
+
+NARROW-IB only, by direction:
+   longs  : n=1244  win  50%  mean +0.082R  PF 1.19  t=+2.71
+   shorts : n= 942  win  45%  mean +0.004R  PF 1.01  t=+0.12

@@ -1,0 +1,25 @@
+=== 15-min ORB + imbalance — QQQ 5m, 4189 sessions 2010-06-07..2026-09-24 (imbalance window 24 bars) ===
+(NQ proxy; OR = 09:30-09:45; break = CLOSE outside range; imbalance = 3-bar FVG; stop = far edge of the FVG)
+
+--- WITH imbalance confirmation (their rules): 3388 trades (0.81/day) ---
+   their conditional target (2R if stop<0.10%, else 1R):
+      n=3388  win  48%  mean +0.015R  PF 1.03  total  +51.3R  t=+0.81
+   fixed 1R : n=3388  win  51%  mean +0.022R  PF 1.05  total  +74.5R  t=+1.29
+   fixed 2R : n=3388  win  36%  mean +0.038R  PF 1.06  total +130.4R  t=+1.60
+   longs    : n=1757  win  49%  mean +0.058R  PF 1.11  total +102.0R  t=+2.20
+   shorts   : n=1631  win  46%  mean -0.031R  PF 0.94  total  -50.8R  t=-1.18
+   POS gamma: n= 748  win  48%  mean +0.014R  PF 1.03  total  +10.4R  t=+0.36
+   NEG gamma: n= 698  win  46%  mean -0.048R  PF 0.91  total  -33.4R  t=-1.22
+   stop size: median 0.172% of price  (21% qualify as 'tight' -> 2R)
+
+--- CONTROL: plain ORB, no imbalance filter: 4172 trades (1.00/day) ---
+   their conditional target (2R if stop<0.10%, else 1R):
+      n=4172  win  51%  mean +0.015R  PF 1.03  total  +61.5R  t=+1.04
+   fixed 1R : n=4172  win  51%  mean +0.013R  PF 1.03  total  +55.0R  t=+0.93
+   fixed 2R : n=4172  win  44%  mean +0.042R  PF 1.09  total +174.2R  t=+2.36
+   longs    : n=2170  win  53%  mean +0.038R  PF 1.09  total  +83.1R  t=+1.97
+   shorts   : n=2002  win  48%  mean -0.011R  PF 0.98  total  -21.5R  t=-0.52
+   POS gamma: n= 909  win  52%  mean +0.048R  PF 1.12  total  +44.1R  t=+1.61
+   NEG gamma: n= 815  win  54%  mean +0.054R  PF 1.13  total  +43.8R  t=+1.67
+   stop size: median 0.471% of price  (1% qualify as 'tight' -> 2R)
+

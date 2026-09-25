@@ -1,0 +1,52 @@
+=== B07 ORB + session VWAP filter (16 variants) (NQ 1-minute; primary = full 2010-06-07 -> 2026-09-24) ===
+  note: OR15 SATR0.5 R1.0: expR -0.436 t -35.25 PF 0.42 ex1 -3496.3 +yrs 0 | OR15 SATR0.5 R2.0: expR -0.321 t -19.10 PF 0.64 ex1 -2665.0 +yrs 0 | OR15 SATR0.5 R3.0: expR -0.280 t -13.35 PF 0.72 ex1 -2406.1 +yrs 1 | OR15 SATR0.5 R4.0: expR -0.267 t -10.92 PF 0.75 ex1 -2380.3 +yrs 1 | OR15 SATR1.0 R1.0: expR -0.183 t -16.55 PF 0.69 ex1 -1490.5 +yrs 0 | OR15 SATR1.0 R2.0: expR -0.156 t -9.52 PF 0.80 ex1 -1329.1 +yrs 2 | OR15 SATR1.0 R3.0: expR -0.120 t -5.84 PF 0.86 ex1 -1126.2 +yrs 3 | OR15 SATR1.0 R4.0: expR -0.102 t -4.26 PF 0.89 ex1 -1059.8 +yrs 4 | OR30 SATR0.5 R1.0: expR -0.548 t -41.08 PF 0.34 ex1 -4293.1 +yrs 0 | OR30 SATR0.5 R2.0: expR -0.414 t -23.58 PF 0.57 ex1 -3324.0 +yrs 1 | OR30 SATR0.5 R3.0: expR -0.363 t -16.97 PF 0.66 ex1 -3002.2 +yrs 1 | OR30 SATR0.5 R4.0: expR -0.345 t -13.89 PF 0.70 ex1 -2927.5 +yrs 1 | OR30 SATR1.0 R1.0: expR -0.245 t -21.99 PF 0.61 ex1 -1933.3 +yrs 0 | OR30 SATR1.0 R2.0: expR -0.202 t -12.56 PF 0.75 ex1 -1654.0 +yrs 1 | OR30 SATR1.0 R3.0: expR -0.185 t -9.12 PF 0.80 ex1 -1585.6 +yrs 2 | OR30 SATR1.0 R4.0: expR -0.176 t -7.34 PF 0.82 ex1 -1581.6 +yrs 2
+  OR15 SATR0.5 R1.0          FULL n 7848 | net -2.19 pt/trade ($-43.8) | win 45.5% | PF 0.53 | Sharpe -4.64 | CAGR -11.82% | maxDD $343,799/NQ $38,947/MNQ | sessions 4054 t -17.12 p 0.0000 p1 1.0000
+                             2021 n 2730 | net -3.99 pt/trade ($-79.9) | win 45.6% | PF 0.56 | Sharpe -5.40 | CAGR -10.13% | maxDD $217,919/NQ $22,359/MNQ | sessions 1410 t -11.89 p 0.0000 p1 1.0000
+                             frozen pass bar (full, NQ costs): not met
+  OR15 SATR0.5 R2.0          FULL n 7809 | net -1.53 pt/trade ($-30.6) | win 35.2% | PF 0.72 | Sharpe -2.44 | CAGR -8.86% | maxDD $239,759/NQ $28,519/MNQ | sessions 4054 t -6.96 p 0.0000 p1 1.0000
+                             2021 n 2719 | net -2.81 pt/trade ($-56.1) | win 34.2% | PF 0.73 | Sharpe -2.88 | CAGR -7.11% | maxDD $152,971/NQ $15,855/MNQ | sessions 1410 t -4.96 p 0.0000 p1 1.0000
+                             frozen pass bar (full, NQ costs): not met
+  OR15 SATR0.5 R3.0          FULL n 7775 | net -1.23 pt/trade ($-24.6) | win 27.8% | PF 0.78 | Sharpe -1.66 | CAGR -7.53% | maxDD $193,763/NQ $23,904/MNQ | sessions 4054 t -3.13 p 0.0018 p1 0.9991
+                             2021 n 2702 | net -2.31 pt/trade ($-46.3) | win 26.8% | PF 0.79 | Sharpe -2.01 | CAGR -6.03% | maxDD $125,348/NQ $13,090/MNQ | sessions 1410 t -2.10 p 0.0355 p1 0.9822
+                             frozen pass bar (full, NQ costs): not met
+  OR15 SATR0.5 R4.0          FULL n 7752 | net -1.04 pt/trade ($-20.9) | win 22.8% | PF 0.82 | Sharpe -1.23 | CAGR -6.76% | maxDD $166,023/NQ $21,115/MNQ | sessions 4054 t -0.76 p 0.4457 p1 0.7772
+                             2021 n 2697 | net -1.82 pt/trade ($-36.4) | win 21.9% | PF 0.84 | Sharpe -1.35 | CAGR -4.79% | maxDD $98,905/NQ $10,455/MNQ | sessions 1410 t -0.19 p 0.8523 p1 0.5739
+                             frozen pass bar (full, NQ costs): not met
+  OR15 SATR1.0 R1.0          FULL n 7712 | net -1.61 pt/trade ($-32.2) | win 49.3% | PF 0.76 | Sharpe -2.15 | CAGR -9.17% | maxDD $249,335/NQ $29,404/MNQ | sessions 4054 t -5.80 p 0.0000 p1 1.0000
+                             2021 n 2690 | net -2.83 pt/trade ($-56.6) | win 49.0% | PF 0.79 | Sharpe -2.43 | CAGR -7.24% | maxDD $152,993/NQ $15,861/MNQ | sessions 1410 t -3.67 p 0.0002 p1 0.9999
+                             frozen pass bar (full, NQ costs): not met
+  OR15 SATR1.0 R2.0          FULL n 7578 | net -1.22 pt/trade ($-24.4) | win 34.2% | PF 0.85 | Sharpe -1.18 | CAGR -7.22% | maxDD $188,809/NQ $23,282/MNQ | sessions 4054 t +0.45 p 0.6506 p1 0.3253
+                             2021 n 2639 | net -2.18 pt/trade ($-43.6) | win 33.6% | PF 0.87 | Sharpe -1.35 | CAGR -5.53% | maxDD $115,625/NQ $12,116/MNQ | sessions 1410 t +0.76 p 0.4491 p1 0.2245
+                             frozen pass bar (full, NQ costs): not met
+  OR15 SATR1.0 R3.0          FULL n 7502 | net -0.63 pt/trade ($-12.6) | win 26.9% | PF 0.93 | Sharpe -0.49 | CAGR -4.85% | maxDD $104,170/NQ $14,769/MNQ | sessions 4054 t +4.25 p 0.0000 p1 0.0000
+                             2021 n 2619 | net -0.94 pt/trade ($-18.9) | win 26.8% | PF 0.95 | Sharpe -0.47 | CAGR -2.68% | maxDD $58,771/NQ $6,426/MNQ | sessions 1410 t +3.54 p 0.0004 p1 0.0002
+                             frozen pass bar (full, NQ costs): not met
+  OR15 SATR1.0 R4.0          FULL n 7443 | net -0.54 pt/trade ($-10.8) | win 22.2% | PF 0.94 | Sharpe -0.37 | CAGR -4.11% | maxDD $97,120/NQ $13,980/MNQ | sessions 4054 t +5.79 p 0.0000 p1 0.0000
+                             2021 n 2595 | net -0.52 pt/trade ($-10.3) | win 22.3% | PF 0.97 | Sharpe -0.23 | CAGR -1.31% | maxDD $59,275/NQ $5,927/MNQ | sessions 1410 t +4.81 p 0.0000 p1 0.0000
+                             frozen pass bar (full, NQ costs): not met
+  OR30 SATR0.5 R1.0          FULL n 7695 | net -2.45 pt/trade ($-49.0) | win 42.8% | PF 0.44 | Sharpe -5.99 | CAGR -12.50% | maxDD $377,574/NQ $42,223/MNQ | sessions 3992 t -23.25 p 0.0000 p1 1.0000
+                             2021 n 2680 | net -4.48 pt/trade ($-89.7) | win 43.2% | PF 0.47 | Sharpe -7.08 | CAGR -11.10% | maxDD $240,141/NQ $24,568/MNQ | sessions 1392 t -16.13 p 0.0000 p1 1.0000
+                             frozen pass bar (full, NQ costs): not met
+  OR30 SATR0.5 R2.0          FULL n 7665 | net -1.80 pt/trade ($-36.1) | win 34.7% | PF 0.63 | Sharpe -3.40 | CAGR -9.54% | maxDD $276,612/NQ $32,110/MNQ | sessions 3992 t -11.62 p 0.0000 p1 1.0000
+                             2021 n 2672 | net -3.23 pt/trade ($-64.6) | win 33.1% | PF 0.66 | Sharpe -3.83 | CAGR -7.55% | maxDD $172,227/NQ $17,776/MNQ | sessions 1392 t -7.64 p 0.0000 p1 1.0000
+                             frozen pass bar (full, NQ costs): not met
+  OR30 SATR0.5 R3.0          FULL n 7638 | net -1.61 pt/trade ($-32.2) | win 27.7% | PF 0.69 | Sharpe -2.73 | CAGR -8.50% | maxDD $246,468/NQ $29,084/MNQ | sessions 3992 t -7.55 p 0.0000 p1 1.0000
+                             2021 n 2659 | net -3.05 pt/trade ($-60.9) | win 25.5% | PF 0.70 | Sharpe -3.29 | CAGR -7.22% | maxDD $162,047/NQ $16,746/MNQ | sessions 1392 t -5.28 p 0.0000 p1 1.0000
+                             frozen pass bar (full, NQ costs): not met
+  OR30 SATR0.5 R4.0          FULL n 7609 | net -1.36 pt/trade ($-27.2) | win 22.7% | PF 0.74 | Sharpe -2.06 | CAGR -7.69% | maxDD $209,172/NQ $25,328/MNQ | sessions 3992 t -4.01 p 0.0001 p1 1.0000
+                             2021 n 2651 | net -2.38 pt/trade ($-47.5) | win 21.4% | PF 0.77 | Sharpe -2.28 | CAGR -5.62% | maxDD $126,528/NQ $13,192/MNQ | sessions 1392 t -2.33 p 0.0201 p1 0.9900
+                             frozen pass bar (full, NQ costs): not met
+  OR30 SATR1.0 R1.0          FULL n 7593 | net -2.15 pt/trade ($-43.0) | win 47.8% | PF 0.66 | Sharpe -3.33 | CAGR -10.52% | maxDD $326,712/NQ $37,079/MNQ | sessions 3992 t -11.32 p 0.0000 p1 1.0000
+                             2021 n 2651 | net -4.03 pt/trade ($-80.5) | win 45.8% | PF 0.68 | Sharpe -3.95 | CAGR -9.38% | maxDD $212,959/NQ $21,847/MNQ | sessions 1392 t -7.79 p 0.0000 p1 1.0000
+                             frozen pass bar (full, NQ costs): not met
+  OR30 SATR1.0 R2.0          FULL n 7467 | net -1.69 pt/trade ($-33.8) | win 33.7% | PF 0.77 | Sharpe -2.03 | CAGR -8.32% | maxDD $254,398/NQ $29,753/MNQ | sessions 3992 t -3.35 p 0.0008 p1 0.9996
+                             2021 n 2609 | net -3.14 pt/trade ($-62.7) | win 32.3% | PF 0.78 | Sharpe -2.40 | CAGR -7.10% | maxDD $163,669/NQ $16,906/MNQ | sessions 1392 t -2.04 p 0.0414 p1 0.9793
+                             frozen pass bar (full, NQ costs): not met
+  OR30 SATR1.0 R3.0          FULL n 7385 | net -1.36 pt/trade ($-27.1) | win 26.0% | PF 0.83 | Sharpe -1.34 | CAGR -6.97% | maxDD $203,457/NQ $24,576/MNQ | sessions 3992 t +0.83 p 0.4086 p1 0.2043
+                             2021 n 2574 | net -2.52 pt/trade ($-50.4) | win 25.1% | PF 0.84 | Sharpe -1.58 | CAGR -5.39% | maxDD $131,366/NQ $13,657/MNQ | sessions 1392 t +0.99 p 0.3217 p1 0.1609
+                             frozen pass bar (full, NQ costs): not met
+  OR30 SATR1.0 R4.0          FULL n 7335 | net -1.19 pt/trade ($-23.8) | win 21.1% | PF 0.85 | Sharpe -0.99 | CAGR -6.13% | maxDD $184,021/NQ $22,603/MNQ | sessions 3992 t +2.97 p 0.0030 p1 0.0015
+                             2021 n 2560 | net -2.17 pt/trade ($-43.4) | win 20.3% | PF 0.86 | Sharpe -1.14 | CAGR -4.84% | maxDD $119,090/NQ $12,424/MNQ | sessions 1392 t +2.51 p 0.0123 p1 0.0061
+                             frozen pass bar (full, NQ costs): not met
+  PRIMARY: 16 cell(s), Holm on one-sided p (full sample); best = OR15 SATR1.0 R4.0, study p = 0.0000
+  frozen pass bar for best cell: NOT MET -> stays closed

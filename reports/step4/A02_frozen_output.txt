@@ -1,0 +1,17 @@
+=== New Week Opening Gap fill — QQQ daily, 793 weekend/holiday gaps (2010-06-07..2026-09-24) ===
+
+FILL RATE (price returns to prior close):
+   same session          :  55%
+   within 3 sessions     :  74%
+   within the week (5)   :  82%
+   ever within 5           :  82%
+
+by gap size:
+   small <0.5%  n= 471  fill same-day  69%  fill within week  90%
+   0.5-1.0%     n= 201  fill same-day  42%  fill within week  75%
+   1.0-2.0%     n=  95  fill same-day  22%  fill within week  61%
+   big >2.0%    n=  26  fill same-day  15%  fill within week  54%
+
+FADE-TO-FILL trade (enter gap open -> target prior close, stop 1x gap):
+   n=793  win 36%  mean -0.271R  total -215R  t=-7.96
+   big gaps >=1%: n=121  win 47%  mean -0.059R  t=-0.66

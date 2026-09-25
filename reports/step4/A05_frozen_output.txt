@@ -1,0 +1,52 @@
+=== VWAP-RETEST continuation — QQQ 5-min, 4189 sessions 2010-06-07 .. 2026-09-24 ===
+
+Parameter sweep (extension in ATR x target R) — one trade/session:
+   ext  tgtR   result                                                    
+   1.0   1.0   n=3906  win  43%  mean -0.143R  total -559.5R  t=-9.08
+   1.0   1.5   n=3906  win  37%  mean -0.080R  total -312.4R  t=-4.17
+   1.0   2.0   n=3906  win  32%  mean -0.054R  total -212.6R  t=-2.47
+   1.0   3.0   n=3906  win  27%  mean +0.006R  total  +24.0R  t=+0.23
+
+   1.5   1.0   n=3497  win  40%  mean -0.196R  total -686.6R  t=-11.92
+   1.5   1.5   n=3497  win  35%  mean -0.134R  total -468.1R  t=-6.73
+   1.5   2.0   n=3497  win  30%  mean -0.108R  total -376.5R  t=-4.73
+   1.5   3.0   n=3497  win  26%  mean -0.029R  total  -99.8R  t=-1.02
+
+   2.0   1.0   n=3016  win  40%  mean -0.197R  total -594.2R  t=-11.15
+   2.0   1.5   n=3016  win  35%  mean -0.133R  total -402.0R  t=-6.26
+   2.0   2.0   n=3016  win  30%  mean -0.114R  total -342.4R  t=-4.67
+   2.0   3.0   n=3016  win  26%  mean -0.027R  total  -82.3R  t=-0.91
+
+-> best expectancy (n>=50): ext=1.0 ATR, target=3.0R
+
+=== detail at ext=1.0, target=3.0R (3906 trades) ===
+  ALL          : n=3906  win  27%  mean +0.006R  total  +24.0R  t=+0.23
+  LONG  legs   : n=1931  win  27%  mean +0.004R  total   +6.8R  t=+0.09
+  SHORT legs   : n=1975  win  26%  mean +0.009R  total  +17.1R  t=+0.23
+
+  VIX terciles (prior close): low<16.3  mid  high>20.0
+  VIX low  (<16.3) : n= 382  win  27%  mean +0.004R  total   +1.5R  t=+0.05
+  VIX mid          : n= 386  win  27%  mean -0.031R  total  -11.8R  t=-0.37
+  VIX high (>20.0): n= 384  win  26%  mean +0.000R  total   +0.2R  t=+0.00
+  VIX < 16        : n= 351  win  26%  mean -0.022R  total   -7.7R  t=-0.25
+  VIX < 18        : n= 592  win  28%  mean +0.021R  total  +12.3R  t=+0.30
+  VIX < 20        : n= 769  win  27%  mean -0.015R  total  -11.3R  t=-0.25
+  VIX < 25        : n= 992  win  27%  mean -0.003R  total   -2.9R  t=-0.06
+
+=== ALT reading: FADE the extension back TO VWAP (target=VWAP) ===
+   ext  stopR   result                                                    
+   1.5    0.5   n=4185  win  41%  mean -0.016R  total  -66.4R  t=-1.18
+   1.5    1.0   n=4185  win  52%  mean -0.050R  total -207.7R  t=-2.91
+   2.0    0.5   n=4158  win  38%  mean -0.041R  total -170.0R  t=-3.28
+   2.0    1.0   n=4158  win  50%  mean -0.068R  total -284.2R  t=-4.28
+   2.5    0.5   n=4046  win  39%  mean -0.033R  total -132.2R  t=-2.73
+   2.5    1.0   n=4046  win  49%  mean -0.050R  total -204.0R  t=-3.37
+   3.0    0.5   n=3784  win  40%  mean -0.024R  total  -90.2R  t=-2.06
+   3.0    1.0   n=3784  win  49%  mean -0.039R  total -146.4R  t=-2.74
+
+  reversion (ext=2.0, stopR=1.0) VIX split:
+    VIX < 16 : n= 370  win  54%  mean -0.002R  total   -0.6R  t=-0.03
+    VIX < 18 : n= 629  win  52%  mean -0.031R  total  -19.2R  t=-0.76
+    VIX < 20 : n= 822  win  50%  mean -0.057R  total  -46.6R  t=-1.61
+
+  Robert's claim: ~75% win. Measured win rates above are the check.
