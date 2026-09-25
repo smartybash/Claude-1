@@ -1,0 +1,42 @@
+STUDY (a) -- OVERNIGHT DRIFT OVERLAY (pre-registered, commit 7cf6513)
+  Databento GLBX.MDP3 ohlcv-1m, NQ.v.0 / ES.v.0 continuous, unadjusted prices;
+  SMA on ratio back-adjusted RTH closes; every traded return within one contract.
+  Costs per side: NQ/ES $2.25 + 1 tick; MNQ/MES $0.62 + 1 tick.
+
+=== NQ  (first signal 2011-03-23; sessions 4189; eligible nights 3889; roll/half-day nights skipped 300) ===
+  -- 2010-2020 [never used for this hypothesis; read by other daily studies, incl. overnight gap base rates]: 2011-03-23 -> 2020-12-31, 2505 sessions
+     arm                 Sharpe    CAGR     PF  trades  maxDD $/NQ  maxDD $/MNQ    total $
+     overlay              +0.81   6.67%   1.23    2046      36,132        3,627    100,552
+     always               +0.81   8.55%   1.22    2335      42,280        4,245    122,447
+     bh                   +0.84  18.62%    nan       0      55,680        5,568    212,950
+     null (random nights, same count 2046, 5,000 sims): 95th pct Sharpe +0.97, overlay p = 0.3207
+  -- 2021-registration [seen; not decisive]: 2021-01-01 -> 2026-09-24, 1478 sessions
+     arm                 Sharpe    CAGR     PF  trades  maxDD $/NQ  maxDD $/MNQ    total $
+     overlay              +0.82   7.85%   1.20    1047      46,576        4,680    187,968
+     always               +0.54   4.64%   1.11    1363      89,754        9,205    149,492
+     bh                   +0.57  11.95%    nan       0     119,438       11,946    257,616
+     null (random nights, same count 1047, 5,000 sims): 95th pct Sharpe +0.80, overlay p = 0.0428
+  per-year overlay (NQ/ES $ per contract, Sharpe):
+   2010:+0(+nan)  2011:-662(-0.18)  2012:-113(-0.03)  2013:+4,536(+1.08)  2014:+5,457(+0.97)  2015:+5,763(+0.83)  2016:-3,995(-0.63)  2017:+16,394(+2.65)  2018:+8,184(+0.70)  2019:+15,379(+1.14)  2020:+49,610(+1.53)  2021:+34,580(+1.21)  2022:-15,176(-1.18)  2023:+8,784(+0.34)  2024:+68,238(+1.57)  2025:+76,234(+1.74)  2026:+16,574(+0.31)
+
+=== ES  (first signal 2011-03-23; sessions 4189; eligible nights 3889; roll/half-day nights skipped 300) ===
+  -- 2010-2020 [never used for this hypothesis; read by other daily studies, incl. overnight gap base rates]: 2011-03-23 -> 2020-12-31, 2505 sessions
+     arm                 Sharpe    CAGR     PF  trades  maxDD $/ES  maxDD $/MES    total $
+     overlay              +0.29   0.33%   1.07    2006      25,643        3,411     24,452
+     always               +0.22   0.91%   1.05    2335      37,520        4,971     28,122
+     bh                   +0.64  11.85%    nan       0      49,962        4,996    128,250
+     null (random nights, same count 2006, 5,000 sims): 95th pct Sharpe +0.42, overlay p = 0.2525
+  -- 2021-registration [seen; not decisive]: 2021-01-01 -> 2026-09-24, 1478 sessions
+     arm                 Sharpe    CAGR     PF  trades  maxDD $/ES  maxDD $/MES    total $
+     overlay              +0.71   4.12%   1.16    1066      33,534        3,473     75,490
+     always               +0.35   1.90%   1.07    1363      54,354        5,769     49,466
+     bh                   +0.67  10.67%    nan       0      65,234        6,525    156,414
+     null (random nights, same count 1066, 5,000 sims): 95th pct Sharpe +0.63, overlay p = 0.0182
+  per-year overlay (NQ/ES $ per contract, Sharpe):
+   2010:+0(+nan)  2011:-6,370(-1.64)  2012:-5,948(-1.11)  2013:+1,498(+0.29)  2014:+1,832(+0.33)  2015:-4,421(-0.72)  2016:-5,323(-0.83)  2017:+5,987(+1.23)  2018:+1,702(+0.21)  2019:+10,532(+1.04)  2020:+24,964(+1.32)  2021:+20,516(+1.35)  2022:-13,636(-1.62)  2023:-9,133(-0.67)  2024:+39,092(+1.70)  2025:+31,626(+1.51)  2026:+7,710(+0.39)
+
+=== KILL CRITERIA, 2010-2020 block (all must hold) ===
+  ES: Sharpe +0.29 FAIL | PF 1.07 FAIL | null Holm p 0.5051 FAIL | vs B&H +0.64 FAIL  => KILLED
+  NQ: Sharpe +0.81 PASS | PF 1.23 FAIL | null Holm p 0.5051 FAIL | vs B&H +0.84 FAIL  => KILLED
+
+  Forward block (after 2026-09-25): empty today. Nothing is promoted on backtest.
