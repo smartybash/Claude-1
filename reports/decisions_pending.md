@@ -150,3 +150,13 @@ built.
    would still be unexplained, so ±2% may fail anyway.
 
 RP-011 Stage 1 is on hold until you choose. The holdout is untouched.
+
+**P6 addendum — disclosure (added after step-4 tape reruns T01–T17).** After
+RP-011 stopped at its gate I moved on to step 4, and the repository's closed tape
+studies have now read forward returns on the **same 61 discovery sessions**. T01
+(absorption: heavy delta with no price progress) is close to RP-011's absorption
+state. So if you choose option 2, RP-011's discovery read would **not** be clean;
+the D2 holdout (23 sessions, untouched) would carry the whole confirmatory
+weight. Your queue put RP-011 before step 4, and I took its registered stop as
+the end of that item. Say if you would have wanted the tape reruns held. **T18
+(RP-010 itself, RP-011's direct predecessor) is held until you decide P6.**
