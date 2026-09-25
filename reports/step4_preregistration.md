@@ -145,3 +145,19 @@ zero on sessions without a trade, over every session in the sample. That is the
 test behind the Sharpe ratio, and it is what the repository's own frozen
 criteria use ("zero-trade sessions count as zero"). The per-session-mean
 statistic stays in the output as a diagnostic only. No BH has been computed.
+
+## Clarification 4 — G4 archive scripts, declared before any of them runs
+
+The thirteen archive rows (A01–A13) were never pre-registered: their scripts are
+their only specification, and they carry no registered pass bar. Under §7 a
+study can be revived only if its frozen pass bar is met, so **no G4 study can
+be revived**, whatever its NQ result. They are rerun for **verdict agreement
+only** — the headline statistic each closure rested on, old against new — and
+are **kept out of BH** (no registered test). Data: the shared QQQ 5-minute
+loader (`backtest_tos_fvg.load_sessions`) and the daily loaders are pointed at
+NQ 5-minute RTH bars (built from the NQ 1-minute file) and NQ daily RTH bars
+(ratio back-adjusted); price constants written in QQQ dollars are converted
+×41 and listed per script; percentage constants are unchanged. Costs as §5.
+A script that needs data NQ does not have (gamma, breadth, VIX) runs without
+that input only if the script itself treats it as optional; otherwise it is
+marked not ported.
