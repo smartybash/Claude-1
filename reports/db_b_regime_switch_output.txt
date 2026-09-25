@@ -1,0 +1,33 @@
+STUDY (b) -- REGIME SWITCH, strict one-shot replication (pre-registered 7cf6513)
+  NQ only. Labels from indicators through the prior close. Published thresholds.
+  Costs per side: NQ $2.25 + 1 tick; MNQ $0.62 + 1 tick.
+
+=== 2010-2020 [never used for this hypothesis; read by other daily studies, incl. overnight gap base rates] -- DECISIVE: 2010-07-20 -> 2020-12-31 ===
+  sessions 2680; labels {'NEUTRAL': 1133, 'TREND': 783, 'CHOP': 764}; tradeable days (trigger present) 2559
+  traded: TREND 740, CHOP 742
+  STRATEGY  Sharpe -1.00  CAGR -9.30%  PF 0.75  trades 1482  maxDD $101,718/NQ $11,284/MNQ  total $-97,872
+    cell brk |TREND n  740  mean $   -96.8  win  38.2%
+    cell brk |CHOP  n  742  mean $    +9.6  win  46.2%
+    cell fade|TREND n  740  mean $   +30.0  win  64.7%
+    cell fade|CHOP  n  742  mean $   -35.4  win  56.9%
+  regime permutation: 95th pct +0.10, p = 0.9878
+  random direction:   95th pct +0.30, p = 0.9952
+  Holm-adjusted: permutation 1.0000, random direction 1.0000
+  per year $/NQ: 2010:+1,708  2011:-8,992  2012:-5,277  2013:-5,264  2014:-11,642  2015:-8,701  2016:-4,769  2017:-4,691  2018:-3,360  2019:+1,008  2020:-47,890
+
+=== 2021-registration [seen; not decisive]: 2021-01-01 -> 2026-09-24 ===
+  sessions 1478; labels {'NEUTRAL': 673, 'TREND': 415, 'CHOP': 390}; tradeable days (trigger present) 1409
+  traded: TREND 393, CHOP 373
+  STRATEGY  Sharpe +0.53  CAGR 4.22%  PF 1.14  trades 766  maxDD $23,100/NQ $2,325/MNQ  total $94,950
+    cell brk |TREND n  393  mean $  +211.0  win  46.8%
+    cell brk |CHOP  n  373  mean $  +106.1  win  49.6%
+    cell fade|TREND n  393  mean $   -17.9  win  58.5%
+    cell fade|CHOP  n  373  mean $   +32.2  win  58.4%
+  regime permutation: 95th pct +0.87, p = 0.2334
+  random direction:   95th pct +0.75, p = 0.1580
+  Holm-adjusted: permutation 0.3159, random direction 0.3159
+  per year $/NQ: 2021:-12,570  2022:+15,904  2023:+14,586  2024:+13,476  2025:+31,882  2026:+31,671
+
+=== KILL CRITERIA, 2010-2020 block ===
+  Sharpe -1.00 FAIL | PF 0.75 FAIL | permutation Holm p 1.0000 FAIL | random-direction Holm p 1.0000 FAIL
+  => FAILS -- closed permanently, no re-tuning

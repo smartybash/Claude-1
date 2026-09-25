@@ -169,14 +169,17 @@ def load_ticks(tag):
         t = db.DBNStore.from_file(f).to_df().reset_index()
         parts.append(t[["ts_event", "instrument_id", "side", "price", "size",
                         "flags", "sequence"]])
-    t = pd.concat(parts, ignore_index=True).rename(columns={"ts_event": "ts_utc"})
+    # `size` and `flags` shadow DataFrame.size / DataFrame.flags -- caught by
+    # the reserved-name guard on the first run; renamed, never bracket-indexed
+    t = pd.concat(parts, ignore_index=True).rename(
+        columns={"ts_event": "ts_utc", "size": "qty", "flags": "rflags"})
     t = t.sort_values(["ts_utc", "sequence"]).reset_index(drop=True)
     return pd.concat([t, et_cols(t.ts_utc)], axis=1)
 
 
 def recombine(t):
     g = t.groupby(["instrument_id", "ts_utc", "side"], sort=False)
-    o = g.agg(size=("size", "sum"), n_prints=("size", "size"),
+    o = g.agg(qty=("qty", "sum"), n_prints=("qty", "size"),
               p_first=("price", "first"), p_last=("price", "last"),
               p_min=("price", "min"), p_max=("price", "max"),
               seq_first=("sequence", "min"), seq_last=("sequence", "max"),
@@ -209,7 +212,7 @@ def session_quality(t, o):
         r = x[x.rth]
         gaps = r.ts_utc.diff().dt.total_seconds()
         rows.append(dict(session=s.date(), prints=len(x), rth_prints=len(r),
-                         volume=int(x["size"].sum()), rth_volume=int(r["size"].sum()),
+                         volume=int(x["qty"].sum()), rth_volume=int(r["qty"].sum()),
                          first_rth=str(r.ts_et.min().time()) if len(r) else "",
                          last_rth=str(r.ts_et.max().time()) if len(r) else "",
                          max_rth_gap_s=float(gaps.max()) if len(r) > 1 else np.nan,
@@ -223,7 +226,7 @@ def session_quality(t, o):
 def footprint(t):
     t = t.assign(minute=t.ts_et.dt.floor("1min"))
     f = t.pivot_table(index=["instrument_id", "session", "minute", "price"],
-                      columns="side", values="size", aggfunc="sum", fill_value=0)
+                      columns="side", values="qty", aggfunc="sum", fill_value=0)
     f = f.rename(columns={"B": "buy_aggr_vol", "A": "sell_aggr_vol", "N": "unk_vol"})
     for c in ("buy_aggr_vol", "sell_aggr_vol", "unk_vol"):
         if c not in f.columns:
@@ -242,13 +245,13 @@ def build_ticks(big_thr=None):
         DQ.assert_safe_columns(t, f"{window} ticks")
         o = recombine(t)
         if window == "discovery":
-            big_thr = float(np.percentile(o["size"], Q_BIG))
+            big_thr = float(np.percentile(o["qty"], Q_BIG))
             rc = recombine_check(t, o)
         d = base / window
         d.mkdir(parents=True, exist_ok=True)
         fp = footprint(t)
         nfp = write_monthly(fp, d, "footprint", "minute")
-        o[o["size"] >= big_thr].to_parquet(d / "big_orders.parquet", index=False,
+        o[o["qty"] >= big_thr].to_parquet(d / "big_orders.parquet", index=False,
                                            compression="zstd")
         q = session_quality(t, o)
         q.to_csv(d / "session_quality.csv", index=False)
@@ -258,7 +261,7 @@ def build_ticks(big_thr=None):
                                        t.side.value_counts(normalize=True).items()},
                            sessions=int(q.session.nunique()),
                            big_threshold_contracts=big_thr,
-                           big_orders=int((o["size"] >= big_thr).sum()),
+                           big_orders=int((o["qty"] >= big_thr).sum()),
                            footprint_files=nfp,
                            instruments=[int(i) for i in t.instrument_id.unique()])
         if window == "discovery":
