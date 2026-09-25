@@ -18,7 +18,10 @@ def main(limit=5400, poll=30):
     c = db.Historical(key())
     t0 = time.time()
     while True:
-        rows = list(csv.DictReader(open(LEDGER)))
+        with open(LEDGER) as f:
+            rows = list(csv.DictReader(f))
+        if not rows:
+            sys.exit("STOP: ledger read back empty -- refusing to overwrite it")
         mine = [r for r in rows if r["job_tag"] != "pre-existing"]
         jobs = {j["id"]: j for j in c.batch.list_jobs(states=["queued", "processing", "done"])}
         pending = []
@@ -31,9 +34,16 @@ def main(limit=5400, poll=30):
             else:
                 pending.append(r["job_tag"])
                 r["state"] = j["state"] if j else "missing"
-        w = csv.DictWriter(open(LEDGER, "w", newline=""), fieldnames=list(rows[0].keys()))
-        w.writeheader()
-        [w.writerow(r) for r in rows]
+        # atomic: write a temp file, then rename. The first version left the file
+        # handle open, so the next poll read an empty ledger and one commit
+        # captured it truncated.
+        tmp = LEDGER.with_suffix(".tmp")
+        with open(tmp, "w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            w.writeheader()
+            for r in rows:
+                w.writerow(r)
+        tmp.replace(LEDGER)
         if not pending:
             break
         if time.time() - t0 > limit:
