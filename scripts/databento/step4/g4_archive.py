@@ -42,6 +42,7 @@ import nq_root                                                     # noqa: E402
 C = nq_root.C
 ARCH = C.ROOT / "scripts/archive"
 sys.path.insert(0, str(ARCH))
+sys.path.insert(0, str(C.ROOT))
 
 RUNS = [("A01", "backtest_ict_sweep"), ("A02", "backtest_nwog"), ("A03", "backtest_orb15"),
         ("A04", "backtest_initial_balance"), ("A05", "backtest_vwap_retest"),
