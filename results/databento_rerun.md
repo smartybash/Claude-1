@@ -22,18 +22,28 @@ studies, incl. overnight gap base rates"*.
 Details: `reports/db_a_overnight_drift_result.md`, `db_b_regime_switch_result.md`,
 `db_cd_result.md`, `db_e_result.md`.
 
-## 2. RP-011 on pull B
+## 2. RP-011 on pull B — REJECTED
 
-**Stopped at the registered quality gate:** 27 of 65 discovery sessions pass
-(50 needed). 60 pass everything except the ±2% volume reconciliation to CME
-cleared volume, which the tick feed misses by a steady 1–3.5% (block and
-spread-leg volume not in the outright feed). No RP-011 window was built.
-Decision **P6** in `reports/decisions_pending.md`; the holdout is untouched.
-`reports/rp011_stage1_result.md`.
+The registered ±2% volume check stopped the first run (27 of 65 sessions). With
+the amendment you accepted (P6: one-sided, ≤ 5% shortfall), 56 sessions pass,
+the counts gate passes all eight conditions, and the outcomes reject the
+mechanism: no block reaches its primary statistic (best Holm p 0.77) and five
+kill conditions fire in every block. **The holdout was not read** — nothing
+passed discovery. Discovery was labelled "sessions already read by step-4 tape
+studies". `reports/rp011_discovery_result.md`. T18 (RP-010 frozen) agrees with
+RP-010's closure on the same data: 8 of 10 kill conditions, 2 of 11 pass.
 
-## 3. Power of 3
+## 3. Power of 3 — CLOSED
 
-Specification drafted and waiting for your approval (**P1**). Not tested.
+Primary V2 (midnight open) on seen NQ 2010–2026: Sharpe −0.43, PF 0.84, null p
+0.60; V1 −0.54, V3 −0.18. Fails every kill criterion. `reports/po3_result.md`.
+
+## 3b. Three daily effects — paper-tracking (P7)
+
+Pre-registered `3390a46` with minimal causal repairs; test = beat an
+exposure-matched random-entry null on forward data, first review 2027-09-25.
+Seen-data context (not a test): D1 daily FVG p 0.078, D2 compression breakout
+p 0.277, D3 oversold bounce p 0.002 against the null. `reports/daily3_context_result.md`.
 
 ## 4. The repository's closed studies on NQ (step 4)
 
@@ -45,7 +55,7 @@ the 61 discovery sessions; bar studies use NQ 1-minute, full 2010-06-07 →
 2026-09-24, with 2021–2026 as the like-for-like line. Costs per side NQ $2.25 +
 1 tick, MNQ $0.62 + 1 tick, or the frozen spec's own cost if stricter.
 
-**Result: 0 of 31 trading claims revived after Benjamini-Hochberg (q = 0.05). Every closed study stays closed on NQ.** Rows reported: 62 (tape, bar, archive, descriptive). The closest misses: B15 IB-by-rejection (+4.6 NQ pt/trade after costs, daily-P&L p 0.054, fails its frozen t > 3) and B31 IB re-entry (p 0.085). Descriptive replications on NQ: FOMC-afternoon volatility (B01), the opening block's larger excursions (B02), and mean-reverting VWAP-displacement / cumulative-delta correlations at 15 minutes (T09) that no frozen trade converts into profit. Archive positives that replicate (A10 daily FVG, A11 compression breakout, A12 oversold bounce) are unregistered multi-day effects and cannot be revived; see decision P7.
+**Result: 0 of 31 trading claims revived after Benjamini-Hochberg (q = 0.05). Every closed study stays closed on NQ.** Rows reported: 63 (tape, bar, archive, descriptive). The closest misses: B15 IB-by-rejection (+4.6 NQ pt/trade after costs, daily-P&L p 0.054, fails its frozen t > 3) and B31 IB re-entry (p 0.085). Descriptive replications on NQ: FOMC-afternoon volatility (B01), the opening block's larger excursions (B02), and mean-reverting VWAP-displacement / cumulative-delta correlations at 15 minutes (T09) that no frozen trade converts into profit. Archive positives that replicate (A10 daily FVG, A11 compression breakout, A12 oversold bounce) are unregistered multi-day effects and cannot be revived; see decision P7.
 
 | id | study | old verdict | net pt/trade | Sharpe | study p | BH p | final verdict |
 |---|---|---|---|---|---|---|---|
@@ -111,6 +121,7 @@ the 61 discovery sessions; bar studies use NQ 1-minute, full 2010-06-07 →
 | T15 | order-flow batch A B C E (registered bar) | 0 of 12 (A B C E: 0 of 8) | -1.77 | -2.43 | 1.0000 | 1.000 | stays closed |
 | T16 | filter survey, tape families | no filter | +14.75 | +3.46 | 1.0000 | 1.000 | stays closed |
 | T17 | CVD LEVEL gates on structure break | dead | -2.38 | -0.53 | 1.0000 | 1.000 | stays closed |
+| T18 | RP-010 frozen (pooled thresholds, 6-event cap) | rejected: 8 of 10 kill conditions fire, 2 of 11 pass |  |  |  |  | agrees: 8/10 kill, 2/11 pass |
 
 ## 4b. Order-flow hypotheses OF-1..OF-4 — discovery (provisional)
 
@@ -128,13 +139,10 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 
 ## 5. Next tests
 
-- **P6** decides whether RP-011 runs (and on what footing, given the disclosure
-  in its addendum). T18 (RP-010) waits for the same decision.
-- Step 4 is complete except T18 (RP-010), held with P6; B03, B30, A13 not rerun
+- Step 4 is complete; B03, B30, A13 not rerun
   (reasons in the table); X01-X08 need depth, options or other instruments.
-- OF-1..OF-4 all failed discovery, so none goes to the holdout. The D2 holdout
-  is still unread; it is reserved for RP-011 if P6 lets RP-011 run.
-- **P7**: whether to register a forward-only test of the three multi-day daily
-  effects that replicate on NQ.
-- **P2** (early November): top-up of fresh sessions from 2026-09-25 as a
-  confirmation-only holdout, within the cap.
+- OF-1..OF-4 and RP-011 all failed discovery; **the D2 tick holdout stays unread.**
+- Paper-track the three daily effects (P7); forward bars await **P8**.
+- The trade harness for your Tradovate fills is ready for the CSV
+  (`scripts/trades/`).
+- P2 top-up cancelled (your decision).

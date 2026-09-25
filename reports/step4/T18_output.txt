@@ -1,0 +1,6 @@
+=== T18 RP-010 frozen on Databento discovery: sessions 61, labelled 51, events 306 (INI 147, ABS 159)
+  15-min: INITIATIVE +6.53  ABSORPTION +12.02  D -0.31 t -0.05
+  selectors: delta +10.40, progress +9.75, volume +10.01, loc_vol +2.27, impact +1.90
+  matched times INI +3.88 ABS +7.32
+  pass: [n]1 [Y]2 [n]3 [n]4 [n]5 [n]6 [n]7 [n]8 [n]9 [n]10 [Y]11 (2 of 11)
+  kill: [FIRES]K1 [FIRES]K2 [FIRES]K3 [FIRES]K4 [FIRES]K5 [FIRES]K6 [-]K7 [-]K8 [FIRES]K9 [FIRES]K10 (8 of 10)
