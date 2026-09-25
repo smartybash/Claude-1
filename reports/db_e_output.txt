@@ -1,0 +1,42 @@
+STUDY (e) -- four simple intraday rules, NQ, pre-registered 3b5f631
+Costs per side NQ $2.25 + 1 tick, MNQ $0.62 + 1 tick. Random-direction null, mirrored geometry.
+
+=== (e) SIMPLE INTRADAY RULES ===
+  gap_go | 2010-2020 [never used for this hypothesis; read by other studies, incl. study (b)] -- DECISIVE
+    Sharpe -0.09  CAGR 0.04%  PF 0.94  trades 210  win 39.5%  maxDD $9,340/NQ $1,055/MNQ  total $-2,120
+    random-direction null: 95th pct +0.37, p = 0.5639
+    per year $: 2010:+1,233  2011:+1,046  2012:-638  2013:+454  2014:-142  2015:-1,404  2016:+878  2017:-855  2018:-677  2019:-2,366  2020:+350
+  gap_go | 2021-registration [seen; not decisive]
+    Sharpe +0.43  CAGR 1.11%  PF 1.23  trades 153  win 39.2%  maxDD $13,876/NQ $1,410/MNQ  total $21,096
+    random-direction null: 95th pct +0.36, p = 0.0332
+    per year $: 2021:-598  2022:+10,554  2023:+183  2024:+5,292  2025:-962  2026:+6,627
+  gap_fade | 2010-2020 [never used for this hypothesis; read by other studies, incl. study (b)] -- DECISIVE
+    Sharpe +0.01  CAGR 0.25%  PF 1.01  trades 279  win 27.2%  maxDD $8,692/NQ $889/MNQ  total $364
+    random-direction null: 95th pct +0.40, p = 0.4951
+    per year $: 2010:+1,005  2011:+404  2012:-615  2013:+93  2014:+2,926  2015:-3,142  2016:-1,348  2017:-629  2018:+993  2019:+5,106  2020:-4,428
+  gap_fade | 2021-registration [seen; not decisive]
+    Sharpe +0.34  CAGR 1.90%  PF 1.19  trades 162  win 30.2%  maxDD $29,568/NQ $2,976/MNQ  total $23,756
+    random-direction null: 95th pct +0.68, p = 0.3107
+    per year $: 2021:+3,750  2022:+15,369  2023:+3,870  2024:+8,599  2025:+10,496  2026:-18,328
+  pdhl_brk | 2010-2020 [never used for this hypothesis; read by other studies, incl. study (b)] -- DECISIVE
+    Sharpe -0.16  CAGR -2.31%  PF 0.97  trades 2107  win 43.9%  maxDD $38,102/NQ $4,678/MNQ  total $-18,777
+    random-direction null: 95th pct +0.17, p = 0.2997
+    per year $: 2010:-5,068  2011:+1,997  2012:-831  2013:-773  2014:+1,268  2015:+5,168  2016:-6,194  2017:-5,109  2018:+14,877  2019:-11,274  2020:-12,838
+  pdhl_brk | 2021-registration [seen; not decisive]
+    Sharpe -0.00  CAGR 0.57%  PF 1.00  trades 1169  win 45.9%  maxDD $71,531/NQ $7,520/MNQ  total $-827
+    random-direction null: 95th pct +0.31, p = 0.1962
+    per year $: 2021:+6,153  2022:+32,524  2023:+10,890  2024:-25,426  2025:-20,451  2026:-4,517
+  donchian | 2010-2020 [never used for this hypothesis; read by other studies, incl. study (b)] -- DECISIVE
+    Sharpe +0.14  CAGR -0.56%  PF 1.03  trades 2620  win 41.6%  maxDD $26,534/NQ $3,674/MNQ  total $13,430
+    random-direction null: 95th pct +0.28, p = 0.1362
+    per year $: 2010:-3,085  2011:+5,058  2012:+446  2013:-4,966  2014:-1,352  2015:-2,033  2016:-7,006  2017:-8,198  2018:+13,853  2019:-446  2020:+21,160
+  donchian | 2021-registration [seen; not decisive]
+    Sharpe +0.05  CAGR 1.59%  PF 1.01  trades 1418  win 43.3%  maxDD $57,068/NQ $6,164/MNQ  total $8,469
+    random-direction null: 95th pct +0.50, p = 0.3165
+    per year $: 2021:-1,712  2022:+50,328  2023:-554  2024:-7,265  2025:-1,513  2026:-30,814
+
+=== KILL CRITERIA, 2010-2020 block (Sharpe >= 0.8, PF >= 1.3, null Holm p <= 0.05) ===
+  gap_go    Sharpe -0.09 FAIL | PF 0.94 FAIL | Holm p 0.9902 FAIL  => KILLED
+  gap_fade  Sharpe +0.01 FAIL | PF 1.01 FAIL | Holm p 0.9902 FAIL  => KILLED
+  pdhl_brk  Sharpe -0.16 FAIL | PF 0.97 FAIL | Holm p 0.8992 FAIL  => KILLED
+  donchian  Sharpe +0.14 FAIL | PF 1.03 FAIL | Holm p 0.5447 FAIL  => KILLED
