@@ -106,3 +106,19 @@ same prints). They enter no test, hypothesis or feature.
 
 **Top-up, noted for later:** once 30+ fresh sessions exist after 2026-09-25 (early
 November), propose a second, confirmation-only holdout within the USD 125 cap.
+
+---
+
+## 7. Seen status after studies (a) and (b) — logged 2026-09-25
+
+Study (b) traded NQ 1-minute bars across its approved decisive block,
+2010-07-20 → 2020-12-31. Under §4, **every NQ intraday day 2010–2020 is now
+seen**. With QQQ 1-minute 2016-01 → 2026-08-31 already seen, **no unseen
+intraday block of useful length remains** (2026-09-01 → 2026-09-24 is a stub).
+
+Consequence for later studies: new intraday studies (c) and (d) use the same
+treatment you approved for (a) and (b). 2010-06 → 2020-12 is reported
+separately, labelled **"never used for this hypothesis; read by other studies,
+incl. study (b)"**; 2021 → registration is reported as seen and not decisive;
+forward data after registration is the only true out-of-sample. The Power of 3
+holdout question (P1) is updated accordingly in `decisions_pending.md`.

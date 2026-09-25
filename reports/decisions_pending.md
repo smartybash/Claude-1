@@ -62,8 +62,12 @@ daily data to 2026-09-11 is seen as well.
 | **final holdout, read once** | **2015-01 → 2015-12**, the most recent ~12-month unseen intraday block |
 | recent unseen stub | 2026-09-12 → 2026-09-24, too short for anything |
 
-**Question:** is 2015 acceptable as the "most recent unseen" holdout? The
-alternative is forward data from registration only.
+**UPDATE 2026-09-25:** study (b) has since traded NQ 1-minute bars across
+2010–2020, so **2015 is no longer unseen** (register §7). No unseen ~12-month
+intraday block remains. **Revised question:** for Power of 3, choose between
+(1) walk-forward on 2010–2020 labelled as read by other studies, with the final
+holdout on **forward data** from registration, or (2) the same labelled block as
+studies (a)–(d), with no final holdout until forward data accrues.
 
 ---
 
