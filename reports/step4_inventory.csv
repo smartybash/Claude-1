@@ -1,0 +1,73 @@
+id,study,script,spec,original_data,original_verdict,class,group,note
+T01,Absorption 2x2 (aggression that fails to move price reverses),scripts/orderflow/absorption.py,findings_summary round two,ATAS tape 2 sessions,dead: all four cells negative,tape,G1,
+T02,Tape hypothesis sweep (~20 incl. block prints; H0 last-window sign),scripts/orderflow/sweep_tape.py,findings_summary round two,ATAS tape 2 sessions,dead except CVD-divergence cell,tape,G1,
+T03,CVD divergence at 60-minute extremes,scripts/orderflow/divergence_audit.py,findings_summary round two,ATAS tape 2 sessions,dead: t 5.12 -> 1.00 de-overlapped; control beats it,tape,G1,
+T04,Tape level fade (prior profile + IB levels),scripts/orderflow/levels.py + levels_audit.py,findings_summary rounds three-four,ATAS tape 12 sessions,dead: shrank with sample; assumed fill,tape,G1,
+T05,Weight rule (fade light levels <10k contracts),scripts/orderflow/level_weight.py + oos.py,level_weight.py frozen constants,ATAS tape 9 IS + 6 OOS sessions,dead: OOS -1.36 pt,tape,G1,frozen constants in script
+T06,CVD level gate / CVD threshold filter,scripts/orderflow/cvd_threshold.py + filters.py,findings_summary CVD filter,ATAS tape,dead,tape,G1,
+T07,CVD change gate (breaking bar >=5% of volume),scripts/orderflow/filters_audit.py,findings_summary CVD-change gate,ATAS tape 34 sessions,dead: July -0.169R,tape,G1,
+T08,Gap + early CVD agreement,scripts/orderflow/gap_cvd.py,findings_summary gap+CVD,ATAS tape 15 gap sessions,direction only (p 0.028 on 6 sessions); not a rule,tape,G1,
+T09,Information-coefficient harness,scripts/orderflow/ic_harness.py,findings_summary IC harness,ATAS tape 19 sessions,IC is not edge,tape,G1,
+T10,15-minute forecast / VWAP displacement (three exits),scripts/orderflow/forecast.py,findings_summary pre-registration three exit variants,ATAS tape 47 discovery sessions,cannot be won at 30 sessions; holdout sealed,tape,G1,
+T11,Order-size gate (25+/50+ lot net delta; sweep delta),scripts/orderflow/bigorder.py,findings_summary order size,ATAS CUM stream 46 sessions,dead: month D -0.434R,tape,G1,Databento recombined orders replace the CUM stream
+T12,Magnitude vs direction,scripts/orderflow/magnitude.py,findings_summary reset,ATAS tape 46 sessions,rejected,tape,G1,
+T13,Footprint five shapes (5-min bars),scripts/orderflow/footprint.py,findings_summary footprint,ATAS tape discovery,dead (eighth finding),tape,G1,
+T14,Footprint levels / heavy-level revisits (placebo),scripts/orderflow/levels_footprint.py,findings_summary footprint trader's question,ATAS tape,dead: placebo pays the same,tape,G1,
+T15,Order-flow batch families A B C E (diagonal; stacked; sweep depth; absorption at extreme),scripts/orderflow/batch_sweep.py + footprint features,orderflow_batch_preregistration d85b15c,ATAS tape 16 sessions,0 of 12 clear all gates,tape,G1,families D and F need depth: X
+T16,Filter survey (tape families only),scripts/orderflow/filter_survey.py,findings_summary filter survey,ATAS tape,no filter,tape,G1,BOOK family needs depth: X
+T17,Structure trade gated by CVD,scripts/orderflow/structure_cvd.py,findings_summary go with the break,ATAS tape,rejected,tape,G1,
+T18,RP-010 order-flow impact / absorption / exhaustion,scripts/orderflow/rp010_stage1.py,rp010_stage0_proposal bf57706,ATAS tape 2026-06-18 -> 08-20,rejected,tape,G1,RP-011 is its frozen successor (on hold P6)
+B01,FOMC family,scripts/orderflow/fomc_study.py,fomc_family_preregistration a306378,QQQ 1-min FOMC days,closed,bar,G2,small sample (event count)
+B02,RP-009 time-of-day opportunity and risk,scripts/orderflow/rp009_stage1.py,rp009_stage1_proposal 04d8d4b,QQQ + 44 NQ sessions,no standalone verdict possible (44 NQ sessions),bar,G2,small NQ sample
+B03,European vs US session profile,scripts/orderflow/calendar_session_study.py?,european_vs_us_session_profile,ATAS 21 dates,descriptive: worse terms in EU hours,bar,G2,descriptive; no p-value unless registered
+B04,Pullback grid 1,scripts/orderflow/pullback.py,pullback_preregistration 7f19544,QQQ 1-min,0 of 12 (spec defect),bar,G3,
+B05,Pullback grid 2,scripts/orderflow/pullback.py,pullback_preregistration_v2 1a02a18,QQQ 1-min,0 of 12,bar,G3,
+B06,QQQ broad screen,scripts/orderflow/qqq_screen.py,qqq_screen_preregistration 697fd55,QQQ 1-min 1418 sessions,0 of 16,bar,G3,
+B07,ORB + session VWAP filter,scripts/orderflow/orb_vwap.py,orb_vwap_preregistration bbbddb1,QQQ 1-min,0 of 16,bar,G3,
+B08,Opening-range height,scripts/orderflow/or_height.py,or_height_preregistration 9307834,QQQ 1-min,0 of 4,bar,G3,
+B09,Session regime forecastability,scripts/orderflow/regime_forecast.py,regime_forecastability_preregistration 43ab596,QQQ 1-min 1418 sessions,0 of 14,bar,G3,non-trading statistic
+B10,Mechanised discretionary pullback,scripts/orderflow/disc_pullback.py,pullback_discretionary_preregistration b8db9d2,QQQ 1-min 1417 sessions,0 of 8,bar,G3,
+B11,Prior-day levels predictive (reaction + clustering),scripts/orderflow/levels_predictive.py,levels_predictive_preregistration d6539a1,QQQ 1-min,0 of 13,bar,G3,prior-day levels only; gamma levels X
+B12,Setup grading scheme,scripts/orderflow/setup_grading.py,setup_grading_preregistration bb0ab30,QQQ 1-min,worse than random,bar,G3,
+B13,Calendar classification,scripts/orderflow/calendar_classify.py,calendar_classification_preregistration c147285,QQQ 1-min,0 of 52 at alpha 0.000962,bar,G3,
+B14,IB ending zone + pullback rejection,scripts/orderflow/ib_pullback.py,ib_pullback_preregistration 417a012,QQQ 1-min,closed: holdout break-even,bar,G3,
+B15,Initial balance by rejection,scripts/orderflow/ib_rejection.py,ib_rejection_preregistration 9043ab6,QQQ 1-min,closed,bar,G3,
+B16,ORB + Fibonacci (continuation and reversal),scripts/orderflow/orb_fib.py,orb_fibonacci_preregistration 5612140,QQQ 1-min,closed,bar,G3,
+B17,Compressed range resolution,scripts/orderflow/compression_run.py,compression prereg 2417092 (+02e0746 c2abfcb),QQQ 1-min,mechanism falsified,bar,G3,
+B18,Pre-open conditioning,scripts/orderflow/preopen.py,preopen_conditioning_preregistration dc4f4bf,QQQ 1-min RTH+ETH,null,bar,G3,needs ETH
+B19,Trade conditioning on pre-open variables,scripts/orderflow/trade_conditioning.py,trade_conditioning_preregistration 242c9c4,QQQ 1-min,direction closes,bar,G3,depends on B04-B16 trade sets
+B20,RP-002 opening auction inventory rebalancing,scripts/orderflow/rp002_stage1.py,rp002_preregistration 1a65e8c,QQQ 1-min RTH+ETH,descriptive fail,bar,G3,
+B21,RP-003 beta residual (QQQ/SPY -> NQ/ES),scripts/orderflow/rp003_stage1.py,research_proposal_001_002_assessment,QQQ+SPY 1-min,closed,bar,G3,uses ES in place of SPY
+B22,RP-005 close auction flow,scripts/orderflow/rp005_stage1.py,rp005 stage1,QQQ 1-min,closed,bar,G3,
+B23,RP-007 1A1 level validity,scripts/orderflow/rp007_stage1a1.py,rp007_stage1a1_preregistration a72fe50,QQQ 1-min RTH+ETH,precisely measured zero,bar,G3,
+B24,RP-008 regime validity,scripts/orderflow/rp008_stage1.py,rp008_stage1_preregistration 4481bae,QQQ 1-min,closed,bar,G3,
+B25,RP-012A relative volume + impact persistence,scripts/orderflow/rp012a_stage1.py,rp012a_stage0 3816474,QQQ + related 1-min,rejected,bar,G3,
+B26,RP-13 FVG multi-timeframe,scripts/orderflow/rp13_fvg.py,rp13_fvg_preregistration adb6226,QQQ 1-min,null,bar,G3,
+B27,Level fade on 1421 sessions (heavy/light; PDH/PDL break),scripts/orderflow/levels_long.py,findings_summary re-opening,QQQ 1-min,fade loses; break tilt < cost,bar,G3,
+B28,Structure trade by timeframe,scripts/orderflow/structure_trade.py,findings_summary go with the break,QQQ 1-min 1420 sessions,negative every timeframe,bar,G3,
+B29,Gap structure trade,scripts/orderflow/gapstructure.py,findings_summary structure trade,QQQ 5-min 2680 sessions,closed,bar,G3,
+B30,Gap-fill base rate / gap trade,scripts/orderflow/gapfill.py,findings_summary gap trade,daily + 5 sessions,base rate only,bar,G3,
+B31,Reopen study (VWAP displacement on bars),scripts/orderflow/reopen_study.py,findings_summary,QQQ 1-min,closed,bar,G3,
+B32,IB study,scripts/orderflow/ib_study.py,findings_summary,QQQ 1-min,closed,bar,G3,
+A01,ICT prior-day sweep + reclaim,scripts/archive/backtest_ict_sweep.py,unregistered (script = spec),QQQ 5-min,-0.19R,bar,G4,
+A02,NWOG weekend gap fade,scripts/archive/backtest_nwog.py,unregistered,daily 27y,-0.34R,bar,G4,
+A03,15-min ORB + FVG,scripts/archive/backtest_orb15.py,unregistered,QQQ 5-min,PF 1.01,bar,G4,
+A04,Initial balance breakout,scripts/archive/backtest_initial_balance.py,unregistered,QQQ 5-min,no configuration pays,bar,G4,
+A05,VWAP retest,scripts/archive/backtest_vwap_retest.py,unregistered,QQQ 5-min,+0.049R noise,bar,G4,
+A06,Fixed-level fade honest entry (VA fade corrected),scripts/archive/backtest_aplus4.py + aplus5.py,unregistered,QQQ 5-min 523 sessions,flat to negative,bar,G4,lookahead version not rerun
+A07,Open drive,scripts/archive/backtest_open_drive.py,findings_summary pre-committed checks,QQQ 5-min 509 sessions,fitted artifact,bar,G4,
+A08,Inventory retracement bar,scripts/archive/backtest_irb.py,irb_findings,QQQ,rejected,bar,G4,
+A09,Trendline reversal,scripts/orderflow/trendline_recon.py,trendline_reversal_closed,QQQ,closed; rejected as evidence,bar,G4,
+A10,Daily FVG,scripts/archive/backtest_daily_fvg.py,unregistered,daily,rejected,bar,G4,
+A11,Daily range breakout,scripts/archive/backtest_range_breakout.py,archived 2fed2b4,daily,rejected,bar,G4,also the (e) multi-day box
+A12,Oversold bounce (daily),scripts/archive/backtest_oversold_long.py,unregistered,daily 27y,the one real daily effect; not a day trade,bar,G4,
+A13,Sweep/run intraday + POC sweep,scripts/archive/sweep_run_intraday_test.py + poc_sweep_test.py,sweep_run_intraday,QQQ intraday,null,bar,G4,
+X01,Order-book imbalance / depth beyond touch,scripts/orderflow/imbalance.py + depth_audit.py,,ATAS depth,dead,depth,X,no MBP/MBO bought
+X02,Pull vs fill / cancellation,scripts/orderflow/pull_vs_fill.py,,ATAS depth,dead,depth,X,no depth data
+X03,Order-flow batch D and F (book imbalance; pull/fill),scripts/orderflow/batch_book.py + batch_ladder.py,d85b15c,ATAS depth,IC only; does not pay,depth,X,no depth data
+X04,Dealer gamma regime / gamma levels / GEX backtests,scripts/orderflow/regime_forecast_gamma.py + archive gamma scripts,dd6e7ea,options data,0 of 4,external,X,needs options data
+X05,FOMC event-vol straddle,scripts/orderflow/fomc_straddle.py,a971882,options,rejected by cost gate,external,X,needs options
+X06,RP-004 SPY -> EFA lead-lag,scripts/orderflow/rp004_stage1.py,,SPY+EFA,closed,external,X,needs EFA
+X07,RP-006B cross-sectional intraday momentum,scripts/orderflow/rp006b_stage1.py,d26c066,ETF cross-section,closed,external,X,needs ETF cross-section
+X08,Breadth veto / VIX divergence / skew / earnings range / cross-market veto,scripts/archive/*,,external series,rejected,external,X,needs non-NQ series
+M01,Concentration audit; related instruments; bar-resolution gate; integrity and comparability audits,various,,,,meta,M,audits of other studies; not hypotheses
