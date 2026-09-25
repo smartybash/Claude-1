@@ -1,0 +1,14 @@
+D3P PROP-COMPATIBLE OVERSOLD BOUNCE -- SEEN DATA, NQ 2010-06-07 -> 2026-09-24
+Registered reports/d3p_preregistration.md. Long session i+1 RTH open -> RTH close after a D3 signal.
+Costs NQ $2.25 + 1 tick per side. Null: 5,000 random lists, long open -> close of a random session.
+
+  D3P [primary]                      n  339 (21/yr) | $+228/trade NQ, $+21.99/trade MNQ | win 50.4% | PF 1.31 | Sharpe +0.37 | maxDD $35,002/NQ $3,505/MNQ | worst trade $-11,604/NQ $-1,161/MNQ | total $77,229
+  null: median $7,457, 95th $83,525; random day $+22.19/trade NQ; actual $77,229; p 0.0684
+  VERDICT (primary: total > 0 and p <= 0.05): FAIL -> closed
+
+DESCRIPTIVE (cannot change the verdict)
+  first half 2010-06 -> 2018-06      n  177 (22/yr) | $+23/trade NQ, $+1.47/trade MNQ | win 49.7% | PF 1.08 | Sharpe +0.12 | maxDD $11,191/NQ $1,149/MNQ | worst trade $-3,445/NQ $-345/MNQ | total $4,003
+  second half 2018-07 -> 2026-09     n  162 (20/yr) | $+452/trade NQ, $+44.41/trade MNQ | win 51.2% | PF 1.37 | Sharpe +0.51 | maxDD $35,002/NQ $3,505/MNQ | worst trade $-11,604/NQ $-1,161/MNQ | total $73,226
+  MNQ costs (1.12 pt round trip): total $7,455 ($74,551 per 10 MNQ)
+  D3 split on the same signals, gross real points per trade: overnight (15:59 -> next open) +19.76 (n 335), day (open -> close) +12.12
+  by year (n, net $ NQ): 2010 16.0 -2,287, 2011 27.0 +1,738, 2012 34.0 +1,987, 2013 15.0 +53, 2014 13.0 +5,277, 2015 28.0 -4,646, 2016 24.0 -5,103, 2017 10.0 +1,715, 2018 19.0 +12,090, 2019 15.0 -1,067, 2020 8.0 -81, 2021 19.0 +6,760, 2022 41.0 +47,490, 2023 18.0 +17,759, 2024 17.0 -6,157, 2025 15.0 +24,752, 2026 20.0 -23,050
