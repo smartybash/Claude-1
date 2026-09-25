@@ -1,0 +1,165 @@
+   skipping 20260313 -> 20260318: not consecutive trading days
+   skipping 20260402 -> 20260406: not consecutive trading days
+   skipping 20260522 -> 20260526: not consecutive trading days
+============================================================================================
+LEVEL AUDIT
+============================================================================================
+
+1  MERGING LEVELS WITHIN 5.0 POINTS
+   57 usable session pairs of 61 sessions
+
+   20260303: 8 raw -> 7 merged, 3 in range
+   20260304: 8 raw -> 8 merged, 4 in range
+   20260305: 8 raw -> 6 merged, 5 in range
+   20260306: 8 raw -> 7 merged, 4 in range
+   20260309: 8 raw -> 8 merged, 8 in range
+   20260310: 8 raw -> 8 merged, 4 in range
+   20260311: 8 raw -> 7 merged, 6 in range
+   20260312: 8 raw -> 8 merged, 2 in range
+   20260313: 8 raw -> 8 merged, 7 in range
+   20260319: 8 raw -> 8 merged, 4 in range
+   20260320: 8 raw -> 8 merged, 5 in range
+   20260323: 8 raw -> 8 merged, 4 in range
+   20260324: 8 raw -> 8 merged, 4 in range
+   20260325: 8 raw -> 8 merged, 5 in range
+   20260326: 8 raw -> 8 merged, 2 in range
+   20260327: 8 raw -> 7 merged, 2 in range
+   20260330: 8 raw -> 7 merged, 6 in range
+   20260331: 8 raw -> 8 merged, 5 in range
+   20260401: 8 raw -> 7 merged, 2 in range
+   20260402: 8 raw -> 8 merged, 6 in range
+   20260407: 8 raw -> 6 merged, 5 in range
+   20260408: 8 raw -> 8 merged, 2 in range
+   20260409: 8 raw -> 6 merged, 5 in range
+   20260410: 8 raw -> 6 merged, 3 in range
+   20260413: 8 raw -> 8 merged, 8 in range
+   20260414: 8 raw -> 7 merged, 2 in range
+   20260415: 8 raw -> 6 merged, 3 in range
+   20260416: 8 raw -> 8 merged, 4 in range
+   20260417: 8 raw -> 7 merged, 2 in range
+   20260420: 8 raw -> 6 merged, 4 in range
+   20260421: 8 raw -> 7 merged, 7 in range
+   20260422: 8 raw -> 8 merged, 3 in range
+   20260423: 8 raw -> 8 merged, 8 in range
+   20260424: 8 raw -> 7 merged, 3 in range
+   20260427: 8 raw -> 6 merged, 3 in range
+   20260428: 8 raw -> 8 merged, 2 in range
+   20260429: 8 raw -> 7 merged, 5 in range
+   20260430: 8 raw -> 6 merged, 4 in range
+   20260501: 8 raw -> 7 merged, 2 in range
+   20260504: 8 raw -> 7 merged, 7 in range
+   20260505: 8 raw -> 8 merged, 2 in range
+   20260506: 8 raw -> 8 merged, 2 in range
+   20260507: 8 raw -> 7 merged, 5 in range
+   20260508: 8 raw -> 8 merged, 3 in range
+   20260511: 8 raw -> 6 merged, 4 in range
+   20260512: 8 raw -> 8 merged, 3 in range
+   20260513: 8 raw -> 8 merged, 5 in range
+   20260514: 8 raw -> 6 merged, 4 in range
+   20260515: 8 raw -> 7 merged, 3 in range
+   20260518: 8 raw -> 8 merged, 6 in range
+   20260519: 8 raw -> 8 merged, 7 in range
+   20260520: 8 raw -> 8 merged, 3 in range
+   20260521: 8 raw -> 7 merged, 6 in range
+   20260522: 8 raw -> 8 merged, 3 in range
+   20260527: 8 raw -> 8 merged, 7 in range
+   20260528: 8 raw -> 6 merged, 5 in range
+   20260529: 8 raw -> 5 merged, 3 in range
+
+   touches after merging: 3869
+
+2  UNRESOLVED TRADES (exited at the close, no barrier hit)
+   50 of 3869 (1%)
+    all touches                              n=3869  -2.53pt      -51$  win  33%  t=-5.63 **
+    barrier-resolved only                    n=3819  -2.69pt      -54$  win  32%  t=-5.93 **
+    close-resolved only                      n=50   +10.04pt     +201$  win  70%  t=+5.68 **
+
+3  ONE TRADE AT A TIME (no new entry while one is open)
+   3869 touches -> 1071 non-overlapping trades
+    de-overlapped                            n=1071  -2.05pt      -41$  win  33%  t=-2.39
+       20260303                              n=24    -7.00pt     -140$  win  25%  t=-1.29
+       20260304                              n=14    +2.71pt      +54$  win  43%  t=+0.34
+       20260305                              n=47    -6.16pt     -123$  win  28%  t=-1.60
+       20260306                              n=50    -4.00pt      -80$  win  30%  t=-1.02
+       20260309                              n=24    -4.50pt      -90$  win  29%  t=-0.79
+       20260310                              n=34    -0.82pt      -16$  win  35%  t=-0.16
+       20260311                              n=28    +2.21pt      +44$  win  39%  t=+0.40
+       20260312                              n=16   -10.75pt     -215$  win  19%  t=-1.78
+       20260313                              n=13    -8.15pt     -163$  win  23%  t=-1.12
+       20260319                              n=17    -7.88pt     -158$  win  24%  t=-1.24
+       20260320                              n=15   +14.00pt     +280$  win  60%  t=+1.78
+       20260323                              n=33    -2.00pt      -40$  win  33%  t=-0.40
+       20260324                              n=20    +8.00pt     +160$  win  50%  t=+1.16
+       20260325                              n=19    +1.87pt      +37$  win  42%  t=+0.28
+       20260326                              too few
+       20260327                              too few
+       20260330                              n=26    -1.23pt      -25$  win  35%  t=-0.22
+       20260331                              n=29    +0.76pt      +15$  win  38%  t=+0.14
+       20260401                              n=9     -5.36pt     -107$  win  33%  t=-0.61
+       20260402                              n=26    +4.91pt      +98$  win  46%  t=+0.84
+       20260407                              n=27    -1.43pt      -29$  win  33%  t=-0.26
+       20260408                              too few
+       20260409                              n=18    -4.28pt      -86$  win  28%  t=-0.66
+       20260410                              n=11    -7.84pt     -157$  win  27%  t=-1.04
+       20260413                              n=25    -7.60pt     -152$  win  24%  t=-1.45
+       20260414                              too few
+       20260415                              too few
+       20260416                              n=19    -9.37pt     -187$  win  21%  t=-1.62
+       20260417                              n=8     +0.50pt      +10$  win  38%  t=+0.05
+       20260420                              n=15    +1.32pt      +26$  win  40%  t=+0.17
+       20260421                              n=41    +1.41pt      +28$  win  39%  t=+0.31
+       20260422                              too few
+       20260423                              n=34    +0.29pt       +6$  win  38%  t=+0.06
+       20260424                              too few
+       20260427                              too few
+       20260428                              n=12   -22.00pt     -440$  win   0%  t=+0.00
+       20260429                              n=32    +2.38pt      +48$  win  41%  t=+0.45
+       20260430                              n=22    -2.91pt      -58$  win  32%  t=-0.48
+       20260501                              too few
+       20260504                              n=15    -2.00pt      -40$  win  33%  t=-0.26
+       20260505                              too few
+       20260506                              too few
+       20260507                              n=25    -0.40pt       -8$  win  36%  t=-0.07
+       20260508                              too few
+       20260511                              n=17    -0.82pt      -16$  win  35%  t=-0.11
+       20260512                              n=9     -2.00pt      -40$  win  33%  t=-0.20
+       20260513                              n=16    -3.25pt      -65$  win  31%  t=-0.45
+       20260514                              n=18   -10.79pt     -216$  win  17%  t=-1.99
+       20260515                              too few
+       20260518                              n=31    -4.23pt      -85$  win  29%  t=-0.85
+       20260519                              n=46    -5.04pt     -101$  win  28%  t=-1.25
+       20260520                              n=23    +4.09pt      +82$  win  43%  t=+0.64
+       20260521                              n=25    +2.00pt      +40$  win  40%  t=+0.33
+       20260522                              n=17    -6.79pt     -136$  win  24%  t=-1.08
+       20260527                              n=43    -2.97pt      -59$  win  33%  t=-0.70
+       20260528                              n=8     +8.00pt     +160$  win  50%  t=+0.71
+       20260529                              n=13    +5.69pt     +114$  win  46%  t=+0.66
+
+4  THE FULL STOP/TARGET GRID, DE-OVERLAPPED
+   Six cells were tried, so the honest bar is |t| >= 2.9, and a
+   result that only exists in one cell is a fitted parameter.
+
+    stop 10 / target 10                      n=3041  -1.96pt      -39$  win  50%  t=-10.80 **
+    stop 15 / target 15                      n=1975  -2.04pt      -41$  win  50%  t=-6.06 **
+    stop 20 / target 20                      n=1479  -2.06pt      -41$  win  50%  t=-3.96 **
+    stop 15 / target 30                      n=1429  -1.70pt      -34$  win  34%  t=-3.03 **
+    stop 20 / target 40                      n=1071  -2.05pt      -41$  win  33%  t=-2.39
+    stop 30 / target 30                      n=926   -2.02pt      -40$  win  50%  t=-2.06
+
+5  FLOW AT THE TOUCH, ON THE DE-OVERLAPPED SET
+   Positive aggression = pressure INTO the level, which should
+   break it. If the fade only works when aggression is weak, that
+   is a usable filter rather than a curve fit.
+
+   aggression into level
+          low                                n=362   -0.24pt       -5$  win  37%  t=-0.16
+          mid                                n=352   -2.10pt      -42$  win  33%  t=-1.40
+          high                               n=357   -3.84pt      -77$  win  30%  t=-2.64
+   volume, last 60s
+          low                                n=358   -2.42pt      -48$  win  33%  t=-1.64
+          mid                                n=356   -2.98pt      -60$  win  32%  t=-2.02
+          high                               n=357   -0.76pt      -15$  win  36%  t=-0.50
+   tape speed
+          low                                n=357   -1.96pt      -39$  win  34%  t=-1.32
+          mid                                n=357   -4.30pt      -86$  win  30%  t=-2.99 **
+          high                               n=357   +0.12pt       +2$  win  37%  t=+0.08

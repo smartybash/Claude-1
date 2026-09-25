@@ -1,0 +1,9 @@
+=== T04 tape level fade (audit grid) (Databento discovery sessions) ===
+  stop 10 / target 10            n 3041 | net -1.96 pt/trade ($-39.2) | win 50.1% | PF 0.67 | Sharpe -16.11 | CAGR -60.60% | maxDD $119,070/NQ $11,907/MNQ | sessions 57 t -5.93 p 0.0000 p1 1.0000
+  stop 15 / target 15            n 1975 | net -2.04 pt/trade ($-40.9) | win 49.8% | PF 0.76 | Sharpe -11.66 | CAGR -46.70% | maxDD $80,725/NQ $8,072/MNQ | sessions 57 t -3.01 p 0.0039 p1 0.9981
+  stop 20 / target 20            n 1479 | net -2.06 pt/trade ($-41.1) | win 49.7% | PF 0.81 | Sharpe -7.69 | CAGR -37.30% | maxDD $60,835/NQ $6,084/MNQ | sessions 57 t -2.38 p 0.0208 p1 0.9896
+  stop 15 / target 30            n 1429 | net -1.70 pt/trade ($-34.0) | win 34.1% | PF 0.85 | Sharpe -6.87 | CAGR -30.72% | maxDD $48,630/NQ $4,863/MNQ | sessions 57 t -1.22 p 0.2278 p1 0.8861
+  stop 20 / target 40            n 1071 | net -2.05 pt/trade ($-41.0) | win 33.4% | PF 0.86 | Sharpe -5.60 | CAGR -28.80% | maxDD $46,655/NQ $4,666/MNQ | sessions 57 t -0.95 p 0.3463 p1 0.8268
+  stop 30 / target 30            n 926 | net -2.02 pt/trade ($-40.4) | win 49.8% | PF 0.87 | Sharpe -4.65 | CAGR -25.62% | maxDD $38,505/NQ $3,850/MNQ | sessions 57 t -1.55 p 0.1268 p1 0.9366
+  PRIMARY: 6 cell(s), Holm on one-sided p; best = stop 20 / target 40, study p = 1.0000
+  pass bar (net > 0, p <= 0.05): NOT MET  -> stays closed

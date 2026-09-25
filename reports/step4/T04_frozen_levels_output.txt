@@ -1,0 +1,717 @@
+========================================================================================
+LEVEL TOUCHES — prior-session profile plus initial balance
+tolerance 0.25 pt, re-arm 8.0 pt, cost 2.0 pt
+========================================================================================
+
+  20260303  (levels from 20260302)   session 24,352.00 to 24,850.00
+     pdHIGH    25,101.00   not reached  0 arming touch(es)
+     pdLOW     24,605.00   in range     44 arming touch(es)
+     pdCLOSE   25,023.25   not reached  0 arming touch(es)
+     pdVAH     25,095.00   not reached  0 arming touch(es)
+     pdPOC     25,025.00   not reached  0 arming touch(es)
+     pdVAL     24,901.75   not reached  0 arming touch(es)
+     IBH       24,661.25   in range     29 arming touch(es)
+     IBL       24,352.00   in range     0 arming touch(es)
+
+  20260304  (levels from 20260303)   session 24,826.00 to 25,217.75
+     pdHIGH    24,850.00   in range     15 arming touch(es)
+     pdLOW     24,352.00   not reached  0 arming touch(es)
+     pdCLOSE   24,757.25   not reached  0 arming touch(es)
+     pdVAH     24,837.00   in range     8 arming touch(es)
+     pdPOC     24,800.00   not reached  0 arming touch(es)
+     pdVAL     24,536.00   not reached  0 arming touch(es)
+     IBH       25,146.25   in range     36 arming touch(es)
+     IBL       24,826.00   in range     0 arming touch(es)
+
+  20260305  (levels from 20260304)   session 24,772.50 to 25,209.75
+     pdHIGH    25,217.75   not reached  0 arming touch(es)
+     pdLOW     24,826.00   in range     47 arming touch(es)
+     pdCLOSE   25,120.00   in range     22 arming touch(es)
+     pdVAH     25,214.50   not reached  0 arming touch(es)
+     pdPOC     25,142.50   in range     13 arming touch(es)
+     pdVAL     25,053.25   in range     47 arming touch(es)
+     IBH       25,209.75   in range     0 arming touch(es)
+     IBL       24,985.25   in range     34 arming touch(es)
+
+  20260306  (levels from 20260305)   session 24,601.00 to 24,926.25
+     pdHIGH    25,209.75   not reached  0 arming touch(es)
+     pdLOW     24,772.50   in range     30 arming touch(es)
+     pdCLOSE   25,048.50   not reached  0 arming touch(es)
+     pdVAH     25,151.75   not reached  0 arming touch(es)
+     pdPOC     25,050.00   not reached  0 arming touch(es)
+     pdVAL     24,870.50   in range     42 arming touch(es)
+     IBH       24,829.00   in range     86 arming touch(es)
+     IBL       24,608.75   in range     1 arming touch(es)
+
+  20260309  (levels from 20260306)   session 24,313.00 to 25,058.00
+     pdHIGH    24,926.25   in range     8 arming touch(es)
+     pdLOW     24,601.00   in range     33 arming touch(es)
+     pdCLOSE   24,667.75   in range     26 arming touch(es)
+     pdVAH     24,901.25   in range     6 arming touch(es)
+     pdPOC     24,800.00   in range     1 arming touch(es)
+     pdVAL     24,711.75   in range     10 arming touch(es)
+     IBH       24,525.25   in range     1 arming touch(es)
+     IBL       24,313.00   in range     0 arming touch(es)
+
+  20260310  (levels from 20260309)   session 24,892.25 to 25,217.50
+     pdHIGH    25,058.00   in range     49 arming touch(es)
+     pdLOW     24,313.00   not reached  0 arming touch(es)
+     pdCLOSE   24,992.25   in range     40 arming touch(es)
+     pdVAH     24,754.25   not reached  0 arming touch(es)
+     pdPOC     24,614.00   not reached  0 arming touch(es)
+     pdVAL     24,376.50   not reached  0 arming touch(es)
+     IBH       25,081.75   in range     30 arming touch(es)
+     IBL       24,892.25   in range     0 arming touch(es)
+
+  20260311  (levels from 20260310)   session 24,873.50 to 25,180.00
+     pdHIGH    25,217.50   not reached  0 arming touch(es)
+     pdLOW     24,892.25   in range     6 arming touch(es)
+     pdCLOSE   24,985.75   in range     36 arming touch(es)
+     pdVAH     25,180.00   in range     3 arming touch(es)
+     pdPOC     25,150.00   in range     6 arming touch(es)
+     pdVAL     25,012.00   in range     29 arming touch(es)
+     IBH       25,180.00   in range     0 arming touch(es)
+     IBL       24,978.75   in range     38 arming touch(es)
+
+  20260312  (levels from 20260311)   session 24,542.75 to 24,834.50
+     pdHIGH    25,180.00   not reached  0 arming touch(es)
+     pdLOW     24,873.50   not reached  0 arming touch(es)
+     pdCLOSE   24,983.75   not reached  0 arming touch(es)
+     pdVAH     25,042.50   not reached  0 arming touch(es)
+     pdPOC     24,949.25   not reached  0 arming touch(es)
+     pdVAL     24,901.50   not reached  0 arming touch(es)
+     IBH       24,834.50   in range     0 arming touch(es)
+     IBL       24,616.75   in range     71 arming touch(es)
+
+  20260313  (levels from 20260312)   session 24,350.50 to 24,805.25
+     pdHIGH    24,834.50   not reached  0 arming touch(es)
+     pdLOW     24,542.75   in range     12 arming touch(es)
+     pdCLOSE   24,555.25   in range     15 arming touch(es)
+     pdVAH     24,699.25   in range     11 arming touch(es)
+     pdPOC     24,600.00   in range     2 arming touch(es)
+     pdVAL     24,584.75   in range     5 arming touch(es)
+     IBH       24,805.25   in range     0 arming touch(es)
+     IBL       24,611.00   in range     3 arming touch(es)
+
+  20260318  (levels from 20260313)   session 24,641.75 to 24,998.25
+     pdHIGH    24,805.25   in range     17 arming touch(es)
+     pdLOW     24,350.50   not reached  0 arming touch(es)
+     pdCLOSE   24,397.75   not reached  0 arming touch(es)
+     pdVAH     24,611.00   not reached  0 arming touch(es)
+     pdPOC     24,427.00   not reached  0 arming touch(es)
+     pdVAL     24,351.00   not reached  0 arming touch(es)
+     IBH       24,998.25   in range     0 arming touch(es)
+     IBL       24,811.75   in range     20 arming touch(es)
+
+  20260319  (levels from 20260318)   session 24,326.75 to 24,691.50
+     pdHIGH    24,998.25   not reached  0 arming touch(es)
+     pdLOW     24,641.75   in range     20 arming touch(es)
+     pdCLOSE   24,651.50   in range     21 arming touch(es)
+     pdVAH     24,962.25   not reached  0 arming touch(es)
+     pdPOC     24,900.00   not reached  0 arming touch(es)
+     pdVAL     24,801.25   not reached  0 arming touch(es)
+     IBH       24,546.75   in range     11 arming touch(es)
+     IBL       24,326.75   in range     0 arming touch(es)
+
+  20260320  (levels from 20260319)   session 23,971.25 to 24,491.25
+     pdHIGH    24,691.50   not reached  0 arming touch(es)
+     pdLOW     24,326.75   in range     20 arming touch(es)
+     pdCLOSE   24,574.75   not reached  0 arming touch(es)
+     pdVAH     24,545.50   not reached  0 arming touch(es)
+     pdPOC     24,470.00   in range     5 arming touch(es)
+     pdVAL     24,384.25   in range     8 arming touch(es)
+     IBH       24,491.25   in range     0 arming touch(es)
+     IBL       24,240.50   in range     14 arming touch(es)
+
+  20260323  (levels from 20260320)   session 24,308.50 to 24,690.00
+     pdHIGH    24,491.25   in range     40 arming touch(es)
+     pdLOW     23,971.25   not reached  0 arming touch(es)
+     pdCLOSE   24,113.50   not reached  0 arming touch(es)
+     pdVAH     24,372.75   in range     24 arming touch(es)
+     pdPOC     24,280.00   not reached  0 arming touch(es)
+     pdVAL     24,097.00   not reached  0 arming touch(es)
+     IBH       24,688.25   in range     1 arming touch(es)
+     IBL       24,432.50   in range     28 arming touch(es)
+
+  20260324  (levels from 20260323)   session 24,134.00 to 24,385.25
+     pdHIGH    24,690.00   not reached  0 arming touch(es)
+     pdLOW     24,308.50   in range     42 arming touch(es)
+     pdCLOSE   24,398.75   not reached  0 arming touch(es)
+     pdVAH     24,599.25   not reached  0 arming touch(es)
+     pdPOC     24,450.00   not reached  0 arming touch(es)
+     pdVAL     24,374.00   in range     3 arming touch(es)
+     IBH       24,317.50   in range     29 arming touch(es)
+     IBL       24,134.00   in range     0 arming touch(es)
+
+  20260325  (levels from 20260324)   session 24,286.50 to 24,526.00
+     pdHIGH    24,385.25   in range     47 arming touch(es)
+     pdLOW     24,134.00   not reached  0 arming touch(es)
+     pdCLOSE   24,219.25   not reached  0 arming touch(es)
+     pdVAH     24,311.50   in range     9 arming touch(es)
+     pdPOC     24,300.00   in range     5 arming touch(es)
+     pdVAL     24,194.75   not reached  0 arming touch(es)
+     IBH       24,526.00   in range     0 arming touch(es)
+     IBL       24,327.50   in range     17 arming touch(es)
+
+  20260326  (levels from 20260325)   session 23,775.00 to 24,242.50
+     pdHIGH    24,526.00   not reached  0 arming touch(es)
+     pdLOW     24,286.50   not reached  0 arming touch(es)
+     pdCLOSE   24,371.50   not reached  0 arming touch(es)
+     pdVAH     24,459.00   not reached  0 arming touch(es)
+     pdPOC     24,410.00   not reached  0 arming touch(es)
+     pdVAL     24,347.25   not reached  0 arming touch(es)
+     IBH       24,242.50   in range     0 arming touch(es)
+     IBL       24,064.00   in range     12 arming touch(es)
+
+  20260327  (levels from 20260326)   session 23,269.00 to 23,664.00
+     pdHIGH    24,242.50   not reached  0 arming touch(es)
+     pdLOW     23,775.00   not reached  0 arming touch(es)
+     pdCLOSE   23,786.75   not reached  0 arming touch(es)
+     pdVAH     24,238.25   not reached  0 arming touch(es)
+     pdPOC     24,100.00   not reached  0 arming touch(es)
+     pdVAL     23,893.50   not reached  0 arming touch(es)
+     IBH       23,664.00   in range     0 arming touch(es)
+     IBL       23,453.00   in range     12 arming touch(es)
+
+  20260330  (levels from 20260327)   session 23,024.50 to 23,538.25
+     pdHIGH    23,664.00   not reached  0 arming touch(es)
+     pdLOW     23,269.00   in range     8 arming touch(es)
+     pdCLOSE   23,308.75   in range     37 arming touch(es)
+     pdVAH     23,664.00   not reached  0 arming touch(es)
+     pdPOC     23,500.00   in range     7 arming touch(es)
+     pdVAL     23,376.75   in range     19 arming touch(es)
+     IBH       23,538.25   in range     0 arming touch(es)
+     IBL       23,292.75   in range     22 arming touch(es)
+
+  20260331  (levels from 20260330)   session 23,376.50 to 23,975.25
+     pdHIGH    23,538.25   in range     33 arming touch(es)
+     pdLOW     23,024.50   not reached  0 arming touch(es)
+     pdCLOSE   23,135.50   not reached  0 arming touch(es)
+     pdVAH     23,469.50   in range     18 arming touch(es)
+     pdPOC     23,400.00   in range     12 arming touch(es)
+     pdVAL     23,195.25   not reached  0 arming touch(es)
+     IBH       23,580.75   in range     2 arming touch(es)
+     IBL       23,378.75   in range     1 arming touch(es)
+
+  20260401  (levels from 20260331)   session 24,043.25 to 24,348.25
+     pdHIGH    23,975.25   not reached  0 arming touch(es)
+     pdLOW     23,376.50   not reached  0 arming touch(es)
+     pdCLOSE   23,909.25   not reached  0 arming touch(es)
+     pdVAH     23,975.25   not reached  0 arming touch(es)
+     pdPOC     23,850.00   not reached  0 arming touch(es)
+     pdVAL     23,523.25   not reached  0 arming touch(es)
+     IBH       24,210.75   in range     24 arming touch(es)
+     IBL       24,043.25   in range     0 arming touch(es)
+
+  20260402  (levels from 20260401)   session 23,678.00 to 24,266.75
+     pdHIGH    24,348.25   not reached  0 arming touch(es)
+     pdLOW     24,043.25   in range     1 arming touch(es)
+     pdCLOSE   24,200.75   in range     31 arming touch(es)
+     pdVAH     24,269.75   not reached  0 arming touch(es)
+     pdPOC     24,195.00   in range     41 arming touch(es)
+     pdVAL     24,099.50   in range     35 arming touch(es)
+     IBH       24,004.25   in range     1 arming touch(es)
+     IBL       23,678.00   in range     0 arming touch(es)
+
+  20260406  (levels from 20260402)   session 24,202.75 to 24,452.25
+     pdHIGH    24,266.75   in range     30 arming touch(es)
+     pdLOW     23,678.00   not reached  0 arming touch(es)
+     pdCLOSE   24,220.75   in range     7 arming touch(es)
+     pdVAH     24,266.75   in range     30 arming touch(es)
+     pdPOC     24,150.00   not reached  0 arming touch(es)
+     pdVAL     24,036.25   not reached  0 arming touch(es)
+     IBH       24,452.25   in range     0 arming touch(es)
+     IBL       24,245.75   in range     6 arming touch(es)
+
+  20260407  (levels from 20260406)   session 23,941.50 to 24,381.00
+     pdHIGH    24,452.25   not reached  0 arming touch(es)
+     pdLOW     24,202.75   in range     61 arming touch(es)
+     pdCLOSE   24,363.75   in range     1 arming touch(es)
+     pdVAH     24,366.00   in range     1 arming touch(es)
+     pdPOC     24,305.00   in range     24 arming touch(es)
+     pdVAL     24,285.25   in range     14 arming touch(es)
+     IBH       24,308.00   in range     26 arming touch(es)
+     IBL       23,994.00   in range     9 arming touch(es)
+
+  20260408  (levels from 20260407)   session 24,926.50 to 25,249.75
+     pdHIGH    24,381.00   not reached  0 arming touch(es)
+     pdLOW     23,941.50   not reached  0 arming touch(es)
+     pdCLOSE   24,369.25   not reached  0 arming touch(es)
+     pdVAH     24,266.50   not reached  0 arming touch(es)
+     pdPOC     24,200.00   not reached  0 arming touch(es)
+     pdVAL     24,066.00   not reached  0 arming touch(es)
+     IBH       25,249.75   in range     0 arming touch(es)
+     IBL       25,042.50   in range     37 arming touch(es)
+
+  20260409  (levels from 20260408)   session 24,960.50 to 25,269.75
+     pdHIGH    25,249.75   in range     13 arming touch(es)
+     pdLOW     24,926.50   not reached  0 arming touch(es)
+     pdCLOSE   25,079.75   in range     19 arming touch(es)
+     pdVAH     25,116.25   in range     7 arming touch(es)
+     pdPOC     25,080.00   in range     19 arming touch(es)
+     pdVAL     24,996.00   in range     9 arming touch(es)
+     IBH       25,111.50   in range     4 arming touch(es)
+     IBL       24,963.75   in range     2 arming touch(es)
+
+  20260410  (levels from 20260409)   session 25,222.25 to 25,393.00
+     pdHIGH    25,269.75   in range     18 arming touch(es)
+     pdLOW     24,960.50   not reached  0 arming touch(es)
+     pdCLOSE   25,249.00   in range     23 arming touch(es)
+     pdVAH     25,267.50   in range     22 arming touch(es)
+     pdPOC     25,155.00   not reached  0 arming touch(es)
+     pdVAL     25,065.75   not reached  0 arming touch(es)
+     IBH       25,369.25   in range     7 arming touch(es)
+     IBL       25,268.00   in range     21 arming touch(es)
+
+  20260413  (levels from 20260410)   session 25,160.00 to 25,550.25
+     pdHIGH    25,393.00   in range     12 arming touch(es)
+     pdLOW     25,222.25   in range     14 arming touch(es)
+     pdCLOSE   25,284.25   in range     17 arming touch(es)
+     pdVAH     25,363.00   in range     4 arming touch(es)
+     pdPOC     25,350.00   in range     9 arming touch(es)
+     pdVAL     25,265.75   in range     15 arming touch(es)
+     IBH       25,333.00   in range     19 arming touch(es)
+     IBL       25,160.00   in range     0 arming touch(es)
+
+  20260414  (levels from 20260413)   session 25,656.00 to 26,003.25
+     pdHIGH    25,550.25   not reached  0 arming touch(es)
+     pdLOW     25,160.00   not reached  0 arming touch(es)
+     pdCLOSE   25,537.75   not reached  0 arming touch(es)
+     pdVAH     25,407.75   not reached  0 arming touch(es)
+     pdPOC     25,315.00   not reached  0 arming touch(es)
+     pdVAL     25,164.00   not reached  0 arming touch(es)
+     IBH       25,806.25   in range     9 arming touch(es)
+     IBL       25,656.00   in range     0 arming touch(es)
+
+  20260415  (levels from 20260414)   session 25,982.25 to 26,377.50
+     pdHIGH    26,003.25   in range     7 arming touch(es)
+     pdLOW     25,656.00   not reached  0 arming touch(es)
+     pdCLOSE   26,000.75   in range     3 arming touch(es)
+     pdVAH     26,003.00   in range     5 arming touch(es)
+     pdPOC     25,923.25   not reached  0 arming touch(es)
+     pdVAL     25,793.50   not reached  0 arming touch(es)
+     IBH       26,134.25   in range     10 arming touch(es)
+     IBL       25,982.25   in range     0 arming touch(es)
+
+  20260416  (levels from 20260415)   session 26,275.50 to 26,564.00
+     pdHIGH    26,377.50   in range     33 arming touch(es)
+     pdLOW     25,982.25   not reached  0 arming touch(es)
+     pdCLOSE   26,364.25   in range     26 arming touch(es)
+     pdVAH     26,260.50   not reached  0 arming touch(es)
+     pdPOC     26,200.00   not reached  0 arming touch(es)
+     pdVAL     26,034.75   not reached  0 arming touch(es)
+     IBH       26,453.25   in range     25 arming touch(es)
+     IBL       26,275.50   in range     0 arming touch(es)
+
+  20260417  (levels from 20260416)   session 26,629.50 to 26,884.75
+     pdHIGH    26,564.00   not reached  0 arming touch(es)
+     pdLOW     26,275.50   not reached  0 arming touch(es)
+     pdCLOSE   26,484.75   not reached  0 arming touch(es)
+     pdVAH     26,521.50   not reached  0 arming touch(es)
+     pdPOC     26,480.00   not reached  0 arming touch(es)
+     pdVAL     26,379.00   not reached  0 arming touch(es)
+     IBH       26,776.00   in range     30 arming touch(es)
+     IBL       26,629.50   in range     0 arming touch(es)
+
+  20260420  (levels from 20260417)   session 26,568.75 to 26,827.75
+     pdHIGH    26,884.75   not reached  0 arming touch(es)
+     pdLOW     26,629.50   in range     13 arming touch(es)
+     pdCLOSE   26,827.75   in range     1 arming touch(es)
+     pdVAH     26,861.50   not reached  0 arming touch(es)
+     pdPOC     26,825.00   in range     2 arming touch(es)
+     pdVAL     26,756.50   in range     36 arming touch(es)
+     IBH       26,827.75   in range     0 arming touch(es)
+     IBL       26,715.75   in range     20 arming touch(es)
+
+  20260421  (levels from 20260420)   session 26,551.75 to 26,885.25
+     pdHIGH    26,827.75   in range     18 arming touch(es)
+     pdLOW     26,568.75   in range     3 arming touch(es)
+     pdCLOSE   26,745.75   in range     58 arming touch(es)
+     pdVAH     26,762.50   in range     38 arming touch(es)
+     pdPOC     26,730.00   in range     62 arming touch(es)
+     pdVAL     26,661.75   in range     18 arming touch(es)
+     IBH       26,885.25   in range     0 arming touch(es)
+     IBL       26,726.75   in range     57 arming touch(es)
+
+  20260422  (levels from 20260421)   session 26,811.50 to 27,093.00
+     pdHIGH    26,885.25   in range     6 arming touch(es)
+     pdLOW     26,551.75   not reached  0 arming touch(es)
+     pdCLOSE   26,642.25   not reached  0 arming touch(es)
+     pdVAH     26,791.25   not reached  0 arming touch(es)
+     pdPOC     26,719.50   not reached  0 arming touch(es)
+     pdVAL     26,648.25   not reached  0 arming touch(es)
+     IBH       26,991.25   in range     40 arming touch(es)
+     IBL       26,811.50   in range     0 arming touch(es)
+
+  20260423  (levels from 20260422)   session 26,681.75 to 27,155.75
+     pdHIGH    27,093.00   in range     22 arming touch(es)
+     pdLOW     26,811.50   in range     6 arming touch(es)
+     pdCLOSE   27,079.50   in range     18 arming touch(es)
+     pdVAH     27,059.00   in range     22 arming touch(es)
+     pdPOC     26,990.00   in range     28 arming touch(es)
+     pdVAL     26,944.75   in range     18 arming touch(es)
+     IBH       27,102.75   in range     16 arming touch(es)
+     IBL       26,965.00   in range     7 arming touch(es)
+
+  20260424  (levels from 20260423)   session 27,130.25 to 27,462.50
+     pdHIGH    27,155.75   in range     3 arming touch(es)
+     pdLOW     26,681.75   not reached  0 arming touch(es)
+     pdCLOSE   26,926.50   not reached  0 arming touch(es)
+     pdVAH     27,065.75   not reached  0 arming touch(es)
+     pdPOC     26,925.00   not reached  0 arming touch(es)
+     pdVAL     26,816.25   not reached  0 arming touch(es)
+     IBH       27,267.25   in range     6 arming touch(es)
+     IBL       27,130.25   in range     0 arming touch(es)
+
+  20260427  (levels from 20260424)   session 27,298.50 to 27,454.75
+     pdHIGH    27,462.50   not reached  0 arming touch(es)
+     pdLOW     27,130.25   not reached  0 arming touch(es)
+     pdCLOSE   27,434.00   in range     11 arming touch(es)
+     pdVAH     27,462.50   not reached  0 arming touch(es)
+     pdPOC     27,415.00   in range     11 arming touch(es)
+     pdVAL     27,250.25   not reached  0 arming touch(es)
+     IBH       27,435.00   in range     12 arming touch(es)
+     IBL       27,298.50   in range     0 arming touch(es)
+
+  20260428  (levels from 20260427)   session 27,009.50 to 27,252.00
+     pdHIGH    27,454.75   not reached  0 arming touch(es)
+     pdLOW     27,298.50   not reached  0 arming touch(es)
+     pdCLOSE   27,445.00   not reached  0 arming touch(es)
+     pdVAH     27,408.00   not reached  0 arming touch(es)
+     pdPOC     27,380.00   not reached  0 arming touch(es)
+     pdVAL     27,337.50   not reached  0 arming touch(es)
+     IBH       27,252.00   in range     0 arming touch(es)
+     IBL       27,068.25   in range     45 arming touch(es)
+
+  20260429  (levels from 20260428)   session 27,124.25 to 27,340.25
+     pdHIGH    27,252.00   in range     28 arming touch(es)
+     pdLOW     27,009.50   not reached  0 arming touch(es)
+     pdCLOSE   27,169.25   in range     24 arming touch(es)
+     pdVAH     27,232.00   in range     44 arming touch(es)
+     pdPOC     27,170.00   in range     26 arming touch(es)
+     pdVAL     27,071.50   not reached  0 arming touch(es)
+     IBH       27,277.00   in range     32 arming touch(es)
+     IBL       27,124.25   in range     0 arming touch(es)
+
+  20260430  (levels from 20260429)   session 27,163.25 to 27,622.00
+     pdHIGH    27,340.25   in range     20 arming touch(es)
+     pdLOW     27,124.25   not reached  0 arming touch(es)
+     pdCLOSE   27,337.25   in range     18 arming touch(es)
+     pdVAH     27,278.25   in range     19 arming touch(es)
+     pdPOC     27,220.00   in range     31 arming touch(es)
+     pdVAL     27,159.50   not reached  0 arming touch(es)
+     IBH       27,491.50   in range     6 arming touch(es)
+     IBL       27,163.25   in range     0 arming touch(es)
+
+  20260501  (levels from 20260430)   session 27,617.75 to 27,917.00
+     pdHIGH    27,622.00   in range     1 arming touch(es)
+     pdLOW     27,163.25   not reached  0 arming touch(es)
+     pdCLOSE   27,577.75   not reached  0 arming touch(es)
+     pdVAH     27,458.00   not reached  0 arming touch(es)
+     pdPOC     27,400.00   not reached  0 arming touch(es)
+     pdVAL     27,180.75   not reached  0 arming touch(es)
+     IBH       27,909.25   in range     1 arming touch(es)
+     IBL       27,617.75   in range     0 arming touch(es)
+
+  20260504  (levels from 20260501)   session 27,613.00 to 27,941.00
+     pdHIGH    27,917.00   in range     3 arming touch(es)
+     pdLOW     27,617.75   in range     2 arming touch(es)
+     pdCLOSE   27,837.25   in range     16 arming touch(es)
+     pdVAH     27,899.00   in range     32 arming touch(es)
+     pdPOC     27,880.00   in range     38 arming touch(es)
+     pdVAL     27,815.25   in range     9 arming touch(es)
+     IBH       27,913.25   in range     5 arming touch(es)
+     IBL       27,808.25   in range     4 arming touch(es)
+
+  20260505  (levels from 20260504)   session 27,971.00 to 28,188.25
+     pdHIGH    27,941.00   not reached  0 arming touch(es)
+     pdLOW     27,613.00   not reached  0 arming touch(es)
+     pdCLOSE   27,780.25   not reached  0 arming touch(es)
+     pdVAH     27,861.00   not reached  0 arming touch(es)
+     pdPOC     27,775.00   not reached  0 arming touch(es)
+     pdVAL     27,689.50   not reached  0 arming touch(es)
+     IBH       28,134.00   in range     23 arming touch(es)
+     IBL       27,971.00   in range     0 arming touch(es)
+
+  20260506  (levels from 20260505)   session 28,336.00 to 28,725.75
+     pdHIGH    28,188.25   not reached  0 arming touch(es)
+     pdLOW     27,971.00   not reached  0 arming touch(es)
+     pdCLOSE   28,135.75   not reached  0 arming touch(es)
+     pdVAH     28,153.25   not reached  0 arming touch(es)
+     pdPOC     28,127.00   not reached  0 arming touch(es)
+     pdVAL     28,061.25   not reached  0 arming touch(es)
+     IBH       28,506.00   in range     6 arming touch(es)
+     IBL       28,336.00   in range     0 arming touch(es)
+
+  20260507  (levels from 20260506)   session 28,552.00 to 28,944.75
+     pdHIGH    28,725.75   in range     22 arming touch(es)
+     pdLOW     28,336.00   not reached  0 arming touch(es)
+     pdCLOSE   28,710.75   in range     21 arming touch(es)
+     pdVAH     28,608.00   in range     36 arming touch(es)
+     pdPOC     28,573.75   in range     4 arming touch(es)
+     pdVAL     28,411.25   not reached  0 arming touch(es)
+     IBH       28,902.50   in range     9 arming touch(es)
+     IBL       28,708.00   in range     19 arming touch(es)
+
+  20260508  (levels from 20260507)   session 28,859.50 to 29,341.00
+     pdHIGH    28,944.75   in range     4 arming touch(es)
+     pdLOW     28,552.00   not reached  0 arming touch(es)
+     pdCLOSE   28,684.25   not reached  0 arming touch(es)
+     pdVAH     28,798.25   not reached  0 arming touch(es)
+     pdPOC     28,670.00   not reached  0 arming touch(es)
+     pdVAL     28,597.50   not reached  0 arming touch(es)
+     IBH       29,166.00   in range     15 arming touch(es)
+     IBL       28,859.50   in range     0 arming touch(es)
+
+  20260511  (levels from 20260508)   session 29,246.75 to 29,480.00
+     pdHIGH    29,341.00   in range     14 arming touch(es)
+     pdLOW     28,859.50   not reached  0 arming touch(es)
+     pdCLOSE   29,339.75   in range     14 arming touch(es)
+     pdVAH     29,338.00   in range     16 arming touch(es)
+     pdPOC     29,285.00   in range     7 arming touch(es)
+     pdVAL     29,126.75   not reached  0 arming touch(es)
+     IBH       29,434.75   in range     15 arming touch(es)
+     IBL       29,274.50   in range     3 arming touch(es)
+
+  20260512  (levels from 20260511)   session 28,742.00 to 29,296.00
+     pdHIGH    29,480.00   not reached  0 arming touch(es)
+     pdLOW     29,246.75   in range     7 arming touch(es)
+     pdCLOSE   29,429.25   not reached  0 arming touch(es)
+     pdVAH     29,451.25   not reached  0 arming touch(es)
+     pdPOC     29,400.00   not reached  0 arming touch(es)
+     pdVAL     29,350.75   not reached  0 arming touch(es)
+     IBH       29,296.00   in range     0 arming touch(es)
+     IBL       29,081.00   in range     9 arming touch(es)
+
+  20260513  (levels from 20260512)   session 29,075.00 to 29,565.50
+     pdHIGH    29,296.00   in range     9 arming touch(es)
+     pdLOW     28,742.00   not reached  0 arming touch(es)
+     pdCLOSE   29,174.25   in range     39 arming touch(es)
+     pdVAH     29,144.00   in range     21 arming touch(es)
+     pdPOC     28,888.00   not reached  0 arming touch(es)
+     pdVAL     28,804.50   not reached  0 arming touch(es)
+     IBH       29,288.50   in range     4 arming touch(es)
+     IBL       29,075.00   in range     0 arming touch(es)
+
+  20260514  (levels from 20260513)   session 29,458.50 to 29,782.00
+     pdHIGH    29,565.50   in range     15 arming touch(es)
+     pdLOW     29,075.00   not reached  0 arming touch(es)
+     pdCLOSE   29,476.00   in range     8 arming touch(es)
+     pdVAH     29,565.50   in range     15 arming touch(es)
+     pdPOC     29,480.00   in range     8 arming touch(es)
+     pdVAL     29,245.00   not reached  0 arming touch(es)
+     IBH       29,684.75   in range     36 arming touch(es)
+     IBL       29,458.50   in range     0 arming touch(es)
+
+  20260515  (levels from 20260514)   session 29,089.75 to 29,486.75
+     pdHIGH    29,782.00   not reached  0 arming touch(es)
+     pdLOW     29,458.50   in range     3 arming touch(es)
+     pdCLOSE   29,686.75   not reached  0 arming touch(es)
+     pdVAH     29,770.00   not reached  0 arming touch(es)
+     pdPOC     29,690.00   not reached  0 arming touch(es)
+     pdVAL     29,636.00   not reached  0 arming touch(es)
+     IBH       29,382.75   in range     11 arming touch(es)
+     IBL       29,089.75   in range     0 arming touch(es)
+
+  20260518  (levels from 20260515)   session 28,814.75 to 29,356.25
+     pdHIGH    29,486.75   not reached  0 arming touch(es)
+     pdLOW     29,089.75   in range     30 arming touch(es)
+     pdCLOSE   29,231.25   in range     37 arming touch(es)
+     pdVAH     29,374.50   not reached  0 arming touch(es)
+     pdPOC     29,300.00   in range     11 arming touch(es)
+     pdVAL     29,217.25   in range     36 arming touch(es)
+     IBH       29,356.25   in range     0 arming touch(es)
+     IBL       29,129.00   in range     3 arming touch(es)
+
+  20260519  (levels from 20260518)   session 28,663.00 to 29,126.50
+     pdHIGH    29,356.25   not reached  0 arming touch(es)
+     pdLOW     28,814.75   in range     50 arming touch(es)
+     pdCLOSE   29,098.75   in range     16 arming touch(es)
+     pdVAH     29,106.00   in range     8 arming touch(es)
+     pdPOC     29,000.00   in range     23 arming touch(es)
+     pdVAL     28,849.25   in range     33 arming touch(es)
+     IBH       29,068.00   in range     14 arming touch(es)
+     IBL       28,663.00   in range     0 arming touch(es)
+
+  20260520  (levels from 20260519)   session 29,008.50 to 29,396.75
+     pdHIGH    29,126.50   in range     28 arming touch(es)
+     pdLOW     28,663.00   not reached  0 arming touch(es)
+     pdCLOSE   28,924.50   not reached  0 arming touch(es)
+     pdVAH     28,983.25   not reached  0 arming touch(es)
+     pdPOC     28,800.00   not reached  0 arming touch(es)
+     pdVAL     28,696.75   not reached  0 arming touch(es)
+     IBH       29,233.75   in range     42 arming touch(es)
+     IBL       29,008.50   in range     0 arming touch(es)
+
+  20260521  (levels from 20260520)   session 29,127.00 to 29,554.00
+     pdHIGH    29,396.75   in range     17 arming touch(es)
+     pdLOW     29,008.50   not reached  0 arming touch(es)
+     pdCLOSE   29,396.25   in range     18 arming touch(es)
+     pdVAH     29,379.50   in range     11 arming touch(es)
+     pdPOC     29,321.50   in range     21 arming touch(es)
+     pdVAL     29,163.75   in range     28 arming touch(es)
+     IBH       29,340.00   in range     14 arming touch(es)
+     IBL       29,127.00   in range     0 arming touch(es)
+
+  20260522  (levels from 20260521)   session 29,490.25 to 29,749.00
+     pdHIGH    29,554.00   in range     42 arming touch(es)
+     pdLOW     29,127.00   not reached  0 arming touch(es)
+     pdCLOSE   29,446.25   not reached  0 arming touch(es)
+     pdVAH     29,392.00   not reached  0 arming touch(es)
+     pdPOC     29,225.00   not reached  0 arming touch(es)
+     pdVAL     29,138.25   not reached  0 arming touch(es)
+     IBH       29,715.50   in range     12 arming touch(es)
+     IBL       29,490.25   in range     0 arming touch(es)
+
+  20260526  (levels from 20260522)   session 29,826.75 to 30,118.75
+     pdHIGH    29,749.00   not reached  0 arming touch(es)
+     pdLOW     29,490.25   not reached  0 arming touch(es)
+     pdCLOSE   29,552.75   not reached  0 arming touch(es)
+     pdVAH     29,710.00   not reached  0 arming touch(es)
+     pdPOC     29,650.00   not reached  0 arming touch(es)
+     pdVAL     29,589.50   not reached  0 arming touch(es)
+     IBH       30,084.00   in range     9 arming touch(es)
+     IBL       29,826.75   in range     0 arming touch(es)
+
+  20260527  (levels from 20260526)   session 29,877.50 to 30,192.00
+     pdHIGH    30,118.75   in range     4 arming touch(es)
+     pdLOW     29,826.75   not reached  0 arming touch(es)
+     pdCLOSE   30,079.75   in range     13 arming touch(es)
+     pdVAH     30,066.00   in range     22 arming touch(es)
+     pdPOC     30,000.00   in range     50 arming touch(es)
+     pdVAL     29,925.00   in range     46 arming touch(es)
+     IBH       30,192.00   in range     0 arming touch(es)
+     IBL       29,888.25   in range     9 arming touch(es)
+
+  20260528  (levels from 20260527)   session 29,920.25 to 30,344.50
+     pdHIGH    30,192.00   in range     1 arming touch(es)
+     pdLOW     29,877.50   not reached  0 arming touch(es)
+     pdCLOSE   30,047.25   in range     3 arming touch(es)
+     pdVAH     30,066.00   in range     8 arming touch(es)
+     pdPOC     30,050.00   in range     3 arming touch(es)
+     pdVAL     29,938.50   in range     5 arming touch(es)
+     IBH       30,187.00   in range     2 arming touch(es)
+     IBL       29,920.25   in range     0 arming touch(es)
+
+  20260529  (levels from 20260528)   session 30,270.00 to 30,536.00
+     pdHIGH    30,344.50   in range     36 arming touch(es)
+     pdLOW     29,920.25   not reached  0 arming touch(es)
+     pdCLOSE   30,306.25   in range     11 arming touch(es)
+     pdVAH     30,344.50   in range     36 arming touch(es)
+     pdPOC     30,310.00   in range     12 arming touch(es)
+     pdVAL     30,123.00   not reached  0 arming touch(es)
+     IBH       30,536.00   in range     0 arming touch(es)
+     IBL       30,346.00   in range     35 arming touch(es)
+
+========================================================================================
+2  FADING EVERY TOUCH — 4403 touches over 60 sessions
+========================================================================================
+  Entry is a resting limit at the level, filled when price trades
+  there. Direction fades the approach: short a level reached from
+  below, long one reached from above.
+
+    stop 10 / target 10                n=4403  -2.08pt      -42$  win  50%  t=-13.82 **
+    stop 15 / target 15                n=4403  -2.14pt      -43$  win  50%  t=-9.46 **
+    stop 20 / target 20                n=4403  -2.38pt      -48$  win  49%  t=-7.93 **
+    stop 15 / target 30                n=4403  -2.14pt      -43$  win  33%  t=-6.74 **
+    stop 20 / target 40                n=4403  -2.50pt      -50$  win  33%  t=-5.96 **
+    stop 30 / target 30                n=4403  -2.14pt      -43$  win  50%  t=-4.77 **
+
+========================================================================================
+3  BY LEVEL AND BY DAY  (stop 30 / target 30)
+========================================================================================
+    IBH                                n=710   -1.93pt      -39$  win  50%  t=-1.73
+    IBL                                n=559   -3.07pt      -61$  win  48%  t=-2.44
+    pdCLOSE                            n=647   -1.36pt      -27$  win  51%  t=-1.16
+    pdHIGH                             n=614   -2.28pt      -46$  win  48%  t=-1.92
+    pdLOW                              n=452   -0.28pt       -6$  win  53%  t=-0.20
+    pdPOC                              n=480   -6.38pt     -128$  win  43%  t=-4.70 **
+    pdVAH                              n=476   -0.27pt       -5$  win  53%  t=-0.19
+    pdVAL                              n=465   -1.59pt      -32$  win  51%  t=-1.15
+
+    20260303                           n=73    -2.41pt      -48$  win  49%  t=-0.68
+    20260304                           n=59    +5.43pt     +109$  win  63%  t=+1.43
+    20260305                           n=163   -4.07pt      -81$  win  48%  t=-1.76
+    20260306                           n=159   -1.43pt      -29$  win  51%  t=-0.60
+    20260309                           n=85    -0.24pt       -5$  win  53%  t=-0.07
+    20260310                           n=118   -3.53pt      -71$  win  47%  t=-1.27
+    20260311                           n=118   -2.90pt      -58$  win  47%  t=-1.08
+    20260312                           n=71    -0.73pt      -15$  win  52%  t=-0.20
+    20260313                           n=48    -2.00pt      -40$  win  50%  t=-0.46
+    20260318                           n=37    -4.43pt      -89$  win  46%  t=-0.89
+    20260319                           n=52    -6.62pt     -132$  win  42%  t=-1.59
+    20260320                           n=47    -2.64pt      -53$  win  49%  t=-0.60
+    20260323                           n=93    -2.32pt      -46$  win  49%  t=-0.74
+    20260324                           n=74    +0.43pt       +9$  win  54%  t=+0.12
+    20260325                           n=78    +0.87pt      +17$  win  55%  t=+0.26
+    20260326                           n=12    -7.00pt     -140$  win  42%  t=-0.78
+    20260327                           n=12    +8.00pt     +160$  win  67%  t=+0.94
+    20260330                           n=93    -3.61pt      -72$  win  47%  t=-1.16
+    20260331                           n=66    -4.73pt      -95$  win  45%  t=-1.28
+    20260401                           n=24    -2.00pt      -40$  win  50%  t=-0.32
+    20260402                           n=109   -5.40pt     -108$  win  44%  t=-1.90
+    20260406                           n=73    -1.59pt      -32$  win  51%  t=-0.45
+    20260407                           n=136   +1.46pt      +29$  win  55%  t=+0.57
+    20260408                           n=37    -7.68pt     -154$  win  41%  t=-1.56
+    20260409                           n=71    -4.98pt     -100$  win  39%  t=-1.48
+    20260410                           n=91    -3.60pt      -72$  win  49%  t=-1.22
+    20260413                           n=90    -1.33pt      -27$  win  51%  t=-0.42
+    20260414                           n=9     +1.33pt      +27$  win  56%  t=+0.13
+    20260415                           n=25    +4.00pt      +80$  win  60%  t=+0.67
+    20260416                           n=84    +0.14pt       +3$  win  54%  t=+0.04
+    20260417                           n=30    -2.00pt      -40$  win  50%  t=-0.36
+    20260420                           n=72    +0.50pt      +10$  win  54%  t=+0.14
+    20260421                           n=254   -2.47pt      -49$  win  49%  t=-1.31
+    20260422                           n=45    -2.67pt      -53$  win  49%  t=-0.59
+    20260423                           n=137   -1.87pt      -37$  win  50%  t=-0.73
+    20260424                           n=9     -5.33pt     -107$  win  44%  t=-0.51
+    20260427                           n=34    +7.36pt     +147$  win  68%  t=+1.83
+    20260428                           n=45    -9.33pt     -187$  win  38%  t=-2.13
+    20260429                           n=154   -3.17pt      -63$  win  48%  t=-1.31
+    20260430                           n=94    -3.28pt      -66$  win  48%  t=-1.05
+    20260501                           too few
+    20260504                           n=109   -0.07pt       -1$  win  53%  t=-0.03
+    20260505                           n=23    -4.72pt      -94$  win  39%  t=-0.79
+    20260506                           too few
+    20260507                           n=111   +0.97pt      +19$  win  55%  t=+0.34
+    20260508                           n=19    -3.58pt      -72$  win  47%  t=-0.51
+    20260511                           n=69    -5.91pt     -118$  win  43%  t=-1.64
+    20260512                           n=16    -5.75pt     -115$  win  44%  t=-0.75
+    20260513                           n=73    +1.70pt      +34$  win  56%  t=+0.48
+    20260514                           n=81   -12.70pt     -254$  win  31%  t=-4.11 **
+    20260515                           n=14    -2.00pt      -40$  win  50%  t=-0.24
+    20260518                           n=117   -3.81pt      -76$  win  47%  t=-1.40
+    20260519                           n=144   +1.75pt      +35$  win  56%  t=+0.70
+    20260520                           n=70    +2.29pt      +46$  win  57%  t=+0.64
+    20260521                           n=109   -3.38pt      -68$  win  48%  t=-1.17
+    20260522                           n=54    +0.19pt       +4$  win  43%  t=+0.05
+    20260526                           n=9     -6.39pt     -128$  win  33%  t=-0.82
+    20260527                           n=144   -2.83pt      -57$  win  49%  t=-1.13
+    20260528                           n=22    -4.73pt      -95$  win  45%  t=-0.73
+    20260529                           n=130   -3.85pt      -77$  win  47%  t=-1.46
+
+========================================================================================
+4  DOES THE FLOW AT THE TOUCH SEPARATE HOLDS FROM BREAKS?
+========================================================================================
+  The claim under test: reading order flow at the level tells you
+  which touches to take. Signed so a positive delta means aggression
+  in the direction of the approach -- into the level.
+
+    aggression into the level     -2.27(1110)   -2.23(1094)   -2.51(1102)   -1.55(1097)
+    volume in the last 60s        -3.43(1102)   -1.87(1100)   -0.27(1101)   -2.98(1100)
+    approach speed, pts/min       -2.55(1101)   -2.54(1102)   -1.79(1099)   -1.67(1101)
+    tape speed, trades/s          -3.23(1101)   -2.55(1101)   +0.10(1100)   -2.87(1101)
+                                         Q1          Q2          Q3          Q4
+
+========================================================================================
+5  HOLD RATE — how often the level held at all
+========================================================================================
+    IBH      710 touches   held  50%
+    IBL      559 touches   held  48%
+    pdCLOSE  647 touches   held  51%
+    pdHIGH   614 touches   held  50%
+    pdLOW    452 touches   held  53%
+    pdPOC    480 touches   held  43%
+    pdVAH    476 touches   held  53%
+    pdVAL    465 touches   held  51%
+    ALL      4403 touches   held  50%
