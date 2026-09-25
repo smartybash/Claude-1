@@ -160,3 +160,10 @@ the D2 holdout (23 sessions, untouched) would carry the whole confirmatory
 weight. Your queue put RP-011 before step 4, and I took its registered stop as
 the end of that item. Say if you would have wanted the tape reruns held. **T18
 (RP-010 itself, RP-011's direct predecessor) is held until you decide P6.**
+
+**P3 note (added 2026-09-25).** Commit `31428d8` pushed five RP-009 frozen-output
+tables (`reports/step4/frozen/rp009_*.parquet`: per-session barrier excursions
+in bps and barrier outcomes, derived from Databento bars, no prices or volumes).
+They are now untracked and ignored, but remain in the public history. If you
+want them purged from history too, that needs a force-push rewrite, which I have
+not done.

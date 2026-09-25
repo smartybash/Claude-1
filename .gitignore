@@ -53,3 +53,7 @@ data/databento_ledger.tmp
 # Rebuild from data/raw/ with scripts/databento/build_derived.py.
 data/clean/**/*.parquet
 data/clean/rolls/
+
+# step-4 frozen-run outputs (Databento-derived tables) and sandbox root: local only
+reports/step4/frozen/*.parquet
+reports/step4/frozen/root/

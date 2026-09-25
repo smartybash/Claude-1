@@ -124,6 +124,8 @@ def run_frozen(module_name, patches, out_name, argv=None):
     mod = importlib.import_module(module_name)
     safe = OUT / "frozen"
     safe.mkdir(parents=True, exist_ok=True)
+    if getattr(mod, "ROOT", None) == ROOT:
+        mod.ROOT = sandbox_root()             # writes to ROOT/reports land in the sandbox
     for attr in ("OUT", "REPORTS", "OUTDIR", "OUT_DIR"):
         v = getattr(mod, attr, None)
         if isinstance(v, Path) and str(v.resolve()).startswith(str((ROOT / "reports").resolve())):
@@ -143,7 +145,37 @@ def run_frozen(module_name, patches, out_name, argv=None):
     txt = buf.getvalue()
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / out_name).write_text(txt)
+    assert_reports_untouched()
     return mod, txt
+
+
+def sandbox_root():
+    """A stand-in repository root: data/ links to the real data, reports/ is a
+    scratch directory under reports/step4/frozen/root, so a frozen script that
+    writes ROOT/'reports/...' cannot overwrite an earlier result."""
+    sb = OUT / "frozen" / "root"
+    (sb / "reports").mkdir(parents=True, exist_ok=True)
+    if not (sb / "data").exists():
+        (sb / "data").symlink_to(ROOT / "data")
+    return sb
+
+
+def assert_reports_untouched():
+    """Restore any tracked file under reports/ (outside reports/step4) that a
+    frozen run modified, remove new untracked files there, and fail loudly."""
+    import subprocess
+    st = subprocess.run(["git", "status", "--porcelain", "--", "reports", "results"],
+                        cwd=ROOT, capture_output=True, text=True).stdout.splitlines()
+    bad = [l for l in st if not l[3:].startswith(("reports/step4", "results/"))
+           and not l[3:].startswith("reports/decisions_pending.md")]
+    if bad:
+        for l in bad:
+            p = l[3:]
+            if l.startswith("??"):
+                (ROOT / p).unlink(missing_ok=True) if (ROOT / p).is_file() else None
+            else:
+                subprocess.run(["git", "checkout", "--", p], cwd=ROOT)
+        raise RuntimeError(f"frozen run touched earlier results (restored): {bad}")
 
 
 def record(row: dict):
