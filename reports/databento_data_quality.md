@@ -1,7 +1,7 @@
 # Databento data-quality note
 
-Pull: `GLBX.MDP3`, jobs A, B1, B2, B3 (C and B3-08-19 pending). Lifetime billed
-**$84.15** of the approved $84.54. Built by `scripts/databento/build_derived.py`;
+Pull: `GLBX.MDP3`, jobs A, B1, B2, B3, C: all done. Lifetime billed
+**$84.54**, exactly the approved plan. Built by `scripts/databento/build_derived.py`;
 cross-check by `scripts/databento/atas_xcheck.py`. **Only statistics are committed**
 — the repository is public, so no Databento prices or volumes (decision P3 pending).
 
@@ -61,16 +61,16 @@ statistics schema (job C) daily volume when C lands.
 
 ## ATAS cross-check (job B3, data-quality only)
 
-| | 06-24 | 07-09 | 07-29 | 08-06 |
-|---|---|---|---|---|
-| RTH volume ATAS / Databento | 461,075 / 461,023 | 318,495 / 318,468 | 579,762 / 579,744 | 400,310 / 400,309 |
-| per-minute volume correlation | 0.999997 | 0.999999 | 0.999999 | 1.000000 |
-| clock offset | 0 s | 0 s | 0 s | 0 s |
-| footprint agreement, **B = buy** | 99.99% | 99.99% | 99.99% | 100.00% |
-| footprint agreement, A = buy | 61.9% | 63.5% | 66.2% | 65.0% |
+| | 06-24 | 07-09 | 07-29 | 08-06 | 08-19 |
+|---|---|---|---|---|---|
+| RTH volume ATAS / Databento | 461,075 / 461,023 | 318,495 / 318,468 | 579,762 / 579,744 | 400,310 / 400,309 | 391,358 / 391,356 |
+| per-minute volume correlation | 0.999997 | 0.999999 | 0.999999 | 1.000000 | 1.000000 |
+| clock offset | 0 s | 0 s | 0 s | 0 s | 0 s |
+| footprint agreement, **B = buy** | 99.99% | 99.99% | 99.99% | 100.00% | 100.00% |
+| footprint agreement, A = buy | 61.9% | 63.5% | 66.2% | 65.0% | 66.7% |
 
 **Side convention confirmed empirically: B = buy aggressor, A = sell aggressor.**
 ATAS records individual fills (428k prints on 06-24); Databento aggregates per price
 level within a match event (348k), and recombination gives 288k aggressor orders.
 The RP-010 aggressor labels, which came from ATAS, are corroborated by an
-independent feed. 2026-08-19 is pending at Databento.
+independent feed. All five sessions agree; zero side-N prints in any of them.
