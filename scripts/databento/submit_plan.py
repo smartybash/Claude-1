@@ -92,7 +92,7 @@ def main():
                                     ""])
         print(f"{tag}: job {j['id']}  est ${est:.4f}  billed ${billed:.4f}  "
               f"state {j.get('state')}  lifetime ${spent:.4f}")
-        if billed > est + 1e-6:
+        if billed > est + 5e-5:   # stored estimates are 4 dp
             sys.exit(f"STOP: {tag} billed {billed:.4f} above estimate {est:.4f}")
     print(f"all submitted; lifetime spend ${spent:.4f}")
 
