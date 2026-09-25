@@ -1,0 +1,81 @@
+RP-012A STAGE 0 -- DATA-QUALITY INVENTORY
+  No forward return, no event outcome. Volatility scales are
+  unconditional properties of each instrument.
+
+=== 1. COVERAGE ===
+  instr period                                   first              last  sess  early
+  QQQ   discovery 2021-2023           2021-01-04 09:30  2023-12-29 15:59   773     24
+  QQQ   int. validation 2024-2025     2024-01-02 09:30  2025-12-31 15:59   516     20
+  QQQ   QQQ 2026 on disk              2026-01-02 09:30  2026-09-24 15:59   189      6
+  SPY   discovery 2021-2023           2021-01-04 09:30  2023-12-29 15:59   773     24
+  SPY   int. validation 2024-2025     2024-01-02 09:30  2025-12-31 15:59   516     20
+  IWM   discovery 2021-2023           2021-01-04 09:30  2023-12-29 15:59   753      4
+  IWM   int. validation 2024-2025     2024-01-02 09:30  2025-12-31 15:59   502      6
+  IJH   discovery 2021-2023           2021-01-04 09:30  2023-12-29 15:59   753      4
+  IJH   int. validation 2024-2025     2024-01-02 09:30  2025-12-31 15:59   502      6
+  EFA   discovery 2021-2023           2021-01-04 09:30  2023-12-29 15:59   753      4
+  EFA   int. validation 2024-2025     2024-01-02 09:30  2025-12-31 15:59   502      6
+  early closes are MEASURED by sessioncal.early_closes: afternoon bar
+  coverage and median afternoon/morning minute volume. All five files
+  return the same ten NYSE half days 2021-2025. They are EXCLUDED from
+  events and from every lookback.
+
+=== 2. MISSING BARS, STALENESS, ACTIVITY ===
+  instr period                        miss%  0chg1m%  flat1m% run med  0chg5m%  <4bar5m%  medvol1m  0vol1m%  NaNvol
+  QQQ   discovery 2021-2023            0.00     1.96     0.00       1     0.86      0.00       933     0.00       0
+  QQQ   int. validation 2024-2025      0.00     1.63     0.00       1     0.77      0.00       874     0.00       0
+  QQQ   QQQ 2026 on disk               0.00     1.25     0.00       1     0.52      0.00       781     0.00       0
+  SPY   discovery 2021-2023            0.00     8.57     0.00       2     4.10      0.00     2,440     0.00       0
+  SPY   int. validation 2024-2025      0.00     7.78     0.00       2     3.68      0.00     2,168     0.00       0
+  IWM   discovery 2021-2023            0.02     3.35     0.00       1     1.39      0.02    37,514     0.00       0
+  IWM   int. validation 2024-2025      0.00     3.11     0.00       1     1.31      0.00    48,643     0.00       0
+  IJH   discovery 2021-2023            3.80     2.48     8.91       1     1.08      2.84     6,500     0.00       0
+  IJH   int. validation 2024-2025      0.19     7.25     0.68       2     3.26      0.09    10,841     0.00       0
+  EFA   discovery 2021-2023            0.06    13.15     0.65       3     5.85      0.03    25,927     0.00       0
+  EFA   int. validation 2024-2025      0.07    11.67     1.04       3     5.01      0.01    15,344     0.00       0
+  run med = median over sessions of the longest run of unchanged 1-min closes
+
+=== 3. SPLITS AND CORPORATE ACTIONS (measured) ===
+  QQQ   no split detected 2021-2026
+  SPY   no split detected 2021-2025
+  IWM   no split detected 2021-2025
+  IJH   SPLIT 5-for-1 effective 2024-02-22: last pre-split close 280.84 -> first post-split close 56.99 (ratio 4.9279)
+  EFA   no split detected 2021-2025
+  Dividends are not adjusted. They move the OVERNIGHT price only; every
+  RP-012A window and horizon lies inside one cash session, so a dividend
+  cannot enter any RP-012A quantity.
+
+  IJH SPLIT RESOLUTION -- volume only, no outcome
+    UNADJUSTED: median RV 20 sessions BEFORE 0.88, 20 sessions AFTER 2.20; post-split windows with RV >= 2: 54.7%
+    ADJUSTED  : median RV 20 sessions BEFORE 0.88, 20 sessions AFTER 0.96; post-split windows with RV >= 2: 11.3%
+    Unadjusted, every post-split window reads as ~5x normal volume for
+    twenty sessions -- an entire month of spurious 'abnormal volume'.
+    RP-012A uses the ADJUSTED series: pre-split prices / 5, volumes x 5.
+
+=== 4. COST ASSUMPTIONS ===
+  spread: ONE TICK ($0.01), an ASSUMPTION -- no ETF quote data exists on
+  disk. commission: $0.0035/share each way. Round trip $0.017/share.
+  Optimistic for IJH after the split and for EFA, where a one-cent
+  spread is a larger fraction of price and is less often the touch.
+
+  med px is the ACTUAL traded price (unadjusted) -- cost is charged there
+  instr period                         med px spread bps  comm bps  RT bps  ATR1m bps  |15m| bps  RT/1.2ATR  3xRT bps
+  QQQ   discovery 2021-2023          16607.60      0.006     0.004   0.010       7.28      10.35       0.1%     0.031
+  QQQ   int. validation 2024-2025    22256.59      0.004     0.003   0.008       5.74       8.12       0.1%     0.023
+  QQQ   QQQ 2026 on disk             28966.09      0.003     0.002   0.006       6.16       8.59       0.1%     0.018
+  SPY   discovery 2021-2023           4890.51      0.020     0.014   0.035       5.24       7.57       0.6%     0.104
+  SPY   int. validation 2024-2025     6224.07      0.016     0.011   0.027       4.12       5.98       0.6%     0.082
+  IWM   discovery 2021-2023            192.25      0.520     0.364   0.884       7.27      11.70      10.1%     2.653
+  IWM   int. validation 2024-2025      216.93      0.461     0.323   0.784       6.26       9.93      10.4%     2.351
+  IJH   discovery 2021-2023            257.57      0.388     0.272   0.660       4.77       9.74      11.5%     1.980
+  IJH   int. validation 2024-2025       62.24      1.607     1.125   2.731       4.46       7.80      51.1%     8.194
+  EFA   discovery 2021-2023             72.59      1.378     0.964   2.342       3.56       5.89      54.9%     7.026
+  EFA   int. validation 2024-2025       81.40      1.229     0.860   2.088       2.77       5.03      62.7%     6.265
+
+=== 5. EXCLUSION RULE (declared in the docstring before measuring) ===
+  QQQ   C1 pass (0.86%)  C2 pass (0.00%)  C3 pass (0.00%)  -> PRIMARY
+  SPY   C1 pass (4.10%)  C2 pass (0.00%)  C3 pass (0.00%)  -> PRIMARY
+  IWM   C1 pass (1.39%)  C2 pass (0.02%)  C3 pass (0.00%)  -> PRIMARY
+  IJH   C1 pass (1.08%)  C2 FAIL (2.84%)  C3 pass (0.00%)  -> EXCLUDED
+  EFA   C1 FAIL (5.85%)  C2 pass (0.03%)  C3 pass (0.00%)  -> LOWER-LIQUIDITY CONTROL ONLY
+

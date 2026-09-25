@@ -1,0 +1,183 @@
+RP-012A STAGE 1 -- DISCOVERY ONLY, 2021-01-04 .. 2023-12-29
+  Descriptive. No entry, stop, target, expectancy or prop simulation.
+  2024-2025 NOT opened.
+
+PLATFORM GATE: PASS 139   FAIL 0
+
+=== 1. COUNTS, BEFORE ANY FORWARD RETURN ===
+  blocks (frozen, from rp012a_common.BLOCKS): opening 09:35-10:00,
+  morning 10:00-11:30, midday 11:30-14:00, closing 14:00-15:50
+
+  instr   avail  half  used  warmup labelled no-valid  elig win
+  QQQ       773    24   749      35      714        0     53550
+  SPY       773    24   749      35      714        0     53550
+  IWM       753     4   749      35      714        0     53537
+  EFA       753     4   749      35      714        0     53534
+  'no-valid' = sessions excluded for missing data (no valid window at all)
+  zero / missing volume: a missing bar is no trading, never substituted;
+  < 4 bars voids a window everywhere; a zero median voids its RV
+
+  instr   A cand   A ev  B cand   B ev   C obs  cooled%  ev/sess  ev/month
+  QQQ       3402   1958    1288    624   25106    44.7%     3.62      73.8
+  SPY       3594   1950    1273    543   24775    47.6%     3.49      71.2
+  IWM       2931   1568    1806   1051   24943    44.0%     3.67      74.8
+  EFA       2372   1430    2108   1293   25185    35.8%     3.81      77.8
+
+  events by year, block and sign:
+    QQQ A  sessions 551  + 885 -1073  | 2021:580 2022:727 2023:651 | opening:138 morning:522 midday:776 closing:522
+    QQQ B  sessions 355  + 319 - 305  | 2021:153 2022:223 2023:248 | opening:73 morning:150 midday:234 closing:167
+    SPY A  sessions 524  + 852 -1098  | 2021:570 2022:683 2023:697 | opening:148 morning:469 midday:792 closing:541
+    SPY B  sessions 322  + 249 - 294  | 2021:145 2022:219 2023:179 | opening:52 morning:137 midday:200 closing:154
+    IWM A  sessions 483  + 744 - 824  | 2021:478 2022:562 2023:528 | opening:125 morning:348 midday:629 closing:466
+    IWM B  sessions 448  + 522 - 529  | 2021:232 2022:393 2023:426 | opening:88 morning:280 midday:427 closing:256
+    EFA A  sessions 471  + 690 - 740  | 2021:453 2022:525 2023:452 | opening:94 morning:333 midday:581 closing:422
+    EFA B  sessions 541  + 638 - 655  | 2021:312 2022:433 2023:548 | opening:111 morning:316 midday:511 closing:355
+  simultaneous cross-instrument events: 1482 slots, 42.4% of primary events
+
+  [PASS] 1 A and B each in >= 30 sessions        min 322
+  [PASS] 2 block share 0.5-2.0x window share     0.91-1.23x
+  [PASS] 3 every block has A and B               []
+  [PASS] 4 buy share 40-60%                      43.7-51.1%
+  [PASS] 5 abnormal rate 0.5-2.0x per block      0.97-1.09x
+  [PASS] 6 every year in every cell              []
+  all six Stage 0 count conditions remain satisfied
+
+  events with no entry bar (no outcome): 0
+
+=== 2. FORWARD OUTCOMES -- direction-adjusted bps, strictly after the window ===
+  QQQ state A  (n=1958, 551 sessions)
+    h        mean  median     MFE     MAE  cont%   rev%  orig%   brk%    clus      t
+    5m     +0.198  +0.180   11.33   10.97   50.7   48.6   12.3   71.0  -0.130  -0.33
+    15m    +0.248  +0.223   19.81   18.48   50.5   49.0   30.8   82.9  -0.568  -0.93
+    30m    +0.570  +0.000   27.44   25.83   49.9   49.9   44.9   87.6  -0.587  -0.70
+    median minutes to one typical 5-min move: continue 2 (84% reach), reverse 2 (83%)
+  QQQ state B  (n=624, 355 sessions)
+    h        mean  median     MFE     MAE  cont%   rev%  orig%   brk%    clus      t
+    5m     -0.133  -0.994   11.11   11.13   46.5   53.2   77.7   49.7  -0.406  -0.51
+    15m    -0.093  +0.000   19.19   19.05   49.8   49.6   88.8   66.8  -0.720  -0.62
+    30m    -0.677  -0.852   26.34   26.25   48.1   51.8   90.8   74.3  -1.926  -1.08
+    median minutes to one typical 5-min move: continue 3 (80% reach), reverse 2 (81%)
+  SPY state A  (n=1950, 524 sessions)
+    h        mean  median     MFE     MAE  cont%   rev%  orig%   brk%    clus      t
+    5m     -0.514  +0.000    8.50    8.85   48.8   48.4   16.8   65.2  -0.528  -1.72
+    15m    -0.036  +0.000   14.72   14.48   49.9   48.4   34.7   79.5  -0.453  -0.93
+    30m    +0.198  -0.553   20.95   20.05   48.6   50.2   47.6   85.2  -0.256  -0.36
+    median minutes to one typical 5-min move: continue 2 (86% reach), reverse 2 (84%)
+  SPY state B  (n=543, 322 sessions)
+    h        mean  median     MFE     MAE  cont%   rev%  orig%   brk%    clus      t
+    5m     -0.122  -0.598    8.12    8.44   45.7   52.1   82.0   49.4  -0.220  -0.43
+    15m    -1.707  -1.096   13.28   14.78   46.7   52.0   90.3   65.9  -1.572  -1.90
+    30m    -1.671  -2.613   18.07   20.42   45.1   53.9   92.7   74.4  -1.969  -1.56
+    median minutes to one typical 5-min move: continue 2 (81% reach), reverse 2 (85%)
+  IWM state A  (n=1568, 483 sessions)
+    h        mean  median     MFE     MAE  cont%   rev%  orig%   brk%    clus      t
+    5m     -1.181  -0.581   12.22   13.27   47.2   51.5   18.3   71.8  -0.936  -1.79
+    15m    -1.040  +0.000   21.15   22.47   49.6   49.8   38.1   82.5  -0.666  -0.79
+    30m    +0.971  +1.638   30.16   29.94   51.5   48.3   49.8   88.0  +1.028  +0.89
+    median minutes to one typical 5-min move: continue 2 (85% reach), reverse 2 (84%)
+  IWM state B  (n=1051, 448 sessions)
+    h        mean  median     MFE     MAE  cont%   rev%  orig%   brk%    clus      t
+    5m     +0.105  +0.000   10.27   10.43   49.7   48.9   74.1   61.4  +0.337  +0.63
+    15m    -0.316  -0.285   17.69   18.06   49.0   50.1   84.6   75.5  +0.244  +0.29
+    30m    -0.811  -1.030   24.86   25.12   48.0   51.2   89.1   81.1  -0.609  -0.51
+    median minutes to one typical 5-min move: continue 3 (77% reach), reverse 3 (78%)
+  EFA state A  (n=1430, 471 sessions)
+    h        mean  median     MFE     MAE  cont%   rev%  orig%   brk%    clus      t
+    5m     -0.291  +0.000    6.76    6.81   47.8   47.8   17.7   68.6  -0.319  -1.06
+    15m    -0.335  +0.000   11.69   11.58   48.0   47.7   37.4   79.0  -0.375  -0.75
+    30m    +0.171  +0.000   16.35   16.27   49.7   47.8   50.5   85.4  -0.065  -0.10
+    median minutes to one typical 5-min move: continue 2 (84% reach), reverse 2 (84%)
+  EFA state B  (n=1293, 541 sessions)
+    h        mean  median     MFE     MAE  cont%   rev%  orig%   brk%    clus      t
+    5m     -0.249  +0.000    5.00    5.06   46.2   47.6   72.5   55.5  -0.063  -0.27
+    15m    -0.038  +0.000    8.81    8.77   47.0   49.0   82.9   71.7  +0.113  +0.27
+    30m    -0.276  +0.000   12.36   12.52   48.3   49.6   87.5   79.5  -0.286  -0.48
+    median minutes to one typical 5-min move: continue 3 (75% reach), reverse 4 (75%)
+
+  positive and negative displacement separately, 15 min:
+  instr st    buy n      buy  sell n     sell
+  QQQ   A       885   -0.052    1073   +0.495
+  QQQ   B       319   -0.214     305   +0.033
+  SPY   A       852   -0.287    1098   +0.159
+  SPY   B       249   -0.326     294   -2.902
+  IWM   A       744   -3.095     824   +0.819
+  IWM   B       522   +0.750     529   -1.369
+  EFA   A       690   -0.587     740   -0.100
+  EFA   B       638   -0.422     655   +0.337
+
+  by year, 15 min (event mean):
+  year        2021   2022   2023
+  sym state                     
+  EFA A      0.111 -1.322  0.374
+      B     -0.565 -0.571  0.687
+  IWM A     -0.425 -2.174 -0.381
+      B     -1.455 -0.900  0.840
+  QQQ A      0.447 -0.677  1.110
+      B      0.508  0.283 -0.813
+  SPY A      0.500 -1.136  0.610
+      B     -1.457 -3.987  0.844
+
+  by block, 15 min (event mean):
+  block      opening  morning  midday  closing
+  sym state                                   
+  EFA A       -0.235   -0.079   0.240   -1.373
+      B        1.558    0.350  -0.264   -0.577
+  IWM A       -1.982    0.214  -1.035   -1.748
+      B       -2.964   -1.399  -0.480    2.109
+  QQQ A        1.490    1.680   0.123   -1.375
+      B       -6.103    1.706  -0.205    1.143
+  SPY A        0.642    1.142  -0.131   -1.133
+      B       -1.521   -0.308  -3.800   -0.241
+
+=== 3. LOAD-BEARING CONTROLS, 15 min ===
+  'material' = date-clustered paired diff >= 1 RT cost AND t >= 2.0
+
+  QQQ  state A mean +0.248 bps (n 1943), RT 0.010
+    1 displacement only, C & RD>=p80    n   3995  mean +0.262  standardised +0.291 (cover 100%)  | A-minus paired -1.342 t -1.49 (533 dates)
+    2 volume only: state B              n    624  mean -0.093  | A-minus paired +0.975 t +0.66
+      volume only: abnormal RV, RD p50-80 n  1371  mean -0.647
+    3 ordinary, vol x block matched     n  24909  mean -0.133  standardised -0.123 (cover 100%)  | A-minus paired -0.718 t -1.12
+    4 absolute volume, cooled           n   1479  mean -0.051  | A-minus paired -0.174 t -0.17  overlap with A 45%
+    5 random direction, 1000 draws      mean +0.015  95% [-1.159, +1.184]  A's rank 65.1th pct
+  SPY  state A mean -0.036 bps (n 1935), RT 0.035
+    1 displacement only, C & RD>=p80    n   4022  mean +0.249  standardised -0.130 (cover 100%)  | A-minus paired -1.623 t -2.76 (503 dates)
+    2 volume only: state B              n    543  mean -1.707  | A-minus paired +1.327 t +1.24
+      volume only: abnormal RV, RD p50-80 n  1404  mean -0.343
+    3 ordinary, vol x block matched     n  23767  mean -0.187  standardised -0.127 (cover 100%)  | A-minus paired -0.451 t -0.88
+    4 absolute volume, cooled           n   1609  mean +0.072  | A-minus paired -0.733 t -1.24  overlap with A 46%
+    5 random direction, 1000 draws      mean +0.006  95% [-0.999, +0.970]  A's rank 45.5th pct
+  IWM  state A mean -1.040 bps (n 1556), RT 0.875
+    1 displacement only, C & RD>=p80    n   4581  mean -0.079  standardised +0.101 (cover 100%)  | A-minus paired -1.235 t -1.22 (475 dates)
+    2 volume only: state B              n   1051  mean -0.316  | A-minus paired -1.894 t -1.29
+      volume only: abnormal RV, RD p50-80 n  1669  mean +0.118
+    3 ordinary, vol x block matched     n  24575  mean -0.148  standardised -0.141 (cover 100%)  | A-minus paired -0.572 t -0.65
+    4 absolute volume, cooled           n   1509  mean -0.508  | A-minus paired +1.064 t +1.09  overlap with A 42%
+    5 random direction, 1000 draws      mean +0.061  95% [-1.347, +1.610]  A's rank 6.8th pct
+  EFA  state A mean -0.335 bps (n 1421), RT 2.371
+    1 displacement only, C & RD>=p80    n   4968  mean -0.211  standardised -0.219 (cover 100%)  | A-minus paired -0.155 t -0.27 (462 dates)
+    2 volume only: state B              n   1293  mean -0.038  | A-minus paired -1.131 t -1.48
+      volume only: abnormal RV, RD p50-80 n  1681  mean -0.222
+    3 ordinary, vol x block matched     n  23664  mean -0.022  standardised -0.007 (cover 100%)  | A-minus paired -0.326 t -0.63
+    4 absolute volume, cooled           n   1444  mean -0.809  | A-minus paired -0.444 t -0.89  overlap with A 54%
+    5 random direction, 1000 draws      mean +0.011  95% [-0.887, +0.874]  A's rank 22.8th pct
+
+=== 4. INDEPENDENCE AND CONCENTRATION, state A, 15 min ===
+  set         event    clus      t  dates  dates+  LOO min  LOO max  -best1  -best5  best5 sh
+  QQQ        +0.248  -0.568  -0.93    551     269   -0.665   -0.463  -0.665  -1.009    -76.2%
+  SPY        -0.036  -0.453  -0.93    524     259   -0.559   -0.362  -0.559  -0.847    -85.1%
+  IWM        -1.040  -0.666  -0.79    483     223   -0.878   -0.471  -0.878  -1.313    -95.2%
+  EFA        -0.335  -0.375  -0.75    470     239   -0.519   -0.239  -0.519  -0.788   -107.8%
+  POOLED     -0.222  -0.803  -1.61    636     312   -0.964   -0.716  -0.964  -1.250    -54.5%
+  POOLED = QQQ+SPY+IWM, one observation per DATE (38.6% of events co-occur)
+
+  state A by month, pooled primary, date-clustered mean (bps):
+  21-02:-0.7  21-03:-2.0  21-04:+0.6  21-05:-0.9  21-06:-0.1  21-07:+0.6  21-08:+1.5  21-09:-0.7  21-10:-1.3  21-11:+1.1  21-12:+3.3  22-01:-2.8  22-02:+0.3  22-03:+0.2  22-04:-0.1  22-05:-1.0  22-06:-6.6  22-07:-3.0  22-08:-1.0  22-09:+4.6  22-10:+2.9  22-11:-0.7  22-12:-5.2  23-01:+1.0  23-02:+2.5  23-03:+0.9  23-04:+1.8  23-05:-1.0  23-06:-1.2  23-07:+1.1  23-08:+1.7  23-09:+1.1  23-10:-1.4  23-11:+1.3  23-12:-1.9
+  months positive: 17 of 35
+
+=== 5. COMMERCIAL HURDLE, state A, 15 min ===
+  instr    gross  median     RT     net  hurdle  clears  1.2ATR gross/cont cost/risk trades/mo
+  QQQ     +0.248  +0.223  0.010  +0.237   1.515      no    8.74     +0.028      0.1%      18.6
+  SPY     -0.036  +0.000  0.035  -0.071   1.213      no    6.29     -0.006      0.6%      18.6
+  IWM     -1.040  +0.000  0.875  -1.914   2.653      no    8.73     -0.119     10.0%      14.9
+  EFA     -0.335  +0.000  2.371  -2.706   7.114      no    4.27     -0.078     55.6%      13.6
+  trades/mo = state-A events per month x one-third confirmation retention

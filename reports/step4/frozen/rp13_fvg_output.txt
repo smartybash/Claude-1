@@ -1,0 +1,100 @@
+RP-13 -- FVG FAMILY, MULTI-TIMEFRAME -- DISCOVERY (no OOS block)
+  pre-registered at adb6226; QQQ 1m 2016-2026 substituting for NQ
+
+PLATFORM GATE: PASS 139   FAIL 0
+
+=== 1. DATA ===
+  sessions used 4060  (half days excluded 128)  months 196
+  span 2010-06-08 -> 2026-09-24  1-minute bars 1,583,331
+
+=== 2. COUNTS BEFORE ANY R ===
+  TF         bars  3-bar gaps+sweep  valid FVG  valid/mo  prior/mo  trades  voids  skipped  trades/mo
+  1m    1,583,331             5,983        546       2.8    50-100     496      7        2        2.5
+  2m      791,676             4,454        404       2.1     30-60     345      9        5        1.8
+  3m      527,786             3,802        367       1.9     20-40     299     10        4        1.5
+  5m      316,673             3,022        281       1.4     12-25     233      3        1        1.2
+  15m     105,560             2,134        237       1.2      5-12     164      5        0        0.8
+  30m      52,780             1,695        152       0.8       3-6      96      1        0        0.5
+  60m      28,420             1,293         90       0.5       1-4      29      1        0        0.1
+
+  valid FVGs by side (bull / bear):  1m 224/322  2m 171/233  3m 150/217  5m 109/172  15m 86/151  30m 44/108  60m 27/63
+
+  GRID RULE (frozen): primary TFs below 12 valid setups/month
+  are demoted to diagnostic BEFORE any R. Demoted: ['1m', '2m', '3m', '5m'].  Primary set now: EMPTY
+  -> NO PRIMARY TIMEFRAME REMAINS. Nothing below is promotable; every
+     R is descriptive.
+
+=== 3. COST / RISK, before expectancy ===
+  1m    median risk   9.37 bps  median cost/risk   7.1%  ok
+  2m    median risk  11.99 bps  median cost/risk   5.6%  ok
+  3m    median risk  14.96 bps  median cost/risk   4.5%  ok
+  5m    median risk  19.17 bps  median cost/risk   3.5%  ok
+  15m   median risk  28.35 bps  median cost/risk   2.4%  ok
+  30m   median risk  35.47 bps  median cost/risk   1.9%  ok
+  60m   median risk  53.93 bps  median cost/risk   1.2%  ok
+
+=== 4. PRIMARY R (net of cost) ===
+  TF   role            n   mean R   90% lo      t  day t  incl.entry-bar   win%  maxDD
+  1m   diagnostic    496   +0.055   -0.054  +0.82  +0.84          +0.014   40.3   23.6
+  2m   diagnostic    345   -0.229   -0.358  -2.94  -2.88          -0.179   30.7   80.6
+  3m   diagnostic    299   -0.291   -0.580  -1.65  -1.64          -0.123   33.8   96.4
+  5m   diagnostic    233   +0.051   -0.103  +0.55  +0.55          +0.011   40.3   11.4
+  15m  diagnostic    164   -0.273   -0.467  -2.31  -2.30          -0.174   36.0   60.2
+  30m  diagnostic     96   -0.086   -0.249  -0.87  -0.86          -0.070   40.6    9.6
+  60m  diagnostic     29   -0.134   -0.287  -1.44  -1.44          -0.126   44.8    4.4
+  incl.entry-bar = declared sensitivity: entry bar in the exit search, stop first
+
+  by side:
+    1m  long n 195 -0.042   short n 301 +0.117
+    2m  long n 139 -0.163   short n 206 -0.274
+    3m  long n 119 -0.589   short n 180 -0.093
+    5m  long n 88 -0.062   short n 145 +0.120
+    15m  long n 61 -0.126   short n 103 -0.359
+    30m  long n 29 -0.184   short n 67 -0.044
+    60m  long n 8 -0.034   short n 21 -0.172
+  by year (mean R):
+    1m  2010:+0.95  2011:-0.24  2012:+0.33  2013:-0.15  2014:+0.07  2015:+0.24  2016:-0.18  2017:-0.19  2018:+0.02  2019:+0.17  2020:+0.25  2021:-0.36  2022:-0.07  2023:+0.06  2024:-0.29  2025:+0.51  2026:+0.32
+    2m  2010:-0.25  2011:-0.22  2012:-0.59  2013:-0.19  2014:-0.04  2015:+0.65  2016:-0.03  2017:+0.15  2018:-0.13  2019:-0.72  2020:-0.63  2021:-0.49  2022:+0.18  2023:-0.75  2024:-0.05  2025:-0.06  2026:-0.82
+    3m  2010:+0.09  2011:-0.19  2012:-0.13  2013:+0.27  2014:-0.11  2015:+0.14  2016:-0.18  2017:-0.16  2018:-2.74  2019:+0.03  2020:-0.22  2021:-0.76  2022:-0.20  2023:-0.19  2024:-0.76  2025:+0.31  2026:+0.01
+    5m  2010:+0.44  2011:+0.73  2012:-0.13  2013:-0.04  2014:+0.44  2015:+0.06  2016:-0.24  2017:+0.28  2018:+0.01  2019:-0.09  2020:+0.57  2021:-0.33  2022:-0.13  2023:+0.09  2024:+0.01  2025:-0.12  2026:-0.12
+    15m  2010:-0.02  2011:+0.71  2012:-0.50  2013:-0.21  2014:-0.59  2015:+0.04  2016:-0.05  2017:-0.40  2018:-0.65  2019:-0.80  2020:+0.61  2021:-0.42  2022:-0.48  2023:-0.16  2024:-1.21  2025:+0.06  2026:-0.40
+    30m  2010:-0.44  2011:+0.05  2012:-0.54  2013:-0.10  2014:+0.80  2015:-1.01  2016:-0.11  2017:+0.02  2018:+0.61  2019:-0.24  2020:-0.42  2021:+0.19  2022:-0.80  2023:+0.65  2024:-1.07  2025:-0.26  2026:+0.08
+    60m  2010:-0.61  2011:-0.13  2012:+0.00  2013:+0.27  2014:-0.62  2016:-0.09  2017:+0.08  2019:+0.45  2021:-0.06  2022:+0.02  2023:-1.24  2025:+0.02  2026:-0.01
+
+=== 5. MECHANISM CONTROL -- no ATR filters, sweep kept ===
+  REGISTERED test: fails at a TF if the control's NET expectancy >= the
+  primary's. Unfiltered gaps can be a cent wide, so the control is
+  cost-dominated and the net test is biased toward PASS. The GROSS line is
+  a diagnostic added after the first run, and is not the registered test.
+  1m    NET primary +0.055 (n 496)  control -0.758 (n 4201, med cost/risk 16%)  -> PASS  [diagnostic]
+        GROSS primary +0.157  control -0.445  -> primary better   [gross: diagnostic added after the first run]
+  2m    NET primary -0.229 (n 345)  control -0.702 (n 3057, med cost/risk 12%)  -> PASS  [diagnostic]
+        GROSS primary -0.150  control -0.454  -> primary better   [gross: diagnostic added after the first run]
+  3m    NET primary -0.291 (n 299)  control -0.847 (n 2498, med cost/risk 10%)  -> PASS  [diagnostic]
+        GROSS primary -0.228  control -0.628  -> primary better   [gross: diagnostic added after the first run]
+  5m    NET primary +0.051 (n 233)  control -0.830 (n 1917, med cost/risk 8%)  -> PASS  [diagnostic]
+        GROSS primary +0.101  control -0.636  -> primary better   [gross: diagnostic added after the first run]
+  15m   NET primary -0.273 (n 164)  control -1.005 (n 1175, med cost/risk 5%)  -> PASS  [diagnostic]
+        GROSS primary -0.233  control -0.876  -> primary better   [gross: diagnostic added after the first run]
+  30m   NET primary -0.086 (n 96)  control -0.575 (n 823, med cost/risk 4%)  -> PASS  [diagnostic]
+        GROSS primary -0.061  control -0.453  -> primary better   [gross: diagnostic added after the first run]
+  60m   NET primary -0.134 (n 29)  control -0.202 (n 318, med cost/risk 3%)  -> PASS  [diagnostic]
+        GROSS primary -0.118  control -0.130  -> primary better   [gross: diagnostic added after the first run]
+
+=== 6. PLACEBO, TIMING, iFVG ===
+  1m    primary +0.055 | placebo -0.175 (n 500) | iFVG -0.114 (n 342) | 09:30-11:00 +0.103 (n 238) vs rest +0.010 (n 258)
+  2m    primary -0.229 | placebo -0.617 (n 358) | iFVG -0.187 (n 237) | 09:30-11:00 -0.141 (n 178) vs rest -0.323 (n 167)
+  3m    primary -0.291 | placebo -0.166 (n 302) | iFVG -0.009 (n 185) | 09:30-11:00 -0.357 (n 158) vs rest -0.216 (n 141)
+  5m    primary +0.051 | placebo -0.295 (n 244) | iFVG -0.173 (n 124) | 09:30-11:00 +0.134 (n 134) vs rest -0.061 (n 99)
+  15m   primary -0.273 | placebo +0.045 (n 158) | iFVG -0.268 (n 60) | 09:30-11:00 -0.233 (n 48) vs rest -0.289 (n 116)
+  30m   primary -0.086 | placebo +0.031 (n 84) | iFVG +0.348 (n 15) | 09:30-11:00 +nan (n 0) vs rest -0.086 (n 96)
+  60m   primary -0.134 | placebo +nan (n 0) | iFVG +nan (n 0) | 09:30-11:00 +nan (n 0) vs rest -0.134 (n 29)
+
+=== 7. MAX-STATISTIC PERMUTATION, random direction, 10,000 draws ===
+  no primary timeframe to test
+
+=== 8. PROMOTION TABLE (primary timeframes only) ===
+  1m [demoted]  1:False 2:False 3:False 4:False(no OOS) 5:not run 6:True 7:True 8:False
+  2m [demoted]  1:False 2:False 3:False 4:False(no OOS) 5:not run 6:True 7:True 8:False
+  3m [demoted]  1:False 2:False 3:False 4:False(no OOS) 5:not run 6:True 7:True 8:False
+  5m [demoted]  1:False 2:False 3:False 4:False(no OOS) 5:not run 6:True 7:True 8:False

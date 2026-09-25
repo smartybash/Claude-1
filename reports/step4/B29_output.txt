@@ -1,0 +1,10 @@
+=== B29 gap structure trade (as drawn, with control) (NQ 1-minute; primary = full 2010-06-07 -> 2026-09-24) ===
+  note: 2 HLs + BOS (as drawn): n 1147 R -0.108 t -2.90 | control: open, fixed stop: n 1147 R -0.211 t -4.21
+  2 HLs + BOS (as drawn)     FULL n 1147 | net -1.42 pt/trade ($-28.3) | win 41.5% | PF 0.90 | Sharpe -0.27 | CAGR -0.96% | maxDD $34,205/NQ $4,069/MNQ | trade-sessions 1147/4189 daily-P&L t -1.08 p1 0.8608 (sess-mean t -1.08)
+                             2021 n 394 | net -2.24 pt/trade ($-44.8) | win 43.7% | PF 0.92 | Sharpe -0.27 | CAGR -0.69% | maxDD $25,581/NQ $2,608/MNQ | trade-sessions 394/1460 daily-P&L t -0.64 p1 0.7397 (sess-mean t -0.64)
+                             frozen pass bar (full, NQ costs): not met
+  control: open, fixed stop  FULL n 1147 | net -4.60 pt/trade ($-91.9) | win 26.2% | PF 0.74 | Sharpe -0.74 | CAGR -3.50% | maxDD $116,466/NQ $12,257/MNQ | trade-sessions 1147/4189 daily-P&L t -3.01 p1 0.9987 (sess-mean t -3.02)
+                             2021 n 394 | net -7.98 pt/trade ($-159.5) | win 26.4% | PF 0.79 | Sharpe -0.76 | CAGR -3.06% | maxDD $76,113/NQ $7,666/MNQ | trade-sessions 394/1460 daily-P&L t -1.82 p1 0.9657 (sess-mean t -1.83)
+                             frozen pass bar (full, NQ costs): not met
+  PRIMARY: 1 cell(s), Holm on one-sided p (full sample); best = 2 HLs + BOS (as drawn), study p = 0.8608
+  frozen pass bar for best cell: NOT MET -> stays closed

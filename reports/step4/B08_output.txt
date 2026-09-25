@@ -1,0 +1,16 @@
+=== B08 opening-range height, wide arm (4 variants) (NQ 1-minute; primary = full 2010-06-07 -> 2026-09-24) ===
+  note: OR15 R3.0 (wide): expR -0.085 t -2.73 PF 0.90 ex1 -366.5 +yrs 7; sessions traded 1711; gradient +yrs 14 | OR15 R4.0 (wide): expR -0.075 t -2.03 PF 0.92 ex1 -362.0 +yrs 7; sessions traded 1711; gradient +yrs 10 | OR30 R3.0 (wide): expR -0.126 t -4.02 PF 0.86 ex1 -476.0 +yrs 1; sessions traded 1657; gradient +yrs 11 | OR30 R4.0 (wide): expR -0.121 t -3.26 PF 0.87 ex1 -489.9 +yrs 2; sessions traded 1657; gradient +yrs 12
+  OR15 R3.0 (wide)           FULL n 3177 | net -0.36 pt/trade ($-7.2) | win 27.0% | PF 0.96 | Sharpe -0.16 | CAGR -2.03% | maxDD $53,569/NQ $7,183/MNQ | trade-sessions 1711/4189 daily-P&L t -0.63 p1 0.7372 (sess-mean t +2.80)
+                             2021 n 1102 | net -0.11 pt/trade ($-2.2) | win 27.4% | PF 0.99 | Sharpe -0.03 | CAGR -0.92% | maxDD $41,705/NQ $4,352/MNQ | trade-sessions 588/1460 daily-P&L t -0.07 p1 0.5291 (sess-mean t +2.37)
+                             frozen pass bar (full, NQ costs): not met
+  OR15 R4.0 (wide)           FULL n 3152 | net -0.45 pt/trade ($-9.0) | win 22.0% | PF 0.96 | Sharpe -0.18 | CAGR -1.86% | maxDD $62,127/NQ $8,025/MNQ | trade-sessions 1711/4189 daily-P&L t -0.73 p1 0.7662 (sess-mean t +3.60)
+                             2021 n 1089 | net -0.19 pt/trade ($-3.8) | win 22.4% | PF 0.99 | Sharpe -0.05 | CAGR -0.64% | maxDD $53,570/NQ $5,541/MNQ | trade-sessions 588/1460 daily-P&L t -0.12 p1 0.5468 (sess-mean t +2.98)
+                             frozen pass bar (full, NQ costs): not met
+  OR30 R3.0 (wide)           FULL n 3058 | net -1.57 pt/trade ($-31.3) | win 26.7% | PF 0.83 | Sharpe -0.85 | CAGR -3.02% | maxDD $108,504/NQ $12,606/MNQ | trade-sessions 1657/4189 daily-P&L t -3.48 p1 0.9997 (sess-mean t +0.13)
+                             2021 n 1075 | net -3.18 pt/trade ($-63.5) | win 24.5% | PF 0.82 | Sharpe -1.10 | CAGR -3.08% | maxDD $81,491/NQ $8,357/MNQ | trade-sessions 580/1460 daily-P&L t -2.66 p1 0.9960 (sess-mean t +0.09)
+                             frozen pass bar (full, NQ costs): not met
+  OR30 R4.0 (wide)           FULL n 3037 | net -1.46 pt/trade ($-29.2) | win 21.6% | PF 0.85 | Sharpe -0.68 | CAGR -2.58% | maxDD $102,676/NQ $12,010/MNQ | trade-sessions 1657/4189 daily-P&L t -2.75 p1 0.9970 (sess-mean t +1.36)
+                             2021 n 1068 | net -3.10 pt/trade ($-62.0) | win 19.4% | PF 0.83 | Sharpe -0.92 | CAGR -3.03% | maxDD $80,530/NQ $8,265/MNQ | trade-sessions 580/1460 daily-P&L t -2.21 p1 0.9863 (sess-mean t +0.93)
+                             frozen pass bar (full, NQ costs): not met
+  PRIMARY: 4 cell(s), Holm on one-sided p (full sample); best = OR15 R3.0 (wide), study p = 1.0000
+  frozen pass bar for best cell: NOT MET -> stays closed
