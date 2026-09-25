@@ -166,7 +166,7 @@ def assert_reports_untouched():
     import subprocess
     st = subprocess.run(["git", "status", "--porcelain", "--", "reports", "results"],
                         cwd=ROOT, capture_output=True, text=True).stdout.splitlines()
-    bad = [l for l in st if not l[3:].startswith(("reports/step4", "results/"))
+    bad = [l for l in st if not l[3:].startswith(("reports/step4", "results/", "reports/of_h_"))
            and not l[3:].startswith("reports/decisions_pending.md")]
     if bad:
         for l in bad:
