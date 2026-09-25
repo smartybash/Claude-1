@@ -233,3 +233,35 @@ pull at the 12-month review (≈ $1.30); 3) no pulls.
   (`data/trades/`) and the reports on them (`reports/trades/`) are gitignored for the
   same reason. Fills after 2026-09-24 have no bars until a forward pull (P8); the
   harness counts them and leaves them out of the bar checks and the random-entry null.
+
+---
+
+# DECISIONS RECEIVED (user, 2026-09-25, second batch) — logged before any action
+
+| item | decision |
+|---|---|
+| P3 | **Changed:** the repository stays public for now; the user will make it private later. Until then **all market data and the user's trade files stay out of git.** Nothing is committed under P3. |
+| P8 | **Approved as a standing rule:** pull forward NQ 1-minute bars monthly, **max USD 1 per pull**, every pull logged in `data/databento_ledger.csv`, no per-pull approval. Lifetime cap unchanged (USD 125). The quote, the billed-vs-estimate check and the stop rule still apply to every pull. |
+| new | **D3P, prop-compatible D3:** after a D3 signal, long from the next RTH open to that session's RTH close, flat overnight. Same costs, same exposure-matched null, seen data, pre-registered before running. Pass = add to forward paper-tracking; fail = close. No spend (bars already bought). |
+| fills | The user will paste the Tradovate CSV into the chat: save to `data/trades/` (gitignored), run the harness with `--tz Asia/Dubai`; if that does not fit the bars, re-run with the best-fit zone the harness reports. |
+
+## P9. Local data will not survive a container reset after about 25 Oct (decide before then)
+
+Databento batch files can be re-downloaded free for **30 days from submission**.
+The jobs were submitted 2026-09-24/25, so **the free re-download window closes
+around 25 Oct 2026.** While the repository is public the data lives only in this
+container (`data/raw/` 707 MB, `data/clean/` about 330 MB), and the container is
+reclaimed after inactivity. After 25 Oct a reset means buying the data again
+(about $84 at the original quotes; the lifetime cap leaves $40).
+
+Options, any one is enough:
+1. Make the repository private before 25 Oct; the P3 commit (monthly files, no
+   file over 1 GB, no force-push) then runs at once.
+2. Keep a copy outside the repository (your machine or your Google Drive). I can
+   upload `data/clean/` to your Drive if you ask; I won't do it unasked.
+3. Accept the risk. Only the forward pulls (pennies) are then safe to redo, not
+   the history.
+
+Until you decide, nothing is committed. If the container is reset before 25 Oct,
+`scripts/databento/download.py` fetches everything again for free and
+`build_derived.py` rebuilds the bars.
