@@ -189,3 +189,17 @@ too — daily OHLCV from the statistics/ohlcv schemas is cheap).
 
 **Options:** 1) pre-register a forward-only evaluation of the three (I draft,
 you approve); 2) leave them as context; 3) close them.
+
+---
+
+# DECISIONS RECEIVED (user, after 2026-09-25) — logged before any action on them
+
+| item | decision |
+|---|---|
+| P1 | Approved. The most canonical variant is the single primary, the others secondary with Holm. Run once on 2010–2026, labelled seen data, same kill criteria plus the random-direction baseline. Pass = forward paper-tracking only; fail = close. **Primary chosen: V2 (midnight open)** — ICT's "true day open" is 00:00 New York, the Judas swing is taken against it in the NY morning, and the target is the opposing prior-day liquidity. |
+| P2 | Tick top-up **cancelled** (nothing passed discovery). Remaining credit unspent except pennies for forward bars. |
+| P3 | Repository being made private. Once it is: commit the derived datasets (bars, footprints, big orders) split by month; skip raw files over 1 GB; no force-push. |
+| P4, P5 | Accepted as logged. |
+| P6 | Amendment accepted: volume check one-sided, shortfall ≤ 5%. Run RP-011 discovery labelled "sessions already read by step-4 tape studies", then T18. Holdout read once, only for anything that passes discovery. |
+| P7 | Pre-register the three daily effects now; frozen rules; they must beat an exposure-matched random-entry null, not just be positive. Paper-track from the registration date; first review in 12 months. |
+| new | Build a harness for the user's own Tradovate fills (CSV to be uploaded). |
