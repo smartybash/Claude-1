@@ -112,3 +112,15 @@ reopen auction, which RP-011 never reads. I applied it to the **RTH data RP-011
 reads**: a session with any RTH N print fails. This is an interpretation, not a
 waiver. Say if you want the literal whole-session reading instead (which would
 block RP-011).
+
+---
+
+## P5. RP-011 Stage 1 outcome protocol — adopted from RP-010 (review)
+
+RP-011's frozen spec fixed the construction and the counts gate but no Stage 1
+outcome protocol. Rather than invent one, I adopted **RP-010's approved Stage 1
+structure** (horizons, controls, load-bearing tests, eleven pass and ten kill
+conditions), applied per time block. I added a 15-minute primary horizon, Holm
+across the four blocks, and a ±2% tolerance on the D3 volume reconciliation.
+Registered in `reports/rp011_stage1_preregistration.md` before any RP-011 window was
+built. Override any of it if you disagree; nothing has been read yet.
