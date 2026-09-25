@@ -31,7 +31,10 @@ RT_STD_PTS = {"NQ": 2 * (2.25 + 5.00) / 20.0, "MNQ": 2 * (0.62 + 0.50) / 2.0}
 
 
 def rt_pts(inst, frozen_rt_pts=0.0):
-    return max(RT_STD_PTS[inst], float(frozen_rt_pts or 0.0))
+    """Round trip in points: the larger of the NQ/MNQ standard and the frozen
+    cost. `frozen_rt_pts` may be a scalar or a per-trade array."""
+    f = np.nan_to_num(np.asarray(frozen_rt_pts, float), nan=0.0)
+    return np.maximum(RT_STD_PTS[inst], f)
 
 
 def clustered(session, x):
@@ -51,6 +54,8 @@ def evaluate(session, gross_pts, all_sessions, close_by_session=None, frozen_rt_
     """session: per-trade session labels; gross_pts: per-trade points, unadjusted."""
     session = pd.Index(pd.to_datetime(pd.Index(session)))
     gp = np.asarray(gross_pts, float)
+    if np.ndim(frozen_rt_pts) and len(np.atleast_1d(frozen_rt_pts)) != len(gp):
+        raise ValueError("per-trade frozen cost must match the trades")
     idx = pd.Index(sorted(pd.to_datetime(pd.Index(all_sessions)).unique()))
     out = dict(n=len(gp))
     for inst in ("NQ", "MNQ"):
