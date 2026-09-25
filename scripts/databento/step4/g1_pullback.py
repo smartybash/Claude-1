@@ -70,9 +70,10 @@ def run_grid(M, tid, label, D, old, record=True):
     half = len(days_all) // 2
     first, second = set(days_all[:half]), set(days_all[half:])
     res, crit = {}, {}
-    grid = list(product(M.GRID_OR_MIN, M.GRID_STOP_ATR, M.GRID_TGT_R))
+    mid, mlab = ((M.GRID_STOP_ATR, "SATR") if hasattr(M, "GRID_STOP_ATR") else (M.GRID_EXC, "EXC"))
+    grid = list(product(M.GRID_OR_MIN, mid, M.GRID_TGT_R))
     for g in grid:
-        key = " ".join(f"{a}{b}" for a, b in zip(("OR", "SATR", "R"), g))
+        key = " ".join(f"{a}{b}" for a, b in zip(("OR", mlab, "R"), g))
         T = M.evaluate(per, *g)
         if T.empty:
             res[key] = TL.cell_eval([], M.COST_PTS, D)

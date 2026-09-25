@@ -1,0 +1,78 @@
+====================================================================================================
+PULLBACK CONTINUATION — 12 PRE-REGISTERED VARIANTS
+====================================================================================================
+  sessions (61): 0302 0303 0304 0305 0306 0309 0310 0311 0312 0313 0318 0319 0320 0323 0324 0325 0326 0327 0330 0331 0401 0402 0406 0407 0408 0409 0410 0413 0414 0415 0416 0417 0420 0421 0422 0423 0424 0427 0428 0429 0430 0501 0504 0505 0506 0507 0508 0511 0512 0513 0514 0515 0518 0519 0520 0521 0522 0526 0527 0528 0529
+  0.25 grid, discovery pile only. Sealed days not read.
+  flat 18:30 UTC (22:30 Dubai)   last entry 18:00 UTC   cost 2.0 pts/round turn
+  max 2 trades/session, never concurrent
+
+  TRADE COUNTS FIRST, before any performance number:
+
+  variant                 trades  sessions  trades/sess    expiry%  avg risk
+  OR15 SATR0.5 R1.0           99        52         1.90          0%      14.2
+  OR15 SATR0.5 R1.5           97        52         1.87          0%      14.3
+  OR15 SATR0.5 R2.0           96        52         1.85          0%      14.3
+  OR15 SATR1.0 R1.0           96        52         1.85          0%      25.6
+  OR15 SATR1.0 R1.5           97        52         1.87          0%      26.0
+  OR15 SATR1.0 R2.0           96        52         1.85          0%      25.8
+  OR30 SATR0.5 R1.0           66        39         1.69          0%      12.1
+  OR30 SATR0.5 R1.5           66        39         1.69          0%      12.1
+  OR30 SATR0.5 R2.0           67        39         1.72          0%      12.1
+  OR30 SATR1.0 R1.0           67        39         1.72          0%      22.0
+  OR30 SATR1.0 R1.5           68        39         1.74          0%      22.0
+  OR30 SATR1.0 R2.0           67        39         1.72          0%      21.9
+
+====================================================================================================
+  PER TRADE
+====================================================================================================
+  variant                   n     exp   win%     PF    avgW    avgL   worst  ex-top5
+  OR15 SATR0.5 R1.0        99   -2.20   47.5   0.73  +12.78  -15.74  -28.56   -316.9
+  OR15 SATR0.5 R1.5        97   -0.72   44.3   0.92  +19.05  -16.46  -28.56   -208.3
+  OR15 SATR0.5 R2.0        96   -2.85   31.2   0.75  +26.72  -16.29  -28.56   -449.5
+  OR15 SATR1.0 R1.0        96   -2.11   51.0   0.85  +22.99  -28.28  -47.10   -393.2
+  OR15 SATR1.0 R1.5        97   -0.58   42.3   0.96  +36.95  -28.06  -49.50   -338.5
+  OR15 SATR1.0 R2.0        96   -5.51   31.2   0.72  +45.59  -28.74  -48.20   -877.9
+  OR30 SATR0.5 R1.0        66   -1.41   53.0   0.79  +10.03  -14.32  -25.93   -186.1
+  OR30 SATR0.5 R1.5        66   -3.25   36.4   0.64  +15.94  -14.23  -27.56   -343.0
+  OR30 SATR0.5 R2.0        67   -3.27   29.9   0.67  +22.14  -14.08  -27.56   -389.3
+  OR30 SATR1.0 R1.0        67   -1.24   53.7   0.89  +19.14  -24.92  -45.95   -258.8
+  OR30 SATR1.0 R1.5        68   -3.23   38.2   0.78  +30.56  -24.15  -45.95   -471.5
+  OR30 SATR1.0 R2.0        67   -3.09   32.8   0.81  +40.25  -24.28  -45.95   -509.4
+
+====================================================================================================
+  PER SESSION  (t across sessions; two trades in a day are not independent)
+====================================================================================================
+  variant                sess w/ trade  mean/sess       t  sess +ve   half1   half2
+  OR15 SATR0.5 R1.0                 52      -3.57   -1.59  17/61      -36.2  -181.5
+  OR15 SATR0.5 R1.5                 52      -1.14   -0.37  30/61      -30.2   -39.5
+  OR15 SATR0.5 R2.0                 52      -4.48   -1.23  24/61      -77.4  -196.2
+  OR15 SATR1.0 R1.0                 52      -3.32   -0.75  22/61      +19.9  -222.7
+  OR15 SATR1.0 R1.5                 52      -0.92   -0.17  29/61      +73.8  -130.2
+  OR15 SATR1.0 R2.0                 52      -8.67   -1.43  24/61     -256.4  -272.6
+  OR30 SATR0.5 R1.0                 39      -1.52   -0.86  16/61      -22.0   -71.0
+  OR30 SATR0.5 R1.5                 39      -3.52   -1.62  17/61      -87.2  -127.6
+  OR30 SATR0.5 R2.0                 39      -3.59   -1.43  17/61      -51.5  -167.7
+  OR30 SATR1.0 R1.0                 39      -1.37   -0.38  21/61      -53.1   -30.3
+  OR30 SATR1.0 R1.5                 39      -3.60   -0.87  19/61     -154.9   -64.8
+  OR30 SATR1.0 R2.0                 39      -3.39   -0.68  17/61      +13.8  -220.8
+
+====================================================================================================
+  REJECTION CRITERIA, FIXED IN ADVANCE
+====================================================================================================
+  1 expectancy <= 0   2 fewer than 15 sessions traded   3 PF < 1.15
+  4 removing best 5 trades leaves total <= 0   5 either half negative
+
+  OR15 SATR0.5 R1.0      REJECT  1 expectancy; 3 PF 0.73; 4 top-5 dependent; 5 split-half
+  OR15 SATR0.5 R1.5      REJECT  1 expectancy; 3 PF 0.92; 4 top-5 dependent; 5 split-half
+  OR15 SATR0.5 R2.0      REJECT  1 expectancy; 3 PF 0.75; 4 top-5 dependent; 5 split-half
+  OR15 SATR1.0 R1.0      REJECT  1 expectancy; 3 PF 0.85; 4 top-5 dependent; 5 split-half
+  OR15 SATR1.0 R1.5      REJECT  1 expectancy; 3 PF 0.96; 4 top-5 dependent; 5 split-half
+  OR15 SATR1.0 R2.0      REJECT  1 expectancy; 3 PF 0.72; 4 top-5 dependent; 5 split-half
+  OR30 SATR0.5 R1.0      REJECT  1 expectancy; 3 PF 0.79; 4 top-5 dependent; 5 split-half
+  OR30 SATR0.5 R1.5      REJECT  1 expectancy; 3 PF 0.64; 4 top-5 dependent; 5 split-half
+  OR30 SATR0.5 R2.0      REJECT  1 expectancy; 3 PF 0.67; 4 top-5 dependent; 5 split-half
+  OR30 SATR1.0 R1.0      REJECT  1 expectancy; 3 PF 0.89; 4 top-5 dependent; 5 split-half
+  OR30 SATR1.0 R1.5      REJECT  1 expectancy; 3 PF 0.78; 4 top-5 dependent; 5 split-half
+  OR30 SATR1.0 R2.0      REJECT  1 expectancy; 3 PF 0.81; 4 top-5 dependent; 5 split-half
+
+  survivors: 0 of 12

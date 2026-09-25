@@ -1,0 +1,16 @@
+=== B04 pullback grid 1 (75eec2c) (Databento discovery sessions) ===
+  note: frozen five-criteria survivors: 0 of 12
+  OR15 EXC0.5 R1.0               n 99 | net -1.62 pt/trade ($-32.3) | win 0.0% | PF 0.00 | Sharpe -15.30 | CAGR -2.45% | maxDD $3,120/NQ $312/MNQ | sessions 52 t -8.13 p 0.0000 p1 1.0000
+  OR15 EXC0.5 R1.5               n 99 | net -1.17 pt/trade ($-23.4) | win 56.6% | PF 0.33 | Sharpe -9.05 | CAGR -1.79% | maxDD $2,320/NQ $232/MNQ | sessions 52 t -4.61 p 0.0000 p1 1.0000
+  OR15 EXC0.5 R2.0               n 99 | net -0.85 pt/trade ($-17.0) | win 52.5% | PF 0.55 | Sharpe -5.69 | CAGR -1.28% | maxDD $1,840/NQ $184/MNQ | sessions 52 t -2.87 p 0.0059 p1 0.9970
+  OR15 EXC1.0 R1.0               n 58 | net -1.17 pt/trade ($-23.4) | win 0.0% | PF 0.00 | Sharpe -8.02 | CAGR -1.06% | maxDD $1,360/NQ $136/MNQ | sessions 36 t -4.34 p 0.0001 p1 0.9999
+  OR15 EXC1.0 R1.5               n 58 | net -0.72 pt/trade ($-14.5) | win 65.5% | PF 0.47 | Sharpe -4.38 | CAGR -0.65% | maxDD $1,060/NQ $106/MNQ | sessions 36 t -2.15 p 0.0386 p1 0.9807
+  OR15 EXC1.0 R2.0               n 58 | net -0.59 pt/trade ($-11.7) | win 56.9% | PF 0.66 | Sharpe -2.94 | CAGR -0.54% | maxDD $920/NQ $92/MNQ | sessions 36 t -1.56 p 0.1277 p1 0.9362
+  OR30 EXC0.5 R1.0               n 66 | net -1.15 pt/trade ($-23.0) | win 0.0% | PF 0.00 | Sharpe -8.77 | CAGR -1.20% | maxDD $1,520/NQ $152/MNQ | sessions 39 t -4.67 p 0.0000 p1 1.0000
+  OR30 EXC0.5 R1.5               n 66 | net -0.74 pt/trade ($-14.8) | win 65.2% | PF 0.47 | Sharpe -4.58 | CAGR -0.82% | maxDD $1,100/NQ $110/MNQ | sessions 39 t -1.94 p 0.0604 p1 0.9698
+  OR30 EXC0.5 R2.0               n 66 | net -0.18 pt/trade ($-3.6) | win 63.6% | PF 0.88 | Sharpe -0.99 | CAGR -0.28% | maxDD $800/NQ $80/MNQ | sessions 39 t +0.00 p 1.0000 p1 0.5000
+  OR30 EXC1.0 R1.0               n 40 | net -1.10 pt/trade ($-22.0) | win 0.0% | PF 0.00 | Sharpe -7.38 | CAGR -0.71% | maxDD $880/NQ $88/MNQ | sessions 24 t -4.03 p 0.0005 p1 0.9997
+  OR30 EXC1.0 R1.5               n 40 | net -0.75 pt/trade ($-15.0) | win 65.0% | PF 0.46 | Sharpe -4.82 | CAGR -0.49% | maxDD $620/NQ $62/MNQ | sessions 24 t -2.19 p 0.0391 p1 0.9805
+  OR30 EXC1.0 R2.0               n 40 | net -0.40 pt/trade ($-8.0) | win 60.0% | PF 0.75 | Sharpe -2.00 | CAGR -0.25% | maxDD $440/NQ $44/MNQ | sessions 24 t -1.07 p 0.2947 p1 0.8527
+  PRIMARY: 12 cell(s), Holm on one-sided p; best = OR30 EXC0.5 R2.0, study p = 1.0000
+  pass bar (net > 0, p <= 0.05, five registered criteria): NOT MET  -> stays closed
