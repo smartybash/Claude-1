@@ -60,6 +60,27 @@ $83,525, so **p 0.068 → fail, closed**. Most of D3's edge is the overnight leg
 (+19.8 pt, against +12.1 pt for the day leg), and 2010–2018 was flat.
 `reports/d3p_result.md`.
 
+## 3d. D3-G: D3's overnight edge inside the Globex session — PASS (seen data)
+
+Pre-registered `0146a06`. Long from the 18:00 ET reopen after a D3 signal to the
+next RTH close (A) or RTH open (B). This is allowed at Apex (flat by 16:59) and
+Lucid (flat by 16:45).
+
+| rule | total (1 contract) | Holm p |
+|---|---|---|
+| NQ D3-G/A | +$184,752 | 0.006 |
+| NQ D3-G/B | +$111,672 | 0.006 |
+| ES-G/A | +$127,520 | 0.0008 |
+| ES-D3 | +$137,195 | 0.0008 (replication; holds through the close) |
+
+All four are paper-tracked from 2026-09-29. Caveats:
+- the edge is concentrated after 2018;
+- NQ and ES trades correlate +0.94;
+- the prop simulator shows the rule alone passes 50K evaluations poorly (best
+  one-year pass rates 12–36%, failure as high or higher).
+
+`reports/d3g_result.md`, `reports/prop_sim_output.txt`.
+
 ## 4. The repository's closed studies on NQ (step 4)
 
 Pre-registered at `reports/step4_preregistration.md` (inventory
@@ -159,6 +180,7 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 - OF-1..OF-4 and RP-011 all failed discovery; **the D2 tick holdout stays unread.**
 - Paper-track the three daily effects (P7); forward bars monthly under P8 (first pull 2 Oct).
 - D3P closed (p 0.068).
+- D3-G, ES-G/A, ES-D3 paper-tracked; D3-G alone is not an evaluation-passing strategy (P11).
 - **P9: decide before about 25 Oct** how the bought history survives a container reset.
 - The trade harness for your Tradovate fills is ready for the CSV
   (`scripts/trades/`). Drop the export in `data/trades/` and run

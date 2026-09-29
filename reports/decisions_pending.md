@@ -291,3 +291,46 @@ Until you decide, nothing is committed. If the container is reset before 25 Oct,
   Untracking them would not remove them from history without a force-push, which
   is ruled out. **P10:** say if you want them untracked (`git rm --cached`) from
   now on. Until then they stay as they are.
+
+---
+
+# 2026-09-29: D3-G tests (approved by the user: "Yes go ahead")
+
+**Prop-rule check** (the user trades Apex and Lucid). The firms' own sites are
+blocked from this environment, so this comes from third-party summaries:
+- **Apex:** flat by 16:59 ET; the trading day runs 18:00 → 16:59 ET; news trading
+  allowed (straddling a release prohibited). 50K: +$3,000 target, $2,500
+  trailing threshold (intraday version trails open profit; the EOD version has
+  a $1,000 daily loss limit).
+- **Lucid:** flat by 16:45 ET (auto-close); resumes 18:00 ET; news allowed. Flex
+  50K: +$3,000 target, $2,000 end-of-day trailing max loss, 50% consistency in
+  the evaluation.
+
+D3-G enters at the 18:00 reopen and exits by 15:59: inside one trading day at
+both firms. **Please confirm in your dashboards:** the flat times, and the level
+where Lucid's trailing max loss stops rising (assumed $50,100 in the simulator).
+
+**Results** (`reports/d3g_result.md`): D3-G/A, D3-G/B, ES-G/A and ES-D3 all pass
+on seen data. They are paper-tracked from signals on 2026-09-29 onward
+(`d3g.py --forward`). The simulator shows the rule alone passes 50K evaluations
+poorly: best one-year pass rates are 12–36%, with failure rates as high or
+higher.
+
+**ES added to the monthly P8 pull.** It is needed to paper-track the ES rules.
+The pull now covers NQ.v.0 + ES.v.0, quoted at $0.2127 for a full month: inside
+the $1-per-pull standing rule. The routine has been updated. Say if you would
+rather keep ES out.
+
+## P11. Where the desk goes next (your call; nothing runs until you say)
+
+D3-G is an edge of about 21 trades a year. It is too slow and too volatile to
+pass evaluations on its own. Options:
+1. **Your trades first:** paste the Tradovate CSV. If your own trading has an
+   edge, it is the higher-frequency sleeve the desk lacks, and the simulator
+   can size it.
+2. **Use D3-G only in funded accounts,** at 1–2 micros, as an overlay. The
+   simulator can check it against the funded-account rules if you give me them.
+3. **A new pre-registered search for a higher-frequency sleeve.** Honest odds are
+   low after about 40 intraday failures. If you want it, I would limit it to one
+   or two mechanisms with a stated economic reason, pre-registered with the
+   discovery/holdout split.

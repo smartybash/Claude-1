@@ -103,7 +103,7 @@ def load_rolls(sym):
 
 
 # ---------------------------------------------------------------- trades ----
-def g_trades(D, G, V, sig):
+def g_trades(D, G, V, sig, lo=A0, hi=A1):
     days = D.index
     rows = []
     for i in sig:
@@ -111,7 +111,7 @@ def g_trades(D, G, V, sig):
         if j >= len(G):
             continue
         s = G.index[j]
-        if days[i] < A0 or s > A1:
+        if days[i] < lo or s > hi:
             continue
         rows.append(dict(signal_day=days[i], session=s))
     T = pd.DataFrame(rows)
@@ -120,11 +120,11 @@ def g_trades(D, G, V, sig):
     return T[T.gross_pts.notna()].reset_index(drop=True), dropped
 
 
-def d3_trades(D, sym, sig):
+def d3_trades(D, sym, sig, lo=A0, hi=A1):
     """D3 as registered (daily3.trades_oversold + pnl_frame), on `sym`."""
     s = SPEC[sym]
     c, fac, days = D.c.to_numpy(), D.fac.to_numpy(), D.index
-    rows = [i for i in sig if i + 1 < len(D) and A0 <= days[i] and days[i + 1] <= A1]
+    rows = [i for i in sig if i + 1 < len(D) and lo <= days[i] and days[i + 1] <= hi]
     T = pd.DataFrame({"i": rows})
     T["signal_day"] = days[T.i]
     T["session"] = days[T.i + 1]
@@ -265,5 +265,61 @@ def main():
     return verdicts
 
 
+FWD_G = pd.Timestamp("2026-09-29")        # registration date: signals from this RTH day on
+
+
+def forward(since=FWD_G, out=OUT):
+    """Paper-track the four rules that passed (d3g_result.md): every signal on or after
+    `since`. Writes out/d3g_paper_ledger.csv (no price levels; committed),
+    out/d3g_paper_ledger_full.csv (prices; Databento-derived, gitignored) and
+    out/d3g_paper_status.md. Signals whose trade has not happened yet are PENDING."""
+    rows, ends = [], {}
+    for sym in ("NQ", "ES"):
+        D = load_rth(sym)
+        ends[sym] = D.index[-1]
+        if D.index[-1] < since:
+            continue
+        sig = [i for i in signals(D) if D.index[i] >= since]
+        G, R = globex(sym), load_rolls(sym)
+        rules = [(f"{sym}-G/A", leg(G, R, sym, "A"))] + ([("NQ-G/B", leg(G, R, sym, "B"))] if sym == "NQ" else [])
+        for name, V in rules:
+            T, _ = g_trades(D, G, V, sig, since, pd.Timestamp.max)
+            rows += [dict(rule=name, signal_day=r.signal_day.date(), session=r.session.date(), status="closed",
+                          rolls=int(r.rolls), gross_pts=round(r.gross_pts, 2), net_usd=round(r.net_usd, 2),
+                          net_micro=round(r.net_micro, 2), px_in=r.px_in, px_out=r.px_out) for r in T.itertuples()]
+            done = set(T.signal_day)
+            rows += [dict(rule=name, signal_day=D.index[i].date(), session=None,
+                          status="PENDING (enters at the next 18:00 reopen)")
+                     for i in sig if D.index[i] not in done and G.index.searchsorted(D.index[i], side="right") >= len(G)]
+        if sym == "ES":
+            T = d3_trades(D, sym, sig, since, pd.Timestamp.max)
+            rows += [dict(rule="ES-D3", signal_day=r.signal_day.date(), session=r.session.date(), status="closed",
+                          rolls=int(r.rolls), gross_pts=round(r.gross_pts, 2), net_usd=round(r.net_usd, 2),
+                          net_micro=round(r.net_micro, 2)) for r in T.itertuples()]
+            if sig and sig[-1] == len(D) - 1:
+                rows.append(dict(rule="ES-D3", signal_day=D.index[-1].date(), session=None,
+                                 status="OPEN (bought the close; exits next RTH close)"))
+    if not rows and min(ends.values()) < since:
+        print(f"No forward sessions yet: bars end {min(ends.values()).date()}; D3-G paper-tracking counts signals "
+              f"from {since.date()}. Forward bars come from forward_pull.py (P8, monthly).")
+        return None
+    cols = ["rule", "signal_day", "session", "status", "rolls", "gross_pts", "net_usd", "net_micro", "px_in", "px_out"]
+    L = pd.DataFrame(rows, columns=cols).sort_values(["signal_day", "rule"], kind="stable")
+    L.to_csv(out / "d3g_paper_ledger_full.csv", index=False)
+    L.drop(columns=["px_in", "px_out"]).to_csv(out / "d3g_paper_ledger.csv", index=False)
+    M = ["# D3-G rules: paper-tracking status", "",
+         f"Registered 0146a06, passed 050dc8c. Signals from {since.date()}; bars to "
+         f"{max(ends.values()).date()}. Per 1 contract after step-4 costs. First review 2027-09-25.", "",
+         "| rule | closed | pending/open | net $ (1 contract) | net $ (1 micro) |", "|---|---|---|---|---|"]
+    for k in ("NQ-G/A", "NQ-G/B", "ES-G/A", "ES-D3"):
+        x = L[L.rule == k]
+        c = x[x.status == "closed"]
+        M.append(f"| {k} | {len(c)} | {len(x) - len(c)} | {c.net_usd.sum():+,.0f} | {c.net_micro.sum():+,.2f} |")
+    txt = "\n".join(M)
+    (out / "d3g_paper_status.md").write_text(txt + "\n")
+    print(txt)
+    return L
+
+
 if __name__ == "__main__":
-    main()
+    forward() if "--forward" in sys.argv else main()
