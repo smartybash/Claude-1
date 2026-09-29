@@ -1,0 +1,104 @@
+PROP-EVALUATION SIMULATOR -- SEEN DATA (descriptive; cannot pass or fail a rule)
+Accounts: Apex 50K intraday trailing, Apex 50K EOD (+$1,000 DLL), Lucid Flex 50K (EOD, 50% consistency).
+Conservative: cost at entry, favourable extreme first within a bar.
+  ES-D3 passed but holds through the close: not tradable at Apex / Lucid, not simulated.
+
+== ES-G/A: 345 trades, MES sizes 1-10 ==
+      account  micros  starts pass_30d pass_90d pass_365d fail_365d  median_days_to_pass
+apex_intraday       1    3931     0.0%     0.0%      4.6%      1.2%                315.5
+apex_intraday       2    3931     0.1%     0.5%     10.9%     28.4%                278.0
+apex_intraday       3    3931     0.1%     0.8%     14.3%     40.4%                221.0
+apex_intraday       4    3931     0.3%     2.2%     18.6%     41.8%                188.0
+apex_intraday       5    3931     0.6%     4.9%     13.9%     56.8%                111.0
+apex_intraday       6    3931     1.3%     7.6%     12.5%     60.6%                 79.0
+apex_intraday       7    3931     2.1%     8.2%     14.4%     60.6%                 79.0
+apex_intraday       8    3931     2.7%     9.8%     16.2%     62.4%                 71.0
+apex_intraday       9    3931     4.6%    11.4%     22.0%     68.0%                 82.0
+apex_intraday      10    3931     5.7%    11.8%     23.1%     68.8%                 83.0
+     apex_eod       1    3931     0.0%     0.0%      4.6%      1.2%                315.5
+     apex_eod       2    3931     0.1%     0.1%     10.4%     28.8%                285.0
+     apex_eod       3    3931     0.1%     0.7%     10.7%     38.9%                220.5
+     apex_eod       4    3931     0.3%     2.0%     21.3%     37.3%                186.0
+     apex_eod       5    3931     0.6%     6.5%     20.4%     41.0%                135.0
+     apex_eod       6    3931     1.2%     6.9%     18.5%     50.3%                113.0
+     apex_eod       7    3931     2.2%     7.7%     16.6%     54.3%                103.5
+     apex_eod       8    3931     2.7%     9.4%     17.8%     63.9%                 80.0
+     apex_eod       9    3931     4.1%    11.0%     21.3%     62.8%                 83.0
+     apex_eod      10    3931     5.1%    10.9%     20.5%     67.3%                 78.0
+   lucid_flex       1    3931     0.0%     0.0%      3.9%      5.2%                314.0
+   lucid_flex       2    3931     0.0%     0.8%     15.5%     14.2%                256.0
+   lucid_flex       3    3931     0.0%     2.2%     19.7%     31.6%                210.0
+   lucid_flex       4    3931     0.1%     4.0%     25.7%     35.3%                191.0
+   lucid_flex       5    3931     0.1%     4.7%     27.8%     38.5%                186.0
+   lucid_flex       6    3931     0.4%     5.7%     27.3%     44.9%                181.0
+   lucid_flex       7    3931     0.4%     5.8%     29.1%     45.0%                188.0
+   lucid_flex       8    3931     0.4%     6.5%     30.9%     46.6%                203.0
+   lucid_flex       9    3931     0.4%     6.5%     35.2%     49.3%                218.0
+   lucid_flex      10    3931     0.4%     6.6%     35.7%     52.7%                219.0
+
+== NQ-G/A: 339 trades, MNQ sizes 1-10 ==
+      account  micros  starts pass_30d pass_90d pass_365d fail_365d  median_days_to_pass
+apex_intraday       1    3931     0.0%     0.3%      5.8%     12.4%                280.0
+apex_intraday       2    3931     0.9%     3.3%     13.9%     37.3%                172.0
+apex_intraday       3    3931     1.4%     6.3%     15.9%     39.9%                105.0
+apex_intraday       4    3931     4.2%     9.8%     16.2%     43.8%                 69.0
+apex_intraday       5    3931     5.3%    11.3%     17.2%     50.5%                 59.0
+apex_intraday       6    3931     4.8%    11.3%     23.7%     53.0%                 98.0
+apex_intraday       7    3931     6.0%    11.5%     31.5%     54.0%                208.0
+apex_intraday       8    3931     5.8%    11.2%     35.2%     56.0%                189.0
+apex_intraday       9    3931     6.7%    12.0%     36.4%     60.2%                177.0
+apex_intraday      10    3931     6.9%    13.1%     35.0%     63.9%                148.0
+     apex_eod       1    3931     0.0%     0.8%      6.3%     11.2%                274.0
+     apex_eod       2    3931     0.8%     2.5%     14.3%     35.1%                184.0
+     apex_eod       3    3931     1.5%     7.0%     22.7%     35.2%                122.0
+     apex_eod       4    3931     4.2%    11.2%     19.7%     42.1%                 72.5
+     apex_eod       5    3931     5.4%    12.8%     21.4%     44.7%                 73.0
+     apex_eod       6    3931     5.9%    14.1%     28.7%     47.3%                 93.5
+     apex_eod       7    3931     5.5%    11.7%     34.6%     50.2%                220.0
+     apex_eod       8    3931     5.2%    10.0%     33.0%     57.2%                186.0
+     apex_eod       9    3931     5.7%    10.4%     35.1%     57.6%                189.0
+     apex_eod      10    3931     5.9%     8.8%     26.7%     68.1%                168.0
+   lucid_flex       1    3931     0.0%     0.8%     11.9%      5.3%                261.0
+   lucid_flex       2    3931     0.3%     2.1%     15.3%     28.0%                182.0
+   lucid_flex       3    3931     0.5%     3.5%     17.6%     34.5%                158.0
+   lucid_flex       4    3931     0.5%     4.3%     16.4%     43.6%                145.0
+   lucid_flex       5    3931     0.5%     5.2%     18.0%     45.4%                147.0
+   lucid_flex       6    3931     0.5%     5.6%     23.7%     45.5%                166.0
+   lucid_flex       7    3931     0.5%     5.7%     29.1%     50.5%                221.5
+   lucid_flex       8    3931     0.5%     5.7%     30.9%     51.9%                189.0
+   lucid_flex       9    3931     0.5%     6.6%     30.4%     57.0%                176.0
+   lucid_flex      10    3931     0.7%     7.5%     31.1%     56.8%                168.0
+
+== NQ-G/B: 339 trades, MNQ sizes 1-10 ==
+      account  micros  starts pass_30d pass_90d pass_365d fail_365d  median_days_to_pass
+apex_intraday       1    3931     0.0%     0.0%      3.2%      0.0%                303.0
+apex_intraday       2    3931     0.0%     0.2%      2.7%     25.8%                239.0
+apex_intraday       3    3931     0.1%     0.2%     10.8%     33.4%                196.0
+apex_intraday       4    3931     1.3%     5.9%     13.1%     48.5%                 98.0
+apex_intraday       5    3931     2.3%     9.5%     19.1%     43.7%                 91.0
+apex_intraday       6    3931     3.3%     9.4%     15.2%     51.3%                 68.5
+apex_intraday       7    3931     4.1%    10.3%     16.3%     53.5%                 60.5
+apex_intraday       8    3931     5.0%    10.5%     19.5%     53.1%                 79.5
+apex_intraday       9    3931     4.8%    10.6%     21.8%     52.6%                 94.0
+apex_intraday      10    3931     5.3%    10.1%     25.7%     52.4%                146.5
+     apex_eod       1    3931     0.0%     0.0%      3.2%      0.0%                303.0
+     apex_eod       2    3931     0.0%     0.2%      2.7%     19.0%                238.0
+     apex_eod       3    3931     0.0%     0.3%     12.6%     30.6%                189.5
+     apex_eod       4    3931     0.6%     3.0%     12.7%     46.6%                155.0
+     apex_eod       5    3931     1.9%     8.2%     19.6%     41.1%                101.0
+     apex_eod       6    3931     3.5%    11.3%     19.0%     44.8%                 76.0
+     apex_eod       7    3931     3.1%     8.5%     13.4%     54.5%                 62.0
+     apex_eod       8    3931     3.3%     8.8%     17.0%     54.5%                 85.0
+     apex_eod       9    3931     3.5%     9.6%     20.8%     51.6%                103.5
+     apex_eod      10    3931     2.8%     6.2%     20.5%     60.6%                182.0
+   lucid_flex       1    3931     0.0%     0.0%      3.2%      0.0%                303.0
+   lucid_flex       2    3931     0.0%     0.0%      2.7%     20.9%                239.0
+   lucid_flex       3    3931     0.0%     0.0%     12.0%     31.1%                210.0
+   lucid_flex       4    3931     0.0%     2.0%     11.5%     46.8%                161.0
+   lucid_flex       5    3931     0.0%     3.1%     11.9%     50.1%                146.0
+   lucid_flex       6    3931     0.0%     3.1%     12.6%     53.0%                153.0
+   lucid_flex       7    3931     0.0%     3.1%     13.7%     53.4%                166.0
+   lucid_flex       8    3931     0.3%     3.5%     17.9%     53.0%                179.5
+   lucid_flex       9    3931     0.3%     3.8%     19.4%     53.5%                161.0
+   lucid_flex      10    3931     0.5%     4.2%     23.0%     53.7%                227.0
+
