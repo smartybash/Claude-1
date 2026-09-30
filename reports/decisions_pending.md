@@ -353,3 +353,11 @@ sessions (p 0.378). `reports/econ2_result.md`.
    not a revival of H1.
 3. **Stop searching bar data** and let D3-G's forward record build. This is my
    recommendation: roughly 45 intraday tests have now failed on these bars.
+
+# 2026-09-30: H1-B (user decision)
+
+The user chose to explore H1's bigger-day filter, overriding the registered
+closure. It is handled as a new hypothesis found in discovery data: fitted on
+2010–2020 only, with the grid and the selection rule fixed in advance
+(`reports/h1b_exploration_plan.md`). The 2021–2026 holdout stays sealed until one
+rule is frozen, then is read once.
