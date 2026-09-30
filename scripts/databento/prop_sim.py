@@ -40,6 +40,7 @@ class Trade:
     lo: np.ndarray           # per bar, worst open P&L in points
     gross: float             # final P&L in points per contract
     cost: float              # round-trip cost per micro, $ (rolls included)
+    qty: int = 0             # micros for risk-sized runs (q=None); 0 = fixed-size runs
 
 
 def run(trades, account, q, mult):
@@ -50,7 +51,9 @@ def run(trades, account, q, mult):
     dd = START - thr
     peak = START
     best_day = 0.0
+    q0 = q
     for t in trades:
+        q = q0 if q0 is not None else t.qty
         day_start = B
         B -= t.cost * q
         hi, lo = B + t.hi * mult * q, B + t.lo * mult * q
@@ -85,7 +88,7 @@ def run(trades, account, q, mult):
     return None, None
 
 
-def simulate(trades, sessions, mult, horizon_days=365):
+def simulate(trades, sessions, mult, horizon_days=365, sizes=SIZES):
     """For every account and size: outcome by start session. Runs from each first trade k
     are shared by all starts that map to k."""
     days = pd.DatetimeIndex([t.day for t in trades])
@@ -94,7 +97,7 @@ def simulate(trades, sessions, mult, horizon_days=365):
     kmap = days.searchsorted(starts)
     rows = []
     for acc in ACCOUNTS:
-        for q in SIZES:
+        for q in sizes:
             ev = [run(trades[k:], acc, q, mult) for k in range(len(trades))]
             res = []
             for s, k in zip(starts, kmap):
@@ -102,7 +105,7 @@ def simulate(trades, sessions, mult, horizon_days=365):
                 res.append((e, (d - s).days if d is not None else np.inf))
             e = np.array([r[0] for r in res], dtype=object)
             dd = np.array([r[1] for r in res], float)
-            row = dict(account=acc, micros=q, starts=len(starts))
+            row = dict(account=acc, micros=q if q is not None else "risk-sized", starts=len(starts))
             for h in (30, 90, 365):
                 row[f"pass_{h}d"] = float(((e == "pass") & (dd <= h)).mean())
             row["fail_365d"] = float(((e == "fail") & (dd <= 365)).mean())
@@ -237,6 +240,9 @@ def selftest():
     chk("short-side path", (float(h[0]), float(l_[0])), (3.0, -4.0))
     h, l_ = path_points(np.array([104.0]), np.array([97.0]), np.array([100.0]), 1)
     chk("long-side path", (float(h[0]), float(l_[0])), (4.0, -3.0))
+    # 10. risk-sized runs: q=None uses each trade's own qty (10 micros here) -> same as fixed q=10
+    Wq = [Trade(t.day, t.hi, t.lo, t.gross, t.cost, 10) for t in W]
+    chk("risk-sized equals fixed 10", run(Wq, "apex_eod", None, mult), run(W, "apex_eod", 10, mult))
     print("selftest passed")
 
 
