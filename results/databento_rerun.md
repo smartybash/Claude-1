@@ -122,6 +122,15 @@ Results:
 
 `reports/risk_rerun_result.md`.
 
+## 3i. Risk-managed rerun, Phase 2 — all seven fixed-exit tape studies stay closed
+
+The count is corrected: **24 of the 31 earlier trading tests had stops; 7 did
+not** (T01 T02 T03 T10 T13 T14 T15). The rebuilt trades reproduce the step-4
+ports in 41 of 41 cells. With a stop on every tick, $250 risk, one position at a
+time and a $500 daily cap, **every cell loses** (−$2 to −$50 a trade). The
+entries had no gross edge, and sizing up to the small stops multiplies the
+costs. `reports/risk_rerun_p2_result.md`.
+
 ## 4. The repository's closed studies on NQ (step 4)
 
 Pre-registered at `reports/step4_preregistration.md` (inventory
@@ -225,7 +234,7 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 - Economic-sleeve search (late-day momentum, turn-of-month): both closed at discovery.
 - H1-B (bigger-day filter, fitted on 2010–2020): failed the 2021–2026 holdout; closed.
 - LDM (price-triggered desk version): no configuration robust on 2010–2020; closed, nothing tracked.
-- Risk-managed rerun: D3-G not tradable at prop size with a stop; H1-B passes on seen data but loses 2021–26 (forward-tracked, flagged); Phase 2 (13 tape studies) pending.
+- Risk-managed rerun: D3-G not tradable at prop size with a stop; H1-B passes on seen data but loses 2021–26 (forward-tracked, flagged). Phase 2: all 7 fixed-exit tape studies lose with the risk block.
 - **P9: decide before about 25 Oct** how the bought history survives a container reset.
 - The trade harness for your Tradovate fills is ready for the CSV
   (`scripts/trades/`). Drop the export in `data/trades/` and run

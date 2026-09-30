@@ -394,3 +394,15 @@ of mine has now been rerun with one fixed risk block (`reports/risk_rerun_result
 - **H1-B** passes on seen data, but loses on 2021–26. It is forward-tracked from
   2026-10-01 and flagged as a probable fit to 2020.
 - **Phase 2 is next:** the 13 earlier fixed-exit tape studies.
+
+# 2026-09-30: risk-managed rerun, Phase 2 done
+
+- **Correction:** 24 of the 31 earlier trading tests had stops, not 18. The 7
+  fixed-exit tape studies were the ones without. (Phase 1's "13" came from a
+  path-scan error.)
+- Rebuild reproduced 41 of 41 cells. **All 7 studies lose with the risk block.**
+  `reports/risk_rerun_p2_result.md`.
+- **The previous results are now all risk-managed.** The only rules still
+  tracked are H1-B risk-managed (flagged as a probable fit to 2020) and D3-G
+  (a record only; not tradable at 50K). **P13 (your call): what next.**
+  Options: your own rules or fills, or stop searching.

@@ -1,0 +1,104 @@
+RISK-MANAGED RERUN, PHASE 2 -- seven fixed-exit tape studies, Databento discovery sessions (seen)
+Registered reports/risk_rerun_p2_preregistration.md. Stop 0.5 x ADR20 x sqrt(hold/390) on every tick; $250 risk (<= 10 MNQ); one position per cell; $500 daily cap; $4.00 per micro RT.
+
+REPRODUCTION GATE (unstopped rebuild vs step-4 port: trades, gross points)
+  T01 buy_absorbed_short                 rebuild n   3184 gross    -240.00 | port n   3184 gross    -240.00 -> OK
+  T01 sell_absorbed_long                 rebuild n   3367 gross    +310.50 | port n   3367 gross    +310.50 -> OK
+  T02 H1 30s hold 2m                     rebuild n   3184 gross    -240.00 | port n   3184 gross    -240.00 -> OK
+  T02 H1 30s hold 5m                     rebuild n   3150 gross   -3298.25 | port n   3150 gross   -3298.25 -> OK
+  T02 H1 30s hold 10m                    rebuild n   3104 gross   -5804.50 | port n   3104 gross   -5804.50 -> OK
+  T02 H1 30s hold 30m                    rebuild n   2955 gross  -16653.50 | port n   2955 gross  -16653.50 -> OK
+  T02 H1 60s hold 2m                     rebuild n    972 gross     -17.75 | port n    972 gross     -17.75 -> OK
+  T02 H1 60s hold 5m                     rebuild n    962 gross     +14.50 | port n    962 gross     +14.50 -> OK
+  T02 H1 60s hold 10m                    rebuild n    952 gross    -598.50 | port n    952 gross    -598.50 -> OK
+  T02 H1 60s hold 30m                    rebuild n    911 gross   -3942.25 | port n    911 gross   -3942.25 -> OK
+  T02 H2 q0.99 go hold 2m                rebuild n   4723 gross   -1396.00 | port n   4723 gross   -1396.00 -> OK
+  T02 H2 q0.99 fade hold 2m              rebuild n   4723 gross   +1396.00 | port n   4723 gross   +1396.00 -> OK
+  T02 H2 q0.99 go hold 10m               rebuild n   4551 gross   -2688.75 | port n   4551 gross   -2688.75 -> OK
+  T02 H2 q0.99 fade hold 10m             rebuild n   4551 gross   +2688.75 | port n   4551 gross   +2688.75 -> OK
+  T02 H2 q0.999 go hold 2m               rebuild n   4802 gross   +1465.50 | port n   4802 gross   +1465.50 -> OK
+  T02 H2 q0.999 fade hold 2m             rebuild n   4802 gross   -1465.50 | port n   4802 gross   -1465.50 -> OK
+  T02 H2 q0.999 go hold 10m              rebuild n   4648 gross   -1709.50 | port n   4648 gross   -1709.50 -> OK
+  T02 H2 q0.999 fade hold 10m            rebuild n   4648 gross   +1709.50 | port n   4648 gross   +1709.50 -> OK
+  T02 H3 look 15m hold 5m                rebuild n   4398 gross   +2014.50 | port n   4398 gross   +2014.50 -> OK
+  T02 H3 look 15m hold 15m               rebuild n   4240 gross   +9951.25 | port n   4240 gross   +9951.25 -> OK
+  T02 H3 look 30m hold 5m                rebuild n   3146 gross    -629.25 | port n   3146 gross    -629.25 -> OK
+  T02 H3 look 30m hold 15m               rebuild n   3009 gross   +5986.50 | port n   3009 gross   +5986.50 -> OK
+  T02 H3 look 60m hold 5m                rebuild n   2212 gross    +228.50 | port n   2212 gross    +228.50 -> OK
+  T02 H3 look 60m hold 15m               rebuild n   2097 gross   +4405.25 | port n   2097 gross   +4405.25 -> OK
+  T03 divergence_dedup                   rebuild n    848 gross    -670.25 | port n    848 gross    -670.25 -> OK
+  T03 control_no_cvd                     rebuild n   1093 gross    -167.25 | port n   1093 gross    -167.25 -> OK
+  T10 exit 17:00 (13:00 ET)              rebuild n     61 gross   -1085.75 | port n     61 gross   -1085.75 -> OK
+  T10 exit 19:00 (15:00 ET)              rebuild n     61 gross    -221.25 | port n     61 gross    -221.25 -> OK
+  T10 exit close 20:00 (16:00 ET)        rebuild n     61 gross    -600.25 | port n     61 gross    -600.25 -> OK
+  T13 short top absorb_lo, hold 5m       rebuild n    940 gross   -1500.50 | port n    940 gross   -1500.50 -> OK
+  T13 short top absorb_lo, hold 15m      rebuild n    915 gross   -3137.00 | port n    915 gross   -3137.00 -> OK
+  T13 short top absorb_lo, hold 30m      rebuild n    879 gross   -5611.50 | port n    879 gross   -5611.50 -> OK
+  T14 heavy levels, +15m                 rebuild n    520 gross   -1001.50 | port n    520 gross   -1001.50 -> OK
+  T14 heavy levels, +30m                 rebuild n    520 gross   -1193.00 | port n    520 gross   -1193.00 -> OK
+  T14 heavy levels, +60m                 rebuild n    520 gross    +488.75 | port n    520 gross    +488.75 -> OK
+  T15 A1                                 rebuild n   1830 gross   -1035.00 | port n   1830 gross   -1035.00 -> OK
+  T15 A2                                 rebuild n   1830 gross    -504.00 | port n   1830 gross    -504.00 -> OK
+  T15 B2                                 rebuild n   1830 gross    +860.25 | port n   1830 gross    +860.25 -> OK
+  T15 C1                                 rebuild n   1830 gross   -4080.50 | port n   1830 gross   -4080.50 -> OK
+  T15 C2                                 rebuild n   1830 gross   -3500.00 | port n   1830 gross   -3500.00 -> OK
+  T15 E1                                 rebuild n   1830 gross    +428.50 | port n   1830 gross    +428.50 -> OK
+
+RESULTS WITH THE RISK BLOCK
+  T01 buy_absorbed_short                 trades   793 | skipped open   160 cap 2231 wide   0 | $  -35.2/trade, total $  -27,952 | stops  41% | micros  8.8 | t -6.65 p 1.0000 Holm 1.0000
+  T01 sell_absorbed_long                 trades   790 | skipped open   195 cap 2382 wide   0 | $  -32.1/trade, total $  -25,394 | stops  38% | micros  8.8 | t -4.39 p 1.0000 Holm 1.0000
+    T01 best sell_absorbed_long: Holm p 1.0000; net > 0: False; no extra gate
+  T02 H1 30s hold 2m                     trades   793 | skipped open   160 cap 2231 wide   0 | $  -35.2/trade, total $  -27,952 | stops  41% | micros  8.8 | t -6.65 p 1.0000 Holm 1.0000
+  T02 H1 30s hold 5m                     trades   752 | skipped open   416 cap 1982 wide   0 | $  -35.0/trade, total $  -26,348 | stops  40% | micros  5.3 | t -5.25 p 1.0000 Holm 1.0000
+  T02 H1 30s hold 10m                    trades   583 | skipped open   570 cap 1951 wide   0 | $  -50.2/trade, total $  -29,243 | stops  45% | micros  3.7 | t -11.76 p 1.0000 Holm 1.0000
+  T02 H1 30s hold 30m                    trades   454 | skipped open  1428 cap 1073 wide   0 | $  -35.0/trade, total $  -15,881 | stops  40% | micros  2.0 | t -4.15 p 0.9999 Holm 1.0000
+  T02 H1 60s hold 2m                     trades   444 | skipped open    38 cap 490 wide   0 | $  -46.5/trade, total $  -20,668 | stops  36% | micros  8.8 | t -5.06 p 1.0000 Holm 1.0000
+  T02 H1 60s hold 5m                     trades   520 | skipped open   112 cap 330 wide   0 | $  -19.9/trade, total $  -10,322 | stops  34% | micros  5.3 | t -1.81 p 0.9620 Holm 1.0000
+  T02 H1 60s hold 10m                    trades   465 | skipped open   187 cap 300 wide   0 | $  -15.4/trade, total $   -7,162 | stops  35% | micros  3.6 | t -1.40 p 0.9161 Holm 1.0000
+  T02 H1 60s hold 30m                    trades   357 | skipped open   382 cap 172 wide   0 | $  -31.4/trade, total $  -11,213 | stops  37% | micros  2.0 | t -3.15 p 0.9987 Holm 1.0000
+  T02 H2 q0.99 go hold 2m                trades   843 | skipped open   362 cap 3518 wide   0 | $  -33.8/trade, total $  -28,528 | stops  42% | micros  8.7 | t -8.94 p 1.0000 Holm 1.0000
+  T02 H2 q0.99 fade hold 2m              trades   582 | skipped open   197 cap 3944 wide   0 | $  -48.0/trade, total $  -27,922 | stops  53% | micros  8.8 | t -5.50 p 1.0000 Holm 1.0000
+  T02 H2 q0.99 go hold 10m               trades   688 | skipped open  1253 cap 2610 wide   0 | $  -16.9/trade, total $  -11,646 | stops  43% | micros  3.6 | t -1.72 p 0.9550 Holm 1.0000
+  T02 H2 q0.99 fade hold 10m             trades   732 | skipped open  1250 cap 2569 wide   0 | $  -19.6/trade, total $  -14,322 | stops  40% | micros  3.7 | t -2.57 p 0.9937 Holm 1.0000
+  T02 H2 q0.999 go hold 2m               trades   849 | skipped open   348 cap 3605 wide   0 | $  -28.4/trade, total $  -24,118 | stops  45% | micros  8.8 | t -4.83 p 1.0000 Holm 1.0000
+  T02 H2 q0.999 fade hold 2m             trades   721 | skipped open   278 cap 3803 wide   0 | $  -38.7/trade, total $  -27,874 | stops  50% | micros  8.7 | t -5.77 p 1.0000 Holm 1.0000
+  T02 H2 q0.999 go hold 10m              trades   723 | skipped open  1258 cap 2667 wide   0 | $  -26.5/trade, total $  -19,183 | stops  47% | micros  3.7 | t -4.21 p 1.0000 Holm 1.0000
+  T02 H2 q0.999 fade hold 10m            trades   745 | skipped open  1308 cap 2595 wide   0 | $  -18.7/trade, total $  -13,908 | stops  40% | micros  3.6 | t -2.10 p 0.9802 Holm 1.0000
+  T02 H3 look 15m hold 5m                trades   812 | skipped open   860 cap 2726 wide   0 | $  -25.1/trade, total $  -20,394 | stops  37% | micros  5.3 | t -3.89 p 0.9999 Holm 1.0000
+  T02 H3 look 15m hold 15m               trades   719 | skipped open  1856 cap 1665 wide   0 | $   -2.0/trade, total $   -1,460 | stops  35% | micros  3.0 | t -0.22 p 0.5869 Holm 1.0000
+  T02 H3 look 30m hold 5m                trades   557 | skipped open   693 cap 1896 wide   0 | $  -42.3/trade, total $  -23,562 | stops  37% | micros  5.3 | t -5.50 p 1.0000 Holm 1.0000
+  T02 H3 look 30m hold 15m               trades   557 | skipped open  1333 cap 1119 wide   0 | $  -15.7/trade, total $   -8,749 | stops  36% | micros  3.0 | t -1.60 p 0.9428 Holm 1.0000
+  T02 H3 look 60m hold 5m                trades   552 | skipped open   718 cap 942 wide   0 | $  -25.2/trade, total $  -13,910 | stops  30% | micros  5.3 | t -3.32 p 0.9992 Holm 1.0000
+  T02 H3 look 60m hold 15m               trades   465 | skipped open  1216 cap 416 wide   0 | $  -16.6/trade, total $   -7,696 | stops  29% | micros  3.0 | t -1.93 p 0.9706 Holm 1.0000
+    T02 best H3 look 15m hold 15m: Holm p 1.0000; net > 0: False; no extra gate
+  T03 divergence_dedup                   trades   519 | skipped open    32 cap 297 wide   0 | $  -28.6/trade, total $  -14,829 | stops  30% | micros  5.3 | t -3.21 p 0.9989 Holm 0.9989
+  T03 control_no_cvd                     trades   587 | skipped open    58 cap 448 wide   0 | $  -31.3/trade, total $  -18,372 | stops  31% | micros  5.3 | t -4.24 p 1.0000
+    T03 best divergence_dedup: Holm p 0.9989; net > 0: False; beats risk-managed control: True
+  T10 exit 17:00 (13:00 ET)              trades    61 | skipped open     0 cap   0 wide   0 | $  -18.4/trade, total $   -1,122 | stops  33% | micros  1.0 | t -0.78 p 0.7820 Holm 1.0000
+  T10 exit 19:00 (15:00 ET)              trades     0 | skipped open     0 cap   0 wide  61 | $   +0.0/trade, total $       +0 | stops   0% | micros  0.0 | t +nan p 1.0000 Holm 1.0000
+  T10 exit close 20:00 (16:00 ET)        trades     0 | skipped open     0 cap   0 wide  61 | $   +0.0/trade, total $       +0 | stops   0% | micros  0.0 | t +nan p 1.0000 Holm 1.0000
+    T10 best exit 17:00 (13:00 ET): Holm p 1.0000; net > 0: False; t >= 2.4 at every exit: False
+  T13 short top absorb_lo, hold 5m       trades   381 | skipped open    40 cap 519 wide   0 | $  -50.0/trade, total $  -19,054 | stops  37% | micros  5.3 | t -5.74 p 1.0000 Holm 1.0000
+  T13 short top absorb_lo, hold 15m      trades   362 | skipped open   209 cap 344 wide   0 | $  -34.6/trade, total $  -12,510 | stops  38% | micros  3.0 | t -3.30 p 0.9992 Holm 1.0000
+  T13 short top absorb_lo, hold 30m      trades   316 | skipped open   366 cap 197 wide   0 | $  -34.0/trade, total $  -10,759 | stops  35% | micros  2.0 | t -3.18 p 0.9988 Holm 1.0000
+    T13 best short top absorb_lo, hold 30m: Holm p 1.0000; net > 0: False; no extra gate
+  T14 heavy levels, +15m                 trades   239 | skipped open   187 cap  94 wide   0 | $  -38.2/trade, total $   -9,118 | stops  49% | micros  3.0 | t -2.62 p 0.9944 Holm 1.0000
+  T14 heavy levels, +30m                 trades   209 | skipped open   245 cap  66 wide   0 | $  -34.6/trade, total $   -7,229 | stops  44% | micros  2.0 | t -2.18 p 0.9834 Holm 1.0000
+  T14 heavy levels, +60m                 trades   179 | skipped open   326 cap  15 wide   0 | $  -34.6/trade, total $   -6,202 | stops  46% | micros  1.0 | t -3.07 p 0.9984 Holm 1.0000
+    T14 best heavy levels, +30m: Holm p 1.0000; net > 0: False; carried-over gate: paired vs ordinary rungs and +/-25 placebos (step 4: failed)
+  T15 A1                                 trades   587 | skipped open   515 cap 728 wide   0 | $  -17.6/trade, total $  -10,349 | stops  37% | micros  3.0 | t -1.99 p 0.9742 Holm 1.0000
+  T15 A2                                 trades   558 | skipped open   491 cap 781 wide   0 | $  -14.1/trade, total $   -7,854 | stops  36% | micros  3.0 | t -1.45 p 0.9236 Holm 1.0000
+  T15 B2                                 trades   630 | skipped open   567 cap 633 wide   0 | $  -15.8/trade, total $   -9,932 | stops  37% | micros  3.0 | t -2.06 p 0.9783 Holm 1.0000
+  T15 C1                                 trades   633 | skipped open   534 cap 663 wide   0 | $  -17.8/trade, total $  -11,291 | stops  36% | micros  3.0 | t -2.31 p 0.9879 Holm 1.0000
+  T15 C2                                 trades   599 | skipped open   536 cap 695 wide   0 | $  -25.4/trade, total $  -15,220 | stops  40% | micros  3.0 | t -3.67 p 0.9997 Holm 1.0000
+  T15 E1                                 trades   605 | skipped open   608 cap 617 wide   0 | $   -5.3/trade, total $   -3,181 | stops  34% | micros  3.0 | t -0.74 p 0.7678 Holm 1.0000
+    T15 best E1: Holm p 1.0000; net > 0: False; carried-over gate: IC |t| >= 3 and beats circular-shift null (step 4: failed)
+
+VERDICTS (BH across studies, q = 0.05; pass = net > 0, extra gates, BH-adjusted p <= 0.05)
+  T01: study p 1.0000, BH 1.0000 -> stays closed
+  T02: study p 1.0000, BH 1.0000 -> stays closed
+  T03: study p 0.9989, BH 1.0000 -> stays closed
+  T10: study p 1.0000, BH 1.0000 -> stays closed
+  T13: study p 1.0000, BH 1.0000 -> stays closed
+  T14: study p 1.0000, BH 1.0000 -> stays closed
+  T15: study p 1.0000, BH 1.0000 -> stays closed
