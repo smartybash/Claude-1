@@ -129,9 +129,19 @@ def build_trades(T, sym):
         # open P&L: before the roll price - entry; after it (old_close - entry) + (price - new_open)
         after = seg.instrument_id.to_numpy() != r.id_in
         base = np.where(after, (r.roll_new_open - r.roll_old_close + r.px_in) if r.rolls else np.nan, r.px_in)
-        out.append(Trade(day=pd.Timestamp(r.session), hi=seg.high.to_numpy() - base, lo=seg.low.to_numpy() - base,
-                         gross=float(r.gross_pts), cost=mrt * (1 + int(r.rolls))))
+        side = int(getattr(r, "side", 1)) if pd.notna(getattr(r, "side", 1)) else 1
+        hi, lo = path_points(seg.high.to_numpy(), seg.low.to_numpy(), base, side)
+        out.append(Trade(day=pd.Timestamp(r.session), hi=hi, lo=lo, gross=float(r.gross_pts),
+                         cost=mrt * (1 + int(r.rolls))))
     return out
+
+
+def path_points(high, low, base, side):
+    """Best and worst open P&L per bar, in points per contract. A short gains when the price
+    falls: its best is base - low and its worst base - high."""
+    if side > 0:
+        return high - base, low - base
+    return base - low, base - high
 
 
 def main():
@@ -222,6 +232,11 @@ def selftest():
     R = simulate(W, S, mult, horizon_days=365)
     r = R[(R.account == "apex_eod") & (R.micros == 10)].iloc[0]
     chk("simulate: starts after the last trade never pass", r.pass_365d < 1.0 and r.pass_30d > 0, True)
+    # 9. short side: entry 100, bar high 104 / low 97 -> best +3, worst -4
+    h, l_ = path_points(np.array([104.0]), np.array([97.0]), np.array([100.0]), -1)
+    chk("short-side path", (float(h[0]), float(l_[0])), (3.0, -4.0))
+    h, l_ = path_points(np.array([104.0]), np.array([97.0]), np.array([100.0]), 1)
+    chk("long-side path", (float(h[0]), float(l_[0])), (4.0, -3.0))
     print("selftest passed")
 
 
