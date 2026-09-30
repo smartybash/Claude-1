@@ -365,3 +365,16 @@ rule is frozen, then is read once.
   −$12,528, p 0.85; ES −$14,088. **H1-B is closed for good.** The H1 holdout has
   now been read, so no further H1 variant can be tested on 2021–2026; only
   forward data could judge one. `reports/h1b_result.md`.
+
+# 2026-09-30: LDM, price-triggered late-day momentum (user: "option 2 and do the rules properly")
+
+The user criticised H1/H1-B's clock-time entries (fair: entry was on the clock;
+size and direction came from % change, but there was no price-triggered entry
+and no stop or target). LDM rebuilds it with desk rules:
+- a resting stop entry on a fresh cross of prior close ± X%, in the afternoon;
+- a stop sized to ADR20, expressed in points at the day's price;
+- a 1R or 2R target, or hold to the close.
+
+Validation is option 2, as chosen: fit on 2010–2020 only, freeze, judge only on
+forward paper trading from 2026-10-01. 2021–2026 is not used at all
+(contaminated by H1/H1-B). No spend. `reports/ldm_preregistration.md`.
