@@ -1,0 +1,24 @@
+TWO ECONOMIC SLEEVES -- NQ; discovery 2010-06-07 -> 2020-12-31, holdout 2021-01-01 -> 2026-09-24
+Registered reports/econ2_preregistration.md. Null: 5,000 exposure-matched lists. Costs NQ $14.50 RT.
+
+== DISCOVERY (Holm across H1, H2) ==
+  H1 late-day momentum           n 2627 (249/yr) | $+0/trade ($-0.74 MNQ) | win 46.6% | PF 1.00 | Sharpe +0.02 | maxDD $22,983 ($3,872 MNQ) | worst $-6,034 ($-604) | total $1,308
+    null median $-39,152, 95th $-646; p 0.0412, Holm 0.0824 -> FAIL (closed; holdout not read)
+  H2 turn-of-month               n  508 (48/yr) | $+86/trade ($+7.80 MNQ) | win 53.1% | PF 1.22 | Sharpe +0.38 | maxDD $18,788 ($2,016 MNQ) | worst $-12,730 ($-1,274) | total $43,634
+    null median $33,008, 95th $90,099; p 0.3779, Holm 0.3779 -> FAIL (closed; holdout not read)
+
+== HOLDOUT: not read (nothing passed discovery) ==
+
+VERDICTS: H1 late-day momentum: CLOSED; H2 turn-of-month: CLOSED
+
+DESCRIPTIVE (cannot change a verdict)
+  H1 disc 2010-06-07..2015-09-19 n 1309 (248/yr) | $-11/trade ($-1.91 MNQ) | win 44.2% | PF 0.80 | Sharpe -1.12 | maxDD $17,531 ($2,756 MNQ) | worst $-1,750 ($-176) | total $-14,646
+  H1 disc 2015-09-20..2020-12-31 n 1318 (250/yr) | $+12/trade ($+0.42 MNQ) | win 48.9% | PF 1.08 | Sharpe +0.30 | maxDD $11,765 ($1,552 MNQ) | worst $-6,034 ($-604) | total $15,954
+  H1 disc by year (n, net $): 2010 143 -1,549, 2011 251 -110, 2012 246 -3,247, 2013 247 -4,041, 2014 242 -1,529, 2015 250 -1,765, 2016 251 -4,285, 2017 249 -5,516, 2018 248 +8,819, 2019 249 -4,341, 2020 251 +18,871
+  H1 disc by |r| quintile ($/trade, median |r|): Q1 -23 (0.09%), Q2 -3 (0.28%), Q3 -12 (0.55%), Q4 +11 (0.93%), Q5 +29 (1.85%)
+  H1 disc alternative signal (Gao et al., prior close -> 09:59): n 2621, $-3.9/trade, total $-10,275
+  H2 disc 2010-06-07..2015-09-19 n  255 (48/yr) | $+10/trade ($+0.17 MNQ) | win 51.8% | PF 1.04 | Sharpe +0.11 | maxDD $9,728 ($1,015 MNQ) | worst $-2,564 ($-257) | total $2,448
+  H2 disc 2015-09-20..2020-12-31 n  253 (48/yr) | $+163/trade ($+15.49 MNQ) | win 54.5% | PF 1.28 | Sharpe +0.52 | maxDD $16,521 ($1,737 MNQ) | worst $-12,730 ($-1,274) | total $41,186
+  H2 disc by year (n, net $): 2010 28 +1,974, 2011 48 +474, 2012 48 +3,414, 2013 48 +3,349, 2014 48 -311, 2015 48 -4,106, 2016 48 -7,901, 2017 48 +4,449, 2018 48 -1,961, 2019 48 +2,044, 2020 48 +42,209
+  ES H1 disc                     n 2605 (246/yr) | $-14/trade ($-2.15 MES) | win 42.6% | PF 0.87 | Sharpe -0.57 | maxDD $52,811 ($7,052 MES) | worst $-4,717 ($-472) | total $-35,398
+  ES H2 disc                     n  508 (48/yr) | $+39/trade ($+3.10 MES) | win 51.8% | PF 1.11 | Sharpe +0.22 | maxDD $19,056 ($2,165 MES) | worst $-6,304 ($-631) | total $19,739

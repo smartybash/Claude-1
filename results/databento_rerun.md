@@ -81,6 +81,16 @@ All four are paper-tracked from 2026-09-29. Caveats:
 
 `reports/d3g_result.md`, `reports/prop_sim_output.txt`.
 
+## 3e. Two economic sleeves (late-day momentum, turn-of-month) — CLOSED
+
+Pre-registered `87099a2`, discovery 2010–2020, holdout unread.
+- **H1, late-day momentum:** 2,627 trades, +$1,308 total. The gross edge
+  (about 0.75 pt a trade) is eaten by the cost; Holm p 0.082.
+- **H2, turn-of-month:** +$86 a trade, the same as random sessions (+$65); p
+  0.378.
+
+`reports/econ2_result.md`.
+
 ## 4. The repository's closed studies on NQ (step 4)
 
 Pre-registered at `reports/step4_preregistration.md` (inventory
@@ -181,6 +191,7 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 - Paper-track the three daily effects (P7); forward bars monthly under P8 (first pull 2 Oct).
 - D3P closed (p 0.068).
 - D3-G, ES-G/A, ES-D3 paper-tracked; D3-G alone is not an evaluation-passing strategy (P11).
+- Economic-sleeve search (late-day momentum, turn-of-month): both closed at discovery.
 - **P9: decide before about 25 Oct** how the bought history survives a container reset.
 - The trade harness for your Tradovate fills is ready for the CSV
   (`scripts/trades/`). Drop the export in `data/trades/` and run

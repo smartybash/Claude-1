@@ -334,3 +334,22 @@ pass evaluations on its own. Options:
    low after about 40 intraday failures. If you want it, I would limit it to one
    or two mechanisms with a stated economic reason, pre-registered with the
    discovery/holdout split.
+
+---
+
+# 2026-09-30: economic-sleeve search (P11 option 3, approved by the user)
+
+Pre-registered `87099a2`, run once: **H1 late-day momentum and H2 turn-of-month
+are both closed at discovery; the holdout stays unread.** H1 is break-even:
+the gross edge equals the cost (Holm p 0.082). H2 is no better than random
+sessions (p 0.378). `reports/econ2_result.md`.
+
+**P12 (your call).** The remaining routes to a higher-frequency sleeve:
+1. **Your own trades.** Paste the Tradovate CSV; the harness and simulator are ready.
+2. **Lower costs.** H1's gross edge (about $15 per NQ trade) roughly equals the
+   step-4 cost ($14.50). Resting limit orders instead of market orders would
+   change that, but the step-4 rule assumes 1 tick of slippage. Testing a
+   limit-order version would need a new registration and fill modelling. It is
+   not a revival of H1.
+3. **Stop searching bar data** and let D3-G's forward record build. This is my
+   recommendation: roughly 45 intraday tests have now failed on these bars.
