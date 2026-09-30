@@ -378,3 +378,7 @@ and no stop or target). LDM rebuilds it with desk rules:
 Validation is option 2, as chosen: fit on 2010–2020 only, freeze, judge only on
 forward paper trading from 2026-10-01. 2021–2026 is not used at all
 (contaminated by H1/H1-B). No spend. `reports/ldm_preregistration.md`.
+- **LDM result:** 0 of 72 configurations eligible. 70 of 72 lose in 2010–2015;
+  the positive cells depend on 2015–2020, and the two with a positive first half
+  lose on ES. Engine verified on 200 real trades. **Nothing frozen, nothing
+  tracked.** `reports/ldm_result.md`.

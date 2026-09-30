@@ -98,6 +98,13 @@ rule: 15:45 entry on top-10% days, +$97 a trade in discovery (2020 made most of
 it). **Holdout 2021–2026: −$88 a trade, −$12,528, p 0.85; ES −$14,088.**
 `reports/h1b_result.md`.
 
+## 3g. LDM: price-triggered late-day momentum (desk rules) — CLOSED at the fit
+
+Pre-registered `e54ee8d`: entry on a fresh cross of prior close ± X%, stops in
+ADR-scaled points, 1R/2R/close targets. 72 configurations on 2010–2020 only.
+None passes the pre-set bar; 70 of 72 lose in 2010–2015. Nothing frozen or
+tracked. `reports/ldm_result.md`.
+
 ## 4. The repository's closed studies on NQ (step 4)
 
 Pre-registered at `reports/step4_preregistration.md` (inventory
@@ -200,6 +207,7 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 - D3-G, ES-G/A, ES-D3 paper-tracked; D3-G alone is not an evaluation-passing strategy (P11).
 - Economic-sleeve search (late-day momentum, turn-of-month): both closed at discovery.
 - H1-B (bigger-day filter, fitted on 2010–2020): failed the 2021–2026 holdout; closed.
+- LDM (price-triggered desk version): no configuration robust on 2010–2020; closed, nothing tracked.
 - **P9: decide before about 25 Oct** how the bought history survives a container reset.
 - The trade harness for your Tradovate fills is ready for the CSV
   (`scripts/trades/`). Drop the export in `data/trades/` and run
