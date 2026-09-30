@@ -105,6 +105,23 @@ ADR-scaled points, 1R/2R/close targets. 72 configurations on 2010–2020 only.
 None passes the pre-set bar; 70 of 72 lose in 2010–2015. Nothing frozen or
 tracked. `reports/ldm_result.md`.
 
+## 3h. Risk-managed rerun of the stop-less rules (Phase 1)
+
+Every rule I had tested without a stop, rerun with one fixed risk block:
+- stop 0.5 × ADR20 × √(hold ÷ 390);
+- $250 risk per trade, at most 10 micros;
+- a $500 daily cap.
+
+Results:
+- **D3-G is not tradable on a 50K account with a proper stop.** Every 2024–26
+  NQ trade needs more than $250 per micro, and the tradable trades earn
+  nothing special (p 0.23).
+- **H1-B passes (Holm p 0.011)**, but it loses on 2021–26 (−$3,591). It goes to
+  forward tracking and is flagged as a probable fit to 2020.
+- Everything else fails.
+
+`reports/risk_rerun_result.md`.
+
 ## 4. The repository's closed studies on NQ (step 4)
 
 Pre-registered at `reports/step4_preregistration.md` (inventory
@@ -208,6 +225,7 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 - Economic-sleeve search (late-day momentum, turn-of-month): both closed at discovery.
 - H1-B (bigger-day filter, fitted on 2010–2020): failed the 2021–2026 holdout; closed.
 - LDM (price-triggered desk version): no configuration robust on 2010–2020; closed, nothing tracked.
+- Risk-managed rerun: D3-G not tradable at prop size with a stop; H1-B passes on seen data but loses 2021–26 (forward-tracked, flagged); Phase 2 (13 tape studies) pending.
 - **P9: decide before about 25 Oct** how the bought history survives a container reset.
 - The trade harness for your Tradovate fills is ready for the CSV
   (`scripts/trades/`). Drop the export in `data/trades/` and run

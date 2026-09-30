@@ -271,5 +271,40 @@ def selftest():
     print("selftest passed")
 
 
+
+
+# -------------------------------------------------------------- forward ----
+FWD0 = pd.Timestamp("2026-10-01")
+
+
+def forward(since=FWD0, out=OUT):
+    """Paper-track risk-managed H1-B (the one registered pass) from `since`."""
+    An = ldm.load("NQ", pd.Timestamp("2100-01-01"))
+    if An["days"].max() < since:
+        print(f"No forward sessions yet: bars end {An['days'].max().date()}; H1-B-R tracking starts {since.date()}.")
+        return None
+    v = rth_values(An, 375)
+    assert An["days"].max() < pd.Timestamp("2100-01-01")
+    Dx = HX.day_table("NQ", An["days"].max())
+    T, _ = HX.config_trades(Dx, "NQ", "15:45", "abs_r", 90, since, An["days"].max())
+    rows = [dict(session=s.date(), side=int(sd), micros=v[s][sd]["qty"], stop_pts=round(v[s][sd]["sd"], 2),
+                 exit=v[s][sd]["why"], pnl_pts=round(v[s][sd]["pnl"], 2),
+                 net_usd=round(v[s][sd]["net"], 2) if v[s][sd]["qty"] >= 1 else 0.0,
+                 skipped=v[s][sd]["qty"] < 1) for s, sd in zip(T.session, T.side) if s in v]
+    L = pd.DataFrame(rows, columns=["session", "side", "micros", "stop_pts", "exit", "pnl_pts", "net_usd", "skipped"])
+    L.to_csv(out / "h1br_paper_ledger.csv", index=False)
+    txt = (f"# H1-B risk-managed: paper-tracking status\n\nRegistered 2155a6e. Signals from {since.date()}; bars to "
+           f"{An['days'].max().date()}. Review on or after 2027-10-01.\n\n- trades {int((~L.skipped).sum())}, "
+           f"net ${L.net_usd.sum():+,.0f} (risk $250 per trade, <= 10 MNQ)\n")
+    (out / "h1br_paper_status.md").write_text(txt)
+    print(txt)
+    return L
+
+
 if __name__ == "__main__":
-    selftest() if "--selftest" in sys.argv else main()
+    if "--selftest" in sys.argv:
+        selftest()
+    elif "--forward" in sys.argv:
+        forward()
+    else:
+        main()

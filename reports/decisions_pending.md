@@ -382,3 +382,15 @@ forward paper trading from 2026-10-01. 2021–2026 is not used at all
   the positive cells depend on 2015–2020, and the two with a positive first half
   lose on ES. Engine verified on 200 real trades. **Nothing frozen, nothing
   tracked.** `reports/ldm_result.md`.
+
+# 2026-09-30: risk-managed rerun, Phase 1 (user: "sort your shit on the previous results")
+
+Counted from the scripts: 18 of the 31 earlier trading tests had stop logic,
+13 did not. Among the tests I designed, most had no stop. Every stop-less rule
+of mine has now been rerun with one fixed risk block (`reports/risk_rerun_result.md`):
+- **D3-G** fails and is not tradable at 50K size (the stop is too wide for
+  $250 even at 1 MNQ in 2024–26). The stop-less D3-G stays tracked as a record
+  only.
+- **H1-B** passes on seen data, but loses on 2021–26. It is forward-tracked from
+  2026-10-01 and flagged as a probable fit to 2020.
+- **Phase 2 is next:** the 13 earlier fixed-exit tape studies.

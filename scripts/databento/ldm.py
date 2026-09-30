@@ -269,7 +269,7 @@ def prop_disc():
 def forward(since=FWD0, until=None, out=OUT):
     if FROZEN is None:
         raise SystemExit("no frozen LDM rule")
-    A = load("NQ", until or pd.Timestamp.max.normalize())
+    A = load("NQ", until or pd.Timestamp("2100-01-01"))
     if A["days"].max() < since:
         print(f"No forward sessions yet: bars end {A['days'].max().date()}; LDM paper-tracking starts {since.date()}.")
         return None
