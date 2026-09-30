@@ -1,0 +1,13 @@
+H1-B HOLDOUT (read once) -- NQ 2021-01-01 -> 2026-09-24
+Frozen: entry 15:45, abs_r, trailing 90th percentile. Registered reports/h1b_preregistration.md.
+
+  H1-B holdout                   n  143 (25/yr) | $-88/trade ($-9.55 MNQ) | win 47.6% | PF 0.83 | Sharpe -0.34 | maxDD $28,075 ($2,894 MNQ) | worst $-4,384 ($-439) | total $-12,528
+  null median $-2,479, 95th $13,223; actual $-12,528; p 0.8510
+  VERDICT (total > 0 and p <= 0.05): FAIL -> H1-B closed
+
+DESCRIPTIVE (cannot change the verdict)
+  same-days sign flip (direction only): p 0.7500, median $-1,859
+  by year (n, net $): 2021 10 -965, 2022 53 +13,961, 2023 3 -569, 2024 28 -7,166, 2025 24 -6,598, 2026 25 -11,192
+  without its biggest year (2022): n 90, total $-26,490, $-294.3/trade
+  longs 62 $+156.8/trade, shorts 81 $-274.7/trade
+  ES same rule, holdout          n  139 (24/yr) | $-101/trade ($-10.93 MES) | win 44.6% | PF 0.69 | Sharpe -0.62 | maxDD $20,649 ($2,142 MES) | worst $-3,129 ($-314) | total $-14,088

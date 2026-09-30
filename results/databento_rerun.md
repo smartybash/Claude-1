@@ -91,6 +91,13 @@ Pre-registered `87099a2`, discovery 2010–2020, holdout unread.
 
 `reports/econ2_result.md`.
 
+## 3f. H1-B: late-day momentum on bigger days (user-requested fit) — CLOSED at holdout
+
+Fitted on 2010–2020 (45 configurations, selection rule fixed in advance). Chosen
+rule: 15:45 entry on top-10% days, +$97 a trade in discovery (2020 made most of
+it). **Holdout 2021–2026: −$88 a trade, −$12,528, p 0.85; ES −$14,088.**
+`reports/h1b_result.md`.
+
 ## 4. The repository's closed studies on NQ (step 4)
 
 Pre-registered at `reports/step4_preregistration.md` (inventory
@@ -192,6 +199,7 @@ Per-study output: `reports/step4/<id>_output.txt`; frozen scripts' own output:
 - D3P closed (p 0.068).
 - D3-G, ES-G/A, ES-D3 paper-tracked; D3-G alone is not an evaluation-passing strategy (P11).
 - Economic-sleeve search (late-day momentum, turn-of-month): both closed at discovery.
+- H1-B (bigger-day filter, fitted on 2010–2020): failed the 2021–2026 holdout; closed.
 - **P9: decide before about 25 Oct** how the bought history survives a container reset.
 - The trade harness for your Tradovate fills is ready for the CSV
   (`scripts/trades/`). Drop the export in `data/trades/` and run

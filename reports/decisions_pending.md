@@ -361,3 +361,7 @@ closure. It is handled as a new hypothesis found in discovery data: fitted on
 2010–2020 only, with the grid and the selection rule fixed in advance
 (`reports/h1b_exploration_plan.md`). The 2021–2026 holdout stays sealed until one
 rule is frozen, then is read once.
+- **Result:** frozen rule (15:45 entry, top-10% |r| days) failed the holdout:
+  −$12,528, p 0.85; ES −$14,088. **H1-B is closed for good.** The H1 holdout has
+  now been read, so no further H1 variant can be tested on 2021–2026; only
+  forward data could judge one. `reports/h1b_result.md`.
