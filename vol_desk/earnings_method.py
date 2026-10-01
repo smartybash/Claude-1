@@ -337,6 +337,16 @@ def build_events(s: Series, spy: Series, reactions: list[int],
 
 # ------------------------------------------------------------ statistics
 
+def binom_p_greater(k: int, n: int, p: float) -> float:
+    """One-sided exact binomial p-value: P(X >= k)."""
+    if n == 0:
+        return 1.0
+    def pmf(i):
+        return math.exp(math.lgamma(n + 1) - math.lgamma(i + 1) - math.lgamma(n - i + 1)
+                        + i * math.log(p) + (n - i) * math.log(1 - p))
+    return min(1.0, sum(pmf(i) for i in range(k, n + 1)))
+
+
 def binom_p(k: int, n: int, p: float = 0.5) -> float:
     """Two-sided exact binomial p-value."""
     if n == 0:

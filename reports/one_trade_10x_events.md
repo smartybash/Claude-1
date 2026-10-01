@@ -139,10 +139,10 @@ comfortable losing, not the whole account.
 
 ```
 python scripts/event_10x.py --chain data/mu_chain_20260929.json \
-    --daily data/mu_daily.json --earnings data/mu_earnings_dates.json \
+    --daily data/daily/MU.json --earnings data/mu_earnings_dates.json \
     --chain-date 2026-09-29 --expiry 2026-10-02
 python scripts/event_10x.py --chain data/nke_chain_20260929.json \
-    --daily data/nke_daily.json --earnings data/nke_earnings_dates.json \
+    --daily data/daily/NKE.json --earnings data/nke_earnings_dates.json \
     --chain-date 2026-09-29 --expiry 2026-10-02
 ```
 

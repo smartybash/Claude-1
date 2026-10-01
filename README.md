@@ -28,6 +28,18 @@ Two mechanical systems live here:
 
    See [`reports/nq_daily_runbook.md`](reports/nq_daily_runbook.md) for the
    daily procedure and which data each provider can actually supply.
+
+   Before any earnings trade, run the pre-announcement card. It reads every
+   driver as of the decision close and applies the four gates (direction,
+   alignment, pricing, regime):
+
+   ```
+   python scripts/earnings_card.py NKE --decision 2026-10-01
+   ```
+
+   The method, the driver evidence (1,309 reports; train, test and a
+   pre-registered holdout) and why it currently returns "no directional
+   position": [`reports/earnings_method.md`](reports/earnings_method.md).
 2. **NQ/ES trend-vs-chop regime filter** — an intraday regime read for
    futures day trading, documented below.
 
