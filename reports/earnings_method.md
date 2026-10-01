@@ -111,7 +111,19 @@ reaction says DOWN, so the score is 0 with no lean. G1 and G4 fail (SPY
 +0.18%). **No directional position.** The reaction is tomorrow, and this
 card was produced from data through today's close only.
 
-## 5. What could change the verdict
+## 5. After the announcement
+
+Waiting for the reaction was tested separately, under its own
+pre-registration ([`post_earnings_method.md`](post_earnings_method.md)):
+
+- **Drift from the reaction-session close is confirmed** (53.3% vs
+  50.0%, 1,299 reports, p = 0.010). It's worth about +0.3% over five
+  sessions: a tilt, not an option trade.
+- **A 10:30 first-hour entry is not confirmed.** It was right 57% of the
+  time but averaged −0.06% per trade, because the losses were larger
+  than the wins.
+
+## 6. What could change the verdict
 
 - **Options-derived drivers are the untested family**, and they're the
   closest to the Vol Desk thesis: pre-event put/call skew, implied move

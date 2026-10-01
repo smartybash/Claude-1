@@ -40,6 +40,17 @@ Two mechanical systems live here:
    The method, the driver evidence (1,309 reports; train, test and a
    pre-registered holdout) and why it currently returns "no directional
    position": [`reports/earnings_method.md`](reports/earnings_method.md).
+
+   Trading *after* the report (reaction-close drift, gap-and-go, a 10:30
+   first-hour confirm/reject entry on 5-minute bars):
+   [`reports/post_earnings_method.md`](reports/post_earnings_method.md).
+   Drift is confirmed but small (+0.3% over 5 sessions); the 10:30 rule
+   is not.
+
+   ```
+   python scripts/post_earnings_daily.py
+   python scripts/post_earnings_intraday.py
+   ```
 2. **NQ/ES trend-vs-chop regime filter** — an intraday regime read for
    futures day trading, documented below.
 
