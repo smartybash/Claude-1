@@ -114,7 +114,7 @@ def g_trades(D, G, V, sig, lo=A0, hi=A1):
         if days[i] < lo or s > hi:
             continue
         rows.append(dict(signal_day=days[i], session=s))
-    T = pd.DataFrame(rows)
+    T = pd.DataFrame(rows, columns=["signal_day", "session"])         # columns kept when empty
     T = T.join(V, on="session")
     dropped = int(T.gross_pts.isna().sum())
     return T[T.gross_pts.notna()].reset_index(drop=True), dropped
@@ -125,7 +125,7 @@ def d3_trades(D, sym, sig, lo=A0, hi=A1):
     s = SPEC[sym]
     c, fac, days = D.c.to_numpy(), D.fac.to_numpy(), D.index
     rows = [i for i in sig if i + 1 < len(D) and lo <= days[i] and days[i + 1] <= hi]
-    T = pd.DataFrame({"i": rows})
+    T = pd.DataFrame({"i": np.asarray(rows, dtype=int)})                # int even when empty
     T["signal_day"] = days[T.i]
     T["session"] = days[T.i + 1]
     T["gross_pts"] = (c[T.i + 1] - c[T.i]) / fac[T.i]

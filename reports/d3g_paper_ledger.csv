@@ -1,0 +1,3 @@
+rule,signal_day,session,status,rolls,gross_pts,net_usd,net_micro
+ES-D3,2026-09-30,,OPEN (bought the close; exits next RTH close),,,,
+ES-G/A,2026-09-30,,PENDING (enters at the next 18:00 reopen),,,,

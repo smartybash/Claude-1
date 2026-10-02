@@ -406,3 +406,20 @@ of mine has now been rerun with one fixed risk block (`reports/risk_rerun_result
   tracked are H1-B risk-managed (flagged as a probable fit to 2020) and D3-G
   (a record only; not tradable at 50K). **P13 (your call): what next.**
   Options: your own rules or fills, or stop searching.
+
+# 2026-10-02: P8 September pull (routine)
+
+- Pulled NQ+ES ohlcv-1m, 2026-09-24 20:30 → 2026-10-01 UTC: **billed $0.0414**
+  (estimate $0.0414). Lifetime $84.58 of $125.
+- **Incident, fixed:** databento 0.87's `list_jobs` no longer returns
+  `cost_usd`. The pull's billing wait never saw the cost, and the run was killed
+  at its 30-minute limit after the job had already been submitted and billed. I
+  checked Databento's job list before doing anything else, which found the
+  unlogged job; it was **not resubmitted**. It was logged via the new
+  `forward_pull.py --resume JOBID`, downloaded and built. Billing is now read
+  from `get_job_details`.
+- Forward modes run. One fix: `d3g --forward` crashed when there were no
+  signals yet (empty frames).
+- First forward signal: ES D3 on 2026-09-30. ES-G/A enters at the 30 Sep 18:00
+  reopen and ES-D3 is open; both resolve with the October bars. No NQ signals
+  yet; H1-B-R starts on 2026-10-01 bars.
