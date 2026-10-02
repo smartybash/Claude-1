@@ -39,6 +39,29 @@ def test_intraday_sample_is_complete():
     assert not [e for e in evs if "missing" in e]
 
 
+import post_earnings_v2 as V  # noqa: E402
+
+
+@pytest.mark.parametrize("g,f,mf,side", [
+    (0.02, 0.01, 0.0, 0),        # gap below 0.5 x typical
+    (0.05, 0.01, 0.0, 1),        # gap up, beats SPY -> long
+    (0.05, -0.01, -0.02, 1),     # stock fell, but less than SPY: still beats it
+    (0.05, 0.01, 0.02, 0),       # rose, but lagged SPY -> no trade
+    (-0.05, -0.01, 0.0, -1),     # gap down, underperforms -> short
+    (-0.05, 0.01, 0.0, 0),
+])
+def test_classify_v1(g, f, mf, side):
+    assert V.classify_v1(g, TYP, f, mf) == side
+
+
+def test_v2_discovery_sample():
+    cache = {}
+    evs = [V.measure(*e, cache) for e in V.reaction_events(*V.PERIODS["discovery"])]
+    ok = [e for e in evs if "missing" not in e]
+    assert len(ok) == 532
+    assert sum(e["side"] != 0 for e in ok) == 168
+
+
 def test_preregistration_is_committed():
     text = (ROOT / "reports/post_earnings_preregistration.md").read_text()
     assert "P ≥ 0.70" in text and "0.5 × typical" in text
