@@ -85,6 +85,40 @@ def build(tag):
     return written, n_rolls, info
 
 
+def resume(job_id):
+    """Log, download and build a forward job that was submitted but never logged (e.g. the
+    run was interrupted while waiting for billing). Never resubmits. The estimate is a fresh
+    quote of the job's own window and symbols; billed > estimate still stops."""
+    import databento as db
+    c = db.Historical(key())
+    if job_id in {r["job_id"] for r in ledger_rows()}:
+        sys.exit(f"{job_id} already in the ledger")
+    d = c.batch.get_job_details(job_id)
+    syms = d["symbols"].split(",") if isinstance(d["symbols"], str) else list(d["symbols"])
+    s, e = pd.Timestamp(d["start"]), pd.Timestamp(d["end"])
+    tag = f"FWD-{(e - pd.Timedelta(days=1)).strftime('%Y-%m')}"
+    q = float(c.metadata.get_cost(dataset="GLBX.MDP3", schema=d["schema"], symbols=syms,
+                                  stype_in="continuous", start=s.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                                  end=e.strftime("%Y-%m-%dT%H:%M:%SZ")))
+    est, billed = round(q, 4), float(d["cost_usd"])
+    spent = sum(float(r["billed_usd"] or 0) for r in ledger_rows())
+    with open(LEDGER, "a", newline="") as f:
+        csv.writer(f).writerow([str(d.get("ts_received", ""))[:19], tag, job_id, d["schema"], ",".join(syms),
+                                s.strftime("%Y-%m-%dT%H:%M:%SZ"), e.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                                d.get("split_duration", ""), f"{est:.4f}", f"{billed:.4f}", d["state"],
+                                "P8 standing monthly forward pull; logged by --resume after the run hung on billing"])
+    print(f"{tag}: job {job_id} est ${est:.4f} billed ${billed:.4f} lifetime ${spent + billed:.4f}", flush=True)
+    if billed > est + 5e-5:
+        print(f"STOP: billed ${billed:.4f} above estimate ${est:.4f}")
+        return 2
+    out = RAW / tag
+    out.mkdir(parents=True, exist_ok=True)
+    c.batch.download(job_id=job_id, output_dir=out)
+    written, n_rolls, info = build(tag)
+    print(f"bars written {written}; rolls {n_rolls}; step-4 RTH series {info}", flush=True)
+    return 0
+
+
 def main(dry=False):
     import databento as db
     start, end = window()
@@ -134,4 +168,6 @@ def main(dry=False):
 
 
 if __name__ == "__main__":
+    if "--resume" in sys.argv:
+        sys.exit(resume(sys.argv[sys.argv.index("--resume") + 1]))
     sys.exit(main("--dry-run" in sys.argv))

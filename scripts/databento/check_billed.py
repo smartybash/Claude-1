@@ -23,7 +23,7 @@ def main(limit=5400, poll=30):
         if not rows:
             sys.exit("STOP: ledger read back empty -- refusing to overwrite it")
         mine = [r for r in rows if r["job_tag"] != "pre-existing"]
-        jobs = {j["id"]: j for j in c.batch.list_jobs(states=["queued", "processing", "done"])}
+        jobs = {r["job_id"]: c.batch.get_job_details(r["job_id"]) for r in mine}   # list_jobs is short now
         pending = []
         for r in mine:
             j = jobs.get(r["job_id"])

@@ -55,9 +55,10 @@ def wait_billed(c, job_id, est, poll=30, limit=3600):
     import time
     t0 = time.time()
     while time.time() - t0 < limit:
-        j = [x for x in c.batch.list_jobs(states=["queued", "processing", "done"])
-             if x["id"] == job_id][0]
-        if j["state"] == "done" and j.get("cost_usd") is not None:
+        # databento >= 0.87 returns short records from list_jobs; the cost is only in
+        # the job details (a 2026-10-02 pull hung on this until its time limit)
+        j = c.batch.get_job_details(job_id)
+        if j.get("state") == "done" and j.get("cost_usd") is not None:
             return float(j["cost_usd"])
         time.sleep(poll)
     sys.exit(f"STOP: {job_id} not billed within {limit}s")
